@@ -3,8 +3,8 @@ window.GREYWAKE_MEDIA={
   "Great-Shell":[{"src":"assets/great-shell.jpg","caption":"Great-Shell — canon visual reference."}],
   "Cacklemaw Pack":[{"src":"assets/cacklemaw.jpg","caption":"Cacklemaw pack near Stone-Lip Hollow."}],
   "Stone-Lip Hollow":[{"src":"assets/stone-lip.jpg","caption":"Approach to Stone-Lip Hollow through the Broken Runnels."}],
-  "Maela Rusk":[{"src":"assets/npcs/maela-rusk.jpg","caption":"Maela Rusk — caravan leader at Stone-Lip Hollow."}],
-  "Rennic Vale":[{"src":"assets/npcs/rennic-vale.jpg","caption":"Rennic Vale — guardian of the sealed case."}],
-  "Sarn Pell":[{"src":"assets/npcs/sarn-pell.jpg","caption":"Sarn Pell — Great-Shell pen handler."}],
-  "Mara Vell":[{"src":"assets/npcs/mara-vell.jpg","caption":"Mara Vell — Dust Broker at Valve Court."}]
+  "Maela Rusk":[{"src":"assets/npcs/maela-rusk.jpg?v=3","caption":"Maela Rusk — caravan leader at Stone-Lip Hollow."}],
+  "Rennic Vale":[{"src":"assets/npcs/rennic-vale.jpg?v=3","caption":"Rennic Vale — guardian of the sealed case."}],
+  "Sarn Pell":[{"src":"assets/npcs/sarn-pell.jpg?v=3","caption":"Sarn Pell — Great-Shell pen handler."}],
+  "Mara Vell":[{"src":"assets/npcs/mara-vell.jpg?v=3","caption":"Mara Vell — Dust Broker at Valve Court."}]
 };
