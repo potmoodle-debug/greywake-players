@@ -1,9 +1,7 @@
-# Greywake Player Archive — v4 clean
+# Greywake Player Archive
 
-This restores the original v1 information architecture and applies only the requested improvements:
-- canon Tower establishing image
-- approved Great-Shell / Cacklemaw / Stone-Lip imagery
-- stronger Player Brain
-- Latest Discoveries
-- restrained field-archive visual treatment
-- unchanged spoiler-safe data boundary
+Spoiler-safe browser archive for the Greywake campaign.
+
+Live site: https://potmoodle-debug.github.io/greywake-players/
+
+Current portrait asset build: v10.
