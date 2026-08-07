@@ -58,6 +58,18 @@ function autoLinkHTML(html,current){
  return wrap.innerHTML;
 }
 
+function categoryDirectoryHTML(name){
+ const directories={
+   'Known Flora and Fauna':'Flora & Fauna',
+   'Known Locations':'Locations',
+   'Known People':'People'
+ };
+ const category=directories[name];if(!category)return'';
+ const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]).sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
+ if(!names.length)return'';
+ return `<section class="record-directory"><div class="related-kicker">PARTY-KNOWN ${category.toUpperCase()}</div><h2>${category}</h2><div class="related-grid">${names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;
+}
+
 function relatedFor(name){
  const found=[];
  EDGES.forEach(([a,b])=>{if(a===name&&DATA[b])found.push(b);else if(b===name&&DATA[a])found.push(a)});
@@ -78,7 +90,7 @@ function showNote(name){
  if(!DATA[name]){go('#/');return}
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
  const body=autoLinkHTML(DATA[name].html,name);
- article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${mediaHTML(name)}${body}${relatedHTML(name)}`;
+ article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${mediaHTML(name)}${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.note===name));
