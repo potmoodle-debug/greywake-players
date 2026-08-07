@@ -1,1 +1,9 @@
-window.GREYWAKE_MEDIA = {"Greywake": [{"src": "assets/tower-close.jpg", "caption": "The White Tower from within Greywake — player-facing canon view."}, {"src": "assets/tower-distant.jpg", "caption": "Greywake seen across the wastes — player-facing canon view."}], "Great-Shell": [{"src": "assets/great-shell-canon.jpg", "caption": "Great-Shell — canon visual reference."}], "Cacklemaw Pack": [{"src": "assets/cacklemaw-stonelip.jpg", "caption": "Cacklemaw pack near Stone-Lip Hollow — known encounter view."}], "Stone-Lip Hollow": [{"src": "assets/stone-lip-approach.jpg", "caption": "Approach to Stone-Lip Hollow through the Broken Runnels."}]};
+# Greywake Player Archive — v4 clean
+
+This restores the original v1 information architecture and applies only the requested improvements:
+- canon Tower establishing image
+- approved Great-Shell / Cacklemaw / Stone-Lip imagery
+- stronger Player Brain
+- Latest Discoveries
+- restrained field-archive visual treatment
+- unchanged spoiler-safe data boundary
