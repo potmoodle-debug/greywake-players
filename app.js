@@ -28,7 +28,28 @@ function renderDiscoveries(){
 }
 function mediaHTML(name){
  const arr=MEDIA[name]||[];if(!arr.length)return'';
- return `<div class="article-media">${arr.map(x=>`<figure><img src="${x.src}" alt=""><figcaption>${x.caption}</figcaption></figure>`).join('')}</div>`
+ return `<div class="article-media">${arr.map(x=>{
+   const image=x.b64
+     ? `<img data-b64-src="${x.b64}" data-mime="${x.mime||'image/webp'}" alt="${DATA[name]?.title||name} portrait">`
+     : `<img src="${x.src}" alt="">`;
+   return `<figure>${image}<figcaption>${x.caption}</figcaption></figure>`;
+ }).join('')}</div>`
+}
+async function hydrateBase64Images(){
+ const imgs=[...article.querySelectorAll('img[data-b64-src]')];
+ await Promise.all(imgs.map(async img=>{
+   try{
+     const response=await fetch(img.dataset.b64Src,{cache:'no-store'});
+     if(!response.ok)throw new Error(`HTTP ${response.status}`);
+     const encoded=(await response.text()).trim();
+     if(!encoded)throw new Error('Empty portrait data');
+     img.src=`data:${img.dataset.mime||'image/webp'};base64,${encoded}`;
+     img.removeAttribute('data-b64-src');
+   }catch(err){
+     console.error('Portrait load failed',err);
+     img.alt='Portrait unavailable';
+   }
+ }));
 }
 
 function autoLinkHTML(html,current){
@@ -92,6 +113,7 @@ function showNote(name){
  const body=autoLinkHTML(DATA[name].html,name);
  article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${mediaHTML(name)}${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
+ hydrateBase64Images();
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.note===name));
  window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.sidebar').classList.remove('open');
