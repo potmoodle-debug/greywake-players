@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171713">
+<title>Greywake — Player Archive</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="tower-mark"></div>
+      <div>
+        <div class="eyebrow">PLAYER ARCHIVE</div>
+        <h1>GREYWAKE</h1>
+      </div>
+    </div>
+    <div class="safe-mark">Spoiler-safe party record</div>
+    <label class="search">
+      <span>Search</span>
+      <input id="searchInput" type="search" placeholder="Place, person, creature…">
+    </label>
+    <nav id="nav"></nav>
+    <div class="sidebar-foot">
+      This archive contains only information safe for the whole party. Absence is not evidence.
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <button id="menuBtn" aria-label="Open navigation">☰</button>
+      <div id="crumb">Greywake / Player Brain</div>
+      <button id="brainBtn" class="ghost">Player Brain</button>
+    </header>
+
+    <section id="hero" class="hero">
+      <div>
+        <div class="eyebrow">A FRONTIER HOLD IN THE WASTES</div>
+        <h2>What the party knows.</h2>
+        <p>People, routes, creatures, places and events become part of this archive only when they are safe for the whole group to know.</p>
+      </div>
+      <div class="tower-card">
+        <div class="sun"></div>
+        <div class="tower"></div>
+        <div class="ground"></div>
+      </div>
+    </section>
+
+    <section id="brainView" class="brain-view">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">RELATIONSHIP VIEW</div>
+          <h2>Player Brain</h2>
+        </div>
+        <p>Click a node to open its entry. The map contains only relationships already revealed to the party.</p>
+      </div>
+      <div id="graph"></div>
+    </section>
+
+    <article id="article" class="article hidden"></article>
+  </main>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
