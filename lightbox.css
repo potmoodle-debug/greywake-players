@@ -1,7 +1,6 @@
 .article-media figure{position:relative;overflow:hidden}
-.article-media img{cursor:zoom-in;transition:transform .18s ease,filter .18s ease}
+.article-media img{cursor:zoom-in;transition:transform .18s ease,filter .18s ease;max-width:min(100%,260px)}
 .article-media img:hover{filter:brightness(1.05)}
-.article-media img[alt*="portrait" i]{max-width:min(100%,320px)}
 .article-media figure::after{content:"VIEW LARGER";display:block;padding:0 11px 10px;color:#a8945c;font-size:8px;letter-spacing:.14em;text-transform:uppercase;pointer-events:none}
 
 .image-lightbox{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:32px;background:rgba(7,7,5,.94);backdrop-filter:blur(8px)}
@@ -15,7 +14,7 @@
 body.lightbox-open{overflow:hidden}
 
 @media(max-width:850px){
- .article-media img[alt*="portrait" i]{max-width:min(100%,280px)}
+ .article-media img{max-width:min(100%,220px)}
  .image-lightbox{padding:12px}
  .image-lightbox__image{max-width:96vw;max-height:82vh}
  .image-lightbox__caption{padding:10px 34px 0;font-size:11px}
