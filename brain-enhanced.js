@@ -1,5 +1,5 @@
 (()=>{
-  const DATA=window.GREYWAKE_DATA||{},EDGES=window.GREYWAKE_EDGES||[],host=document.getElementById('graph');
+  const DATA=window.GREYWAKE_DATA||{},EDGES=window.GREYWAKE_EDGES||[],RELATIONS=window.GREYWAKE_RELATION_NOTES||{},host=document.getElementById('graph');
   if(!host)return;
   const NS='http://www.w3.org/2000/svg',W=1000,H=620,cx=500,cy=310,DURATION=520;
   const names=Object.keys(DATA).filter(n=>n!=='Player Brain'),titleOf=n=>DATA[n]?.title||n,categoryOf=n=>DATA[n]?.category||'Other',routeFor=n=>'#/record/'+encodeURIComponent(n);
@@ -15,6 +15,7 @@
   const short=(s,n=24)=>String(s).length>n?String(s).slice(0,n-1).trimEnd()+'…':String(s);
   const wrap=(text,max=15)=>{const words=String(text).split(/\s+/),lines=[''];for(const word of words){const i=lines.length-1,next=(lines[i]+' '+word).trim();if(next.length<=max||!lines[i])lines[i]=next;else if(lines.length<3)lines.push(word);else lines[2]=(lines[2]+' '+word).trim()}if(lines[2]?.length>max+2)lines[2]=lines[2].slice(0,max-1).trimEnd()+'…';return lines.slice(0,3)};
   const pairKey=(a,b)=>a<b?`${a}|||${b}`:`${b}|||${a}`;
+  const relationNote=(a,b)=>RELATIONS[pairKey(a,b)]||'';
 
   function positionsFor(links){
     const pos=new Map(),n=links.length;if(!n)return pos;
@@ -35,7 +36,13 @@
   }
   function controlsHTML(){return `<div class="brain-network-controls"><button id="brainBackFocus" class="brain-control-btn" ${historyStack.length?'':'disabled'}>← Previous focus</button><label class="brain-jump"><span>Choose starting record</span><select id="brainJump">${sortedNames.map(n=>`<option value="${esc(n)}"${n===current?' selected':''}>${esc(titleOf(n))}</option>`).join('')}</select></label><button id="brainOpenCurrent" class="brain-control-btn brain-open-btn">Open ${esc(short(titleOf(current||'record'),18))} →</button></div>`}
   function updateControls(){const jump=host.querySelector('#brainJump'),back=host.querySelector('#brainBackFocus'),open=host.querySelector('#brainOpenCurrent');if(jump)jump.value=current;if(back)back.disabled=!historyStack.length;if(open)open.textContent=`Open ${short(titleOf(current||'record'),18)} →`}
-  function setStatus(name){const s=host.querySelector('#brainHoverStatus');if(!s||!name)return;const links=[...(connected[name]||[])].sort((a,b)=>titleOf(a).localeCompare(titleOf(b)));s.innerHTML=`<strong>${esc(titleOf(name))}</strong><span>${links.length?`${links.length} known ${links.length===1?'link':'links'}: ${links.map(n=>esc(titleOf(n))).join(' · ')}`:'No direct party-known links recorded.'}</span>`}
+  function setStatus(name){
+    const s=host.querySelector('#brainHoverStatus');if(!s||!name)return;
+    const links=[...(connected[name]||[])].sort((a,b)=>titleOf(a).localeCompare(titleOf(b)));
+    if(!links.length){s.innerHTML=`<strong>${esc(titleOf(name))}</strong><span>No direct party-known links recorded.</span>`;return}
+    const details=links.map(n=>{const note=relationNote(name,n);return note?`<b>${esc(titleOf(n))}</b> — ${esc(note)}`:`<b>${esc(titleOf(n))}</b>`}).join('<br>');
+    s.innerHTML=`<strong>${esc(titleOf(name))}</strong><span>${links.length} known ${links.length===1?'link':'links'}:<br>${details}</span>`;
+  }
   function resetStatus(){const s=host.querySelector('#brainHoverStatus');if(!s)return;const count=connected[current]?.size||0;s.innerHTML=`<strong>${esc(titleOf(current||'No record'))}</strong><span>${count?`Showing ${count} direct ${count===1?'connection':'connections'}. Click a linked circle and it will move into the centre.`:'No direct party-known links recorded for this entry.'}</span>`}
   function circleNode(name){
     const g=svgEl('g',{class:'brain-circle-node',tabindex:'0',role:'button','data-name':name});g.style.opacity='1';
