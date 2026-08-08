@@ -23,22 +23,22 @@
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const svgEl=(tag,attrs={})=>{const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));return el};
   const short=(s,n=24)=>String(s).length>n?String(s).slice(0,n-1).trimEnd()+'…':String(s);
-  const wrap=(text,max=19)=>{
+  const wrap=(text,max=15)=>{
     const words=String(text).split(/\s+/),lines=[''];
     for(const word of words){
       const i=lines.length-1,next=(lines[i]+' '+word).trim();
       if(next.length<=max||!lines[i])lines[i]=next;
-      else if(lines.length<2)lines.push(word);
-      else lines[1]=(lines[1]+' '+word).trim();
+      else if(lines.length<3)lines.push(word);
+      else lines[2]=(lines[2]+' '+word).trim();
     }
-    if(lines[1]?.length>max+4)lines[1]=lines[1].slice(0,max+1).trimEnd()+'…';
-    return lines.slice(0,2);
+    if(lines[2]?.length>max+2)lines[2]=lines[2].slice(0,max-1).trimEnd()+'…';
+    return lines.slice(0,3);
   };
 
   function controlsHTML(){
     return `<div class="brain-network-controls">
       <button id="brainBackFocus" class="brain-control-btn" ${historyStack.length?'':'disabled'}>← Previous focus</button>
-      <label class="brain-jump"><span>Jump to a record</span><select id="brainJump">${sortedNames.map(n=>`<option value="${esc(n)}"${n===current?' selected':''}>${esc(titleOf(n))}</option>`).join('')}</select></label>
+      <label class="brain-jump"><span>Choose starting record</span><select id="brainJump">${sortedNames.map(n=>`<option value="${esc(n)}"${n===current?' selected':''}>${esc(titleOf(n))}</option>`).join('')}</select></label>
       <button id="brainOpenCurrent" class="brain-control-btn brain-open-btn">Open ${esc(short(titleOf(current||'record'),18))} →</button>
     </div>`;
   }
@@ -54,18 +54,44 @@
     const status=host.querySelector('#brainHoverStatus');
     if(!status)return;
     const count=connected[current]?.size||0;
-    status.innerHTML=`<strong>${esc(titleOf(current||'No record'))}</strong><span>${count?`Showing ${count} direct ${count===1?'connection':'connections'}. Hover a node to trace its wider links; click a linked node to make it the centre.`:'No direct party-known links recorded for this entry.'}</span>`;
+    status.innerHTML=`<strong>${esc(titleOf(current||'No record'))}</strong><span>${count?`Showing ${count} direct ${count===1?'connection':'connections'}. Hover a circle to trace its relationships. Click a linked circle to make it the new centre.`:'No direct party-known links recorded for this entry.'}</span>`;
   }
 
-  function nodeGroup(name,x,y,w,h,isCenter=false){
-    const g=svgEl('g',{class:`brain-map-node${isCenter?' is-center':''}`,transform:`translate(${x-w/2},${y-h/2})`,tabindex:'0',role:'button','data-name':name,'aria-label':`${titleOf(name)}, ${categoryOf(name)}, ${connected[name]?.size||0} known links`});
-    const rect=svgEl('rect',{x:0,y:0,width:w,height:h,rx:isCenter?13:9,class:'brain-map-node-bg'});g.appendChild(rect);
-    const cat=svgEl('text',{x:w/2,y:isCenter?20:16,'text-anchor':'middle',class:'brain-map-node-cat'});cat.textContent=categoryOf(name).toUpperCase();g.appendChild(cat);
-    const lines=wrap(titleOf(name),isCenter?23:18);
-    const text=svgEl('text',{x:w/2,y:isCenter?(lines.length===1?49:42):(lines.length===1?38:32),'text-anchor':'middle',class:'brain-map-node-title'});
-    lines.forEach((line,i)=>{const t=svgEl('tspan',{x:w/2,dy:i===0?0:(isCenter?19:15)});t.textContent=line;text.appendChild(t)});g.appendChild(text);
-    if(isCenter){const hint=svgEl('text',{x:w/2,y:h-12,'text-anchor':'middle',class:'brain-map-node-hint'});hint.textContent='CURRENT FOCUS';g.appendChild(hint)}
+  function circleNode(name,x,y,r,isCenter=false){
+    const g=svgEl('g',{class:`brain-circle-node${isCenter?' is-center':''}`,transform:`translate(${x},${y})`,tabindex:'0',role:'button','data-name':name,'aria-label':`${titleOf(name)}, ${categoryOf(name)}, ${connected[name]?.size||0} known links`});
+    g.appendChild(svgEl('circle',{cx:0,cy:0,r,class:'brain-circle-bg'}));
+    const cat=svgEl('text',{x:0,y:isCenter?-29:-21,'text-anchor':'middle',class:'brain-circle-cat'});cat.textContent=short(categoryOf(name).toUpperCase(),18);g.appendChild(cat);
+    const lines=wrap(titleOf(name),isCenter?18:14);
+    const lineGap=isCenter?17:14;
+    const startY=-(lines.length-1)*lineGap/2+(isCenter?4:3);
+    const text=svgEl('text',{x:0,y:startY,'text-anchor':'middle',class:'brain-circle-title'});
+    lines.forEach((line,i)=>{const t=svgEl('tspan',{x:0,dy:i===0?0:lineGap});t.textContent=line;text.appendChild(t)});g.appendChild(text);
+    if(isCenter){const hint=svgEl('text',{x:0,y:r-18,'text-anchor':'middle',class:'brain-circle-hint'});hint.textContent='CURRENT FOCUS';g.appendChild(hint)}
     return g;
+  }
+
+  function positionsFor(links,cx,cy){
+    const pos={};
+    const n=links.length;
+    if(!n)return pos;
+    if(n<=10){
+      const rx=n<=6?335:385,ry=n<=6?205:235;
+      links.forEach((name,i)=>{
+        const angle=-Math.PI/2+(i/n)*Math.PI*2;
+        pos[name]={x:cx+Math.cos(angle)*rx,y:cy+Math.sin(angle)*ry,ring:1};
+      });
+      return pos;
+    }
+    const innerCount=Math.ceil(n/2),outerCount=n-innerCount;
+    links.slice(0,innerCount).forEach((name,i)=>{
+      const angle=-Math.PI/2+(i/innerCount)*Math.PI*2;
+      pos[name]={x:cx+Math.cos(angle)*245,y:cy+Math.sin(angle)*160,ring:1};
+    });
+    links.slice(innerCount).forEach((name,i)=>{
+      const angle=-Math.PI/2+Math.PI/(Math.max(outerCount,1))+(i/Math.max(outerCount,1))*Math.PI*2;
+      pos[name]={x:cx+Math.cos(angle)*405,y:cy+Math.sin(angle)*245,ring:2};
+    });
+    return pos;
   }
 
   function drawNetwork(){
@@ -77,16 +103,7 @@
     stage.appendChild(svg);
     const edgeLayer=svgEl('g',{class:'brain-network-edges'}),nodeLayer=svgEl('g',{class:'brain-network-nodes'});svg.append(edgeLayer,nodeLayer);
 
-    const pos={};
-    const n=links.length;
-    if(n){
-      const rx=n<=6?330:365,ry=n<=6?205:230;
-      links.forEach((name,i)=>{
-        const angle=(-Math.PI/2)+(i/n)*Math.PI*2;
-        pos[name]={x:cx+Math.cos(angle)*rx,y:cy+Math.sin(angle)*ry};
-      });
-    }
-
+    const pos=positionsFor(links,cx,cy);
     const spokeByName={};
     links.forEach(name=>{
       const p=pos[name];
@@ -103,10 +120,11 @@
       edgeLayer.appendChild(line);crossEdges.push(line);
     }
 
-    const center=nodeGroup(current,cx,cy,220,96,true);nodeLayer.appendChild(center);
+    const center=circleNode(current,cx,cy,78,true);nodeLayer.appendChild(center);
     const outer=[];
+    const outerRadius=links.length>12?43:50;
     links.forEach(name=>{
-      const p=pos[name],g=nodeGroup(name,p.x,p.y,158,60,false);nodeLayer.appendChild(g);outer.push(g);
+      const p=pos[name],g=circleNode(name,p.x,p.y,outerRadius,false);nodeLayer.appendChild(g);outer.push(g);
     });
 
     function hover(name){
@@ -148,7 +166,7 @@
     });
 
     if(!links.length){
-      const msg=svgEl('text',{x:cx,y:cy+125,'text-anchor':'middle',class:'brain-network-empty'});msg.textContent='No direct party-known connections recorded yet.';svg.appendChild(msg);
+      const msg=svgEl('text',{x:cx,y:cy+130,'text-anchor':'middle',class:'brain-network-empty'});msg.textContent='No direct party-known connections recorded yet.';svg.appendChild(msg);
     }
   }
 
