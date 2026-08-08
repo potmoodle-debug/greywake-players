@@ -28,14 +28,36 @@ function renderDiscoveries(){
 }
 function mediaHTML(name){
  const arr=MEDIA[name]||[];if(!arr.length)return'';
- return `<div class="article-media">${arr.map(x=>{
-   const image=x.b64
-     ? `<img data-b64-src="${x.b64}" data-mime="${x.mime||'image/webp'}" alt="${DATA[name]?.title||name} portrait">`
-     : `<img src="${x.src}" alt="">`;
+ return `<div class="article-media">${arr.map((x,i)=>{
+   const image=x.parts
+     ? `<img data-media-index="${i}" data-parts="1" alt="${DATA[name]?.title||name} portrait">`
+     : x.b64
+       ? `<img data-b64-src="${x.b64}" data-mime="${x.mime||'image/webp'}" alt="${DATA[name]?.title||name} portrait">`
+       : `<img src="${x.src}" alt="">`;
    return `<figure>${image}<figcaption>${x.caption}</figcaption></figure>`;
  }).join('')}</div>`
 }
-async function hydrateBase64Images(){
+async function hydrateBase64Images(name){
+ const arr=MEDIA[name]||[];
+ const partImgs=[...article.querySelectorAll('img[data-parts]')];
+ await Promise.all(partImgs.map(async img=>{
+   try{
+     const item=arr[Number(img.dataset.mediaIndex)];
+     if(!item?.parts?.length)throw new Error('Missing portrait parts');
+     const chunks=await Promise.all(item.parts.map(async src=>{
+       const response=await fetch(src,{cache:'no-store'});
+       if(!response.ok)throw new Error(`HTTP ${response.status}`);
+       return (await response.text()).trim();
+     }));
+     const encoded=chunks.join('');
+     if(!encoded)throw new Error('Empty portrait data');
+     img.src=`data:${item.mime||'image/avif'};base64,${encoded}`;
+     img.removeAttribute('data-parts');
+   }catch(err){
+     console.error('Portrait load failed',err);
+     img.alt='Portrait unavailable';
+   }
+ }));
  const imgs=[...article.querySelectorAll('img[data-b64-src]')];
  await Promise.all(imgs.map(async img=>{
    try{
@@ -113,7 +135,7 @@ function showNote(name){
  const body=autoLinkHTML(DATA[name].html,name);
  article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${mediaHTML(name)}${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
- hydrateBase64Images();
+ hydrateBase64Images(name);
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.note===name));
  window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.sidebar').classList.remove('open');
