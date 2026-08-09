@@ -7,5 +7,5 @@ window.GREYWAKE_MEDIA={
   "Rennic Vale":[{"src":"assets/npcs/v2/rennic-vale.avif","caption":"Rennic Vale — guardian of the sealed case."}],
   "Sarn Pell":[{"src":"assets/npcs/v2/sarn-pell.avif","caption":"Sarn Pell — Great-Shell pen handler."}],
   "Mara Vell":[{"src":"assets/npcs/v2/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}],
-  "Brannic Hale":[{"src":"assets/npcs/v2/brannic-hale.jpg","caption":"Brannic Hale — commander of the Tower Watch."}]
+  "Brannic Hale":[{"src":"assets/brannic-hale.jpg","caption":"Brannic Hale — commander of the Tower Watch."}]
 };
