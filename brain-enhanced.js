@@ -7,7 +7,7 @@
   EDGES.forEach(([a,b])=>{if(a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]){connected[a].add(b);connected[b].add(a)}});
   const validEdgeCount=EDGES.filter(([a,b])=>a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]).length;
   const sortedNames=[...names].sort((a,b)=>titleOf(a).localeCompare(titleOf(b)));
-  let current=(DATA.Greywake&&connected.Greywake?.size)?'Greywake':([...names].sort((a,b)=>(connected[b]?.size||0)-(connected[a]?.size||0))[0]||null),historyStack=[],animating=false;
+  let current=(DATA.Greywake&&connected.Greywake?.size)?'Greywake':([...names].sort((a,b)=>(connected[b]?.size||0)-(connected[a]?.size||0))[0]||null),historyStack=[],animating=false,activeHover=null;
   let svg,edgeLayer,nodeLayer,currentLayout=new Map(),nodeEls=new Map(),edgeEls=new Map();
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -52,7 +52,8 @@
     const hint=svgEl('text',{x:0,y:38,'text-anchor':'middle',class:'brain-circle-hint'});hint.textContent='CURRENT FOCUS';g.appendChild(hint);
     const act=()=>{if(animating)return;const n=g.dataset.name;if(n===current)location.hash=routeFor(n);else changeFocus(n,true)};
     g.addEventListener('click',act);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();act()}});
-    g.addEventListener('mouseenter',()=>{if(!animating)hover(name)});g.addEventListener('mouseleave',()=>{if(!animating)clearHover()});g.addEventListener('focus',()=>{if(!animating)hover(name)});g.addEventListener('blur',()=>{if(!animating)clearHover()});
+    g.addEventListener('focus',()=>{if(!animating)hover(name)});
+    g.addEventListener('blur',()=>{if(!animating&&activeHover===name)clearHover()});
     return g;
   }
   function applyNodeState(g,s){g.setAttribute('transform',`translate(${s.x} ${s.y}) scale(${s.scale})`);g.classList.toggle('is-center',!!s.isCenter)}
@@ -73,7 +74,8 @@
     rebuildEdges(current,currentLayout,false);resetStatus();
   }
   function hover(name){
-    setStatus(name);
+    if(!name||activeHover===name)return;
+    activeHover=name;setStatus(name);
     const links=connected[name]||new Set();
     nodeEls.forEach((g,n)=>{
       g.classList.toggle('is-hovered',n===name);
@@ -87,9 +89,32 @@
     });
   }
   function clearHover(){
-    resetStatus();
+    if(activeHover===null)return;
+    activeHover=null;resetStatus();
     nodeEls.forEach(g=>g.classList.remove('is-hovered','is-related','is-dim'));
     edgeEls.forEach(e=>e.classList.remove('is-active','is-dim'));
+  }
+  function pointInSvg(e){
+    const ctm=svg?.getScreenCTM();if(!ctm)return null;
+    const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(ctm.inverse());
+  }
+  function wirePointerTracker(){
+    svg.addEventListener('pointermove',e=>{
+      if(animating||e.pointerType==='touch'||e.pointerType==='pen')return;
+      const p=pointInSvg(e);if(!p)return;
+      let best=null,bestRatio=Infinity,activeRatio=Infinity;
+      currentLayout.forEach((s,n)=>{
+        const r=50*s.scale,ratio=Math.hypot(p.x-s.x,p.y-s.y)/r;
+        if(n===activeHover)activeRatio=ratio;
+        if(ratio<bestRatio){bestRatio=ratio;best=n}
+      });
+      if(activeHover&&currentLayout.has(activeHover)){
+        if(best===activeHover&&activeRatio<=1.14)return;
+        if(activeRatio<=1.14&&bestRatio>.62)return;
+      }
+      if(best&&bestRatio<=.80)hover(best);else clearHover();
+    },{passive:true});
+    svg.addEventListener('pointerleave',()=>{if(!animating)clearHover()});
   }
   function ease(t){return 1-Math.pow(1-t,3)}
 
@@ -146,7 +171,7 @@
   }
   function render(){
     if(!current)return;host.innerHTML=`<div class="brain-network-shell">${controlsHTML()}<div id="brainNetworkStage" class="brain-network-stage"></div><div id="brainHoverStatus" class="brain-network-status"></div></div>`;
-    const stage=host.querySelector('#brainNetworkStage');svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,class:'brain-network-svg',role:'img','aria-label':'Greywake relationship map'});edgeLayer=svgEl('g',{class:'brain-network-edges'});nodeLayer=svgEl('g',{class:'brain-network-nodes'});svg.append(edgeLayer,nodeLayer);stage.appendChild(svg);nodeEls=new Map();edgeEls=new Map();wireControls();buildInitial();
+    const stage=host.querySelector('#brainNetworkStage');svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,class:'brain-network-svg',role:'img','aria-label':'Greywake relationship map'});edgeLayer=svgEl('g',{class:'brain-network-edges'});nodeLayer=svgEl('g',{class:'brain-network-nodes'});svg.append(edgeLayer,nodeLayer);stage.appendChild(svg);nodeEls=new Map();edgeEls=new Map();activeHover=null;wireControls();wirePointerTracker();buildInitial();
     const nc=document.getElementById('nodeCount'),ec=document.getElementById('edgeCount');if(nc)nc.textContent=names.length;if(ec)ec.textContent=validEdgeCount;
   }
   window.GREYWAKE_DRAW_BRAIN=render;window.addEventListener('hashchange',()=>{if(location.hash==='#/brain')setTimeout(render,0)});render();
