@@ -72,8 +72,25 @@
     currentLayout.forEach((s,n)=>{const g=circleNode(n);applyNodeState(g,s);nodeLayer.appendChild(g);nodeEls.set(n,g)});
     rebuildEdges(current,currentLayout,false);resetStatus();
   }
-  function hover(name){setStatus(name);const links=connected[name]||new Set();nodeEls.forEach((g,n)=>{g.classList.toggle('is-hovered',n===name);g.classList.toggle('is-related',links.has(n));g.classList.toggle('is-dim',n!==name&&!links.has(n))});edgeEls.forEach(el=>{const active=el.dataset.a===name||el.dataset.b===name;el.classList.toggle('is-active',active);el.classList.toggle('is-dim',!active)})}
-  function clearHover(){resetStatus();nodeEls.forEach(g=>g.classList.remove('is-hovered','is-related','is-dim'));edgeEls.forEach(e=>e.classList.remove('is-active','is-dim'))}
+  function hover(name){
+    setStatus(name);
+    const links=connected[name]||new Set();
+    nodeEls.forEach((g,n)=>{
+      g.classList.toggle('is-hovered',n===name);
+      g.classList.toggle('is-related',n!==name&&links.has(n));
+      g.classList.remove('is-dim');
+    });
+    edgeEls.forEach(el=>{
+      const active=el.dataset.a===name||el.dataset.b===name;
+      el.classList.toggle('is-active',active);
+      el.classList.remove('is-dim');
+    });
+  }
+  function clearHover(){
+    resetStatus();
+    nodeEls.forEach(g=>g.classList.remove('is-hovered','is-related','is-dim'));
+    edgeEls.forEach(e=>e.classList.remove('is-active','is-dim'));
+  }
   function ease(t){return 1-Math.pow(1-t,3)}
 
   function transitionTo(next,push=true){
