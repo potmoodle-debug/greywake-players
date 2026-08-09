@@ -7,3 +7,5 @@ This restores the original v1 information architecture and applies only the requ
 - Latest Discoveries
 - restrained field-archive visual treatment
 - unchanged spoiler-safe data boundary
+
+Brannic Hale now uses the same standard `assets/*.jpg` image path pattern as Great-Shell and Cacklemaw.
