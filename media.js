@@ -6,5 +6,6 @@ window.GREYWAKE_MEDIA={
   "Maela Rusk":[{"src":"assets/npcs/v2/maela-rusk.avif","caption":"Maela Rusk — caravan leader at Stone-Lip Hollow."}],
   "Rennic Vale":[{"src":"assets/npcs/v2/rennic-vale.avif","caption":"Rennic Vale — guardian of the sealed case."}],
   "Sarn Pell":[{"src":"assets/npcs/v2/sarn-pell.avif","caption":"Sarn Pell — Great-Shell pen handler."}],
-  "Mara Vell":[{"src":"assets/npcs/v2/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}]
+  "Mara Vell":[{"src":"assets/npcs/v2/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}],
+  "Brannic Hale":[{"b64":"assets/npcs/portraits/brannic-hale.b64","mime":"image/jpeg","caption":"Brannic Hale — commander of the Tower Watch."}]
 };
