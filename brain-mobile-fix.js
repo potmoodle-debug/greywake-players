@@ -1,5 +1,7 @@
 (()=>{
-  const isTouch=()=>window.matchMedia?.('(pointer: coarse)').matches||('ontouchstart' in window);
+  const isTouch=()=>window.matchMedia?.('(pointer: coarse)').matches||navigator.maxTouchPoints>0;
+  if(!isTouch())return;
+
   let queuedName=null,lastTouchAt=0;
 
   function selectByName(name,allowOpenCurrent=false){
@@ -29,10 +31,8 @@
       const bg=g.querySelector('.brain-circle-bg');
       if(bg&&!g.querySelector('.brain-touch-hit')){
         const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
-        const r=Math.max(58,Number(bg.getAttribute('r')||50)+8);
-        hit.setAttribute('r',String(r));hit.setAttribute('class','brain-touch-hit');g.insertBefore(hit,bg);
+        hit.setAttribute('r','58');hit.setAttribute('class','brain-touch-hit');g.insertBefore(hit,bg);
       }
-      if(!isTouch())return;
 
       g.addEventListener('pointerup',e=>{
         if(e.pointerType==='mouse')return;
@@ -57,6 +57,6 @@
   window.addEventListener('hashchange',()=>setTimeout(()=>{enhance();flushQueued()},60));
   const host=document.getElementById('graph');
   if(host)obs.observe(host,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  setInterval(flushQueued,80);
+  setInterval(flushQueued,120);
   enhance();
 })();
