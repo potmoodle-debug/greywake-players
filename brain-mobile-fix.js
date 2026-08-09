@@ -7,7 +7,7 @@
       if(g.dataset.mobileEnhanced)return;g.dataset.mobileEnhanced='1';
       const bg=g.querySelector('.brain-circle-bg');if(bg&&!g.querySelector('.brain-touch-hit')){
         const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
-        const r=Math.max(64,Number(bg.getAttribute('r')||50)+14);hit.setAttribute('r',String(r));hit.setAttribute('class','brain-touch-hit');g.insertBefore(hit,bg);
+        const r=Math.max(60,Number(bg.getAttribute('r')||50)+10);hit.setAttribute('r',String(r));hit.setAttribute('class','brain-touch-hit');g.insertBefore(hit,bg);
       }
       if(isTouch()){
         g.addEventListener('pointerup',e=>{
@@ -19,13 +19,23 @@
       }
     });
   }
+  function centreByName(name){
+    const host=document.getElementById('graph');if(!host||!name)return;
+    const stage=host.querySelector('#brainNetworkStage');
+    if(stage?.classList.contains('is-transitioning')){queuedName=name;return}
+    const visible=[...host.querySelectorAll('.brain-circle-node')].find(g=>g.dataset.name===name);
+    if(visible){visible.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));return}
+    const jump=host.querySelector('#brainJump');
+    if(jump&&[...jump.options].some(o=>o.value===name)){
+      jump.value=name;
+      jump.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+  }
   function flushQueued(){
     if(!queuedName)return;
     const host=document.getElementById('graph'),stage=host?.querySelector('#brainNetworkStage');
     if(stage?.classList.contains('is-transitioning'))return;
-    const name=queuedName;queuedName=null;
-    const sel=[...host.querySelectorAll('.brain-circle-node')].find(g=>g.dataset.name===name);
-    sel?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+    const name=queuedName;queuedName=null;centreByName(name);
   }
   const obs=new MutationObserver(()=>{enhance();flushQueued()});
   window.addEventListener('hashchange',()=>setTimeout(()=>{enhance();flushQueued()},60));
