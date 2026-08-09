@@ -8,7 +8,7 @@ window.GREYWAKE_MEDIA={
   "Sarn Pell":[{"src":"assets/npcs/v2/sarn-pell.avif","caption":"Sarn Pell — Great-Shell pen handler."}],
   "Mara Vell":[{"src":"assets/npcs/v2/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}],
   "Brannic Hale":[{"src":"assets/brannic-hale-v2.jpg","caption":"Brannic Hale — commander of the Tower Watch."}],
-  "Sister Elowen":[{"src":"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==","api":"https://api.github.com/repos/potmoodle-debug/greywake-players/contents/assets/sister-elowen-v2.jpg?ref=main","mime":"image/jpeg","caption":"Sister Elowen — public voice among the Faithful."}],
-  "Talla Reed":[{"src":"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==","api":"https://api.github.com/repos/potmoodle-debug/greywake-players/contents/assets/talla-reed-v2.jpg?ref=main","mime":"image/jpeg","caption":"Talla Reed — Greywake runner and messenger."}],
-  "Joric Noll":[{"src":"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==","api":"https://api.github.com/repos/potmoodle-debug/greywake-players/contents/assets/joric-noll-v2.jpg?ref=main","mime":"image/jpeg","caption":"Joric Noll — survivor of Kestrel Return."}]
+  "Sister Elowen":[{"b64":"assets/portraits/sister-elowen.b64","mime":"image/jpeg","caption":"Sister Elowen — public voice among the Faithful."}],
+  "Talla Reed":[{"b64":"assets/portraits/talla-reed.b64","mime":"image/jpeg","caption":"Talla Reed — Greywake runner and messenger."}],
+  "Joric Noll":[{"b64":"assets/portraits/joric-noll.b64","mime":"image/jpeg","caption":"Joric Noll — survivor of Kestrel Return."}]
 };
