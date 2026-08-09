@@ -14,26 +14,22 @@
           if(e.pointerType==='mouse')return;
           const name=g.dataset.name;if(!name)return;
           const stage=host.querySelector('#brainNetworkStage');
-          if(stage?.classList.contains('is-transitioning')){queuedName=name;return}
-          g.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+          if(stage?.classList.contains('is-transitioning'))queuedName=name;
         },{passive:true});
       }
     });
   }
-  const obs=new MutationObserver(()=>enhance());
-  window.addEventListener('hashchange',()=>setTimeout(enhance,60));
-  document.addEventListener('pointerup',()=>{
+  function flushQueued(){
     if(!queuedName)return;
     const host=document.getElementById('graph'),stage=host?.querySelector('#brainNetworkStage');
     if(stage?.classList.contains('is-transitioning'))return;
-    const sel=[...host.querySelectorAll('.brain-circle-node')].find(g=>g.dataset.name===queuedName);queuedName=null;sel?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
-  });
+    const name=queuedName;queuedName=null;
+    const sel=[...host.querySelectorAll('.brain-circle-node')].find(g=>g.dataset.name===name);
+    sel?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
+  }
+  const obs=new MutationObserver(()=>{enhance();flushQueued()});
+  window.addEventListener('hashchange',()=>setTimeout(()=>{enhance();flushQueued()},60));
   const host=document.getElementById('graph');if(host)obs.observe(host,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  setInterval(()=>{
-    if(!queuedName)return;
-    const host=document.getElementById('graph'),stage=host?.querySelector('#brainNetworkStage');
-    if(stage?.classList.contains('is-transitioning'))return;
-    const name=queuedName;queuedName=null;const sel=[...host.querySelectorAll('.brain-circle-node')].find(g=>g.dataset.name===name);sel?.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
-  },80);
+  setInterval(flushQueued,80);
   enhance();
 })();
