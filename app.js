@@ -31,14 +31,31 @@ function mediaHTML(name){
  return `<div class="article-media">${arr.map((x,i)=>{
    const image=x.parts
      ? `<img data-media-index="${i}" data-parts="1" alt="${DATA[name]?.title||name} portrait">`
-     : x.b64
-       ? `<img data-b64-src="${x.b64}" data-mime="${x.mime||'image/webp'}" alt="${DATA[name]?.title||name} portrait">`
-       : `<img src="${x.src}" alt="">`;
+     : x.api
+       ? `<img data-api-src="${x.api}" data-mime="${x.mime||'image/jpeg'}" alt="${DATA[name]?.title||name} portrait">`
+       : x.b64
+         ? `<img data-b64-src="${x.b64}" data-mime="${x.mime||'image/webp'}" alt="${DATA[name]?.title||name} portrait">`
+         : `<img src="${x.src}" alt="">`;
    return `<figure>${image}<figcaption>${x.caption}</figcaption></figure>`;
  }).join('')}</div>`
 }
 async function hydrateBase64Images(name){
  const arr=MEDIA[name]||[];
+ const apiImgs=[...article.querySelectorAll('img[data-api-src]')];
+ await Promise.all(apiImgs.map(async img=>{
+   try{
+     const response=await fetch(img.dataset.apiSrc,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});
+     if(!response.ok)throw new Error(`HTTP ${response.status}`);
+     const payload=await response.json();
+     const encoded=(payload.content||'').replace(/\s+/g,'');
+     if(!encoded)throw new Error('Empty portrait data');
+     img.src=`data:${img.dataset.mime||'image/jpeg'};base64,${encoded}`;
+     img.removeAttribute('data-api-src');
+   }catch(err){
+     console.error('Portrait API load failed',err);
+     img.alt='Portrait unavailable';
+   }
+ }));
  const partImgs=[...article.querySelectorAll('img[data-parts]')];
  await Promise.all(partImgs.map(async img=>{
    try{
