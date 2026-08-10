@@ -1,0 +1,76 @@
+name: Verify Greywake v2 live
+
+on:
+  push:
+    paths:
+      - '.github/workflows/verify-v2-live.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify deployed v2 files
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://potmoodle-debug.github.io/greywake-players'
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/v2/?verify=final" -o /tmp/v2.html
+          grep -F 'v2/app.js?v=portraits-20260810' /tmp/v2.html
+          grep -F 'brain-enhanced.js?v=brainrestore1' /tmp/v2.html
+          grep -F 'brain-mobile-fix.js?v=brainrestore1' /tmp/v2.html
+          if grep -F 'src="media.js' /tmp/v2.html; then echo 'Legacy media.js is still loaded by v2'; exit 1; fi
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/assets/npcs/v2/sister-elowen-player-portrait.jpg?verify=final" -o /tmp/sister.jpg
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/assets/npcs/v2/brannic-hale-player-portrait.jpg?verify=final" -o /tmp/brannic.jpg
+          echo 'bf6f58c9fd93783ba45620fc57362df51b354fdcdf1152770ec3c8003246a80a  /tmp/sister.jpg' | sha256sum -c -
+          echo '05b2e98253c43d5f8049cd0065820d285f622cb37ddb930929cb5e8c2ab1bcfd  /tmp/brannic.jpg' | sha256sum -c -
+
+      - name: Install browser tooling
+        run: python -m pip install --disable-pip-version-check selenium
+
+      - name: Verify live NPC records and Player Brain
+        shell: bash
+        run: |
+          python - <<'PY'
+          import time
+          from urllib.parse import quote
+          from selenium import webdriver
+          from selenium.webdriver.common.by import By
+          from selenium.webdriver.support.ui import WebDriverWait, Select
+          from selenium.webdriver.common.action_chains import ActionChains
+
+          BASE='https://potmoodle-debug.github.io/greywake-players/v2/'
+          def browser(mobile=False):
+              o=webdriver.ChromeOptions(); o.add_argument('--headless=new'); o.add_argument('--no-sandbox'); o.add_argument('--disable-dev-shm-usage')
+              if mobile:
+                  o.add_experimental_option('mobileEmulation',{'deviceMetrics':{'width':390,'height':844,'pixelRatio':2.0},'userAgent':'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/150 Mobile Safari/537.36'})
+              else: o.add_argument('--window-size=1440,1000')
+              return webdriver.Chrome(options=o)
+
+          d=browser(); w=WebDriverWait(d,30)
+          def record(name,asset,required,forbidden=()):
+              d.get(BASE+'#/record/'+quote(name)); w.until(lambda x: x.find_elements(By.CSS_SELECTOR,'#recordView h1') and name in x.find_element(By.CSS_SELECTOR,'#recordView h1').text)
+              imgs=d.find_elements(By.CSS_SELECTOR,'#recordView .record-media img')
+              assert len(imgs)==1, f'{name}: expected one canonical portrait, got {len(imgs)}'
+              img=imgs[0]; assert asset in img.get_attribute('src'), img.get_attribute('src')
+              w.until(lambda x: x.execute_script('return arguments[0].complete && arguments[0].naturalWidth>0 && arguments[0].naturalHeight>0',img))
+              text=d.find_element(By.ID,'recordView').text; assert required in text
+              for term in forbidden: assert term.lower() not in text.lower(), f'{name}: forbidden text {term}'
+          record('Sister Elowen','sister-elowen-player-portrait.jpg','public voice among the Faithful')
+          record('Brannic Hale','brannic-hale-player-portrait.jpg','commander of the Tower Watch',('ration records','cistern keeper'))
+
+          d.get(BASE+'#/brain'); w.until(lambda x: len(x.find_elements(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center'))==1)
+          w.until(lambda x: len(x.find_elements(By.CSS_SELECTOR,'#graph .brain-circle-node:not(.is-center)'))>0)
+          Select(d.find_element(By.ID,'brainJump')).select_by_value('Brannic Hale'); w.until(lambda x: x.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').get_attribute('data-name')=='Brannic Hale'); time.sleep(.6)
+          status=d.find_element(By.ID,'brainHoverStatus'); svg=d.find_element(By.CSS_SELECTOR,'#graph .brain-network-svg'); assert status.rect['y'] >= svg.rect['y']+svg.rect['height']-2
+          n=d.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node:not(.is-center)'); target=n.get_attribute('data-name'); ActionChains(d).move_to_element(n).perform(); w.until(lambda x: target in x.find_element(By.ID,'brainHoverStatus').text); n.click(); w.until(lambda x: x.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').get_attribute('data-name')==target); time.sleep(.6)
+          back=d.find_element(By.ID,'brainBackFocus'); assert back.is_enabled(); back.click(); w.until(lambda x: x.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').get_attribute('data-name')=='Brannic Hale'); time.sleep(.6)
+          d.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').click(); w.until(lambda x: '#/record/Brannic%20Hale' in x.current_url); d.quit()
+
+          d=browser(True); w=WebDriverWait(d,30); d.get(BASE+'#/brain'); w.until(lambda x: len(x.find_elements(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center'))==1)
+          Select(d.find_element(By.ID,'brainJump')).select_by_value('Sister Elowen'); w.until(lambda x: x.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').get_attribute('data-name')=='Sister Elowen'); time.sleep(.6)
+          n=d.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node:not(.is-center)'); target=n.get_attribute('data-name'); d.execute_script("arguments[0].dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));",n); w.until(lambda x: x.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').get_attribute('data-name')==target); assert d.find_element(By.ID,'brainBackFocus').is_enabled(); d.quit()
+          print('Final live v2 smoke test passed.')
+          PY
