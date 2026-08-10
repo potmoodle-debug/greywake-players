@@ -55,24 +55,12 @@ jobs:
           options.add_argument('--no-sandbox')
           options.add_argument('--disable-dev-shm-usage')
           options.add_argument('--window-size=1440,1000')
-          options.set_capability('goog:loggingPrefs', {'browser':'ALL'})
           driver=webdriver.Chrome(options=options)
           wait=WebDriverWait(driver,30)
-
-          def debug(label):
-              print('\n---', label, '---')
-              print('URL:', driver.current_url)
-              print('TITLE:', driver.title)
-              print('READY:', driver.execute_script('return document.readyState'))
-              print('BODY:', driver.find_element(By.TAG_NAME,'body').text[:1500])
-              for entry in driver.get_log('browser'):
-                  print('BROWSER LOG:', entry)
 
           def check_record(name, asset, required_text, forbidden=()):
               driver.get(BASE+'#/record/'+quote(name))
               wait.until(lambda d: d.execute_script('return document.readyState')=='complete')
-              time.sleep(2)
-              debug(name)
               wait.until(lambda d: d.find_elements(By.CSS_SELECTOR,'#recordView h1') and name in d.find_element(By.CSS_SELECTOR,'#recordView h1').text)
               img=wait.until(lambda d: d.find_element(By.CSS_SELECTOR, f"#recordView .record-media img[src*='{asset}']"))
               wait.until(lambda d: d.execute_script('return arguments[0].complete && arguments[0].naturalWidth > 0 && arguments[0].naturalHeight > 0', img))
@@ -173,7 +161,7 @@ jobs:
           neighbor=driver.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node:not(.is-center)')
           target=neighbor.get_attribute('data-name')
           driver.execute_script('arguments[0].scrollIntoView({block:"center"});',neighbor)
-          driver.execute_script('arguments[0].click();',neighbor)
+          driver.execute_script("arguments[0].dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));",neighbor)
           wait.until(lambda d: d.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center').get_attribute('data-name')==target)
           assert driver.find_element(By.ID,'brainBackFocus').is_enabled()
           driver.quit()
