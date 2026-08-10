@@ -13,7 +13,7 @@
     'Cacklemaw Pack':[{src:'assets/cacklemaw.jpg',caption:'Cacklemaw pack — canon visual reference.'}],
     'Stone-Lip Hollow':[{src:'assets/stone-lip.jpg',caption:'Approach to Stone-Lip Hollow through the Broken Runnels.'}],
     'Latchfan':[{src:'assets/flora/latchfan.jpg',caption:'Latchfan — mature specimen, canon visual reference.'}],
-    'Brannic Hale':[{b64:'assets/npcs/portraits/brannic-hale.b64',mime:'image/jpeg',caption:'Brannic Hale — commander of the Tower Watch.'}],
+    'Brannic Hale':[{parts:['assets/npcs/hq/brannic-hale/01.b64','assets/npcs/hq/brannic-hale/02.b64','assets/npcs/hq/brannic-hale/03.b64','assets/npcs/hq/brannic-hale/04.b64','assets/npcs/hq/brannic-hale/05.b64','assets/npcs/hq/brannic-hale/06.b64','assets/npcs/hq/brannic-hale/07.b64'],mime:'image/avif',caption:'Brannic Hale — commander of the Tower Watch.'}],
     'Sister Elowen':[{b64:'assets/portraits/sister-elowen.b64',mime:'image/jpeg',caption:'Sister Elowen — public voice among the Faithful.'}],
     'Joric Noll':[{src:'assets/npcs/v2/joric-noll.jpg',caption:'Joric Noll — survivor of Kestrel Return.'}],
     'Talla Reed':[{src:'assets/npcs/v2/talla-reed.jpg',caption:'Talla Reed — Greywake runner and messenger.'}],
@@ -62,25 +62,29 @@
     categories.forEach(cat=>{const names=recordsInCategory(cat);if(!names.length||cat==='Start')return;const b=document.createElement('button');b.className='category-card';b.dataset.category=cat;b.innerHTML=`<small>Archive section</small><strong>${escapeHTML(cat)}</strong><span>${names.length} known ${names.length===1?'record':'records'} →</span>`;host.appendChild(b);});
   }
 
-  function buildDiscoveries(){
-    const host=document.getElementById('discoveryGrid');host.innerHTML='';
-    DISC.forEach(item=>{if(!DATA[item.note])return;const b=document.createElement('button');b.className='discovery-card';b.dataset.record=item.note;b.innerHTML=`<img src="${escapeHTML(item.image||'')}" alt=""><div class="discovery-copy"><small>${escapeHTML(item.kind||'Discovery')}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.text||'')}</p><em>${escapeHTML(item.when||'')}</em></div>`;b.querySelector('img')?.addEventListener('error',e=>e.currentTarget.remove());host.appendChild(b);});
-  }
+  function buildDiscoveries(){const host=document.getElementById('discoveryGrid');host.innerHTML='';DISC.forEach(item=>{if(!DATA[item.note])return;const b=document.createElement('button');b.className='discovery-card';b.dataset.record=item.note;b.innerHTML=`<img src="${escapeHTML(item.image||'')}" alt=""><div class="discovery-copy"><small>${escapeHTML(item.kind||'Discovery')}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.text||'')}</p><em>${escapeHTML(item.when||'')}</em></div>`;b.querySelector('img')?.addEventListener('error',e=>e.currentTarget.remove());host.appendChild(b);});}
 
-  function mediaItems(name){if(DIRECT_MEDIA[name])return DIRECT_MEDIA[name];return(MEDIA[name]||[]).filter(item=>item&&(item.src||item.b64)).map(item=>({src:item.src,b64:item.b64,mime:item.mime,caption:item.caption||''}));}
+  function mediaItems(name){if(DIRECT_MEDIA[name])return DIRECT_MEDIA[name];return(MEDIA[name]||[]).filter(item=>item&&(item.src||item.b64||item.parts)).map(item=>({src:item.src,b64:item.b64,parts:item.parts,mime:item.mime,caption:item.caption||''}));}
   function mediaHTML(name){
     const items=mediaItems(name);if(!items.length)return'';
-    return`<section class="record-media">${items.map(item=>{const image=item.b64?`<img data-b64-src="${escapeHTML(item.b64)}" data-mime="${escapeHTML(item.mime||'image/jpeg')}" alt="${escapeHTML(DATA[name]?.title||name)}">`:`<img src="${escapeHTML(item.src)}" alt="${escapeHTML(DATA[name]?.title||name)}">`;return`<figure>${image}<figcaption>${escapeHTML(item.caption||DATA[name]?.title||name)}</figcaption></figure>`;}).join('')}</section>`;
+    return`<section class="record-media">${items.map((item,i)=>{let image;if(item.parts)image=`<img data-media-index="${i}" data-parts="1" alt="${escapeHTML(DATA[name]?.title||name)}">`;else if(item.b64)image=`<img data-b64-src="${escapeHTML(item.b64)}" data-mime="${escapeHTML(item.mime||'image/jpeg')}" alt="${escapeHTML(DATA[name]?.title||name)}">`;else image=`<img src="${escapeHTML(item.src)}" alt="${escapeHTML(DATA[name]?.title||name)}">`;return`<figure>${image}<figcaption>${escapeHTML(item.caption||DATA[name]?.title||name)}</figcaption></figure>`;}).join('')}</section>`;
   }
 
-  async function hydrateMedia(scope){
+  async function hydrateMedia(scope,name){
+    const items=mediaItems(name);
+    const partImgs=[...scope.querySelectorAll('img[data-parts]')];
+    await Promise.all(partImgs.map(async img=>{
+      try{
+        const item=items[Number(img.dataset.mediaIndex)];if(!item?.parts?.length)throw new Error('Missing portrait chunks');
+        const chunks=await Promise.all(item.parts.map(async src=>{const response=await fetch(src+'?v=brannic-hq-1',{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);return(await response.text()).trim();}));
+        const encoded=chunks.join('').replace(/\s+/g,'');if(!encoded)throw new Error('Empty portrait source');
+        img.src=`data:${item.mime||'image/avif'};base64,${encoded}`;img.removeAttribute('data-parts');
+      }catch(err){console.error('HQ portrait source failed',err);replaceImageWithFallback(img);}
+    }));
     const pending=[...scope.querySelectorAll('img[data-b64-src]')];
     await Promise.all(pending.map(async img=>{
-      try{
-        const response=await fetch(img.dataset.b64Src+'?v=portrait-source-2',{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);
-        const encoded=(await response.text()).replace(/\s+/g,'');if(!encoded)throw new Error('Empty portrait source');
-        img.src=`data:${img.dataset.mime||'image/jpeg'};base64,${encoded}`;img.removeAttribute('data-b64-src');
-      }catch(err){console.error('Portrait source failed',err);replaceImageWithFallback(img);}
+      try{const response=await fetch(img.dataset.b64Src+'?v=portrait-source-2',{cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);const encoded=(await response.text()).replace(/\s+/g,'');if(!encoded)throw new Error('Empty portrait source');img.src=`data:${img.dataset.mime||'image/jpeg'};base64,${encoded}`;img.removeAttribute('data-b64-src');}
+      catch(err){console.error('Portrait source failed',err);replaceImageWithFallback(img);}
     }));
   }
   function replaceImageWithFallback(img){const figure=img.closest('figure');if(!figure){img.remove();return;}const fallback=document.createElement('div');fallback.className='image-fallback';fallback.textContent='Image file unavailable in the archive.';img.replaceWith(fallback);}
@@ -92,41 +96,20 @@
   function relatedHTML(name){const related=relatedFor(name);return related.length?`<section class="related"><div class="eyebrow">CONNECTED RECORDS</div><h2>Related records</h2>${cardsHTML(related)}</section>`:'';}
 
   function autolink(container,current){
-    const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain').sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
-    const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
-    nodes.forEach(node=>{if(node.parentElement?.closest('a,button,script,style,h1'))return;let parts=[{text:node.nodeValue,linked:false}];
-      for(const name of names){const title=DATA[name].title||name;if(title.length<4)continue;const re=new RegExp(`\\b(${escapeRegExp(title)})\\b`,'gi');parts=parts.flatMap(part=>{if(part.linked)return[part];const out=[];let last=0,m;while((m=re.exec(part.text))){if(m.index>last)out.push({text:part.text.slice(last,m.index),linked:false});out.push({text:m[0],linked:true,name});last=m.index+m[0].length;}if(last<part.text.length)out.push({text:part.text.slice(last),linked:false});return out.length?out:[part];});}
-      if(!parts.some(p=>p.linked))return;const frag=document.createDocumentFragment();parts.forEach(p=>{if(!p.linked)frag.appendChild(document.createTextNode(p.text));else{const a=document.createElement('a');a.href=routeFor(p.name);a.dataset.record=p.name;a.textContent=p.text;frag.appendChild(a);}});node.replaceWith(frag);
-    });
+    const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain').sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+    nodes.forEach(node=>{if(node.parentElement?.closest('a,button,script,style,h1'))return;let parts=[{text:node.nodeValue,linked:false}];for(const name of names){const title=DATA[name].title||name;if(title.length<4)continue;const re=new RegExp(`\\b(${escapeRegExp(title)})\\b`,'gi');parts=parts.flatMap(part=>{if(part.linked)return[part];const out=[];let last=0,m;while((m=re.exec(part.text))){if(m.index>last)out.push({text:part.text.slice(last,m.index),linked:false});out.push({text:m[0],linked:true,name});last=m.index+m[0].length;}if(last<part.text.length)out.push({text:part.text.slice(last),linked:false});return out.length?out:[part];});}if(!parts.some(p=>p.linked))return;const frag=document.createDocumentFragment();parts.forEach(p=>{if(!p.linked)frag.appendChild(document.createTextNode(p.text));else{const a=document.createElement('a');a.href=routeFor(p.name);a.dataset.record=p.name;a.textContent=p.text;frag.appendChild(a);}});node.replaceWith(frag);});
   }
 
-  async function renderRecord(name){
-    const entry=DATA[name];if(!entry){go('#/');return;}showOnly(recordView);crumb.textContent=`Greywake / ${entry.title||name}`;
-    recordView.innerHTML=`<div class="record-topnav"><button data-action="back">← Back</button><button data-route="home">Archive home</button><button class="primary" data-route="brain">Player Brain</button></div><div class="record-meta">${escapeHTML(entry.category||'Record')} / Party-known record</div><h1>${escapeHTML(entry.title||name)}</h1>${mediaHTML(name)}<div class="record-body">${entry.html||''}</div>${directoryHTML(name)}${relatedHTML(name)}`;
-    recordView.querySelectorAll('h2').forEach(h=>h.textContent=h.textContent.replace(/^##\s*/,''));autolink(recordView.querySelector('.record-body'),name);wireImageFallbacks(recordView);await hydrateMedia(recordView);document.querySelectorAll('.nav-link').forEach(btn=>btn.classList.toggle('active',btn.dataset.record===name));
-  }
+  async function renderRecord(name){const entry=DATA[name];if(!entry){go('#/');return;}showOnly(recordView);crumb.textContent=`Greywake / ${entry.title||name}`;recordView.innerHTML=`<div class="record-topnav"><button data-action="back">← Back</button><button data-route="home">Archive home</button><button class="primary" data-route="brain">Player Brain</button></div><div class="record-meta">${escapeHTML(entry.category||'Record')} / Party-known record</div><h1>${escapeHTML(entry.title||name)}</h1>${mediaHTML(name)}<div class="record-body">${entry.html||''}</div>${directoryHTML(name)}${relatedHTML(name)}`;recordView.querySelectorAll('h2').forEach(h=>h.textContent=h.textContent.replace(/^##\s*/,''));autolink(recordView.querySelector('.record-body'),name);wireImageFallbacks(recordView);await hydrateMedia(recordView,name);document.querySelectorAll('.nav-link').forEach(btn=>btn.classList.toggle('active',btn.dataset.record===name));}
 
   function renderHome(){showOnly(homeView);crumb.textContent='Greywake / Archive';document.querySelectorAll('.nav-link').forEach(btn=>btn.classList.remove('active'));}
   function renderBrain(){showOnly(brainView);crumb.textContent='Greywake / Player Brain';document.querySelectorAll('.nav-link').forEach(btn=>btn.classList.remove('active'));if(typeof window.GREYWAKE_DRAW_BRAIN==='function')window.GREYWAKE_DRAW_BRAIN();}
   function renderRoute(){const route=parseRoute();if(route.type==='record')renderRecord(route.name);else if(route.type==='brain')renderBrain();else renderHome();}
   function openCategory(cat){const names=recordsInCategory(cat);const directoryName={'Locations':'Known Locations','People':'Known People','Flora & Fauna':'Known Flora and Fauna'}[cat];if(directoryName&&DATA[directoryName])go(routeFor(directoryName));else if(names.length)go(routeFor(names[0]));}
 
-  document.addEventListener('click',event=>{
-    const recordTarget=event.target.closest('[data-record]');if(recordTarget){event.preventDefault();go(routeFor(recordTarget.dataset.record));return;}
-    const routeTarget=event.target.closest('[data-route]');if(routeTarget){event.preventDefault();go(routeTarget.dataset.route==='brain'?'#/brain':'#/');return;}
-    const categoryTarget=event.target.closest('[data-category]');if(categoryTarget){openCategory(categoryTarget.dataset.category);return;}
-    const action=event.target.closest('[data-action]');if(action?.dataset.action==='back'){history.length>1?history.back():go('#/');return;}
-    const image=event.target.closest('.record-media img');if(image&&image.src){lightboxImage.src=image.src;lightboxImage.alt=image.alt;lightboxCaption.textContent=image.closest('figure')?.querySelector('figcaption')?.textContent||image.alt;lightbox.classList.remove('hidden');}
-  });
+  document.addEventListener('click',event=>{const recordTarget=event.target.closest('[data-record]');if(recordTarget){event.preventDefault();go(routeFor(recordTarget.dataset.record));return;}const routeTarget=event.target.closest('[data-route]');if(routeTarget){event.preventDefault();go(routeTarget.dataset.route==='brain'?'#/brain':'#/');return;}const categoryTarget=event.target.closest('[data-category]');if(categoryTarget){openCategory(categoryTarget.dataset.category);return;}const action=event.target.closest('[data-action]');if(action?.dataset.action==='back'){history.length>1?history.back():go('#/');return;}const image=event.target.closest('.record-media img');if(image&&image.src){lightboxImage.src=image.src;lightboxImage.alt=image.alt;lightboxCaption.textContent=image.closest('figure')?.querySelector('figcaption')?.textContent||image.alt;lightbox.classList.remove('hidden');}});
 
-  document.getElementById('searchInput').addEventListener('input',e=>buildNav(e.target.value));
-  document.getElementById('menuBtn').addEventListener('click',()=>sidebar.classList.toggle('open'));
-  document.getElementById('homeBtn').addEventListener('click',()=>go('#/'));
-  document.getElementById('brainBtn').addEventListener('click',()=>go('#/brain'));
-  document.getElementById('lightboxClose').addEventListener('click',()=>lightbox.classList.add('hidden'));
-  lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.classList.add('hidden');});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'){lightbox.classList.add('hidden');sidebar.classList.remove('open');}});
-  window.addEventListener('hashchange',renderRoute);
+  document.getElementById('searchInput').addEventListener('input',e=>buildNav(e.target.value));document.getElementById('menuBtn').addEventListener('click',()=>sidebar.classList.toggle('open'));document.getElementById('homeBtn').addEventListener('click',()=>go('#/'));document.getElementById('brainBtn').addEventListener('click',()=>go('#/brain'));document.getElementById('lightboxClose').addEventListener('click',()=>lightbox.classList.add('hidden'));lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.classList.add('hidden');});document.addEventListener('keydown',e=>{if(e.key==='Escape'){lightbox.classList.add('hidden');sidebar.classList.remove('open');}});window.addEventListener('hashchange',renderRoute);
 
   buildNav();buildCategoryGrid();buildDiscoveries();renderRoute();
 })();
