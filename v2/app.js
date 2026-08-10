@@ -13,14 +13,14 @@
     'Cacklemaw Pack':[{src:'assets/cacklemaw.jpg',caption:'Cacklemaw pack — canon visual reference.'}],
     'Stone-Lip Hollow':[{src:'assets/stone-lip.jpg',caption:'Approach to Stone-Lip Hollow through the Broken Runnels.'}],
     'Latchfan':[{src:'assets/flora/latchfan.jpg',caption:'Latchfan — mature specimen, canon visual reference.'}],
-    'Brannic Hale':[{src:'assets/npcs/v2/brannic-hale-player-portrait.jpg',caption:'Brannic Hale — commander of the Tower Watch.'}],
-    'Sister Elowen':[{src:'assets/npcs/v2/sister-elowen-player-portrait.jpg',caption:'Sister Elowen — public voice among the Faithful.'}],
-    'Joric Noll':[{src:'assets/npcs/v2/joric-noll.jpg',caption:'Joric Noll — survivor of Kestrel Return.'}],
-    'Talla Reed':[{src:'assets/npcs/v2/talla-reed.jpg',caption:'Talla Reed — Greywake runner and messenger.'}],
-    'Maela Rusk':[{src:'assets/npcs/v2/maela-rusk.avif',caption:'Maela Rusk — caravan leader at Stone-Lip Hollow.'}],
-    'Rennic Vale':[{src:'assets/npcs/v2/rennic-vale.avif',caption:'Rennic Vale — guardian of the sealed case.'}],
-    'Sarn Pell':[{src:'assets/npcs/v2/sarn-pell.avif',caption:'Sarn Pell — Great-Shell handler.'}],
-    'Mara Vell':[{src:'assets/npcs/v2/mara-vell.avif',caption:'Mara Vell — Dust Broker at Valve Court.'}]
+    'Brannic Hale':[{src:'assets/npcs/v2/brannic-hale-player-portrait.jpg',caption:'Brannic Hale — commander of the Tower Watch.',portrait:true,focal:'50% 34%'}],
+    'Sister Elowen':[{src:'assets/npcs/v2/sister-elowen-player-portrait.jpg',caption:'Sister Elowen — public voice among the Faithful.',portrait:true,focal:'50% 31%'}],
+    'Joric Noll':[{src:'assets/npcs/v2/joric-noll.jpg',caption:'Joric Noll — survivor of Kestrel Return.',portrait:true,focal:'50% 32%'}],
+    'Talla Reed':[{src:'assets/npcs/v2/talla-reed.jpg',caption:'Talla Reed — Greywake runner and messenger.',portrait:true,focal:'50% 32%'}],
+    'Maela Rusk':[{src:'assets/npcs/v2/maela-rusk.avif',caption:'Maela Rusk — caravan leader at Stone-Lip Hollow.',portrait:true,focal:'50% 32%'}],
+    'Rennic Vale':[{src:'assets/npcs/v2/rennic-vale.avif',caption:'Rennic Vale — guardian of the sealed case.',portrait:true,focal:'50% 32%'}],
+    'Sarn Pell':[{src:'assets/npcs/v2/sarn-pell.avif',caption:'Sarn Pell — Great-Shell handler.',portrait:true,focal:'50% 32%'}],
+    'Mara Vell':[{src:'assets/npcs/v2/mara-vell.avif',caption:'Mara Vell — Dust Broker at Valve Court.',portrait:true,focal:'50% 32%'}]
   };
 
   const sidebar=document.getElementById('sidebar');
@@ -34,7 +34,7 @@
   const lightboxCaption=document.getElementById('lightboxCaption');
 
   const routeFor=name=>'#/record/'+encodeURIComponent(name);
-  const escapeHTML=value=>String(value).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  const escapeHTML=value=>String(value).replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]));
   const escapeRegExp=value=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
   function go(hash){if(location.hash===hash)renderRoute();else location.hash=hash;}
@@ -64,10 +64,10 @@
 
   function buildDiscoveries(){const host=document.getElementById('discoveryGrid');host.innerHTML='';DISC.forEach(item=>{if(!DATA[item.note])return;const b=document.createElement('button');b.className='discovery-card';b.dataset.record=item.note;b.innerHTML=`<img src="${escapeHTML(item.image||'')}" alt=""><div class="discovery-copy"><small>${escapeHTML(item.kind||'Discovery')}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.text||'')}</p><em>${escapeHTML(item.when||'')}</em></div>`;b.querySelector('img')?.addEventListener('error',e=>e.currentTarget.remove());host.appendChild(b);});}
 
-  function mediaItems(name){if(DIRECT_MEDIA[name])return DIRECT_MEDIA[name];return(MEDIA[name]||[]).filter(item=>item&&(item.src||item.b64||item.parts)).map(item=>({src:item.src,b64:item.b64,parts:item.parts,mime:item.mime,caption:item.caption||''}));}
+  function mediaItems(name){if(DIRECT_MEDIA[name])return DIRECT_MEDIA[name];return(MEDIA[name]||[]).filter(item=>item&&(item.src||item.b64||item.parts)).map(item=>({src:item.src,b64:item.b64,parts:item.parts,mime:item.mime,caption:item.caption||'',portrait:item.portrait,focal:item.focal}));}
   function mediaHTML(name){
     const items=mediaItems(name);if(!items.length)return'';
-    return`<section class="record-media">${items.map((item,i)=>{let image;if(item.parts)image=`<img data-media-index="${i}" data-parts="1" alt="${escapeHTML(DATA[name]?.title||name)}">`;else if(item.b64)image=`<img data-b64-src="${escapeHTML(item.b64)}" data-mime="${escapeHTML(item.mime||'image/jpeg')}" alt="${escapeHTML(DATA[name]?.title||name)}">`;else image=`<img src="${escapeHTML(item.src)}" alt="${escapeHTML(DATA[name]?.title||name)}">`;return`<figure>${image}<figcaption>${escapeHTML(item.caption||DATA[name]?.title||name)}</figcaption></figure>`;}).join('')}</section>`;
+    return`<section class="record-media${items.some(item=>item.portrait)?' has-portrait':''}">${items.map((item,i)=>{const cls=item.portrait?' class="portrait-figure"':'';const style=item.focal?` style="--portrait-focal:${escapeHTML(item.focal)}"`:'';let image;if(item.parts)image=`<img data-media-index="${i}" data-parts="1" alt="${escapeHTML(DATA[name]?.title||name)}">`;else if(item.b64)image=`<img data-b64-src="${escapeHTML(item.b64)}" data-mime="${escapeHTML(item.mime||'image/jpeg')}" alt="${escapeHTML(DATA[name]?.title||name)}">`;else image=`<img src="${escapeHTML(item.src)}" alt="${escapeHTML(DATA[name]?.title||name)}">`;return`<figure${cls}${style}>${image}<figcaption>${escapeHTML(item.caption||DATA[name]?.title||name)}</figcaption></figure>`;}).join('')}</section>`;
   }
 
   async function hydrateMedia(scope,name){
