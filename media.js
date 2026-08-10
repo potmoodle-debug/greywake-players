@@ -2,6 +2,7 @@ window.GREYWAKE_MEDIA={
   "Greywake":[{"src":"assets/tower-close.jpg","caption":"The White Tower from within Greywake."},{"src":"assets/tower-distant.jpg","caption":"Greywake across the wastes."}],
   "Great-Shell":[{"src":"assets/great-shell.jpg","caption":"Great-Shell — canon visual reference."}],
   "Cacklemaw Pack":[{"src":"assets/cacklemaw.jpg","caption":"Cacklemaw pack near Stone-Lip Hollow."}],
+  "Latchfan":[{"src":"assets/flora/latchfan.jpg","caption":"Latchfan — mature specimen, canon visual reference."}],
   "Stone-Lip Hollow":[{"src":"assets/stone-lip.jpg","caption":"Approach to Stone-Lip Hollow through the Broken Runnels."}],
   "Maela Rusk":[{"src":"assets/npcs/v2/maela-rusk.avif","caption":"Maela Rusk — caravan leader at Stone-Lip Hollow."}],
   "Rennic Vale":[{"src":"assets/npcs/v2/rennic-vale.avif","caption":"Rennic Vale — guardian of the sealed case."}],
