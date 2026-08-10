@@ -13,16 +13,23 @@ jobs:
   live-smoke-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify deployed portrait files
+      - name: Verify deployed portrait files and v2 document
         shell: bash
         run: |
           set -euo pipefail
-          base='https://potmoodle-debug.github.io/greywake-players/assets/npcs/v2'
-          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/sister-elowen-player-portrait.jpg?verify=e1595047" -o /tmp/sister.jpg
-          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/brannic-hale-player-portrait.jpg?verify=e1595047" -o /tmp/brannic.jpg
+          base='https://potmoodle-debug.github.io/greywake-players'
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/assets/npcs/v2/sister-elowen-player-portrait.jpg?verify=e1595047" -o /tmp/sister.jpg
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/assets/npcs/v2/brannic-hale-player-portrait.jpg?verify=e1595047" -o /tmp/brannic.jpg
           echo 'bf6f58c9fd93783ba45620fc57362df51b354fdcdf1152770ec3c8003246a80a  /tmp/sister.jpg' | sha256sum -c -
           echo '05b2e98253c43d5f8049cd0065820d285f622cb37ddb930929cb5e8c2ab1bcfd  /tmp/brannic.jpg' | sha256sum -c -
           file /tmp/sister.jpg /tmp/brannic.jpg
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 3 "$base/v2/?verify=e1595047" -o /tmp/v2.html
+          grep -F 'Greywake — Player Archive v2' /tmp/v2.html
+          grep -F 'v2/app.js?v=portraits-20260810' /tmp/v2.html
+          grep -F 'brain-enhanced.js?v=brainrestore1' /tmp/v2.html
+          curl --fail --silent --show-error --location "$base/v2/app.js?v=portraits-20260810" -o /tmp/app.js
+          grep -F "sister-elowen-player-portrait.jpg" /tmp/app.js
+          grep -F "brannic-hale-player-portrait.jpg" /tmp/app.js
 
       - name: Install browser test tooling
         shell: bash
@@ -36,6 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
+          import time
           from urllib.parse import quote
           from selenium import webdriver
           from selenium.webdriver.common.by import By
@@ -47,12 +55,25 @@ jobs:
           options.add_argument('--no-sandbox')
           options.add_argument('--disable-dev-shm-usage')
           options.add_argument('--window-size=1440,1000')
+          options.set_capability('goog:loggingPrefs', {'browser':'ALL'})
           driver=webdriver.Chrome(options=options)
-          wait=WebDriverWait(driver,25)
+          wait=WebDriverWait(driver,30)
+
+          def debug(label):
+              print('\n---', label, '---')
+              print('URL:', driver.current_url)
+              print('TITLE:', driver.title)
+              print('READY:', driver.execute_script('return document.readyState'))
+              print('BODY:', driver.find_element(By.TAG_NAME,'body').text[:1500])
+              for entry in driver.get_log('browser'):
+                  print('BROWSER LOG:', entry)
 
           def check_record(name, asset, required_text, forbidden=()):
               driver.get(BASE+'#/record/'+quote(name))
-              wait.until(lambda d: name in d.find_element(By.CSS_SELECTOR,'#recordView h1').text)
+              wait.until(lambda d: d.execute_script('return document.readyState')=='complete')
+              time.sleep(2)
+              debug(name)
+              wait.until(lambda d: d.find_elements(By.CSS_SELECTOR,'#recordView h1') and name in d.find_element(By.CSS_SELECTOR,'#recordView h1').text)
               img=wait.until(lambda d: d.find_element(By.CSS_SELECTOR, f"#recordView .record-media img[src*='{asset}']"))
               wait.until(lambda d: d.execute_script('return arguments[0].complete && arguments[0].naturalWidth > 0 && arguments[0].naturalHeight > 0', img))
               assert img.get_attribute('src').startswith('https://potmoodle-debug.github.io/greywake-players/assets/npcs/v2/'), img.get_attribute('src')
@@ -62,10 +83,12 @@ jobs:
               for word in forbidden:
                   assert word.lower() not in low, f'Forbidden public wording {word!r} found in {name}'
 
-          check_record('Sister Elowen','sister-elowen-player-portrait.jpg','public voice among the Faithful')
-          check_record('Brannic Hale','brannic-hale-player-portrait.jpg','commander of the Tower Watch',('ration records','cistern keeper'))
-          driver.quit()
-          print('Live NPC portrait records passed.')
+          try:
+              check_record('Sister Elowen','sister-elowen-player-portrait.jpg','public voice among the Faithful')
+              check_record('Brannic Hale','brannic-hale-player-portrait.jpg','commander of the Tower Watch',('ration records','cistern keeper'))
+              print('Live NPC portrait records passed.')
+          finally:
+              driver.quit()
           PY
 
       - name: Verify Player Brain desktop interaction
@@ -86,7 +109,7 @@ jobs:
           options.add_argument('--disable-dev-shm-usage')
           options.add_argument('--window-size=1440,1000')
           driver=webdriver.Chrome(options=options)
-          wait=WebDriverWait(driver,25)
+          wait=WebDriverWait(driver,30)
           driver.get(BASE+'#/brain')
           wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center'))==1)
           wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR,'#graph .brain-circle-node:not(.is-center)'))>0)
@@ -98,7 +121,7 @@ jobs:
 
           status=driver.find_element(By.ID,'brainHoverStatus')
           svg=driver.find_element(By.CSS_SELECTOR,'#graph .brain-network-svg')
-          assert status.rect['y'] >= svg.rect['y'], 'Relationship/status panel is not below the graph.'
+          assert status.rect['y'] >= svg.rect['y'] + svg.rect['height'] - 2, f"Status panel is not below graph: status={status.rect} svg={svg.rect}"
           assert 'Brannic Hale' in status.text and 'direct' in status.text.lower(), status.text
 
           neighbor=driver.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node:not(.is-center)')
@@ -117,7 +140,7 @@ jobs:
 
           center=driver.find_element(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center')
           center.click()
-          wait.until(lambda d: '#/record/Brannic%20Hale' in d.current_url or '#/record/Brannic%20Hale'.lower() in d.current_url.lower())
+          wait.until(lambda d: '#/record/Brannic%20Hale' in d.current_url)
           wait.until(lambda d: 'Brannic Hale' in d.find_element(By.CSS_SELECTOR,'#recordView h1').text)
           driver.quit()
           print('Player Brain desktop interaction passed.')
@@ -138,10 +161,10 @@ jobs:
           options.add_argument('--headless=new')
           options.add_argument('--no-sandbox')
           options.add_argument('--disable-dev-shm-usage')
-          mobile={'deviceMetrics':{'width':390,'height':844,'pixelRatio':2.0},'userAgent':'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/151 Mobile Safari/537.36'}
+          mobile={'deviceMetrics':{'width':390,'height':844,'pixelRatio':2.0},'userAgent':'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/150 Mobile Safari/537.36'}
           options.add_experimental_option('mobileEmulation',mobile)
           driver=webdriver.Chrome(options=options)
-          wait=WebDriverWait(driver,25)
+          wait=WebDriverWait(driver,30)
           driver.get(BASE+'#/brain')
           wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR,'#graph .brain-circle-node.is-center'))==1)
           Select(driver.find_element(By.ID,'brainJump')).select_by_value('Sister Elowen')
