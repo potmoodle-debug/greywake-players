@@ -2,46 +2,62 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#12120f">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#090907">
 <title>Broken Runnels — Greywake 360</title>
-<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090907;color:#e9e4d4;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
-#hud{position:fixed;z-index:20;left:16px;top:16px;max-width:min(440px,calc(100vw - 32px));background:rgba(14,14,11,.82);border:1px solid #5b5233;backdrop-filter:blur(8px);padding:13px 15px;box-shadow:0 12px 40px #0007;pointer-events:auto}
-#hud .eyebrow{color:#b4a168;font-size:10px;letter-spacing:.2em;font-weight:800;text-transform:uppercase}
-#hud h1{font:26px/1.05 Georgia,serif;margin:5px 0 6px}
-#hud p{margin:0;color:#c2baa4;font-size:12px;line-height:1.5}
-#hud .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-#hud a,#hud button{appearance:none;background:#171712;border:1px solid #554d31;color:#e3d7ad;padding:8px 10px;text-decoration:none;cursor:pointer;text-transform:uppercase;letter-spacing:.1em;font-size:9px}
-#tip{position:fixed;z-index:20;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(14,14,11,.78);border:1px solid #4a432d;color:#d3cab1;padding:8px 12px;font-size:10px;letter-spacing:.06em;white-space:nowrap;pointer-events:none}
-.a-enter-vr{right:18px!important;bottom:18px!important}
-@media(max-width:600px){#hud{top:10px;left:10px;max-width:calc(100vw - 20px);padding:10px 12px}#hud h1{font-size:21px}#hud p{font-size:11px}#tip{bottom:72px;max-width:calc(100vw - 24px);white-space:normal;text-align:center}}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090907;color:#e9e4d4;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none}
+#view{position:fixed;inset:0;width:100%;height:100%;display:block;background:#090907}
+#fallback{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#hud{position:fixed;z-index:20;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));max-width:min(450px,calc(100vw - 24px));background:rgba(14,14,11,.84);border:1px solid #5b5233;backdrop-filter:blur(8px);padding:12px 14px;box-shadow:0 12px 40px #0008}
+.eyebrow{color:#b4a168;font-size:9px;letter-spacing:.2em;font-weight:800;text-transform:uppercase}h1{font:25px/1.05 Georgia,serif;margin:5px 0 6px}p{margin:0;color:#c2baa4;font-size:12px;line-height:1.45}.actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}.actions a,.actions button{appearance:none;background:#171712;border:1px solid #554d31;color:#e3d7ad;padding:8px 10px;text-decoration:none;cursor:pointer;text-transform:uppercase;letter-spacing:.09em;font-size:9px}.actions button:active,.actions a:active{background:#29261b}
+#tip{position:fixed;z-index:18;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(14,14,11,.78);border:1px solid #4a432d;color:#d3cab1;padding:8px 12px;font-size:10px;letter-spacing:.05em;white-space:nowrap;transition:opacity .5s}
+#status{position:fixed;z-index:30;inset:0;display:grid;place-items:center;background:#090907;color:#b4a168;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+@media(max-width:620px){#hud{max-width:calc(100vw - 24px);padding:10px 12px}h1{font-size:21px}p{font-size:11px}#tip{bottom:10px;max-width:calc(100vw - 24px);white-space:normal;text-align:center}}
 </style>
 </head>
 <body>
+<canvas id="view" aria-label="Interactive 360 degree view of the Broken Runnels"></canvas>
+<img id="fallback" src="assets/360/broken-runnels-360.jpg" alt="Broken Runnels panorama">
+<div id="status">Loading Broken Runnels…</div>
 <div id="hud">
   <div class="eyebrow">PLAYER VIEW · 360 EXPEDITION</div>
   <h1>Broken Runnels</h1>
-  <p>Leave the main caravan line and look around from human eye height inside the broken channels. Sightlines collapse quickly between the rock cuts.</p>
+  <p>Drag to look around. On Quest, use Fullscreen and optionally Motion Look so turning your head changes the view.</p>
   <div class="actions">
-    <a href="index.html">← Back to Greywake</a>
+    <a href="index.html">← Greywake</a>
+    <button id="fullscreen">Fullscreen</button>
+    <button id="motion">Motion look</button>
     <button id="hideHud">Hide notes</button>
   </div>
 </div>
-<div id="tip">Drag to look around · Quest: use Enter VR for immersive view</div>
-<a-scene vr-mode-ui="enabled: true" renderer="colorManagement: true; physicallyCorrectLights: true" loading-screen="backgroundColor: #090907; dotsColor: #b4a168">
-  <a-assets timeout="30000">
-    <img id="runnels360" src="assets/360/broken-runnels-360.jpg" crossorigin="anonymous">
-  </a-assets>
-  <a-sky src="#runnels360" rotation="0 -90 0"></a-sky>
-  <a-entity camera look-controls="reverseMouseDrag: false" position="0 1.65 0"></a-entity>
-</a-scene>
+<div id="tip">Drag to look around · pinch/wheel to zoom</div>
 <script>
-const hud=document.getElementById('hud');
-const btn=document.getElementById('hideHud');
-btn.addEventListener('click',()=>{hud.style.display='none'});
-setTimeout(()=>{const tip=document.getElementById('tip'); if(tip) tip.style.opacity='.35'},7000);
+(() => {
+const canvas=document.getElementById('view'), status=document.getElementById('status'), fallback=document.getElementById('fallback');
+const gl=canvas.getContext('webgl',{antialias:false,alpha:false})||canvas.getContext('experimental-webgl');
+if(!gl){fallback.style.display='block';canvas.style.display='none';status.textContent='360 rendering unavailable — showing panorama';setTimeout(()=>status.style.display='none',1500);return;}
+const vs=`attribute vec2 p;varying vec2 uv;void main(){uv=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
+const fs=`precision highp float;varying vec2 uv;uniform sampler2D tex;uniform float aspect;uniform float fov;uniform float yaw;uniform float pitch;const float PI=3.141592653589793;void main(){vec2 q=uv*2.-1.;q.y=-q.y;float t=tan(fov*.5);vec3 d=normalize(vec3(q.x*aspect*t,q.y*t,-1.));float cp=cos(pitch),sp=sin(pitch);d=vec3(d.x,d.y*cp-d.z*sp,d.y*sp+d.z*cp);float cy=cos(yaw),sy=sin(yaw);d=vec3(d.x*cy-d.z*sy,d.y,d.x*sy+d.z*cy);float lon=atan(d.x,-d.z);float lat=asin(clamp(d.y,-1.,1.));vec2 e=vec2(.5+lon/(2.*PI),.5-lat/PI);gl_FragColor=texture2D(tex,e);}`;
+function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
+const prog=gl.createProgram();gl.attachShader(prog,shader(gl.VERTEX_SHADER,vs));gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);
+const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);const pl=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
+const uAspect=gl.getUniformLocation(prog,'aspect'),uFov=gl.getUniformLocation(prog,'fov'),uYaw=gl.getUniformLocation(prog,'yaw'),uPitch=gl.getUniformLocation(prog,'pitch');
+let yaw=-Math.PI/2,pitch=0,fov=75*Math.PI/180,drag=false,lastX=0,lastY=0,lastDist=0,motion=false,baseAlpha=null,baseBeta=null;
+function resize(){const d=Math.min(devicePixelRatio||1,2);const w=Math.round(innerWidth*d),h=Math.round(innerHeight*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h)}}
+function draw(){resize();gl.uniform1f(uAspect,canvas.width/canvas.height);gl.uniform1f(uFov,fov);gl.uniform1f(uYaw,yaw);gl.uniform1f(uPitch,pitch);gl.drawArrays(gl.TRIANGLES,0,6);requestAnimationFrame(draw)}
+const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+const img=new Image();img.onload=()=>{gl.bindTexture(gl.TEXTURE_2D,tex);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);status.style.display='none';draw()};img.onerror=()=>{fallback.style.display='block';canvas.style.display='none';status.textContent='Panorama could not load';};img.src='assets/360/broken-runnels-360.jpg?v=2';
+function clampPitch(){pitch=Math.max(-1.48,Math.min(1.48,pitch))}
+canvas.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture?.(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;yaw-=dx*.0045;pitch-=dy*.0045;clampPitch()});canvas.addEventListener('pointerup',()=>drag=false);canvas.addEventListener('pointercancel',()=>drag=false);
+canvas.addEventListener('wheel',e=>{e.preventDefault();fov=Math.max(35*Math.PI/180,Math.min(100*Math.PI/180,fov+e.deltaY*.0007))},{passive:false});
+canvas.addEventListener('touchmove',e=>{if(e.touches.length===2){const a=e.touches[0],b=e.touches[1],d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);if(lastDist){fov=Math.max(35*Math.PI/180,Math.min(100*Math.PI/180,fov-(d-lastDist)*.002))}lastDist=d}},{passive:false});canvas.addEventListener('touchend',()=>lastDist=0);
+function orientation(e){if(!motion||e.alpha==null)return;if(baseAlpha==null){baseAlpha=e.alpha;baseBeta=e.beta||0}const da=((e.alpha-baseAlpha+540)%360)-180;const db=(e.beta||0)-baseBeta;yaw=-Math.PI/2-da*Math.PI/180;pitch=-db*Math.PI/180;clampPitch()}
+window.addEventListener('deviceorientation',orientation,true);
+document.getElementById('motion').onclick=async()=>{try{if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')return}motion=!motion;baseAlpha=null;baseBeta=null;document.getElementById('motion').textContent=motion?'Motion on':'Motion look'}catch(e){document.getElementById('motion').textContent='Motion unavailable'}};
+document.getElementById('fullscreen').onclick=async()=>{try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch(e){}};
+document.getElementById('hideHud').onclick=()=>document.getElementById('hud').style.display='none';setTimeout(()=>document.getElementById('tip').style.opacity='.3',6500);
+})();
 </script>
 </body>
 </html>
