@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#12120f">
+<title>Broken Runnels — Greywake 360</title>
+<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090907;color:#e9e4d4;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+#hud{position:fixed;z-index:20;left:16px;top:16px;max-width:min(440px,calc(100vw - 32px));background:rgba(14,14,11,.82);border:1px solid #5b5233;backdrop-filter:blur(8px);padding:13px 15px;box-shadow:0 12px 40px #0007;pointer-events:auto}
+#hud .eyebrow{color:#b4a168;font-size:10px;letter-spacing:.2em;font-weight:800;text-transform:uppercase}
+#hud h1{font:26px/1.05 Georgia,serif;margin:5px 0 6px}
+#hud p{margin:0;color:#c2baa4;font-size:12px;line-height:1.5}
+#hud .actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+#hud a,#hud button{appearance:none;background:#171712;border:1px solid #554d31;color:#e3d7ad;padding:8px 10px;text-decoration:none;cursor:pointer;text-transform:uppercase;letter-spacing:.1em;font-size:9px}
+#tip{position:fixed;z-index:20;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(14,14,11,.78);border:1px solid #4a432d;color:#d3cab1;padding:8px 12px;font-size:10px;letter-spacing:.06em;white-space:nowrap;pointer-events:none}
+.a-enter-vr{right:18px!important;bottom:18px!important}
+@media(max-width:600px){#hud{top:10px;left:10px;max-width:calc(100vw - 20px);padding:10px 12px}#hud h1{font-size:21px}#hud p{font-size:11px}#tip{bottom:72px;max-width:calc(100vw - 24px);white-space:normal;text-align:center}}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div class="eyebrow">PLAYER VIEW · 360 EXPEDITION</div>
+  <h1>Broken Runnels</h1>
+  <p>Leave the main caravan line and look around from human eye height inside the broken channels. Sightlines collapse quickly between the rock cuts.</p>
+  <div class="actions">
+    <a href="index.html">← Back to Greywake</a>
+    <button id="hideHud">Hide notes</button>
+  </div>
+</div>
+<div id="tip">Drag to look around · Quest: use Enter VR for immersive view</div>
+<a-scene vr-mode-ui="enabled: true" renderer="colorManagement: true; physicallyCorrectLights: true" loading-screen="backgroundColor: #090907; dotsColor: #b4a168">
+  <a-assets timeout="30000">
+    <img id="runnels360" src="assets/360/broken-runnels-360.jpg" crossorigin="anonymous">
+  </a-assets>
+  <a-sky src="#runnels360" rotation="0 -90 0"></a-sky>
+  <a-entity camera look-controls="reverseMouseDrag: false" position="0 1.65 0"></a-entity>
+</a-scene>
+<script>
+const hud=document.getElementById('hud');
+const btn=document.getElementById('hideHud');
+btn.addEventListener('click',()=>{hud.style.display='none'});
+setTimeout(()=>{const tip=document.getElementById('tip'); if(tip) tip.style.opacity='.35'},7000);
+</script>
+</body>
+</html>
