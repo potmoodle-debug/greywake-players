@@ -8,8 +8,8 @@ window.GREYWAKE_MEDIA = {
     {"b64":"assets/obsidian-b64/odie-equipment-and-repair-reference-board.b64","mime":"image/avif","caption":"Odie — equipment and repair reference board."}
   ],
   "Velmira": [
-    {"src":"assets/obsidian/velmira-character-poster.avif","caption":"Velmira — character poster."},
-    {"src":"assets/obsidian/velmira-trader-kit-labelled.avif","caption":"Velmira — trader kit."}
+    {"b64":"assets/obsidian-b64/velmira-poster-v2.b64","mime":"image/webp","caption":"Velmira — character poster."},
+    {"b64":"assets/obsidian-b64/velmira-kit-v2.b64","mime":"image/webp","caption":"Velmira — trader kit."}
   ],
   "Great-Shell": [
     {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
