@@ -11,6 +11,9 @@ window.GREYWAKE_MEDIA = {
     {"parts":["assets/obsidian-b64/velmira-poster/01.b64","assets/obsidian-b64/velmira-poster/02.b64","assets/obsidian-b64/velmira-poster/03.b64"],"mime":"image/webp","caption":"Velmira — character poster."},
     {"parts":["assets/obsidian-b64/velmira-kit/01.b64","assets/obsidian-b64/velmira-kit/02.b64","assets/obsidian-b64/velmira-kit/03.b64"],"mime":"image/webp","caption":"Velmira — trader kit."}
   ],
+  "Talla Reed": [
+    {"b64":"assets/obsidian-b64/talla-reed/01.b64","mime":"image/webp","caption":"Talla Reed — Greywake runner."}
+  ],
   "Great-Shell": [
     {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
   ],
