@@ -8,8 +8,8 @@ window.GREYWAKE_MEDIA={
   "Rennic Vale":[{"src":"assets/npcs/v2/rennic-vale.avif","caption":"Rennic Vale — guardian of the sealed case."}],
   "Sarn Pell":[{"src":"assets/npcs/v2/sarn-pell.avif","caption":"Sarn Pell — Great-Shell pen handler."}],
   "Mara Vell":[{"src":"assets/npcs/v2/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}],
-  "Brannic Hale":[{"src":"assets/brannic-hale-v2.jpg","caption":"Brannic Hale — commander of the Tower Watch."}],
-  "Sister Elowen":[{"b64":"assets/portraits/sister-elowen.b64","mime":"image/jpeg","caption":"Sister Elowen — public voice among the Faithful."}],
-  "Talla Reed":[{"b64":"assets/portraits/talla-reed.b64","mime":"image/jpeg","caption":"Talla Reed — Greywake runner and messenger."}],
-  "Joric Noll":[{"b64":"assets/portraits/joric-noll.b64","mime":"image/jpeg","caption":"Joric Noll — survivor of Kestrel Return."}]
+  "Brannic Hale":[{"src":"assets/npcs/v2/brannic-hale-player-portrait.jpg","caption":"Brannic Hale — commander of the Tower Watch."}],
+  "Sister Elowen":[{"src":"assets/npcs/v2/sister-elowen-player-portrait.jpg","caption":"Sister Elowen — public voice among the Faithful."}],
+  "Talla Reed":[{"src":"assets/npcs/v2/talla-reed.jpg","caption":"Talla Reed — Greywake runner and messenger."}],
+  "Joric Noll":[{"src":"assets/npcs/v2/joric-noll.jpg","caption":"Joric Noll — survivor of Kestrel Return."}]
 };
