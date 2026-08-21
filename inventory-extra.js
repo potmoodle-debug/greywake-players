@@ -1,0 +1,8 @@
+(function(){
+const D=window.GREYWAKE_DATA,E=window.GREYWAKE_EDGES,C=window.GREYWAKE_CATEGORIES;
+D['Clay — Equipment']={title:'Clay — Equipment',category:'Equipment',html:'<p>Clay’s current carried equipment as confirmed from his Demiplane character sheet.</p><ul><li>Torch</li><li>50 ft of rope</li><li>Basic supplies</li><li>Shortbow — primary weapon, physical, two-handed</li><li>Shortsword — secondary weapon, one-handed</li><li>Gambeson armor</li><li>A seemingly broken compass</li><li>Minor Stamina Potion — immediately clears 1d4 Stress</li></ul>'};
+D['Odie — Equipment']={title:'Odie — Equipment',category:'Equipment',html:'<p>Odie’s current carried equipment as confirmed from his Demiplane character sheet.</p><ul><li>Torch</li><li>50 ft of rope</li><li>Basic supplies</li><li>Spear — primary weapon, physical, two-handed</li><li>Small dagger — secondary weapon, one-handed</li><li>Gambeson armor</li><li>A grappling hook</li><li>Minor Health Potion — immediately clears 1d4 Hit Points</li></ul>'};
+D['Velmira — Equipment']={title:'Velmira — Equipment',category:'Equipment',html:'<p>Velmira’s current carried equipment as confirmed from her Demiplane character sheet.</p><ul><li>Torch</li><li>50 ft of rope</li><li>Basic supplies</li><li>Minor Stamina Potion — immediately clears 1d4 Stress</li><li>Nomadic pack</li><li>Whip — secondary weapon, one-handed</li><li>Greatstaff — primary weapon, magic, two-handed</li><li>A book you’re trying to translate</li><li>Leather armor</li><li>Leather satchel</li></ul>'};
+C['Equipment']=['Clay — Equipment','Odie — Equipment','Velmira — Equipment'];
+E.push(['Clay','Clay — Equipment'],['Odie','Odie — Equipment'],['Velmira','Velmira — Equipment']);
+})();
