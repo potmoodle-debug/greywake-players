@@ -1,5 +1,5 @@
 const DATA=window.GREYWAKE_DATA,EDGES=window.GREYWAKE_EDGES,CATS=window.GREYWAKE_CATEGORIES;
-const DISC=window.GREYWAKE_DISCOVERIES||[],MEDIA=window.GREYWAKE_MEDIA||{};
+const DISC=window.GREYWAKE_DISCOVERIES||[];
 const nav=document.getElementById('nav'),article=document.getElementById('article'),brain=document.getElementById('brainView'),home=document.getElementById('home');
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
@@ -22,73 +22,14 @@ function buildNav(filter=''){
    nav.appendChild(g);
  }
 }
+
 function renderDiscoveries(){
  const grid=document.getElementById('discoveryGrid');if(!grid)return;grid.innerHTML='';
- DISC.forEach(d=>{const b=document.createElement('button');b.className='discovery-card';b.onclick=()=>go(routeFor(d.note));b.innerHTML=`<img src="${d.image}" alt=""><div><small>${d.kind}</small><strong>${d.title}</strong><p>${d.text}</p><em>${d.when}</em></div>`;grid.appendChild(b)})
-}
-function mediaHTML(name){
- const arr=MEDIA[name]||[];if(!arr.length)return'';
- return `<div class="article-media">${arr.map((x,i)=>{
-   const image=x.parts
-     ? `<img data-media-index="${i}" data-parts="1" alt="${DATA[name]?.title||name} portrait">`
-     : x.api
-       ? `<img data-api-src="${x.api}" data-mime="${x.mime||'image/jpeg'}" alt="${DATA[name]?.title||name} portrait">`
-       : x.b64
-         ? `<img data-b64-src="${x.b64}" data-mime="${x.mime||'image/webp'}" alt="${DATA[name]?.title||name} portrait">`
-         : `<img src="${x.src}" alt="">`;
-   return `<figure>${image}<figcaption>${x.caption}</figcaption></figure>`;
- }).join('')}</div>`
-}
-async function hydrateBase64Images(name){
- const arr=MEDIA[name]||[];
- const apiImgs=[...article.querySelectorAll('img[data-api-src]')];
- await Promise.all(apiImgs.map(async img=>{
-   try{
-     const response=await fetch(img.dataset.apiSrc,{cache:'no-store',headers:{Accept:'application/vnd.github+json'}});
-     if(!response.ok)throw new Error(`HTTP ${response.status}`);
-     const payload=await response.json();
-     const encoded=(payload.content||'').replace(/\s+/g,'');
-     if(!encoded)throw new Error('Empty portrait data');
-     img.src=`data:${img.dataset.mime||'image/jpeg'};base64,${encoded}`;
-     img.removeAttribute('data-api-src');
-   }catch(err){
-     console.error('Portrait API load failed',err);
-     img.alt='Portrait unavailable';
-   }
- }));
- const partImgs=[...article.querySelectorAll('img[data-parts]')];
- await Promise.all(partImgs.map(async img=>{
-   try{
-     const item=arr[Number(img.dataset.mediaIndex)];
-     if(!item?.parts?.length)throw new Error('Missing portrait parts');
-     const chunks=await Promise.all(item.parts.map(async src=>{
-       const response=await fetch(src,{cache:'no-store'});
-       if(!response.ok)throw new Error(`HTTP ${response.status}`);
-       return (await response.text()).trim();
-     }));
-     const encoded=chunks.join('');
-     if(!encoded)throw new Error('Empty portrait data');
-     img.src=`data:${item.mime||'image/avif'};base64,${encoded}`;
-     img.removeAttribute('data-parts');
-   }catch(err){
-     console.error('Portrait load failed',err);
-     img.alt='Portrait unavailable';
-   }
- }));
- const imgs=[...article.querySelectorAll('img[data-b64-src]')];
- await Promise.all(imgs.map(async img=>{
-   try{
-     const response=await fetch(img.dataset.b64Src,{cache:'no-store'});
-     if(!response.ok)throw new Error(`HTTP ${response.status}`);
-     const encoded=(await response.text()).trim();
-     if(!encoded)throw new Error('Empty portrait data');
-     img.src=`data:${img.dataset.mime||'image/webp'};base64,${encoded}`;
-     img.removeAttribute('data-b64-src');
-   }catch(err){
-     console.error('Portrait load failed',err);
-     img.alt='Portrait unavailable';
-   }
- }));
+ DISC.forEach(d=>{
+   const b=document.createElement('button');b.className='discovery-card text-only';b.onclick=()=>go(routeFor(d.note));
+   b.innerHTML=`<div><small>${d.kind}</small><strong>${d.title}</strong><p>${d.text}</p><em>${d.when}</em></div>`;
+   grid.appendChild(b);
+ });
 }
 
 function autoLinkHTML(html,current){
@@ -98,20 +39,28 @@ function autoLinkHTML(html,current){
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
  nodes.forEach(node=>{
    if(node.parentElement?.closest('a,button,script,style'))return;
-   let text=node.nodeValue,parts=[{text,linked:false}];
+   let parts=[{text:node.nodeValue,linked:false}];
    for(const name of names){
      const title=DATA[name].title||name;
      const re=new RegExp(`\\b(${escapeRegExp(title)})\\b`,'gi');
      parts=parts.flatMap(p=>{
        if(p.linked)return[p];
        const out=[];let last=0,m;re.lastIndex=0;
-       while((m=re.exec(p.text))){if(m.index>last)out.push({text:p.text.slice(last,m.index),linked:false});out.push({text:m[0],linked:true,name});last=m.index+m[0].length}
-       if(last<p.text.length)out.push({text:p.text.slice(last),linked:false});return out.length?out:[p]
+       while((m=re.exec(p.text))){
+         if(m.index>last)out.push({text:p.text.slice(last,m.index),linked:false});
+         out.push({text:m[0],linked:true,name});
+         last=m.index+m[0].length;
+       }
+       if(last<p.text.length)out.push({text:p.text.slice(last),linked:false});
+       return out.length?out:[p];
      });
    }
    if(parts.some(p=>p.linked)){
      const frag=document.createDocumentFragment();
-     parts.forEach(p=>{if(!p.linked)frag.appendChild(document.createTextNode(p.text));else{const a=document.createElement('a');a.href=routeFor(p.name);a.dataset.note=p.name;a.textContent=p.text;frag.appendChild(a)}});
+     parts.forEach(p=>{
+       if(!p.linked)frag.appendChild(document.createTextNode(p.text));
+       else{const a=document.createElement('a');a.href=routeFor(p.name);a.dataset.note=p.name;a.textContent=p.text;frag.appendChild(a)}
+     });
      node.replaceWith(frag);
    }
  });
@@ -119,11 +68,7 @@ function autoLinkHTML(html,current){
 }
 
 function categoryDirectoryHTML(name){
- const directories={
-   'Known Flora and Fauna':'Flora & Fauna',
-   'Known Locations':'Locations',
-   'Known People':'People'
- };
+ const directories={'Known Flora and Fauna':'Flora & Fauna','Known Locations':'Locations','Known People':'People'};
  const category=directories[name];if(!category)return'';
  const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]).sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
  if(!names.length)return'';
@@ -137,7 +82,7 @@ function relatedFor(name){
 }
 function relatedHTML(name){
  const related=relatedFor(name);if(!related.length)return'';
- return `<section class="related-records"><div class="related-kicker">CONNECTED RECORDS</div><h2>Related records</h2><div class="related-grid">${related.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`
+ return `<section class="related-records"><div class="related-kicker">CONNECTED RECORDS</div><h2>Related records</h2><div class="related-grid">${related.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;
 }
 function articleNav(){return `<div class="article-nav"><button id="articleBack">← Back</button><button id="articleHome">Archive home</button><button id="articleBrain">Player Brain</button></div>`}
 function wireArticleLinks(){
@@ -150,9 +95,8 @@ function showNote(name){
  if(!DATA[name]){go('#/');return}
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
  const body=autoLinkHTML(DATA[name].html,name);
- article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${mediaHTML(name)}${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
+ article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
- hydrateBase64Images(name);
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
  document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.note===name));
  window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.sidebar').classList.remove('open');
@@ -166,9 +110,10 @@ function showHome(){
  document.getElementById('crumb').textContent='Greywake / Player Brain';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderRoute(){const r=currentRoute();if(r.type==='record')showNote(r.name);else if(r.type==='brain')showBrain();else showHome()}
-function openCategory(cat){document.querySelector('.sidebar').classList.add('open');const g=[...document.querySelectorAll('.nav-group')].find(x=>x.querySelector('h3')?.textContent===cat);if(g)g.scrollIntoView({block:'start'})}
 
-document.getElementById('brainBtn').onclick=()=>go('#/brain');document.getElementById('heroBrain').onclick=()=>go('#/brain');document.getElementById('fieldBrain').onclick=()=>go('#/brain');
+document.getElementById('brainBtn').onclick=()=>go('#/brain');
+document.getElementById('heroBrain').onclick=()=>go('#/brain');
+document.getElementById('fieldBrain').onclick=()=>go('#/brain');
 document.getElementById('menuBtn').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
 document.getElementById('searchInput').addEventListener('input',e=>buildNav(e.target.value));
 document.querySelectorAll('[data-note]').forEach(x=>x.onclick=()=>go(routeFor(x.dataset.note)));
@@ -184,4 +129,5 @@ function drawGraph(){
  Object.values(nodes).forEach(nd=>{const g=document.createElementNS(svg.namespaceURI,'g');g.setAttribute('class','node'+(nd.name==='Player Brain'?' root':''));g.setAttribute('transform',`translate(${nd.x},${nd.y})`);const c=document.createElementNS(svg.namespaceURI,'circle');c.setAttribute('r',nd.name==='Player Brain'?38:25);g.appendChild(c);const t=document.createElementNS(svg.namespaceURI,'text');t.setAttribute('text-anchor','middle');t.setAttribute('y',nd.name==='Player Brain'?55:42);t.textContent=DATA[nd.name]?.title||nd.name;g.appendChild(t);g.onclick=()=>nd.name==='Player Brain'?go('#/brain'):go(routeFor(nd.name));svg.appendChild(g)});
  nodeCount.textContent=Object.keys(nodes).length;edgeCount.textContent=EDGES.length;
 }
+
 buildNav();renderDiscoveries();drawGraph();renderRoute();
