@@ -1,15 +1,24 @@
-window.GREYWAKE_MEDIA={
-  "Greywake":[{"src":"assets/tower-close.jpg","caption":"The White Tower from within Greywake."},{"src":"assets/tower-distant.jpg","caption":"Greywake across the wastes."}],
-  "Great-Shell":[{"src":"assets/great-shell.jpg","caption":"Great-Shell — canon visual reference."}],
-  "Cacklemaw Pack":[{"src":"assets/cacklemaw.jpg","caption":"Cacklemaw pack near Stone-Lip Hollow."}],
-  "Latchfan":[{"src":"assets/flora/latchfan.jpg?v=latchfan2","caption":"Latchfan — mature specimen, canon visual reference."}],
-  "Stone-Lip Hollow":[{"src":"assets/stone-lip.jpg","caption":"Approach to Stone-Lip Hollow through the Broken Runnels."}],
-  "Maela Rusk":[{"src":"assets/npcs/v2/maela-rusk.avif","caption":"Maela Rusk — caravan leader at Stone-Lip Hollow."}],
-  "Rennic Vale":[{"src":"assets/npcs/v2/rennic-vale.avif","caption":"Rennic Vale — guardian of the sealed case."}],
-  "Sarn Pell":[{"src":"assets/npcs/v2/sarn-pell.avif","caption":"Sarn Pell — Great-Shell pen handler."}],
-  "Mara Vell":[{"src":window.GREYWAKE_EMBEDDED_IMAGES["Mara Vell"],"caption":"Mara Vell — Dust Broker at Valve Court."}],
-  "Brannic Hale":[{"src":"assets/npcs/v2/brannic-hale-player-portrait.jpg","caption":"Brannic Hale — commander of the Tower Watch."}],
-  "Sister Elowen":[{"src":"assets/npcs/v2/sister-elowen-player-portrait.jpg","caption":"Sister Elowen — public voice among the Faithful."}],
-  "Talla Reed":[{"src":"assets/npcs/v2/talla-reed.jpg","caption":"Talla Reed — Greywake runner and messenger."}],
-  "Joric Noll":[{"src":"assets/npcs/v2/joric-noll.jpg","caption":"Joric Noll — survivor of Kestrel Return."}]
+window.GREYWAKE_MEDIA = {
+  "Clay": [
+    {"b64":"assets/obsidian-b64/clay-character-poster.b64","mime":"image/avif","caption":"Clay — character poster."},
+    {"parts":["assets/obsidian-b64/clay-ranger-loadout/01.b64","assets/obsidian-b64/clay-ranger-loadout/02.b64","assets/obsidian-b64/clay-ranger-loadout/03.b64"],"mime":"image/avif","caption":"Clay — ranger loadout."}
+  ],
+  "Odie": [
+    {"b64":"assets/obsidian-b64/odie-repairer-character-poster.b64","mime":"image/avif","caption":"Odie — repairer character poster."},
+    {"b64":"assets/obsidian-b64/odie-equipment-and-repair-reference-board.b64","mime":"image/avif","caption":"Odie — equipment and repair reference board."}
+  ],
+  "Velmira": [
+    {"src":"assets/obsidian/velmira-character-poster.avif","caption":"Velmira — character poster."},
+    {"src":"assets/obsidian/velmira-trader-kit-labelled.avif","caption":"Velmira — trader kit."}
+  ],
+  "Great-Shell": [
+    {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
+  ],
+  "Cacklemaw Pack": [
+    {"src":"assets/obsidian/cacklemaw-pack-stonelip-view.avif","caption":"Cacklemaw pack — Stone-Lip view."}
+  ],
+  "Latchfan": [
+    {"src":"assets/obsidian/latchfan-01-mature-specimen.avif","caption":"Latchfan — mature specimen."},
+    {"src":"assets/obsidian/latchfan-02-stonelip-habitat.avif","caption":"Latchfan — Stone-Lip habitat."}
+  ]
 };
