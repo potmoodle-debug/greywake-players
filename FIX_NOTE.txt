@@ -1,1 +1,0 @@
-Velmira site media now uses validated WebP payload chunks rather than direct AVIF asset URLs.
