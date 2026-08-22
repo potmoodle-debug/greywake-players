@@ -1,2 +1,0 @@
-Trigger verifiable AVIF portrait normalization for Greywake NPCs.
-Retry after recovering invalid Talla/Joric/Bessa/Hessa source files.
