@@ -12,28 +12,28 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/obsidian/velmira-trader-kit-labelled.avif","caption":"Velmira — trader kit."}
   ],
   "Mara Vell": [
-    {"src":"assets/generated/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}
+    {"src":"assets/npcs/v2/mara-vell.avif","caption":"Mara Vell — Dust Broker at Valve Court."}
   ],
   "High Keeper Varn": [
-    {"src":"assets/generated/high-keeper-varn.webp","caption":"High Keeper Varn — Cistern Keepers."}
+    {"src":"assets/npcs/v2/high-keeper-varn.avif","caption":"High Keeper Varn — Cistern Keepers."}
   ],
   "Selka Marr": [
-    {"src":"assets/generated/selka-marr.webp","caption":"Selka Marr — Caravan Syndicate representative."}
+    {"src":"assets/npcs/v2/selka-marr.avif","caption":"Selka Marr — Caravan Syndicate representative."}
   ],
   "Brannic Hale": [
-    {"src":"assets/generated/brannic-hale.webp","caption":"Brannic Hale — Tower Watch commander."}
+    {"src":"assets/npcs/v2/brannic-hale-player-portrait.jpg","caption":"Brannic Hale — Tower Watch commander."}
   ],
   "Sister Elowen": [
     {"src":"assets/npcs/v2/sister-elowen-player-portrait.jpg","caption":"Sister Elowen — a known voice of the Faithful."}
   ],
   "Nemi": [
-    {"src":"assets/generated/nemi.webp","caption":"Nemi — before the Stilling."}
+    {"src":"assets/npcs/v2/nemi.avif","caption":"Nemi — before the Stilling."}
   ],
   "Talla Reed": [
-    {"src":"assets/generated/talla-reed.webp","caption":"Talla Reed — Greywake runner."}
+    {"src":"assets/npcs/v2/talla-reed.jpg","caption":"Talla Reed — Greywake runner."}
   ],
   "Joric Noll": [
-    {"src":"assets/generated/joric-noll.webp","caption":"Joric Noll — Kestrel Return route-hand."}
+    {"src":"assets/npcs/v2/joric-noll.jpg","caption":"Joric Noll — Kestrel Return route-hand."}
   ],
   "Maela Rusk": [
     {"src":"assets/npcs/v2/maela-rusk.avif","caption":"Maela Rusk — Kestrel Return caravan leader."}
@@ -45,10 +45,10 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/rennic-vale.avif","caption":"Rennic Vale — Kestrel Return crew."}
   ],
   "Bessa Trant": [
-    {"src":"assets/generated/bessa-trant.webp","caption":"Bessa Trant — Kestrel Return survivor."}
+    {"src":"assets/npcs/v2/bessa-trant.webp","caption":"Bessa Trant — Kestrel Return survivor."}
   ],
   "Hessa Vey": [
-    {"src":"assets/generated/hessa-vey.webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
+    {"src":"assets/npcs/v2/hessa-vey.webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
   ],
   "Great-Shell": [
     {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
