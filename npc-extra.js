@@ -34,6 +34,11 @@ const people={
     category:"People",
     html:`<p>Nemi is a child from Tangle Lanes suffering from an active case of the Stilling. Her condition has become the subject of rumour and competing interpretations around Greywake; none of those interpretations is established here as the truth.</p>`
   },
+  "Hessa Vey":{
+    title:"Hessa Vey",
+    category:"People",
+    html:`<p>Hessa Vey is a senior Digger and salvage-claim organiser. People often turn to her when dangerous recoveries, competing crews or disputed salvage become difficult to sort out.</p><p>She is known for judging whether something is genuinely worth recovering, and for the view that Greywake cannot afford to leave useful material buried simply because somebody insists on a claim they are no longer willing to recover themselves.</p>`
+  },
   "Talla Reed":{
     title:"Talla Reed",
     category:"People",
@@ -80,6 +85,7 @@ window.GREYWAKE_DATA["Known People"]={
     <li><strong>Brannic Hale</strong> — commander of the Tower Watch.</li>
     <li><strong>Sister Elowen</strong> — known voice of the Faithful.</li>
     <li><strong>Nemi</strong> — child from Tangle Lanes suffering from the Stilling.</li>
+    <li><strong>Hessa Vey</strong> — senior Digger and salvage-claim organiser.</li>
   </ul>
   <h2>Kestrel Return</h2>
   <ul>
@@ -93,7 +99,7 @@ window.GREYWAKE_DATA["Known People"]={
   <p>This page records public or shared knowledge only. Private relationships, motives, fears and unrevealed information stay outside the archive.</p>`
 };
 
-window.GREYWAKE_CATEGORIES["People"]=["Known People","Mara Vell","High Keeper Varn","Selka Marr","Brannic Hale","Sister Elowen","Nemi","Talla Reed","Joric Noll","Maela Rusk","Sarn Pell","Rennic Vale","Bessa Trant"];
+window.GREYWAKE_CATEGORIES["People"]=["Known People","Mara Vell","High Keeper Varn","Selka Marr","Brannic Hale","Sister Elowen","Nemi","Hessa Vey","Talla Reed","Joric Noll","Maela Rusk","Sarn Pell","Rennic Vale","Bessa Trant"];
 
 const links=[
   ["Mara Vell","Greywake"],["Mara Vell","Known People"],["Mara Vell","Valve Court"],
@@ -102,6 +108,7 @@ const links=[
   ["Brannic Hale","Greywake"],["Brannic Hale","Known People"],
   ["Sister Elowen","Greywake"],["Sister Elowen","Known People"],
   ["Nemi","Greywake"],["Nemi","Known People"],
+  ["Hessa Vey","Greywake"],["Hessa Vey","Known People"],["Hessa Vey","Greater Greywake"],
   ["Talla Reed","Known People"],["Talla Reed","Session 01 — Player Recap"],
   ["Joric Noll","Joric's Runnel"],["Joric Noll","Stone-Lip Hollow"],["Joric Noll","Known People"],
   ["Maela Rusk","Stone-Lip Hollow"],["Maela Rusk","Known People"],
