@@ -2,10 +2,8 @@
 name: Normalize NPC portraits
 
 on:
-  push:
+  pull_request:
     branches: [main]
-    paths:
-      - '.github/workflows/normalize-npc-portraits.yml'
   workflow_dispatch:
 
 permissions:
@@ -16,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -47,17 +47,15 @@ jobs:
                   if im.mode not in ('RGB', 'RGBA'):
                       im = im.convert('RGB')
                   im.save(out, format='AVIF', quality=82, speed=6)
-                  print(f'{src} -> {out}')
 
           app = Path('v2/app.js')
           text = app.read_text(encoding='utf-8')
-          replacements = {
-              "assets/npcs/v2/brannic-hale-player-portrait.jpg": "assets/npcs/v2/brannic-hale.avif",
-              "assets/npcs/v2/sister-elowen-player-portrait.jpg": "assets/npcs/v2/sister-elowen.avif",
-              "assets/npcs/v2/joric-noll.jpg": "assets/npcs/v2/joric-noll.avif",
-              "assets/npcs/v2/talla-reed.jpg": "assets/npcs/v2/talla-reed.avif",
-          }
-          for old, new in replacements.items():
+          for old, new in {
+              'assets/npcs/v2/brannic-hale-player-portrait.jpg':'assets/npcs/v2/brannic-hale.avif',
+              'assets/npcs/v2/sister-elowen-player-portrait.jpg':'assets/npcs/v2/sister-elowen.avif',
+              'assets/npcs/v2/joric-noll.jpg':'assets/npcs/v2/joric-noll.avif',
+              'assets/npcs/v2/talla-reed.jpg':'assets/npcs/v2/talla-reed.avif',
+          }.items():
               text = text.replace(old, new)
 
           anchor = "    'Mara Vell':[{src:'assets/npcs/v2/mara-vell.avif',caption:'Mara Vell — Dust Broker at Valve Court.',portrait:true,focal:'50% 32%'}]"
@@ -68,24 +66,20 @@ jobs:
               "    'Hessa Vey':[{src:'assets/npcs/v2/hessa-vey.avif',caption:'Hessa Vey — senior Digger and salvage-claim organiser.',portrait:true,focal:'50% 32%'}]",
               "    'Bessa Trant':[{src:'assets/npcs/v2/bessa-trant.avif',caption:'Bessa Trant — Kestrel Return crew member.',portrait:true,focal:'50% 32%'}]",
           ]
-          if anchor in text:
-              missing = [line for line in additions if line.split("':",1)[0].strip() not in text]
-              if missing:
-                  text = text.replace(anchor, anchor + ',\n' + ',\n'.join(missing))
-          else:
+          if anchor not in text:
               raise SystemExit('DIRECT_MEDIA Mara Vell anchor not found; refusing unsafe edit')
-
+          missing = [line for line in additions if line.split("':",1)[0].strip() not in text]
+          if missing:
+              text = text.replace(anchor, anchor + ',\n' + ',\n'.join(missing))
           app.write_text(text, encoding='utf-8')
           PY
-      - name: Commit published portrait normalization
+      - name: Commit AVIF portraits to PR branch
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add assets/npcs/v2/*.avif v2/app.js
-          if git diff --cached --quiet; then
-            echo 'No changes to commit.'
-          else
+          if ! git diff --cached --quiet; then
             git commit -m 'Normalize NPC portraits to AVIF'
-            git push
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
           fi
