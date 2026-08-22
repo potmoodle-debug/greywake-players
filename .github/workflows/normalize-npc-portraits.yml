@@ -1,3 +1,4 @@
+# One-time Greywake NPC portrait normalizer. Safe to rerun.
 name: Normalize NPC portraits
 
 on:
