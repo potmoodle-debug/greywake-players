@@ -13,14 +13,19 @@
     'Cacklemaw Pack':[{src:'assets/cacklemaw.jpg',caption:'Cacklemaw pack — canon visual reference.'}],
     'Stone-Lip Hollow':[{src:'assets/stone-lip.jpg',caption:'Approach to Stone-Lip Hollow through the Broken Runnels.'}],
     'Latchfan':[{src:'assets/flora/latchfan.jpg',caption:'Latchfan — mature specimen, canon visual reference.'}],
-    'Brannic Hale':[{src:'assets/npcs/v2/brannic-hale-player-portrait.jpg',caption:'Brannic Hale — commander of the Tower Watch.',portrait:true,focal:'50% 34%'}],
-    'Sister Elowen':[{src:'assets/npcs/v2/sister-elowen-player-portrait.jpg',caption:'Sister Elowen — public voice among the Faithful.',portrait:true,focal:'50% 31%'}],
-    'Joric Noll':[{src:'assets/npcs/v2/joric-noll.jpg',caption:'Joric Noll — survivor of Kestrel Return.',portrait:true,focal:'50% 32%'}],
-    'Talla Reed':[{src:'assets/npcs/v2/talla-reed.jpg',caption:'Talla Reed — Greywake runner and messenger.',portrait:true,focal:'50% 32%'}],
+    'Brannic Hale':[{src:'assets/npcs/v2/brannic-hale.avif',caption:'Brannic Hale — commander of the Tower Watch.',portrait:true,focal:'50% 34%'}],
+    'Sister Elowen':[{src:'assets/npcs/v2/sister-elowen.avif',caption:'Sister Elowen — public voice among the Faithful.',portrait:true,focal:'50% 31%'}],
+    'Joric Noll':[{src:'assets/npcs/v2/joric-noll.avif',caption:'Joric Noll — survivor of Kestrel Return.',portrait:true,focal:'50% 32%'}],
+    'Talla Reed':[{src:'assets/npcs/v2/talla-reed.avif',caption:'Talla Reed — Greywake runner and messenger.',portrait:true,focal:'50% 32%'}],
     'Maela Rusk':[{src:'assets/npcs/v2/maela-rusk.avif',caption:'Maela Rusk — caravan leader at Stone-Lip Hollow.',portrait:true,focal:'50% 32%'}],
     'Rennic Vale':[{src:'assets/npcs/v2/rennic-vale.avif',caption:'Rennic Vale — guardian of the sealed case.',portrait:true,focal:'50% 32%'}],
     'Sarn Pell':[{src:'assets/npcs/v2/sarn-pell.avif',caption:'Sarn Pell — Great-Shell handler.',portrait:true,focal:'50% 32%'}],
-    'Mara Vell':[{src:'assets/npcs/v2/mara-vell.avif',caption:'Mara Vell — Dust Broker at Valve Court.',portrait:true,focal:'50% 32%'}]
+    'Mara Vell':[{src:'assets/npcs/v2/mara-vell.avif',caption:'Mara Vell — Dust Broker at Valve Court.',portrait:true,focal:'50% 32%'}],
+    'High Keeper Varn':[{src:'assets/npcs/v2/high-keeper-varn.avif',caption:'High Keeper Varn — leader of the Cistern Keepers.',portrait:true,focal:'50% 32%'}],
+    'Selka Marr':[{src:'assets/npcs/v2/selka-marr.avif',caption:'Selka Marr — Caravan Syndicate figure.',portrait:true,focal:'50% 32%'}],
+    'Nemi':[{src:'assets/npcs/v2/nemi.avif',caption:'Nemi — child from Tangle Lanes.',portrait:true,focal:'50% 32%'}],
+    'Hessa Vey':[{src:'assets/npcs/v2/hessa-vey.avif',caption:'Hessa Vey — senior Digger and salvage-claim organiser.',portrait:true,focal:'50% 32%'}],
+    'Bessa Trant':[{src:'assets/npcs/v2/bessa-trant.avif',caption:'Bessa Trant — Kestrel Return crew member.',portrait:true,focal:'50% 32%'}]
   };
 
   const sidebar=document.getElementById('sidebar');
