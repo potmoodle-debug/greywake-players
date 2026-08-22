@@ -14,6 +14,9 @@ window.GREYWAKE_MEDIA = {
   "Talla Reed": [
     {"b64":"assets/obsidian-b64/talla-reed/01.b64","mime":"image/webp","caption":"Talla Reed — Greywake runner."}
   ],
+  "Hessa Vey": [
+    {"b64":"assets/obsidian-b64/hessa-vey/01.b64","mime":"image/webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
+  ],
   "Great-Shell": [
     {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
   ],
