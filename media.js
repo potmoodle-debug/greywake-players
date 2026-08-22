@@ -30,7 +30,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/nemi.avif?v=4","caption":"Nemi — before the Stilling."}
   ],
   "Talla Reed": [
-    {"src":"assets/npcs/v2/talla-reed.jpg","caption":"Talla Reed — Greywake runner."}
+    {"src":"assets/npcs/v2/talla-reed.avif?v=2","caption":"Talla Reed — Greywake runner."}
   ],
   "Joric Noll": [
     {"src":"assets/npcs/v2/joric-noll.jpg","caption":"Joric Noll — Kestrel Return route-hand."}
