@@ -48,7 +48,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/bessa-trant.webp","caption":"Bessa Trant — Kestrel Return survivor."}
   ],
   "Hessa Vey": [
-    {"src":"assets/npcs/v2/hessa-vey.webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
+    {"b64":"assets/obsidian-b64/hessa-vey/01.b64","mime":"image/webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
   ],
   "Great-Shell": [
     {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
