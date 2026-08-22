@@ -36,7 +36,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/joric-noll.avif?v=live1","caption":"Joric Noll — Kestrel Return route-hand."}
   ],
   "Maela Rusk": [
-    {"src":"assets/npcs/v2/maela-rusk.avif?v=live1","caption":"Maela Rusk — Kestrel Return caravan leader."}
+    {"src":"assets/npcs/v2/maela-rusk.avif?v=live2","caption":"Maela Rusk — Kestrel Return caravan leader."}
   ],
   "Sarn Pell": [
     {"src":"assets/npcs/v2/sarn-pell.avif","caption":"Sarn Pell — Great-Shell handler."}
