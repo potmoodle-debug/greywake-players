@@ -12,7 +12,7 @@ window.GREYWAKE_MEDIA = {
     {"parts":["assets/obsidian-b64/velmira-kit/01.b64","assets/obsidian-b64/velmira-kit/02.b64","assets/obsidian-b64/velmira-kit/03.b64"],"mime":"image/webp","caption":"Velmira — trader kit."}
   ],
   "Mara Vell": [
-    {"b64":"assets/obsidian-b64/mara-vell-canonical-20260822/01.b64","mime":"image/webp","caption":"Mara Vell — Dust Broker at Valve Court."}
+    {"parts":["assets/obsidian-b64/mara-vell-avif/01.b64","assets/obsidian-b64/mara-vell-avif/02.b64","assets/obsidian-b64/mara-vell-avif/03.b64","assets/obsidian-b64/mara-vell-avif/04.b64"],"mime":"image/avif","caption":"Mara Vell — Dust Broker at Valve Court."}
   ],
   "High Keeper Varn": [
     {"b64":"assets/obsidian-b64/high-keeper-varn/01.b64","mime":"image/webp","caption":"High Keeper Varn — Cistern Keepers."}
