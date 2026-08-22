@@ -17,6 +17,21 @@ window.GREYWAKE_MEDIA = {
   "Hessa Vey": [
     {"b64":"assets/obsidian-b64/hessa-vey/01.b64","mime":"image/webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
   ],
+  "High Keeper Varn": [
+    {"b64":"assets/obsidian-b64/high-keeper-varn/01.b64","mime":"image/webp","caption":"High Keeper Varn — Cistern Keepers."}
+  ],
+  "Selka Marr": [
+    {"b64":"assets/obsidian-b64/selka-marr/01.b64","mime":"image/webp","caption":"Selka Marr — Caravan Syndicate representative."}
+  ],
+  "Brannic Hale": [
+    {"b64":"assets/obsidian-b64/brannic-hale/01.b64","mime":"image/webp","caption":"Brannic Hale — Tower Watch commander."}
+  ],
+  "Nemi": [
+    {"b64":"assets/obsidian-b64/nemi/01.b64","mime":"image/webp","caption":"Nemi — before the Stilling."}
+  ],
+  "Joric Noll": [
+    {"b64":"assets/obsidian-b64/joric-noll/01.b64","mime":"image/webp","caption":"Joric Noll — Kestrel Return route-hand."}
+  ],
   "Great-Shell": [
     {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
   ],
