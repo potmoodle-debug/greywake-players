@@ -18,7 +18,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/high-keeper-varn.avif","caption":"High Keeper Varn — Cistern Keepers."}
   ],
   "Selka Marr": [
-    {"src":"assets/npcs/v2/selka-marr.avif","caption":"Selka Marr — Caravan Syndicate representative."}
+    {"src":"assets/npcs/v2/selka-marr.avif?v=2","caption":"Selka Marr — Caravan Syndicate representative."}
   ],
   "Brannic Hale": [
     {"src":"assets/npcs/v2/brannic-hale-player-portrait.jpg","caption":"Brannic Hale — Tower Watch commander."}
