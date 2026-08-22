@@ -1,0 +1,43 @@
+name: Publish canonical LIVE Hessa and Bessa portraits
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tmp/live-avif/trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Rebuild and verify canonical LIVE AVIFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat tmp/live-avif/hessa-01.b64 tmp/live-avif/hessa-02.b64 tmp/live-avif/hessa-03.b64 | tr -d '\n\r ' | base64 --decode > assets/npcs/v2/hessa-vey.avif
+          cat tmp/live-avif/bessa-01.b64 tmp/live-avif/bessa-02.b64 tmp/live-avif/bessa-03.b64 | tr -d '\n\r ' | base64 --decode > assets/npcs/v2/bessa-trant.avif
+
+          HESSA_SHA="$(git hash-object assets/npcs/v2/hessa-vey.avif)"
+          BESSA_SHA="$(git hash-object assets/npcs/v2/bessa-trant.avif)"
+          echo "Hessa blob: $HESSA_SHA"
+          echo "Bessa blob: $BESSA_SHA"
+          test "$HESSA_SHA" = "8b7266a642d78db508a1f7e6fd44150041cfa248"
+          test "$BESSA_SHA" = "68cf50f474a737304e7088dc9e09c3d266c89aab"
+
+      - name: Publish and self-clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf tmp/live-avif
+          rm -f .github/workflows/rebuild-live-hessa-bessa.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Publish canonical LIVE Hessa and Bessa AVIFs'
+          git push origin HEAD:main
