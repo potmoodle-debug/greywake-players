@@ -1,0 +1,1 @@
+Trigger verifiable AVIF portrait normalization for Greywake NPCs.
