@@ -27,7 +27,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/sister-elowen-player-portrait.jpg","caption":"Sister Elowen — a known voice of the Faithful."}
   ],
   "Nemi": [
-    {"src":"assets/npcs/v2/nemi.avif","caption":"Nemi — before the Stilling."}
+    {"src":"assets/npcs/v2/nemi.avif?v=2","caption":"Nemi — before the Stilling."}
   ],
   "Talla Reed": [
     {"src":"assets/npcs/v2/talla-reed.jpg","caption":"Talla Reed — Greywake runner."}
