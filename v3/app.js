@@ -1,33 +1,23 @@
 const images = [
   {
-    name: 'Great-Shell — OLD WORKING',
-    src: '../assets/great-shell.jpg',
-    note: 'Older direct JPEG — about 427 KB.'
+    name: 'Great-Shell',
+    src: 'assets/great-shell-canon-visual-reference.png',
+    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
   },
   {
-    name: 'Great-Shell — CURRENT PROBLEM',
-    src: '../assets/obsidian/great-shell-canon-visual-reference.webp',
-    note: 'Later processed WebP — about 7.5 KB.'
+    name: 'Cacklemaw Pack',
+    src: 'assets/cacklemaw-pack-stonelip-view.png',
+    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
   },
   {
-    name: 'Latchfan — OLD WORKING',
-    src: '../assets/flora/latchfan.jpg',
-    note: 'Older direct JPEG.'
+    name: 'Latchfan — Mature Specimen',
+    src: 'assets/latchfan-01-mature-specimen.png',
+    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
   },
   {
-    name: 'Latchfan — CURRENT PROBLEM',
-    src: '../assets/obsidian/latchfan-01-mature-specimen.webp',
-    note: 'Later processed WebP — about 7.5 KB.'
-  },
-  {
-    name: 'Cacklemaw — OLD WORKING',
-    src: '../assets/cacklemaw.jpg',
-    note: 'Older direct JPEG — about 260 KB.'
-  },
-  {
-    name: 'Cacklemaw Pack — CURRENT PROBLEM',
-    src: '../assets/obsidian/cacklemaw-pack-stonelip-view.webp',
-    note: 'Later processed WebP — about 7.5 KB. Different composition, included to compare file quality rather than exact framing.'
+    name: 'Latchfan — Stone-Lip Habitat',
+    src: 'assets/latchfan-02-stonelip-habitat.png',
+    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
   }
 ];
 
@@ -49,7 +39,7 @@ for (const item of images) {
   img.addEventListener('click', () => {
     lightboxImage.src = item.src;
     lightboxImage.alt = item.name;
-    caption.textContent = `${item.name} — ${item.src}`;
+    caption.textContent = item.name;
     dialog.showModal();
   });
 
@@ -59,10 +49,7 @@ for (const item of images) {
   const note = document.createElement('p');
   note.textContent = item.note;
 
-  const path = document.createElement('code');
-  path.textContent = item.src;
-
-  card.append(img, title, note, path);
+  card.append(img, title, note);
   gallery.append(card);
 }
 
