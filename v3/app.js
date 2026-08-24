@@ -1,23 +1,23 @@
 const images = [
   {
     name: 'Great-Shell',
-    src: 'assets/great-shell-canon-visual-reference.png',
-    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
+    src: 'assets/great-shell-canon-visual-reference.jpg',
+    note: 'Fresh full-dimension JPEG made directly from the live Obsidian/Drive master.'
   },
   {
     name: 'Cacklemaw Pack',
-    src: 'assets/cacklemaw-pack-stonelip-view.png',
-    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
+    src: 'assets/cacklemaw-pack-stonelip-view.jpg',
+    note: 'Fresh full-dimension JPEG made directly from the live Obsidian/Drive master.'
   },
   {
     name: 'Latchfan — Mature Specimen',
-    src: 'assets/latchfan-01-mature-specimen.png',
-    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
+    src: 'assets/latchfan-01-mature-specimen.jpg',
+    note: 'Fresh full-dimension JPEG made directly from the live Obsidian/Drive master.'
   },
   {
     name: 'Latchfan — Stone-Lip Habitat',
-    src: 'assets/latchfan-02-stonelip-habitat.png',
-    note: 'Fresh canonical PNG from the live Obsidian/Drive master.'
+    src: 'assets/latchfan-02-stonelip-habitat.jpg',
+    note: 'Fresh full-dimension JPEG made directly from the live Obsidian/Drive master.'
   }
 ];
 
