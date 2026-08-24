@@ -51,13 +51,13 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/v2/hessa-vey.avif?v=live1","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
   ],
   "Great-Shell": [
-    {"src":"assets/obsidian/great-shell-canon-visual-reference.avif","caption":"Great-Shell — canon visual reference."}
+    {"src":"assets/obsidian/great-shell-canon-visual-reference.webp?v=hq1","caption":"Great-Shell — canon visual reference."}
   ],
   "Cacklemaw Pack": [
-    {"src":"assets/obsidian/cacklemaw-pack-stonelip-view.avif","caption":"Cacklemaw pack — Stone-Lip view."}
+    {"src":"assets/obsidian/cacklemaw-pack-stonelip-view.webp?v=hq1","caption":"Cacklemaw pack — Stone-Lip view."}
   ],
   "Latchfan": [
-    {"src":"assets/obsidian/latchfan-01-mature-specimen.avif","caption":"Latchfan — mature specimen."},
-    {"src":"assets/obsidian/latchfan-02-stonelip-habitat.avif","caption":"Latchfan — Stone-Lip habitat."}
+    {"src":"assets/obsidian/latchfan-01-mature-specimen.webp?v=hq1","caption":"Latchfan — mature specimen."},
+    {"src":"assets/obsidian/latchfan-02-stonelip-habitat.webp?v=hq1","caption":"Latchfan — Stone-Lip habitat."}
   ]
 };
