@@ -3,6 +3,9 @@ name: Deploy Greywake Pages
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'v3/**'
+      - '.github/workflows/v3-pages.yml'
   workflow_dispatch:
 
 permissions:
