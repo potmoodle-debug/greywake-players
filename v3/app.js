@@ -1,18 +1,33 @@
 const images = [
   {
-    name: 'Great-Shell',
+    name: 'Great-Shell — OLD WORKING',
     src: '../assets/great-shell.jpg',
-    note: 'Direct repository JPEG — no conversion or loader.'
+    note: 'Older direct JPEG — about 427 KB.'
   },
   {
-    name: 'Cacklemaw',
-    src: '../assets/cacklemaw.jpg',
-    note: 'Direct repository JPEG — no conversion or loader.'
+    name: 'Great-Shell — CURRENT PROBLEM',
+    src: '../assets/obsidian/great-shell-canon-visual-reference.webp',
+    note: 'Later processed WebP — about 7.5 KB.'
   },
   {
-    name: 'Latchfan',
+    name: 'Latchfan — OLD WORKING',
     src: '../assets/flora/latchfan.jpg',
-    note: 'Direct repository JPEG — no conversion or loader.'
+    note: 'Older direct JPEG.'
+  },
+  {
+    name: 'Latchfan — CURRENT PROBLEM',
+    src: '../assets/obsidian/latchfan-01-mature-specimen.webp',
+    note: 'Later processed WebP — about 7.5 KB.'
+  },
+  {
+    name: 'Cacklemaw — OLD WORKING',
+    src: '../assets/cacklemaw.jpg',
+    note: 'Older direct JPEG — about 260 KB.'
+  },
+  {
+    name: 'Cacklemaw Pack — CURRENT PROBLEM',
+    src: '../assets/obsidian/cacklemaw-pack-stonelip-view.webp',
+    note: 'Later processed WebP — about 7.5 KB. Different composition, included to compare file quality rather than exact framing.'
   }
 ];
 
@@ -34,7 +49,7 @@ for (const item of images) {
   img.addEventListener('click', () => {
     lightboxImage.src = item.src;
     lightboxImage.alt = item.name;
-    caption.textContent = item.name;
+    caption.textContent = `${item.name} — ${item.src}`;
     dialog.showModal();
   });
 
@@ -44,7 +59,10 @@ for (const item of images) {
   const note = document.createElement('p');
   note.textContent = item.note;
 
-  card.append(img, title, note);
+  const path = document.createElement('code');
+  path.textContent = item.src;
+
+  card.append(img, title, note, path);
   gallery.append(card);
 }
 
