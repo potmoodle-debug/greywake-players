@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Greywake v3 Image Test</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <p class="eyebrow">GREYWAKE PLAYER ARCHIVE — V3 TEST</p>
+      <h1>Direct Image Baseline</h1>
+      <p class="lede">This page deliberately uses no legacy Greywake scripts, no base64, no AVIF conversion, no image manifests and no special loaders.</p>
+    </header>
+
+    <section class="grid" id="gallery" aria-label="Direct image test gallery"></section>
+  </main>
+
+  <dialog id="lightbox">
+    <button id="close" aria-label="Close image">×</button>
+    <img id="lightbox-image" alt="">
+    <p id="lightbox-caption"></p>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
