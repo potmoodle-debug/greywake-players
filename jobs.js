@@ -8,6 +8,12 @@
       <p>This is the party's shared record of unfinished business: jobs people have asked you to do, situations still in motion, and leads you may choose to follow.</p>
       <p>It is <strong>not</strong> a list of things the GM expects you to do. An open thread can be followed, ignored, delayed, changed or abandoned.</p>
 
+      <h2>Rumours</h2>
+      <h3>Something Moved In</h3>
+      <p>Word has spread that a Digger site in an old ruin has gone quiet. The crew working it pulled out after something dangerous made a nest somewhere inside, and they have refused to go back while it remains there.</p>
+      <p>Nobody seems certain what the creature is, or why it chose that ruin in particular. Some say it simply found shelter. Others think the Diggers uncovered something that drew it in.</p>
+      <p>If the site could be made safe again, the dig could continue. There is also talk that useful practical knowledge may change hands for whoever helps solve the problem — including a recipe for a minor stamina potion.</p>
+
       <h2>In progress</h2>
       <h3>Kestrel Return — get people and cargo home</h3>
       <p><strong>Status:</strong> In progress</p>
