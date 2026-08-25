@@ -1,0 +1,88 @@
+name: Reconstruct Greywake v3 Image Assets
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'v3/.transport/**'
+      - '.github/workflows/v3-image-transfer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct validated images
+        shell: bash
+        run: |
+          set -euo pipefail
+          python <<'PY'
+          from pathlib import Path
+          import base64, hashlib, shutil
+
+          specs = {
+              'great-shell': {
+                  'out': Path('v3/assets/great-shell-canon-visual-reference.jpg'),
+                  'sha256': 'a8ede3250cefe1da0cda9d2c78f2043155efb92a5ffcaeb4e5affcc3b333d053',
+                  'size': 239812,
+              },
+          }
+
+          root = Path('v3/.transport')
+          if not root.exists():
+              print('No transport payload present; nothing to reconstruct.')
+              raise SystemExit(0)
+
+          built = 0
+          for key, spec in specs.items():
+              image_dir = root / key
+              if not image_dir.exists():
+                  continue
+              encoded_chunks = []
+              for chunk_dir in sorted(p for p in image_dir.iterdir() if p.is_dir()):
+                  leaves = list(chunk_dir.rglob('x'))
+                  if len(leaves) != 1:
+                      raise SystemExit(f'{key}: expected one leaf in {chunk_dir}, found {len(leaves)}')
+                  rel = leaves[0].relative_to(chunk_dir)
+                  encoded_chunks.append(''.join(rel.parts[:-1]))
+              encoded = ''.join(encoded_chunks)
+              encoded += '=' * ((4 - len(encoded) % 4) % 4)
+              data = base64.urlsafe_b64decode(encoded.encode('ascii'))
+              digest = hashlib.sha256(data).hexdigest()
+              if len(data) != spec['size']:
+                  raise SystemExit(f'{key}: size mismatch {len(data)} != {spec["size"]}')
+              if digest != spec['sha256']:
+                  raise SystemExit(f'{key}: sha256 mismatch {digest} != {spec["sha256"]}')
+              spec['out'].parent.mkdir(parents=True, exist_ok=True)
+              spec['out'].write_bytes(data)
+              print(f'{key}: wrote {len(data)} bytes sha256={digest}')
+              built += 1
+
+          if built == 0:
+              print('No known image payloads found; nothing to reconstruct.')
+              raise SystemExit(0)
+          PY
+
+      - name: Commit finished binaries and remove transport
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d v3/.transport ]; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add v3/assets
+          git rm -r v3/.transport
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish reconstructed Greywake v3 image assets'
+            git push
+          fi
