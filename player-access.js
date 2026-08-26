@@ -7,6 +7,8 @@
     gm: { label: 'GM', character: 'GM', code: 'GREYWAKE', role: 'gm' }
   };
 
+  let gmPreviewKey = null;
+
   function current() {
     const key = localStorage.getItem(STORAGE_KEY);
     return key && USERS[key] ? { key, ...USERS[key] } : null;
@@ -15,6 +17,7 @@
   function setCurrent(key) {
     if (!USERS[key]) return;
     localStorage.setItem(STORAGE_KEY, key);
+    gmPreviewKey = null;
     applyView({ key, ...USERS[key] });
   }
 
@@ -23,48 +26,108 @@
     location.reload();
   }
 
-  function applyView(user) {
-    document.body.dataset.player = user.key;
-    document.body.dataset.character = user.character.toLowerCase();
-    document.body.dataset.role = user.role;
+  function ownerIsGM() {
+    return localStorage.getItem(STORAGE_KEY) === 'gm';
+  }
 
-    const safeMark = document.querySelector('.safe-mark');
-    if (safeMark) safeMark.textContent = user.role === 'gm' ? 'GM view · all campaign layers' : `${user.character} · personal archive`;
-
-    const sidebarFoot = document.querySelector('.sidebar-foot');
-    if (sidebarFoot) sidebarFoot.textContent = user.role === 'gm'
-      ? 'GM view can include shared, personal and GM-only material.'
-      : `Shared party knowledge plus material intended for ${user.character}.`;
-
+  function renderIdentity(user) {
     const topbar = document.querySelector('.topbar');
-    if (topbar && !document.getElementById('playerIdentity')) {
-      const wrap = document.createElement('div');
+    if (!topbar) return;
+    let wrap = document.getElementById('playerIdentity');
+    if (!wrap) {
+      wrap = document.createElement('div');
       wrap.id = 'playerIdentity';
       wrap.className = 'player-identity';
-      wrap.innerHTML = `<span>${user.label}</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Switch</button>`;
       topbar.insertBefore(wrap, document.getElementById('brainBtn'));
-      document.getElementById('switchPlayer').addEventListener('click', clearCurrent);
     }
 
+    const previewing = ownerIsGM() && gmPreviewKey;
+    wrap.innerHTML = previewing
+      ? `<span>GM preview</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Exit GM</button>`
+      : `<span>${user.label}</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Switch</button>`;
+    document.getElementById('switchPlayer').addEventListener('click', clearCurrent);
+  }
+
+  function renderGMPreviewBar() {
+    let bar = document.getElementById('gmPreviewBar');
+    if (!ownerIsGM()) {
+      if (bar) bar.remove();
+      return;
+    }
+
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'gmPreviewBar';
+      bar.className = 'gm-preview-bar';
+      document.body.appendChild(bar);
+    }
+
+    const active = gmPreviewKey || 'gm';
+    bar.innerHTML = `
+      <span class="gm-preview-label">Preview as</span>
+      <button data-preview="martin" class="${active === 'martin' ? 'active' : ''}">Marek</button>
+      <button data-preview="carla" class="${active === 'carla' ? 'active' : ''}">Velmira</button>
+      <button data-preview="ritchie" class="${active === 'ritchie' ? 'active' : ''}">Odie</button>
+      <button data-preview="gm" class="${active === 'gm' ? 'active' : ''}">Full GM</button>`;
+
+    bar.querySelectorAll('[data-preview]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.preview;
+        gmPreviewKey = key === 'gm' ? null : key;
+        applyView({ key, ...USERS[key] });
+      });
+    });
+  }
+
+  function applyView(user) {
+    const effectiveUser = user;
+    const isPreview = ownerIsGM() && gmPreviewKey;
+
+    document.body.dataset.player = effectiveUser.key;
+    document.body.dataset.character = effectiveUser.character.toLowerCase();
+    document.body.dataset.role = effectiveUser.role;
+    document.body.dataset.gmPreview = isPreview ? 'true' : 'false';
+
+    const safeMark = document.querySelector('.safe-mark');
+    if (safeMark) safeMark.textContent = isPreview
+      ? `GM preview · ${effectiveUser.character}`
+      : effectiveUser.role === 'gm'
+        ? 'GM view · all campaign layers'
+        : `${effectiveUser.character} · personal archive`;
+
+    const sidebarFoot = document.querySelector('.sidebar-foot');
+    if (sidebarFoot) sidebarFoot.textContent = isPreview
+      ? `Exact player-facing preview for ${effectiveUser.character}. GM-only and other-character material is hidden.`
+      : effectiveUser.role === 'gm'
+        ? 'GM view can include shared, personal and GM-only material.'
+        : `Shared party knowledge plus material intended for ${effectiveUser.character}.`;
+
+    renderIdentity(effectiveUser);
+    renderGMPreviewBar();
+
+    const oldPanel = document.getElementById('personalWelcome');
+    if (oldPanel) oldPanel.remove();
     const heroCopy = document.querySelector('.hero-copy');
-    if (heroCopy && !document.getElementById('personalWelcome')) {
+    if (heroCopy) {
       const panel = document.createElement('div');
       panel.id = 'personalWelcome';
       panel.className = 'personal-welcome';
-      panel.innerHTML = user.role === 'gm'
-        ? `<div class="eyebrow">GM VIEW</div><strong>All player perspectives available.</strong><p>Use the player switcher to preview what each person will see.</p>`
-        : `<div class="eyebrow">YOUR GREYWAKE</div><strong>Welcome back, ${user.character}.</strong><p>This view can contain details known to ${user.character} that are not shown to the rest of the party.</p>`;
+      panel.innerHTML = isPreview
+        ? `<div class="eyebrow">GM PREVIEW</div><strong>You are seeing ${effectiveUser.character}’s site.</strong><p>This hides information that ${effectiveUser.character} should not see. Use the preview bar to move between player perspectives.</p>`
+        : effectiveUser.role === 'gm'
+          ? `<div class="eyebrow">GM VIEW</div><strong>All player perspectives available.</strong><p>Use the preview bar to see the site exactly as Marek, Velmira or Odie sees it.</p>`
+          : `<div class="eyebrow">YOUR GREYWAKE</div><strong>Welcome back, ${effectiveUser.character}.</strong><p>This view can contain details known to ${effectiveUser.character} that are not shown to the rest of the party.</p>`;
       heroCopy.appendChild(panel);
     }
 
     document.querySelectorAll('[data-visible-to]').forEach(el => {
       const allowed = el.dataset.visibleTo.split(',').map(v => v.trim().toLowerCase());
-      const show = user.role === 'gm' || allowed.includes('party') || allowed.includes(user.key) || allowed.includes(user.character.toLowerCase());
+      const show = effectiveUser.role === 'gm' || allowed.includes('party') || allowed.includes(effectiveUser.key) || allowed.includes(effectiveUser.character.toLowerCase());
       el.classList.toggle('access-hidden', !show);
     });
 
-    window.GreywakePlayer = user;
-    window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: user }));
+    window.GreywakePlayer = effectiveUser;
+    window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: effectiveUser }));
   }
 
   function showGate() {
