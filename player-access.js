@@ -30,6 +30,12 @@
     return localStorage.getItem(STORAGE_KEY) === 'gm';
   }
 
+  function returnToGM() {
+    if (!ownerIsGM()) return;
+    gmPreviewKey = null;
+    applyView({ key: 'gm', ...USERS.gm });
+  }
+
   function renderIdentity(user) {
     const topbar = document.querySelector('.topbar');
     if (!topbar) return;
@@ -42,10 +48,15 @@
     }
 
     const previewing = ownerIsGM() && gmPreviewKey;
-    wrap.innerHTML = previewing
-      ? `<span>GM preview</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Exit GM</button>`
-      : `<span>${user.label}</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Switch</button>`;
-    document.getElementById('switchPlayer').addEventListener('click', clearCurrent);
+    if (previewing) {
+      wrap.innerHTML = `<span>GM preview</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Full GM</button>`;
+      document.getElementById('switchPlayer').addEventListener('click', returnToGM);
+    } else if (ownerIsGM()) {
+      wrap.innerHTML = `<span>GM</span><strong>Full view</strong>`;
+    } else {
+      wrap.innerHTML = `<span>${user.label}</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Switch</button>`;
+      document.getElementById('switchPlayer').addEventListener('click', clearCurrent);
+    }
   }
 
   function renderGMPreviewBar() {
