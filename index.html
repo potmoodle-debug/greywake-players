@@ -4,42 +4,58 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#171713">
+<meta name="description" content="A spoiler-conscious player archive for the Greywake Daggerheart campaign: discoveries, people, places, creatures, session records and relationships.">
+<link rel="canonical" href="https://potmoodle-debug.github.io/greywake-players/">
+<meta property="og:title" content="Greywake — Player Archive">
+<meta property="og:description" content="Known. Seen. Earned. Explore the shared player record of Greywake.">
+<meta property="og:image" content="https://potmoodle-debug.github.io/greywake-players/assets/tower-distant.jpg">
+<meta property="og:type" content="website">
 <title>Greywake — Player Archive</title>
 <link rel="stylesheet" href="style.css?v=images2">
 <link rel="stylesheet" href="brain-enhanced.css?v=brain12">
 <link rel="stylesheet" href="brain-mobile-fix.css?v=mobile3">
 <link rel="stylesheet" href="player-access.css?v=access1">
 <link rel="stylesheet" href="personal-knowledge.css?v=personal1">
+<link rel="stylesheet" href="visual-refresh.css?v=refresh1">
 </head>
 <body>
 <div class="shell">
-  <aside class="sidebar">
+  <aside class="sidebar" aria-label="Archive navigation">
     <div class="brand">
       <div class="tower-mark"></div>
       <div><div class="eyebrow">PLAYER ARCHIVE</div><h1>GREYWAKE</h1></div>
+      <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close navigation">×</button>
     </div>
     <div class="safe-mark">Shared + personal player record</div>
-    <label class="search"><span>Search</span><input id="searchInput" type="search" placeholder="Place, person, creature…"></label>
-    <nav id="nav"></nav>
+    <label class="search"><span>Search the archive</span><input id="searchInput" type="search" placeholder="Place, person, creature…"></label>
+    <nav id="nav" aria-label="Campaign records"></nav>
     <div class="sidebar-foot">Your view combines shared party knowledge with information meant for your character. Unrevealed GM material stays outside player views.</div>
   </aside>
+  <button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation"></button>
 
   <main>
     <header class="topbar">
-      <button id="menuBtn" aria-label="Open navigation">☰</button>
-      <div id="crumb">Greywake / Player Brain</div>
-      <button id="brainBtn" class="brain-cta">Player Brain</button>
+      <button id="menuBtn" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <div id="crumb">Greywake / Archive home</div>
+      <button id="brainBtn" class="brain-cta" type="button">Player Brain</button>
     </header>
 
     <section id="home">
       <section class="hero">
+        <img class="hero-photo" src="assets/tower-distant.jpg" alt="" fetchpriority="high">
+        <div class="hero-overlay"></div>
         <div class="hero-copy">
           <div class="eyebrow">A FRONTIER HOLD IN THE WASTES</div>
           <h2>What you know of Greywake.</h2>
           <p>The shared archive records what the party has earned together. Your personal view can also contain knowledge, relationships and unfinished questions that belong specifically to your character.</p>
           <div class="hero-buttons">
-            <button id="heroBrain">Open Player Brain</button>
-            <button data-note="Greywake">Greywake overview</button>
+            <button id="heroBrain" type="button">Open Player Brain</button>
+            <button type="button" data-note="Greywake">Greywake overview</button>
+          </div>
+          <div class="hero-ledger" aria-label="Archive summary">
+            <span><strong>70</strong> known records</span>
+            <span><strong>184</strong> recorded links</span>
+            <span><strong>03</strong> sessions archived</span>
           </div>
         </div>
       </section>
@@ -53,12 +69,13 @@
       </section>
 
       <section class="field-note">
+        <div class="field-note-mark" aria-hidden="true">✦</div>
         <div>
           <div class="eyebrow">FIELD ARCHIVE</div>
           <h2>Known. Seen. Earned.</h2>
           <p>This is not the GM encyclopedia. Shared facts and your character’s legitimate knowledge belong here; unrevealed motives, hidden truths and another character’s private information do not.</p>
         </div>
-        <button id="fieldBrain">Explore relationships →</button>
+        <button id="fieldBrain" type="button">Explore relationships →</button>
       </section>
     </section>
 
@@ -94,5 +111,6 @@
 <script src="app.js?v=obsidian2"></script>
 <script src="brain-enhanced.js?v=brain12"></script>
 <script src="brain-mobile-fix.js?v=mobile4"></script>
+<script src="visual-refresh.js?v=refresh1"></script>
 </body>
 </html>
