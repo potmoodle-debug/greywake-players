@@ -78,10 +78,94 @@
     items.forEach((item,index)=>{item.classList.add('reveal-ready');item.style.transitionDelay=Math.min(index*55,220)+'ms';observer.observe(item)});
   }
 
+
+  const CATEGORY_BACKDROPS={
+    'Start':'assets/tower-distant.jpg',
+    'World':'assets/tower-distant.jpg',
+    'Locations':'assets/tower-distant.jpg',
+    'People':'assets/tower-close.jpg',
+    'Flora & Fauna':'assets/great-shell.jpg',
+    'Sessions':'assets/stone-lip.jpg',
+    'Player Characters':'assets/tower-distant.jpg',
+    'Archived Characters':'assets/tower-distant.jpg',
+    'Handouts':'assets/tower-close.jpg',
+    'Field Rules':'assets/cacklemaw.jpg',
+    'Factions':'assets/tower-close.jpg',
+    'Caravans':'assets/great-shell.jpg',
+    'Player Reference':'assets/tower-distant.jpg',
+    'Objects':'assets/tower-close.jpg',
+    'Jobs & Open Threads':'assets/stone-lip.jpg',
+    'Equipment':'assets/tower-distant.jpg',
+    'Archived Equipment':'assets/tower-distant.jpg'
+  };
+  const NAMED_BACKDROPS={
+    'Greywake':'assets/tower-distant.jpg',
+    'Greater Greywake':'assets/generated-scenes/greater-greywake-ruins.webp',
+    'The Wastes':'assets/generated-scenes/the-wastes-route.webp',
+    'Inner Greywake':'assets/generated-scenes/inner-greywake.webp',
+    'Valve Court':'assets/generated-scenes/valve-court.webp',
+    'Great-Shell Pens':'assets/generated-scenes/great-shell-pens.webp',
+    'Digger Yards':'assets/generated-scenes/digger-yards.webp',
+    'Caravan Gate':'assets/generated-scenes/caravan-gate.webp',
+    'Tangle Lanes':'assets/generated-scenes/tangle-lanes.webp',
+    'Welcome to Greywake':'assets/tower-distant.jpg',
+    'Player Brain':'assets/tower-distant.jpg',
+    'White Tower':'assets/tower-close.jpg',
+    'Stone-Lip Hollow':'assets/stone-lip.jpg',
+    "Joric's Runnel":'assets/stone-lip.jpg',
+    'Known Locations':'assets/tower-distant.jpg',
+    'Known People':'assets/tower-close.jpg',
+    'Known Flora and Fauna':'assets/great-shell.jpg',
+    'Creature Harvesting':'assets/generated-scenes/creature-harvesting-field-table.webp',
+    'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp'
+  };
+
+  function currentRecordName(){
+    const hash=location.hash||'';
+    return hash.startsWith('#/record/')?decodeURIComponent(hash.slice(9)):null;
+  }
+  function normalizedAsset(src){
+    try{return new URL(src,location.href).href.split('?')[0]}catch{return src.split('?')[0]}
+  }
+  function recordBackdrop(name){
+    const direct=MEDIA[name]?.[0]?.src;if(direct)return direct;
+    const equipment=name.match(/^(.+?) — Equipment$/);
+    if(equipment&&MEDIA[equipment[1]])return MEDIA[equipment[1]][1]?.src||MEDIA[equipment[1]][0]?.src;
+    return NAMED_BACKDROPS[name]||CATEGORY_BACKDROPS[DATA[name]?.category]||'assets/tower-distant.jpg';
+  }
+  function dedupeBackdropMedia(){
+    const article=document.getElementById('article'),target=article?.dataset.backdropSrc;if(!target)return;
+    article.querySelectorAll('.article-media figure').forEach(figure=>{
+      const img=figure.querySelector('img');figure.classList.toggle('record-backdrop-source',Boolean(img&&normalizedAsset(img.getAttribute('src')||img.src)===target));
+    });
+  }
+  function enhanceRecordBackdrop(){
+    const article=document.getElementById('article'),name=currentRecordName();
+    if(!article||!name||!DATA[name]){article?.classList.remove('has-record-backdrop');return}
+    const src=recordBackdrop(name),category=DATA[name].category||'Record';
+    let layer=article.querySelector(':scope > .record-backdrop');
+    if(!layer){layer=document.createElement('div');layer.className='record-backdrop';layer.setAttribute('aria-hidden','true');article.prepend(layer)}
+    layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
+    article.style.setProperty('--record-focus',/People|Characters/.test(category)?'center 24%':'center 48%');
+    article.dataset.backdropSrc=normalizedAsset(src);
+    article.dataset.recordCategory=category;
+    article.classList.add('has-record-backdrop');
+    requestAnimationFrame(dedupeBackdropMedia);
+  }
+  function setupRecordBackdrops(){
+    const article=document.getElementById('article');if(!article)return;
+    let timer;
+    const refresh=()=>{clearTimeout(timer);timer=setTimeout(()=>{enhanceRecordBackdrop();dedupeBackdropMedia()},0)};
+    new MutationObserver(refresh).observe(article,{childList:true,subtree:true});
+    window.addEventListener('hashchange',refresh);
+    refresh();
+  }
+
   function syncPlayerChrome(){
     setTimeout(()=>document.body.classList.toggle('has-gm-preview',Boolean(document.querySelector('.gm-preview-bar'))),0);
   }
 
-  enhanceDiscoveries();enhanceNav();setupNavigation();setupBrain();setupReveal();syncPlayerChrome();
+  enhanceDiscoveries();enhanceNav();setupNavigation();setupBrain();setupReveal();setupRecordBackdrops();syncPlayerChrome();
   window.addEventListener('greywake:player-ready',syncPlayerChrome);
 })();
+

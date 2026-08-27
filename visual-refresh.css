@@ -103,3 +103,29 @@ body.has-gm-preview{padding-bottom:84px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-copy{animation:none}.reveal-ready,.reveal-ready.is-visible{opacity:1;transform:none;transition:none}.discovery-card:hover{transform:none}.discovery-card img{transition:none}}
 
+/* Cinematic record-page backdrops */
+.article.has-record-backdrop{position:relative;isolation:isolate;max-width:none;min-height:calc(100vh - 64px);padding-top:clamp(285px,30vw,390px)}
+.record-backdrop{position:absolute;top:0;left:0;right:0;height:clamp(430px,45vw,590px);z-index:-2;background-size:cover;background-position:var(--record-focus,center 45%);filter:saturate(.72) contrast(1.08);transform:translateZ(0)}
+.record-backdrop:after{content:"";position:absolute;inset:0;background:
+  linear-gradient(90deg,rgba(8,9,6,.84) 0%,rgba(8,9,6,.5) 42%,rgba(8,9,6,.18) 78%),
+  linear-gradient(0deg,#0c0d0a 0%,rgba(10,11,8,.9) 18%,rgba(9,10,7,.12) 66%,rgba(8,9,6,.35) 100%)}
+.article.has-record-backdrop:before{position:relative;color:#c7b77f;text-shadow:0 2px 12px #000}
+.article.has-record-backdrop .article-nav{position:relative;margin-bottom:30px}
+.article.has-record-backdrop .article-nav button{background:rgba(14,15,11,.72);border-color:#665a39;backdrop-filter:blur(8px)}
+.article.has-record-backdrop .article-meta{position:relative;margin-bottom:14px;color:#dfc77e;text-shadow:0 2px 16px #000}
+.article.has-record-backdrop>h1{position:relative;max-width:900px;margin-bottom:42px;color:#f4eddb;text-shadow:0 5px 34px rgba(0,0,0,.85)}
+.article.has-record-backdrop>p:first-of-type{font-size:18px;color:#ded6c2}
+.article-media figure.record-backdrop-source{display:none}
+.article-media:not(:has(figure:not(.record-backdrop-source))){display:none}
+@media(max-width:850px){
+  .article.has-record-backdrop{min-height:calc(100vh - 58px);padding-top:clamp(240px,55vw,330px)}
+  .record-backdrop{height:clamp(390px,92vw,520px)}
+}
+@media(max-width:650px){
+  .article.has-record-backdrop{padding-top:235px}
+  .record-backdrop{height:410px;background-position:var(--record-focus,center 42%)}
+  .record-backdrop:after{background:linear-gradient(0deg,#0c0d0a 0%,rgba(9,10,7,.88) 30%,rgba(8,9,6,.18) 78%),linear-gradient(90deg,rgba(8,9,6,.58),rgba(8,9,6,.25))}
+  .article.has-record-backdrop>h1{margin-bottom:34px}
+  .article.has-record-backdrop>p:first-of-type{font-size:16px}
+}
+
