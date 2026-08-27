@@ -100,6 +100,8 @@
   };
   const NAMED_BACKDROPS={
     'Greywake':'assets/tower-distant.jpg',
+    'Greater Greywake':'assets/generated-scenes/greater-greywake-ruins.webp',
+    'The Wastes':'assets/generated-scenes/the-wastes-route.webp',
     'Welcome to Greywake':'assets/tower-distant.jpg',
     'Player Brain':'assets/tower-distant.jpg',
     'White Tower':'assets/tower-close.jpg',
@@ -107,7 +109,9 @@
     "Joric's Runnel":'assets/stone-lip.jpg',
     'Known Locations':'assets/tower-distant.jpg',
     'Known People':'assets/tower-close.jpg',
-    'Known Flora and Fauna':'assets/great-shell.jpg'
+    'Known Flora and Fauna':'assets/great-shell.jpg',
+    'Creature Harvesting':'assets/generated-scenes/creature-harvesting-field-table.webp',
+    'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp'
   };
 
   function currentRecordName(){
@@ -158,3 +162,4 @@
   enhanceDiscoveries();enhanceNav();setupNavigation();setupBrain();setupReveal();setupRecordBackdrops();syncPlayerChrome();
   window.addEventListener('greywake:player-ready',syncPlayerChrome);
 })();
+
