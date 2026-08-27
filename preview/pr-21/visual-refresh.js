@@ -1,0 +1,162 @@
+(() => {
+  const DATA=window.GREYWAKE_DATA||{},EDGES=window.GREYWAKE_EDGES||[],DISC=window.GREYWAKE_DISCOVERIES||[],MEDIA=window.GREYWAKE_MEDIA||{};
+  const expandedByDefault=new Set(['Start','Sessions','Player Characters','Jobs & Open Threads']);
+
+  function escapeHTML(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+  function routeFor(name){return '#/record/'+encodeURIComponent(name)}
+  function discoveryImage(item){
+    return item.image||(MEDIA[item.note]&&MEDIA[item.note][0]&&MEDIA[item.note][0].src)||
+      (/creature|fauna/i.test(item.kind)?'assets/cacklemaw.jpg':/location/i.test(item.kind)?'assets/stone-lip.jpg':'assets/tower-distant.jpg');
+  }
+
+  function enhanceDiscoveries(){
+    const grid=document.getElementById('discoveryGrid');if(!grid)return;
+    grid.innerHTML='';
+    DISC.forEach((item,index)=>{
+      const card=document.createElement('button');card.type='button';card.className='discovery-card';card.dataset.note=item.note;
+      const src=discoveryImage(item);
+      card.innerHTML=`<img src="${escapeHTML(src)}" alt="" loading="${index?'lazy':'eager'}" decoding="async"><div><small>${escapeHTML(item.kind)}</small><strong>${escapeHTML(item.title)}</strong><p>${escapeHTML(item.text)}</p><em>${escapeHTML(item.when)}</em></div>`;
+      card.addEventListener('click',()=>{location.hash=routeFor(item.note)});
+      grid.appendChild(card);
+    });
+  }
+
+  function enhanceNav(){
+    const nav=document.getElementById('nav');if(!nav)return;
+    const searching=Boolean(document.getElementById('searchInput')?.value.trim());
+    nav.querySelectorAll('.nav-group').forEach(group=>{
+      const heading=group.querySelector(':scope > h3');
+      if(!heading||heading.dataset.enhanced)return;
+      const label=heading.textContent.trim(),count=group.querySelectorAll(':scope > .nav-link').length;
+      const toggle=document.createElement('button');toggle.type='button';toggle.className='nav-toggle';
+      toggle.innerHTML=`<span>${escapeHTML(label)}</span><span class="nav-count">${count}</span>`;
+      heading.replaceWith(toggle);toggle.dataset.enhanced='true';
+      const collapsed=!searching&&!expandedByDefault.has(label);group.classList.toggle('is-collapsed',collapsed);toggle.setAttribute('aria-expanded',String(!collapsed));
+      toggle.addEventListener('click',()=>{
+        const next=!group.classList.contains('is-collapsed');group.classList.toggle('is-collapsed',next);toggle.setAttribute('aria-expanded',String(!next));
+      });
+    });
+  }
+
+  function setupNavigation(){
+    const sidebar=document.querySelector('.sidebar'),menu=document.getElementById('menuBtn'),close=document.getElementById('sidebarClose'),backdrop=document.getElementById('navBackdrop');
+    const sync=()=>{const open=sidebar?.classList.contains('open');document.body.classList.toggle('nav-open',!!open);menu?.setAttribute('aria-expanded',String(!!open))};
+    const closeNav=()=>{sidebar?.classList.remove('open');sync()};
+    menu?.addEventListener('click',()=>queueMicrotask(sync));
+    close?.addEventListener('click',closeNav);backdrop?.addEventListener('click',closeNav);
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeNav()});
+    window.addEventListener('hashchange',closeNav);
+    document.getElementById('searchInput')?.addEventListener('input',()=>queueMicrotask(enhanceNav));
+  }
+
+  function renderMobileBrainList(){
+    const graph=document.getElementById('graph'),shell=graph?.querySelector('.brain-network-shell'),jump=graph?.querySelector('#brainJump'),stage=graph?.querySelector('.brain-network-stage');
+    if(!shell||!jump||!stage)return;
+    let panel=shell.querySelector('.brain-mobile-list');
+    if(!panel){panel=document.createElement('section');panel.className='brain-mobile-list';panel.setAttribute('aria-label','Direct relationships');shell.insertBefore(panel,stage)}
+    const current=jump.value,related=[];
+    EDGES.forEach(([a,b])=>{if(a===current&&DATA[b])related.push(b);else if(b===current&&DATA[a])related.push(a)});
+    const unique=[...new Set(related)].sort((a,b)=>(DATA[a]?.title||a).localeCompare(DATA[b]?.title||b));
+    panel.innerHTML=`<div class="brain-mobile-kicker">${unique.length} direct relationships</div><div class="brain-mobile-links">${unique.map(name=>`<button type="button" class="brain-mobile-link" data-mobile-note="${escapeHTML(name)}"><small>${escapeHTML(DATA[name]?.category||'Record')}</small><strong>${escapeHTML(DATA[name]?.title||name)}</strong></button>`).join('')}</div>`;
+    panel.querySelectorAll('[data-mobile-note]').forEach(button=>button.addEventListener('click',()=>{
+      const name=button.dataset.mobileNote;if(jump.value===name)location.hash=routeFor(name);else{jump.value=name;jump.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(renderMobileBrainList,700)}
+    }));
+  }
+
+  function setupBrain(){
+    const graph=document.getElementById('graph');if(!graph)return;
+    let timer;const refresh=()=>{clearTimeout(timer);timer=setTimeout(renderMobileBrainList,80)};
+    graph.addEventListener('change',()=>{clearTimeout(timer);timer=setTimeout(renderMobileBrainList,720)});
+    new MutationObserver(refresh).observe(graph,{childList:true,subtree:true});
+    window.addEventListener('hashchange',refresh);refresh();
+  }
+
+  function setupReveal(){
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const items=document.querySelectorAll('.discoveries .section-head,.discovery-card,.field-note');
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}}),{threshold:.12});
+    items.forEach((item,index)=>{item.classList.add('reveal-ready');item.style.transitionDelay=Math.min(index*55,220)+'ms';observer.observe(item)});
+  }
+
+
+  const NAMED_BACKDROPS={
+    'Greywake':'assets/tower-distant.jpg',
+    'Greater Greywake':'assets/generated-scenes/greater-greywake-ruins.webp',
+    'The Wastes':'assets/generated-scenes/the-wastes-route.webp',
+    'Inner Greywake':'assets/generated-scenes/inner-greywake.webp',
+    'Valve Court':'assets/generated-scenes/valve-court.webp',
+    'Great-Shell Pens':'assets/generated-scenes/great-shell-pens.webp',
+    'Digger Yards':'assets/generated-scenes/digger-yards.webp',
+    'Caravan Gate':'assets/generated-scenes/caravan-gate.webp',
+    'Tangle Lanes':'assets/generated-scenes/tangle-lanes.webp',
+    'Welcome to Greywake':'assets/tower-distant.jpg',
+    'Player Brain':'assets/tower-distant.jpg',
+    'White Tower':'assets/tower-close.jpg',
+    'Stone-Lip Hollow':'assets/stone-lip.jpg',
+    'Creature Harvesting':'assets/generated-scenes/creature-harvesting-field-table.webp',
+    'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp',
+    'Hopkins':'assets/generated-scenes/hopkins-scout.webp',
+    'Ash-Plate':'assets/generated-scenes/ash-plate-recovery.webp',
+    'Lowbell':'assets/generated-scenes/lowbell-caravan.webp',
+    'Thirst-Marrow':'assets/generated-scenes/thirst-marrow.webp',
+    'Session 01 — Player Recap':'assets/generated-scenes/session-01-route.webp',
+    'Session 02 — Player Recap':'assets/generated-scenes/session-02-stone-lip.webp',
+    'Session 03 — Player Recap':'assets/generated-scenes/session-03-return.webp'
+  };
+
+  function currentRecordName(){
+    const hash=location.hash||'';
+    return hash.startsWith('#/record/')?decodeURIComponent(hash.slice(9)):null;
+  }
+  function normalizedAsset(src){
+    try{return new URL(src,location.href).href.split('?')[0]}catch{return src.split('?')[0]}
+  }
+  function recordBackdrop(name){
+    const direct=MEDIA[name]?.[0]?.src;if(direct)return direct;
+    const equipment=name.match(/^(.+?) — Equipment$/);
+    if(equipment&&MEDIA[equipment[1]])return MEDIA[equipment[1]][1]?.src||MEDIA[equipment[1]][0]?.src;
+    return NAMED_BACKDROPS[name]||null;
+  }
+  function dedupeBackdropMedia(){
+    const article=document.getElementById('article'),target=article?.dataset.backdropSrc;if(!target)return;
+    article.querySelectorAll('.article-media figure').forEach(figure=>{
+      const img=figure.querySelector('img');figure.classList.toggle('record-backdrop-source',Boolean(img&&normalizedAsset(img.getAttribute('src')||img.src)===target));
+    });
+  }
+  function enhanceRecordBackdrop(){
+    const article=document.getElementById('article'),name=currentRecordName();
+    if(!article||!name||!DATA[name]){article?.classList.remove('has-record-backdrop');return}
+    const src=recordBackdrop(name),category=DATA[name].category||'Record';
+    if(!src){
+      article.querySelector(':scope > .record-backdrop')?.remove();
+      article.classList.remove('has-record-backdrop');
+      article.removeAttribute('data-backdrop-src');
+      article.removeAttribute('data-record-category');
+      return;
+    }
+    let layer=article.querySelector(':scope > .record-backdrop');
+    if(!layer){layer=document.createElement('div');layer.className='record-backdrop';layer.setAttribute('aria-hidden','true');article.prepend(layer)}
+    layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
+    article.style.setProperty('--record-focus',/People|Characters/.test(category)?'center 24%':'center 48%');
+    article.dataset.backdropSrc=normalizedAsset(src);
+    article.dataset.recordCategory=category;
+    article.classList.add('has-record-backdrop');
+    requestAnimationFrame(dedupeBackdropMedia);
+  }
+  function setupRecordBackdrops(){
+    const article=document.getElementById('article');if(!article)return;
+    let timer;
+    const refresh=()=>{clearTimeout(timer);timer=setTimeout(()=>{enhanceRecordBackdrop();dedupeBackdropMedia()},0)};
+    new MutationObserver(refresh).observe(article,{childList:true,subtree:true});
+    window.addEventListener('hashchange',refresh);
+    refresh();
+  }
+
+  function syncPlayerChrome(){
+    setTimeout(()=>document.body.classList.toggle('has-gm-preview',Boolean(document.querySelector('.gm-preview-bar'))),0);
+  }
+
+  enhanceDiscoveries();enhanceNav();setupNavigation();setupBrain();setupReveal();setupRecordBackdrops();syncPlayerChrome();
+  window.addEventListener('greywake:player-ready',syncPlayerChrome);
+})();
+
