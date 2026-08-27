@@ -79,25 +79,6 @@
   }
 
 
-  const CATEGORY_BACKDROPS={
-    'Start':'assets/tower-distant.jpg',
-    'World':'assets/tower-distant.jpg',
-    'Locations':'assets/tower-distant.jpg',
-    'People':'assets/tower-close.jpg',
-    'Flora & Fauna':'assets/great-shell.jpg',
-    'Sessions':'assets/stone-lip.jpg',
-    'Player Characters':'assets/tower-distant.jpg',
-    'Archived Characters':'assets/tower-distant.jpg',
-    'Handouts':'assets/tower-close.jpg',
-    'Field Rules':'assets/cacklemaw.jpg',
-    'Factions':'assets/tower-close.jpg',
-    'Caravans':'assets/great-shell.jpg',
-    'Player Reference':'assets/tower-distant.jpg',
-    'Objects':'assets/tower-close.jpg',
-    'Jobs & Open Threads':'assets/stone-lip.jpg',
-    'Equipment':'assets/tower-distant.jpg',
-    'Archived Equipment':'assets/tower-distant.jpg'
-  };
   const NAMED_BACKDROPS={
     'Greywake':'assets/tower-distant.jpg',
     'Greater Greywake':'assets/generated-scenes/greater-greywake-ruins.webp',
@@ -112,12 +93,15 @@
     'Player Brain':'assets/tower-distant.jpg',
     'White Tower':'assets/tower-close.jpg',
     'Stone-Lip Hollow':'assets/stone-lip.jpg',
-    "Joric's Runnel":'assets/stone-lip.jpg',
-    'Known Locations':'assets/tower-distant.jpg',
-    'Known People':'assets/tower-close.jpg',
-    'Known Flora and Fauna':'assets/great-shell.jpg',
     'Creature Harvesting':'assets/generated-scenes/creature-harvesting-field-table.webp',
-    'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp'
+    'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp',
+    'Hopkins':'assets/generated-scenes/hopkins-scout.webp',
+    'Ash-Plate':'assets/generated-scenes/ash-plate-recovery.webp',
+    'Lowbell':'assets/generated-scenes/lowbell-caravan.webp',
+    'Thirst-Marrow':'assets/generated-scenes/thirst-marrow.webp',
+    'Session 01 — Player Recap':'assets/generated-scenes/session-01-route.webp',
+    'Session 02 — Player Recap':'assets/generated-scenes/session-02-stone-lip.webp',
+    'Session 03 — Player Recap':'assets/generated-scenes/session-03-return.webp'
   };
 
   function currentRecordName(){
@@ -131,7 +115,7 @@
     const direct=MEDIA[name]?.[0]?.src;if(direct)return direct;
     const equipment=name.match(/^(.+?) — Equipment$/);
     if(equipment&&MEDIA[equipment[1]])return MEDIA[equipment[1]][1]?.src||MEDIA[equipment[1]][0]?.src;
-    return NAMED_BACKDROPS[name]||CATEGORY_BACKDROPS[DATA[name]?.category]||'assets/tower-distant.jpg';
+    return NAMED_BACKDROPS[name]||null;
   }
   function dedupeBackdropMedia(){
     const article=document.getElementById('article'),target=article?.dataset.backdropSrc;if(!target)return;
@@ -143,6 +127,13 @@
     const article=document.getElementById('article'),name=currentRecordName();
     if(!article||!name||!DATA[name]){article?.classList.remove('has-record-backdrop');return}
     const src=recordBackdrop(name),category=DATA[name].category||'Record';
+    if(!src){
+      article.querySelector(':scope > .record-backdrop')?.remove();
+      article.classList.remove('has-record-backdrop');
+      article.removeAttribute('data-backdrop-src');
+      article.removeAttribute('data-record-category');
+      return;
+    }
     let layer=article.querySelector(':scope > .record-backdrop');
     if(!layer){layer=document.createElement('div');layer.className='record-backdrop';layer.setAttribute('aria-hidden','true');article.prepend(layer)}
     layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
