@@ -1,8 +1,0 @@
-.brain-control-btn,.brain-jump select,.brain-circle-node{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.brain-touch-hit{fill:transparent;stroke:none;pointer-events:all}
-.brain-network-stage.is-transitioning .brain-circle-node{pointer-events:auto!important}
-@media(max-width:650px){
-  .brain-control-btn,.brain-jump select{min-height:44px;height:44px}
-  .brain-control-btn{font-size:9px;padding:0 10px}
-  .brain-network-controls{gap:9px}
-}
