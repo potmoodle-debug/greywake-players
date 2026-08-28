@@ -20,7 +20,7 @@
       status: 'OPEN POSSIBILITY',
       tone: 'open',
       visibility: ['party'],
-      summary: 'Routes, abandoned shelters, failed cisterns, ruins, creature territories and places nobody has checked recently remain beyond the settlement.',
+      summary: 'Routes, abandoned shelters, ruins, creature territories and places nobody has checked recently remain beyond the settlement.',
       known: 'There is no required destination. The party can choose a direction because something interests them, because Greywake needs something, or simply because they want to know what is there.',
       relevance: {
         marek: 'Changes in animal behaviour, habitat and movement can make the wastes themselves an investigation.',
@@ -39,7 +39,7 @@
       relevance: {
         marek: 'Meren, Daro and the people who work with animals and medicine give you a natural way into problems without waiting for a formal job.',
         velmira: 'Your network of conversations, favours and relationships means town-side problems can become just as important as expeditions.',
-        odie: 'Greywake survives because people keep failing things working. Repairs and shortages can lead outward when the necessary part does not exist inside the walls.'
+        odie: 'Greywake survives because people keep damaged and failing things working. Repairs and shortages can lead outward when the necessary part does not exist inside the walls.'
       }
     },
     {
