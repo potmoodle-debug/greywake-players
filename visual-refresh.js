@@ -109,7 +109,7 @@
     'Caravan Gate':'assets/generated-scenes/caravan-gate.webp',
     'Tangle Lanes':'assets/generated-scenes/tangle-lanes.webp',
     'Welcome to Greywake':'assets/tower-distant.jpg',
-    'Player Brain':'assets/tower-close.jpg',
+    'Player Brain':'assets/tower-distant.jpg',
     'White Tower':'assets/tower-close.jpg',
     'Stone-Lip Hollow':'assets/stone-lip.jpg',
     "Joric's Runnel":'assets/stone-lip.jpg',
