@@ -82,12 +82,28 @@
     }
   ];
 
+  const ACTIVE_CHARACTERS = ['marek', 'velmira', 'odie'];
   const partyVisible = thread => thread.visibility.includes('party');
-  const visibleTo = (thread, user) => user.role === 'gm' || partyVisible(thread) || thread.visibility.includes(user.character.toLowerCase());
+
+  function characterKey(user) {
+    const bodyCharacter = (document.body.dataset.character || '').toLowerCase();
+    if (ACTIVE_CHARACTERS.includes(bodyCharacter)) return bodyCharacter;
+    const userCharacter = (user?.character || '').toLowerCase();
+    return ACTIVE_CHARACTERS.includes(userCharacter) ? userCharacter : null;
+  }
+
+  const visibleTo = (thread, user) => {
+    const key = characterKey(user);
+    return user.role === 'gm' || partyVisible(thread) || (key && thread.visibility.includes(key));
+  };
 
   function relevanceFor(thread, user) {
-    if (user.role === 'gm') return 'GM view: this card is player-facing only; hidden causes and undiscovered connections remain outside the site.';
-    return thread.relevance[user.character.toLowerCase()] || '';
+    const key = characterKey(user);
+    if (!key || !thread.relevance[key]) return null;
+    return {
+      label: `WHY THIS MAY MATTER TO ${key.toUpperCase()}`,
+      text: thread.relevance[key]
+    };
   }
 
   function threadCard(thread, user) {
@@ -97,7 +113,7 @@
       <h3>${thread.title}</h3>
       <p class="thread-summary">${thread.summary}</p>
       <p class="thread-known">${thread.known}</p>
-      ${relevance ? `<div class="thread-relevance"><span>WHY THIS MAY MATTER TO ${user.role === 'gm' ? 'THE PLAYER' : 'YOU'}</span><p>${relevance}</p></div>` : ''}
+      ${relevance ? `<div class="thread-relevance"><span>${relevance.label}</span><p>${relevance.text}</p></div>` : ''}
     </article>`;
   }
 
