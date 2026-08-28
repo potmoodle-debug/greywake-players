@@ -4,12 +4,10 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/generated/clay-ranger-loadout.avif","caption":"Clay — ranger loadout."}
   ],
   "Odie": [
-    {"src":"assets/generated/odie-repairer-character-poster.avif","caption":"Odie — repairer character poster."},
-    {"src":"assets/generated/odie-equipment-and-repair-reference-board.avif","caption":"Odie — equipment and repair reference board."}
+    {"src":"assets/pcs/hq-v1/odie.webp","caption":"Odie — fixer, repairer and scavenger."}
   ],
   "Velmira": [
-    {"src":"assets/obsidian/velmira-character-poster.avif","caption":"Velmira — character poster."},
-    {"src":"assets/obsidian/velmira-trader-kit-labelled.avif","caption":"Velmira — trader kit."}
+    {"src":"assets/pcs/hq-v1/velmira.webp","caption":"Velmira — trader and School of Knowledge wizard."}
   ],
   "Mara Vell": [
     {"src":"assets/npcs/hq-v3/mara-vell.webp","caption":"Mara Vell — Dust Broker at Valve Court."}
