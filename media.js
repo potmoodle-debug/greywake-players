@@ -4,7 +4,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/generated/clay-ranger-loadout.avif","caption":"Clay — ranger loadout."}
   ],
   "Odie": [
-    {"src":"assets/pcs/hq-v1/odie.webp","caption":"Odie — fixer, repairer and scavenger."}
+    {"src":"assets/pcs/hq-v1/odie-v2.webp","caption":"Odie — fixer, repairer and scavenger."}
   ],
   "Velmira": [
     {"src":"assets/pcs/hq-v1/velmira.webp","caption":"Velmira — trader and School of Knowledge wizard."}
