@@ -19,13 +19,13 @@
       <p>Word among the Diggers is that work at an old ruin south of Greywake has stopped because something dangerous has nested inside the dig site. Nobody seems certain what the creature is, or why it chose that particular ruin.</p>
       <p>You could investigate it, ask around first, leave it alone, approach the problem without killing the creature, or never go there at all.</p>
 
-      <h3>? Direction not yet established — Freight at Ash-Plate Groundfall</h3>
+      <h3>→ East — Freight at Ash-Plate Groundfall</h3>
       <p><strong>Status:</strong> Abandoned, potentially recoverable</p>
       <p>Significant expensive freight was deliberately left behind rather than risk lives recovering it while Ash-Plate was injured and the survivors were exhausted.</p>
-      <p>The party knows how the Groundfall relates to the route they travelled, but the shared record has never established its broad compass direction from Greywake. Until that is clear, it is not presented here as a ready directional expedition.</p>
+      <p>Ash-Plate Groundfall lies on the eastern Kestrel Return route corridor through Old Marker Wash. The party travelled this route during Sessions One to Three, so its broad direction is known even though exact current hazards and the freight's present condition are not.</p>
 
       <p><strong>North:</strong> no current known external expedition.</p>
-      <p><strong>East:</strong> known routes and the Seep Fields exist, but there is no current known external expedition requiring a choice.</p>
+      <p><strong>East:</strong> the Kestrel Return road, Old Marker Wash, Ash-Plate Groundfall and Stone-Lip Hollow lie on this corridor; recovering the abandoned freight is a current known possibility.</p>
       <p><strong>West:</strong> no current known external expedition.</p>
 
       <h2>Things you could pursue in Greywake</h2>
@@ -33,7 +33,7 @@
       <h3>The altered route markers</h3>
       <p><strong>Status:</strong> Unresolved</p>
       <p>At least two route markers were deliberately altered. The party does not know who did it, when, why, or whether the same person was responsible for both.</p>
-      <p>This can begin inside Greywake by speaking to people, comparing route knowledge or examining known evidence. If following it later requires an expedition into the Wastes, its broad direction should be known before that travel becomes a selectable choice.</p>
+      <p>This can begin inside Greywake by speaking to people, comparing route knowledge or examining known evidence. The marker sites already encountered during the Kestrel Return lie on the eastern route corridor.</p>
 
       <h3>The Cistern Plate</h3>
       <p><strong>Status:</strong> Back in Greywake</p>
