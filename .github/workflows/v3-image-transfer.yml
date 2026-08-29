@@ -37,21 +37,31 @@ jobs:
                   'out': Path('v3/assets/great-shell-canon-visual-reference.jpg'),
                   'sha256': 'a8ede3250cefe1da0cda9d2c78f2043155efb92a5ffcaeb4e5affcc3b333d053',
                   'size': 239812,
+                  'format': 'jpeg',
               },
               'cacklemaw-pack': {
                   'out': Path('v3/assets/cacklemaw-pack-stonelip-view.jpg'),
                   'sha256': '815fce8381fb77415d1f5fe78c3884e64db18c147061920302d551490b8acdc7',
                   'size': 151943,
+                  'format': 'jpeg',
               },
               'latchfan-mature': {
                   'out': Path('v3/assets/latchfan-01-mature-specimen.jpg'),
                   'sha256': '139f2b45bae80746d0583ca26ec02993dfdd089d78260e94ca602a7bba04139c',
                   'size': 269047,
+                  'format': 'jpeg',
               },
               'latchfan-habitat': {
                   'out': Path('v3/assets/latchfan-02-stonelip-habitat.jpg'),
                   'sha256': '5aff354d148b58bb8ef7a0269dee0a664f91152896f0ae0333fdeff6535fb906',
                   'size': 265392,
+                  'format': 'jpeg',
+              },
+              'caravan-gate': {
+                  'out': Path('assets/generated-scenes/caravan-gate.webp'),
+                  'sha256': 'de234db7460d683ac20cae4865d6f274f363368aa536925bf677219461a0c97e',
+                  'size': 137722,
+                  'format': 'webp',
               },
           }
 
@@ -82,8 +92,12 @@ jobs:
                   raise SystemExit(f'{key}: size mismatch {len(data)} != {spec["size"]}')
               if digest != spec['sha256']:
                   raise SystemExit(f'{key}: sha256 mismatch {digest} != {spec["sha256"]}')
-              if not data.startswith(b'\xff\xd8\xff') or not data.endswith(b'\xff\xd9'):
-                  raise SystemExit(f'{key}: reconstructed file is not a complete JPEG')
+              if spec['format'] == 'jpeg':
+                  if not data.startswith(b'\xff\xd8\xff') or not data.endswith(b'\xff\xd9'):
+                      raise SystemExit(f'{key}: reconstructed file is not a complete JPEG')
+              elif spec['format'] == 'webp':
+                  if not (data.startswith(b'RIFF') and data[8:12] == b'WEBP'):
+                      raise SystemExit(f'{key}: reconstructed file is not a complete WebP')
 
               spec['out'].parent.mkdir(parents=True, exist_ok=True)
               spec['out'].write_bytes(data)
@@ -100,9 +114,9 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add v3/assets
+          git add v3/assets assets/generated-scenes
           git rm -r v3/.transport
           if ! git diff --cached --quiet; then
-            git commit -m 'Publish validated Greywake v3 image assets'
+            git commit -m 'Publish validated Greywake image assets'
             git push
           fi
