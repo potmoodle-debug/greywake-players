@@ -84,7 +84,7 @@ function relatedHTML(name){
  const related=relatedFor(name);if(!related.length)return'';
  return `<section class="related-records"><div class="related-kicker">CONNECTED RECORDS</div><h2>Related records</h2><div class="related-grid">${related.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;
 }
-function articleNav(){return `<div class="article-nav"><button id="articleBack">← Back</button><button id="articleHome">Archive home</button><button id="articleBrain">Player Brain</button></div>`}
+function articleNav(){return `<div class="article-nav"><button id="articleBack">← Back</button><button id="articleHome">Greywake home</button><button id="articleBrain">Player Brain</button></div>`}
 function wireArticleLinks(){
  article.querySelectorAll('a[data-note]').forEach(a=>a.onclick=e=>{e.preventDefault();go(routeFor(a.dataset.note))});
  document.getElementById('articleBack')?.addEventListener('click',()=>history.length>1?history.back():go('#/'));
@@ -107,7 +107,7 @@ function showBrain(){
 }
 function showHome(){
  article.classList.add('hidden');brain.classList.add('hidden');home.classList.remove('hidden');
- document.getElementById('crumb').textContent='Greywake / Player Brain';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));window.scrollTo({top:0,behavior:'smooth'});
+ document.getElementById('crumb').textContent='Greywake / Home';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderRoute(){const r=currentRoute();if(r.type==='record')showNote(r.name);else if(r.type==='brain')showBrain();else showHome()}
 
