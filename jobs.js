@@ -10,46 +10,47 @@
 
       <h2>Player-chosen direction</h2>
       <p><strong>Current active direction:</strong> none selected yet.</p>
-      <p>When the party takes meaningful action toward something, it can become an active thread. Until then these are simply possibilities in a living Greywake.</p>
+      <p>For any selectable expedition beyond Greywake and Greater Greywake, the broad direction will be shown before you choose it. Exact routes, hexes, hazards and hidden causes may still be unknown.</p>
 
-      <h2>Things you could follow</h2>
+      <h2>Beyond Greywake</h2>
 
-      <h3>Something Moved In</h3>
-      <p><strong>Status:</strong> Rumour</p>
-      <p>Word among the Diggers is that work at an old ruin has stopped because something dangerous has nested inside the dig site. Nobody seems certain what the creature is, or why it chose that particular ruin.</p>
-      <p>You could investigate it, ask around, leave it alone, approach the problem without killing the creature, or never go there at all.</p>
+      <h3>↓ South — Something Moved In</h3>
+      <p><strong>Status:</strong> Rumour / possible expedition</p>
+      <p>Word among the Diggers is that work at an old ruin south of Greywake has stopped because something dangerous has nested inside the dig site. Nobody seems certain what the creature is, or why it chose that particular ruin.</p>
+      <p>You could investigate it, ask around first, leave it alone, approach the problem without killing the creature, or never go there at all.</p>
 
-      <h3>Work in Greywake</h3>
-      <p><strong>Status:</strong> Always possible</p>
-      <p>Greywake has repairs, shortages, animals, trade, water, disputes, medicine, salvage and people who need help. Not every problem is an expedition and not every request needs an answer.</p>
-      <p>Talking to people your characters already know is enough to discover what currently matters to them.</p>
+      <h3>? Direction not yet established — Freight at Ash-Plate Groundfall</h3>
+      <p><strong>Status:</strong> Abandoned, potentially recoverable</p>
+      <p>Significant expensive freight was deliberately left behind rather than risk lives recovering it while Ash-Plate was injured and the survivors were exhausted.</p>
+      <p>The party knows how the Groundfall relates to the route they travelled, but the shared record has never established its broad compass direction from Greywake. Until that is clear, it is not presented here as a ready directional expedition.</p>
 
-      <h3>Beyond Greywake</h3>
-      <p><strong>Status:</strong> Open exploration</p>
-      <p>Routes, abandoned shelters, failed cisterns, ruins, creature territories and places nobody has checked recently remain beyond the settlement.</p>
-      <p>The party does not need a formal job before choosing to go somewhere. Curiosity, need, a rumour, a personal question or a practical goal are all valid reasons to head into the wastes.</p>
+      <p><strong>North:</strong> no current known external expedition.</p>
+      <p><strong>East:</strong> known routes and the Seep Fields exist, but there is no current known external expedition requiring a choice.</p>
+      <p><strong>West:</strong> no current known external expedition.</p>
 
-      <h2>Background consequences from the Kestrel Return</h2>
-      <p>The Kestrel Return expedition was the opening situation that brought the party into play. Its consequences remain real, but they are <strong>not assumed to be the party's next story</strong>. Greywake's NPCs and factions can deal with these matters unless the players choose to get involved.</p>
+      <h2>Things you could pursue in Greywake</h2>
 
       <h3>The altered route markers</h3>
-      <p><strong>Status:</strong> Unresolved background consequence</p>
+      <p><strong>Status:</strong> Unresolved</p>
       <p>At least two route markers were deliberately altered. The party does not know who did it, when, why, or whether the same person was responsible for both.</p>
-      <p>This remains true in the world. It does not require the party to investigate it.</p>
+      <p>This can begin inside Greywake by speaking to people, comparing route knowledge or examining known evidence. If following it later requires an expedition into the Wastes, its broad direction should be known before that travel becomes a selectable choice.</p>
 
       <h3>The Cistern Plate</h3>
       <p><strong>Status:</strong> Back in Greywake</p>
       <p>The Plate reached Greywake intact. Its custody, examination and practical consequences were not resolved during the return.</p>
       <p>People in Greywake may act on that without waiting for the party. The players can involve themselves only if they decide it matters to them.</p>
 
-      <h3>The freight left at Ash-Plate Groundfall</h3>
-      <p><strong>Status:</strong> Left in the wastes</p>
-      <p>Significant expensive freight was deliberately abandoned rather than risk lives recovering it.</p>
-      <p>Its owners, scavengers, animals or other travellers may affect what happens next. It is not automatically a recovery mission.</p>
-
       <h3>Ash-Plate's recovery</h3>
       <p><strong>Status:</strong> Safely home and recovering</p>
       <p>Ash-Plate returned injured and needs proper assessment before returning to work. This is part of Greywake's continuing life rather than an obligation placed on the party.</p>
+
+      <h3>Other work in Greywake</h3>
+      <p><strong>Status:</strong> Always possible</p>
+      <p>Greywake has repairs, shortages, animals, trade, water, disputes, medicine, salvage and people who need help. Not every problem is an expedition and not every request needs an answer.</p>
+      <p>Talking to people your characters already know is enough to discover what currently matters to them.</p>
+
+      <h2>Background consequences from the Kestrel Return</h2>
+      <p>The Kestrel Return expedition was the opening situation that brought the party into play. Its consequences remain real, but they are <strong>not assumed to be the party's next story</strong>. Greywake's NPCs and factions can deal with these matters unless the players choose to get involved.</p>
 
       <h2>Completed introduction</h2>
       <h3>Kestrel Return — bring the survivors and cargo home</h3>
