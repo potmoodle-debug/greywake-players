@@ -82,32 +82,40 @@
   }
 
   function statusLabel(status) {
-    return ({ open: 'PLAYER INTEREST', pursuing: 'PURSUING', dormant: 'DORMANT', done: 'DONE' })[status] || String(status || '').toUpperCase();
+    return ({ open: 'PLAYER INTEREST', pursuing: 'PURSUING', dormant: 'DORMANT', done: 'RESOLVED' })[status] || String(status || '').toUpperCase();
   }
 
-  function playerGoalCard(goal) {
-    return `<article class="goal-card" data-goal-id="${goal.id}">
+  function playerGoalCard(goal, resolved = false) {
+    return `<article class="goal-card${resolved ? ' goal-card-resolved' : ''}" data-goal-id="${goal.id}">
       <div>
         <span>${statusLabel(goal.status)}</span>
         <p>${esc(goal.goal_text)}</p>
       </div>
-      <button type="button" data-remove-goal="${goal.id}" aria-label="Remove goal">×</button>
+      ${resolved
+        ? `<button type="button" class="goal-reopen" data-reopen-goal="${goal.id}" aria-label="Reopen goal">Reopen</button>`
+        : `<button type="button" data-remove-goal="${goal.id}" aria-label="Remove goal">×</button>`}
     </article>`;
   }
 
   function gmGoalCard(goal) {
-    return `<article class="goal-card gm-goal-card" data-goal-id="${goal.id}">
+    const actions = goal.status === 'done'
+      ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Reopen</button>`
+      : `${goal.status !== 'open' ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Open</button>` : ''}
+         ${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Pursuing</button>` : ''}
+         ${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Dormant</button>` : ''}
+         <button type="button" data-goal-status="done" data-goal-id="${goal.id}">Resolved</button>`;
+
+    return `<article class="goal-card gm-goal-card${goal.status === 'done' ? ' goal-card-resolved' : ''}" data-goal-id="${goal.id}">
       <div>
         <span>${esc(CHARACTER_NAMES[goal.character_slug] || goal.character_slug)} · ${statusLabel(goal.status)}</span>
         <p>${esc(goal.goal_text)}</p>
-        <div class="gm-goal-actions">
-          ${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Pursuing</button>` : ''}
-          ${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Dormant</button>` : ''}
-          <button type="button" data-goal-status="done" data-goal-id="${goal.id}">Done</button>
-        </div>
+        <div class="gm-goal-actions">${actions}</div>
       </div>
     </article>`;
   }
+
+  function activeGoals(goals) { return goals.filter(g => g.status !== 'done'); }
+  function resolvedGoals(goals) { return goals.filter(g => g.status === 'done'); }
 
   async function render(user) {
     const host = document.getElementById('playerGoals');
@@ -123,16 +131,21 @@
       if (isFullGM(user)) {
         const grouped = ['marek','velmira','odie'].map(key => {
           const characterGoals = goals.filter(g => g.character_slug === key);
-          const cards = characterGoals.length
-            ? `<div class="goal-list">${characterGoals.map(gmGoalCard).join('')}</div>`
-            : `<div class="goals-empty">${CHARACTER_NAMES[key]} has not added a goal yet.</div>`;
-          return `<section class="gm-goal-group"><div class="eyebrow">${CHARACTER_NAMES[key].toUpperCase()}</div><h3>${CHARACTER_NAMES[key]}'s stated interests</h3>${cards}</section>`;
+          const current = activeGoals(characterGoals);
+          const resolved = resolvedGoals(characterGoals);
+          const currentCards = current.length
+            ? `<div class="goal-list">${current.map(gmGoalCard).join('')}</div>`
+            : `<div class="goals-empty">${CHARACTER_NAMES[key]} has no current goals or questions.</div>`;
+          const resolvedCards = resolved.length
+            ? `<details class="resolved-goals"><summary>Resolved / answered (${resolved.length})</summary><div class="goal-list">${resolved.map(gmGoalCard).join('')}</div></details>`
+            : '';
+          return `<section class="gm-goal-group"><div class="eyebrow">${CHARACTER_NAMES[key].toUpperCase()}</div><h3>${CHARACTER_NAMES[key]}'s stated interests</h3>${currentCards}${resolvedCards}</section>`;
         }).join('');
 
         host.innerHTML = `
           <div class="section-head player-goals-head">
             <div><div class="eyebrow">PLAYER-DIRECTED PREP</div><h2>What the players want to do</h2></div>
-            <p>These are saved centrally. Treat them as your strongest prep signal: player-stated interest outranks GM-generated possibilities.</p>
+            <p>Resolved items stay in the record instead of disappearing. Reopen anything if it still matters.</p>
           </div>
           ${grouped}`;
 
@@ -153,10 +166,15 @@
 
       const key = characterKey(user);
       goals = goals.filter(g => g.character_slug === key);
+      const current = activeGoals(goals);
+      const resolved = resolvedGoals(goals);
       const isPreview = document.body.dataset.gmPreview === 'true';
-      const list = goals.length
-        ? `<div class="goal-list">${goals.map(playerGoalCard).join('')}</div>`
-        : `<div class="goals-empty">Nothing added yet. You do not need to pick from the possibilities below — you can write your own direction here.</div>`;
+      const list = current.length
+        ? `<div class="goal-list">${current.map(g => playerGoalCard(g, false)).join('')}</div>`
+        : `<div class="goals-empty">Nothing current yet. You do not need to pick from the possibilities below — you can write your own direction here.</div>`;
+      const resolvedSection = resolved.length
+        ? `<details class="resolved-goals"><summary>Resolved / answered (${resolved.length})</summary><div class="goal-list">${resolved.map(g => playerGoalCard(g, true)).join('')}</div></details>`
+        : '';
 
       host.innerHTML = `
         <div class="section-head player-goals-head">
@@ -164,11 +182,12 @@
           <p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved interests.` : `This tells the GM what currently interests ${esc(user.character)} so preparation can follow player intent.`}</p>
         </div>
         ${list}
+        ${resolvedSection}
         ${isPreview ? `<div class="goal-hint">GM preview · changes should normally be made from the player's own view</div>` : `
         <form id="goalForm" class="goal-form">
           <label for="goalInput">Add an interest, question or goal</label>
-          <div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. Find out why the animals have stopped using the western route"><button type="submit" ${goals.filter(g => ['open','pursuing'].includes(g.status)).length >= MAX_GOALS ? 'disabled' : ''}>Add</button></div>
-          <div class="goal-hint">${goals.filter(g => ['open','pursuing'].includes(g.status)).length}/${MAX_GOALS} active · saved to the shared Greywake campaign record for the GM to see</div>
+          <div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. Find out why the animals have stopped using the western route"><button type="submit" ${current.filter(g => ['open','pursuing'].includes(g.status)).length >= MAX_GOALS ? 'disabled' : ''}>Add</button></div>
+          <div class="goal-hint">${current.filter(g => ['open','pursuing'].includes(g.status)).length}/${MAX_GOALS} active · saved to the shared Greywake campaign record for the GM to see</div>
         </form>`}`;
 
       if (!isPreview) {
@@ -177,6 +196,19 @@
             btn.disabled = true;
             try {
               await request(user, 'DELETE', { id: Number(btn.dataset.removeGoal) });
+              await render(user);
+            } catch (error) {
+              btn.disabled = false;
+              alert(error.message);
+            }
+          });
+        });
+
+        host.querySelectorAll('[data-reopen-goal]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            try {
+              await request(user, 'PATCH', { id: Number(btn.dataset.reopenGoal), status: 'open' });
               await render(user);
             } catch (error) {
               btn.disabled = false;
