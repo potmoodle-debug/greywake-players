@@ -37,7 +37,7 @@ jobs:
               'cacklemaw-pack': {'out': Path('v3/assets/cacklemaw-pack-stonelip-view.jpg'), 'sha256': '815fce8381fb77415d1f5fe78c3884e64db18c147061920302d551490b8acdc7', 'size': 151943, 'format': 'jpeg'},
               'latchfan-mature': {'out': Path('v3/assets/latchfan-01-mature-specimen.jpg'), 'sha256': '139f2b45bae80746d0583ca26ec02993dfdd089d78260e94ca602a7bba04139c', 'size': 269047, 'format': 'jpeg'},
               'latchfan-habitat': {'out': Path('v3/assets/latchfan-02-stonelip-habitat.jpg'), 'sha256': '5aff354d148b58bb8ef7a0269dee0a664f91152896f0ae0333fdeff6535fb906', 'size': 265392, 'format': 'jpeg'},
-              'caravan-gate': {'out': Path('assets/generated-scenes/caravan-gate.webp'), 'sha256': '75a2d6551900a7e79dc3a12bec4a988c32beffb8a4f4ff28781787108c4d57bd', 'size': 44364, 'format': 'webp'},
+              'caravan-gate': {'out': Path('assets/generated-scenes/caravan-gate.webp'), 'sha256': 'a331d31789b801fc8d611115e2301de5ee03b4c7649e124397b766f9dad4e6ee', 'size': 13452, 'format': 'webp'},
           }
 
           root = Path('v3/.transport')
