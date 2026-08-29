@@ -100,10 +100,10 @@
   function gmGoalCard(goal) {
     const actions = goal.status === 'done'
       ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Reopen</button>`
-      : `${goal.status !== 'open' ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Open</button>` : ''}
-         ${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Pursuing</button>` : ''}
-         ${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Dormant</button>` : ''}
-         <button type="button" data-goal-status="done" data-goal-id="${goal.id}">Resolved</button>`;
+      : `${goal.status !== 'open' ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Mark Player Interest</button>` : ''}
+         ${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Mark Pursuing</button>` : ''}
+         ${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Mark Dormant</button>` : ''}
+         <button type="button" data-goal-status="done" data-goal-id="${goal.id}">Mark Resolved</button>`;
 
     return `<article class="goal-card gm-goal-card${goal.status === 'done' ? ' goal-card-resolved' : ''}" data-goal-id="${goal.id}">
       <div>
@@ -145,7 +145,7 @@
         host.innerHTML = `
           <div class="section-head player-goals-head">
             <div><div class="eyebrow">PLAYER-DIRECTED PREP</div><h2>What the players want to do</h2></div>
-            <p>Resolved items stay in the record instead of disappearing. Reopen anything if it still matters.</p>
+            <p>The label on each card is its current state. The buttons below it change that state. Resolved items stay in the record.</p>
           </div>
           ${grouped}`;
 
