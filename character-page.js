@@ -72,18 +72,23 @@
     if (!nav) return;
     const labels = { overview: 'Overview', abilities: 'Abilities', gear: 'Gear', story: 'Story' };
     const icons = { overview: '◇', abilities: '✦', gear: '⌁', story: '≋' };
-    nav.innerHTML = Object.keys(TAB_RULES)
-      .filter(tabHasContent)
-      .map(tab => `<button type="button" data-sheet-tab="${tab}" aria-selected="${tab === activeTab ? 'true' : 'false'}"><span aria-hidden="true">${icons[tab]}</span>${labels[tab]}</button>`)
-      .join('');
-    if (!tabHasContent(activeTab)) activeTab = 'overview';
-    nav.querySelectorAll('[data-sheet-tab]').forEach(button => {
-      button.addEventListener('click', () => {
-        activeTab = button.dataset.sheetTab;
-        applyTab();
-        document.getElementById('characterSheet')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    const availableTabs = Object.keys(TAB_RULES).filter(tabHasContent);
+    if (!availableTabs.includes(activeTab)) activeTab = availableTabs[0] || 'overview';
+    const signature = availableTabs.join('|');
+
+    if (nav.dataset.tabSignature !== signature) {
+      nav.dataset.tabSignature = signature;
+      nav.innerHTML = availableTabs
+        .map(tab => `<button type="button" data-sheet-tab="${tab}" aria-selected="false"><span aria-hidden="true">${icons[tab]}</span>${labels[tab]}</button>`)
+        .join('');
+      nav.querySelectorAll('[data-sheet-tab]').forEach(button => {
+        button.addEventListener('click', () => {
+          activeTab = button.dataset.sheetTab;
+          applyTab();
+          document.getElementById('characterSheet')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
       });
-    });
+    }
   }
 
   function applyTab() {
@@ -172,11 +177,16 @@
     window.addEventListener('hashchange', () => setTimeout(renderCharacterRoute, 0));
     window.addEventListener('greywake:player-ready', schedule);
     window.addEventListener('greywake:sheet-enhanced', schedule);
-    new MutationObserver(() => {
+    new MutationObserver(mutations => {
       const sheet = document.getElementById('characterSheet');
       const button = document.getElementById('characterSheetBtn');
-      if ((sheet && sheet.parentElement?.id !== 'characterPageView') || (button && button.dataset.standalonePage !== 'true')) schedule();
-      else if (isCharacterRoute()) {
+      if ((sheet && sheet.parentElement?.id !== 'characterPageView') || (button && button.dataset.standalonePage !== 'true')) {
+        schedule();
+        return;
+      }
+      if (!isCharacterRoute()) return;
+      const meaningfulChange = mutations.some(mutation => !mutation.target.closest?.('#characterPageTabs'));
+      if (meaningfulChange) {
         buildTabs();
         applyTab();
       }
