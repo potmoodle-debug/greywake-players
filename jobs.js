@@ -6,11 +6,25 @@
     category: "Possibilities",
     html: `
       <p>This is not a quest log. It is a record of things the party knows exist, people they could speak to, places they could investigate, and problems they could choose to become involved in.</p>
-      <p><strong>Nothing here is the campaign until you decide to pursue it.</strong> You can follow a possibility, ignore it, return to it later, or choose a direction that is not listed here at all.</p>
+      <p><strong>Nothing here is the campaign until you decide to pursue it.</strong> Some possibilities come from Greywake itself; others begin with something a player has said their character wants to follow.</p>
 
-      <h2>Player-chosen direction</h2>
-      <p><strong>Current active direction:</strong> none selected yet.</p>
-      <p>For any selectable expedition beyond Greywake and Greater Greywake, the broad direction will be shown before you choose it. Exact paths, hazards and hidden causes may still be unknown.</p>
+      <h2>Player-originated possibilities</h2>
+      <p>These began with something one of the characters put at the front of their mind, then developed into a concrete lead the party could actually pursue. They are shared possibilities, not obligations.</p>
+
+      <h3>Marek — Find a Flickerfly</h3>
+      <p><strong>Status:</strong> Player proposal / new lead</p>
+      <p>Marek wants to find and study a flickerfly. Stories about them mostly seem to come from travellers returning from south of Greywake.</p>
+      <p>A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. The first step is to identify that Digger and find out exactly where it came from.</p>
+
+      <h3>Velmira — An Earlier Stilling Case</h3>
+      <p><strong>Status:</strong> Player proposal / known lead</p>
+      <p>One of the earlier publicly known Stilling cases apparently seemed to stabilise for a time after the person had been somewhere outside Greywake.</p>
+      <p>Velmira wants to find that place and see whether anything there might help Nemi. The place is still identifiable, but the exact direction has not yet been established and nobody knows whether the journey actually caused the apparent improvement.</p>
+
+      <h3>Odie — The Closing Ways</h3>
+      <p><strong>Status:</strong> Player proposal / active problem</p>
+      <p>Several concealed Digger haul routes into Greywake are being deliberately closed, filled or braced shut.</p>
+      <p>At least one closure required specific knowledge of an undocumented entrance. Odie wants to work out how the hidden routes are being exposed and stop more of them from being lost.</p>
 
       <h2>Beyond Greywake</h2>
 
