@@ -45,11 +45,12 @@
     const traits=document.getElementById('traitRollPanel');
     const beast=key==='marek'?document.getElementById('beastformControl'):null;
     const actions=document.getElementById(key==='marek'?'activeActionsPanel':'companionActionsPanel');
+    const readyGear=document.getElementById('readyGearPanel');
     const damage=document.getElementById('damageHealthPanel');
 
     // Always append in canonical play order. appendChild moves existing nodes without
     // recreating them, so their working click handlers and live state are preserved.
-    [traits,beast,actions,damage].filter(Boolean).forEach(node=>content.appendChild(node));
+    [traits,beast,actions,readyGear,damage].filter(Boolean).forEach(node=>content.appendChild(node));
 
     const rest=document.getElementById('restPanel');
     if(rest&&body.nextElementSibling!==rest)body.insertAdjacentElement('afterend',rest);
@@ -70,6 +71,7 @@
   window.addEventListener('greywake:companion-resources-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:damage-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:rest-state-changed',()=>setTimeout(normalize,0));
+  window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(normalize,0));
   window.addEventListener('hashchange',schedule);
   document.addEventListener('DOMContentLoaded',schedule);
 })();
