@@ -51,36 +51,46 @@
   function addCardsToGroup(title, items) {
     const group = findGroup(title);
     const grid = group?.querySelector('.sheet-grid');
-    if (!grid) return;
+    if (!grid) return false;
+    let changed = false;
     items.forEach(item => {
       const name = item[0];
       if ([...grid.querySelectorAll('h4')].some(h => h.textContent.trim() === name)) return;
       grid.insertAdjacentHTML('beforeend', card(item));
+      changed = true;
     });
+    return changed;
   }
 
   function addGroup(title, hint, items) {
     const body = document.querySelector('#characterSheet .character-sheet-body');
-    if (!body || findGroup(title)) return;
+    if (!body || findGroup(title)) return false;
     body.insertAdjacentHTML('beforeend', `<section class="sheet-group marek-extra-group"><div class="sheet-group-head"><h3>${esc(title)}</h3><p>${esc(hint)}</p></div><div class="sheet-grid">${items.map(card).join('')}</div></section>`);
+    return true;
   }
 
   function enhance() {
     if ((document.body.dataset.character || '').toLowerCase() !== 'marek') return;
     const sheet = document.querySelector('#characterSheet .character-sheet-shell');
     if (!sheet) return;
-    addCardsToGroup('Features', EXTRA_FEATURES);
-    addCardsToGroup('Weapons, armor & inventory', EXTRA_GEAR);
-    addGroup('Character details', 'From Marek’s Demiplane details tab', DETAILS);
-    addGroup('Background', 'Answers already written on the sheet', BACKGROUND);
-    addGroup('Connections', 'Not yet answered', CONNECTIONS);
-    window.dispatchEvent(new CustomEvent('greywake:sheet-enhanced'));
+
+    let changed = false;
+    changed = addCardsToGroup('Features', EXTRA_FEATURES) || changed;
+    changed = addCardsToGroup('Weapons, armor & inventory', EXTRA_GEAR) || changed;
+    changed = addGroup('Character details', 'From Marek’s Demiplane details tab', DETAILS) || changed;
+    changed = addGroup('Background', 'Answers already written on the sheet', BACKGROUND) || changed;
+    changed = addGroup('Connections', 'Not yet answered', CONNECTIONS) || changed;
+
+    if (changed) window.dispatchEvent(new CustomEvent('greywake:sheet-enhanced'));
   }
 
   let timer;
-  const schedule = () => { clearTimeout(timer); timer = setTimeout(enhance, 60); };
+  const schedule = () => {
+    clearTimeout(timer);
+    timer = setTimeout(enhance, 80);
+  };
+
   window.addEventListener('greywake:player-ready', schedule);
-  window.addEventListener('hashchange', schedule);
   document.addEventListener('DOMContentLoaded', schedule);
-  new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+  if (document.readyState !== 'loading') schedule();
 })();
