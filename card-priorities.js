@@ -25,9 +25,17 @@
     return CHARACTER_CODES[userKey] ? userKey : null;
   }
 
-  function canAdd() {
+  function isPreview() {
+    return document.body.dataset.gmPreview === 'true';
+  }
+
+  function canRender() {
     const user = currentUser();
-    return Boolean(user && user.role === 'player' && document.body.dataset.gmPreview !== 'true' && characterKey(user));
+    return Boolean(user && user.role === 'player' && characterKey(user));
+  }
+
+  function canWrite() {
+    return canRender() && !isPreview();
   }
 
   async function createPriority(context) {
@@ -113,12 +121,12 @@
     style.id = 'card-priority-styles';
     style.textContent = `
       .context-mind-action{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}
-      .context-mind-button{appearance:none;border:1px solid #5b5237;background:#1b1a14;color:#d8c88f;padding:8px 11px;font:800 10px/1.1 inherit;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
-      .context-mind-button:hover{border-color:#9f8d56;background:#242117;color:#f1ddb0}
+      .context-mind-button{appearance:none;border:1px solid #756642;background:#211e15;color:#ead79e;padding:10px 13px;font:800 10px/1.1 inherit;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;min-height:38px}
+      .context-mind-button:hover{border-color:#b39a5b;background:#2b2618;color:#fff0bf}
       .context-mind-button:focus-visible{outline:2px solid #c6ae69;outline-offset:2px}
-      .context-mind-button:disabled{opacity:.58;cursor:default}
-      .context-mind-status{font-size:10px;color:#8e876f;min-height:1em}
-      .article > .context-mind-action{margin:4px 0 16px}
+      .context-mind-button:disabled{opacity:.72;cursor:default}
+      .context-mind-status{font-size:10px;color:#9d947b;min-height:1em}
+      .article > .context-mind-action{margin:6px 0 16px}
     `;
     document.head.appendChild(style);
   }
@@ -127,9 +135,11 @@
     const wrap = document.createElement('div');
     wrap.className = 'context-mind-action';
     wrap.dataset.contextMind = context.source_key;
-    wrap.innerHTML = `<button type="button" class="context-mind-button">＋ Add to my mind</button><span class="context-mind-status" aria-live="polite"></span>`;
+    const preview = isPreview();
+    wrap.innerHTML = `<button type="button" class="context-mind-button"${preview ? ' disabled' : ''}>＋ Add to Things on my mind</button><span class="context-mind-status" aria-live="polite">${preview ? 'Player control · disabled only in GM preview' : ''}</span>`;
     const button = wrap.querySelector('button');
     const status = wrap.querySelector('.context-mind-status');
+    if (preview) return wrap;
     button.addEventListener('click', async () => {
       button.disabled = true;
       status.textContent = 'Adding…';
@@ -147,7 +157,7 @@
   }
 
   function enhance() {
-    if (!canAdd()) {
+    if (!canRender()) {
       document.querySelectorAll('.context-mind-action').forEach(node => node.remove());
       return;
     }
