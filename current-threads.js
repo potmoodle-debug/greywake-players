@@ -118,16 +118,16 @@
     },
     {
       id: 'white-tunnel',
-      title: 'The White Tunnel',
+      title: 'The White Door',
       status: 'PRIVATE POSSIBILITY',
       direction: 'KNOWN PRIVATELY / NOT A WASTES CHOICE',
       tone: 'personal',
       visibility: ['odie', 'velmira'],
-      summary: 'Odie found a clean white tunnel and a strange door. Velmira is the only other PC he has trusted with that knowledge.',
-      known: 'Neither of you knows what the place truly is or what lies beyond the door. It remains yours to revisit, leave alone or reveal to others.',
+      summary: 'Odie found a pale, precisely made tunnel ending at a sealed white door. He saw no evidence that another person from Greywake had reached it before him. Velmira is the only other PC he has trusted with the discovery.',
+      known: 'The door had no handle, bar or hinge Odie recognised. Neither of you knows who built it, what lies beyond it, whether it can open, or whether Odie’s Oldwork finger has any connection to it.',
       relevance: {
-        odie: 'You found it. Nobody is assigning you to go back. If Odie wants answers, that choice can become the direction of play.',
-        velmira: 'Odie trusted you with this. Whether you encourage him to return, leave it alone or tell someone else is a character choice.'
+        odie: 'You found it first. Returning, leaving it alone, studying the finger first or telling someone else are all your choice.',
+        velmira: 'Odie trusted you with this. You know what he told you, not the answer. Whether you encourage him to return, leave it alone or tell someone else is a character choice.'
       }
     }
   ];
