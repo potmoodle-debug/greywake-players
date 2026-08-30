@@ -6,6 +6,7 @@
       status: 'RUMOUR / EXPEDITION LEAD',
       direction: 'SOUTH ↓',
       tone: 'rumour',
+      image: 'assets/canon/sessions/session-02.webp',
       visibility: ['party'],
       summary: 'Diggers say something dangerous has occupied an old ruin and work has stopped. Nobody seems certain what it is or why it chose that site.',
       known: 'The dig site is south of Greywake. You can investigate it, ask questions first, ignore it, or come back to it later. The exact route and what is inside remain uncertain.',
@@ -21,6 +22,7 @@
       status: 'POTENTIALLY RECOVERABLE',
       direction: 'EAST →',
       tone: 'open',
+      image: 'assets/canon/sessions/session-01.webp',
       visibility: ['party'],
       summary: 'Significant expensive caravan freight was left behind when the group chose lives over cargo during the Kestrel Return.',
       known: 'Ash-Plate Groundfall is on the eastern Kestrel Return route corridor through Old Marker Wash. The party travelled this route during Sessions One to Three. The direction is known; what has happened to the freight since then is not.',
@@ -36,6 +38,7 @@
       status: 'UNRESOLVED',
       direction: 'GREYWAKE FIRST / EASTERN SITES',
       tone: 'active',
+      image: 'assets/canon/sessions/session-03.webp',
       visibility: ['party'],
       summary: 'At least two route markers were deliberately altered. The party still does not know who did it, when, why, or whether the same person was responsible for both.',
       known: 'This can begin as an investigation in Greywake by speaking to people, comparing route knowledge or examining what was brought back. The marker sites already encountered lie on the eastern Kestrel Return route corridor.',
@@ -51,6 +54,7 @@
       status: 'BACK IN GREYWAKE',
       direction: 'GREYWAKE',
       tone: 'active',
+      image: 'assets/canon/locations/valve-court-cistern-seal.webp',
       visibility: ['party'],
       summary: 'The precision-made ceramic waterworks plate reached Greywake intact, but what it can actually do and who takes responsibility for it remain unresolved.',
       known: 'This is a town-side situation, not a Wastes expedition. Greywake may act on it whether or not the party chooses to become involved.',
@@ -66,6 +70,7 @@
       status: 'RECOVERING',
       direction: 'GREYWAKE',
       tone: 'active',
+      image: 'assets/canon/fauna/ash-plate.webp',
       visibility: ['party'],
       summary: 'Ash-Plate made it home under her own strength but carried no load and needs proper assessment before returning to work.',
       known: 'This is part of Greywake’s continuing life rather than an assignment. The party can become involved if they care to.',
@@ -81,6 +86,7 @@
       status: 'OPEN POSSIBILITY',
       direction: 'GREYWAKE',
       tone: 'active',
+      image: 'assets/canon/locations/caravan-gate.webp',
       visibility: ['party'],
       summary: 'Greywake always has practical problems: repairs, shortages, animals, trade, water, disputes, people who need help and work that has been left undone.',
       known: 'Not every problem is an adventure and not every request deserves a yes. Talking to people your characters already know is enough to discover what currently matters to them.',
@@ -96,6 +102,8 @@
       status: 'PURSUING / NEW LEAD',
       direction: 'GREYWAKE FIRST / SOUTH ↓',
       tone: 'personal',
+      image: 'assets/canon/sessions/session-01.webp',
+      imageNote: 'South-wastes route imagery — Marek has not yet seen a confirmed flickerfly.',
       visibility: ['marek'],
       summary: 'Marek wants to find and study a flickerfly. The stories he has heard mostly seem to come from travellers returning from south of Greywake.',
       known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. Marek can first try to identify that Digger and learn exactly where the fragment was found.',
@@ -109,6 +117,7 @@
       status: 'YOUR UNFINISHED BUSINESS',
       direction: '? NO EXTERNAL DESTINATION KNOWN',
       tone: 'personal',
+      image: 'assets/npcs/hq-v3/nemi.webp',
       visibility: ['velmira'],
       summary: 'Nemi’s condition remains unresolved. Ordinary remedies, comfort, charms and small workings have not stopped it.',
       known: 'Possible avenues include previous cases, old records, Faithful claims, Watch observations, Digger finds and desert remedies. None currently establishes an external destination or direction.',
@@ -122,6 +131,8 @@
       status: 'YOUR UNFINISHED BUSINESS',
       direction: 'GREYWAKE',
       tone: 'personal',
+      image: 'assets/tower-close.jpg',
+      imageNote: 'Greywake context — not a portrait of Tavi.',
       visibility: ['velmira'],
       summary: 'Tavi is being drawn toward the Faithful but is not fully committed. They remain reachable.',
       known: 'Known to Velmira: Tavi wants meaning, likes being listened to, and may be adopting other people’s certainty as a way to manage fear.',
@@ -135,6 +146,8 @@
       status: 'PURSUING',
       direction: 'GREYWAKE',
       tone: 'personal',
+      image: 'assets/canon/locations/caravan-gate.webp',
+      imageNote: 'Greywake access imagery — the concealed Digger entrances remain hidden.',
       visibility: ['odie'],
       summary: 'Some Digger crews use concealed haul routes to bring salvage into Greywake without taking every recovery through the normal gates and public unloading points. Several of those hidden entrances are now being deliberately closed, filled or braced shut.',
       known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie suspects someone is reporting the tunnels, but he does not yet know who is exposing them, who is closing them, whether every closure is connected, or why it is happening now.',
@@ -148,6 +161,7 @@
       status: 'PRIVATE POSSIBILITY',
       direction: 'KNOWN PRIVATELY / NOT A WASTES CHOICE',
       tone: 'personal',
+      image: null,
       visibility: ['odie', 'velmira'],
       summary: 'Odie found a pale, precisely made tunnel ending at a sealed white door. He saw no evidence that another person from Greywake had reached it before him. Velmira is the only other PC he has trusted with the discovery.',
       known: 'The door had no handle, bar or hinge Odie recognised. Neither of you knows who built it, what lies beyond it, whether it can open, or whether Odie’s Oldwork finger has any connection to it.',
@@ -184,13 +198,20 @@
 
   function card(item, user) {
     const relevance = relevanceFor(item, user);
+    const image = item.image
+      ? `<img class="thread-card-image" src="${item.image}" alt="" loading="lazy" decoding="async">`
+      : `<div class="thread-card-image thread-card-image-fallback" aria-hidden="true"></div>`;
     return `<article class="thread-card thread-${item.tone}" data-thread="${item.id}">
-      <div class="thread-topline"><span class="thread-status">${item.status}</span><span class="thread-scope">${partyVisible(item) ? 'KNOWN TO PARTY' : 'PERSONAL'}</span></div>
-      ${item.direction ? `<div class="thread-direction">${item.direction}</div>` : ''}
-      <h3>${item.title}</h3>
-      <p class="thread-summary">${item.summary}</p>
-      <p class="thread-known">${item.known}</p>
-      ${relevance ? `<div class="thread-relevance"><span>${relevance.label}</span><p>${relevance.text}</p></div>` : ''}
+      ${image}<div class="thread-card-shade"></div>
+      <div class="thread-card-content">
+        <div class="thread-topline"><span class="thread-status">${item.status}</span><span class="thread-scope">${partyVisible(item) ? 'KNOWN TO PARTY' : 'PERSONAL'}</span></div>
+        ${item.direction ? `<div class="thread-direction">${item.direction}</div>` : ''}
+        <h3>${item.title}</h3>
+        <p class="thread-summary">${item.summary}</p>
+        <p class="thread-known">${item.known}</p>
+        ${item.imageNote ? `<div class="thread-image-note">${item.imageNote}</div>` : ''}
+        ${relevance ? `<div class="thread-relevance"><span>${relevance.label}</span><p>${relevance.text}</p></div>` : ''}
+      </div>
     </article>`;
   }
 
