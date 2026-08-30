@@ -86,10 +86,10 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/canon/fauna/hopkins.webp","caption":"Hopkins — Clay's giant kangaroo-rat scout companion."}
   ],
   "Ash-Plate": [
-    {"src":"assets/canon/fauna/ash-plate.webp","caption":"Ash-Plate — recovering after the Kestrel Return groundfall."}
+    {"src":"assets/canon/fauna/ash-plate.webp?v=approved-shells-1","caption":"Ash-Plate — recovering after the Kestrel Return groundfall."}
   ],
   "Lowbell": [
-    {"src":"assets/canon/fauna/lowbell.webp","caption":"Lowbell — a working Great-Shell of Kestrel Return."}
+    {"src":"assets/canon/fauna/lowbell.webp?v=approved-shells-1","caption":"Lowbell — a working Great-Shell of Kestrel Return."}
   ],
   "Latchfan": [
     {"src":"assets/canon/flora/latchfan-specimen.webp","caption":"Latchfan — mature specimen."},
