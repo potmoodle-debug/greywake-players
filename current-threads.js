@@ -91,6 +91,19 @@
       }
     },
     {
+      id: 'flickerfly-study',
+      title: 'Find a Flickerfly',
+      status: 'PURSUING / NEW LEAD',
+      direction: 'GREYWAKE FIRST / SOUTH ↓',
+      tone: 'personal',
+      visibility: ['marek'],
+      summary: 'Marek wants to find and study a flickerfly. The stories he has heard mostly seem to come from travellers returning from south of Greywake.',
+      known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. Marek can first try to identify that Digger and learn exactly where the fragment was found.',
+      relevance: {
+        marek: 'This came directly from you: you want the chance to study one. The first lead is a person in Greywake, not yet a known expedition site.'
+      }
+    },
+    {
       id: 'nemi-stilling',
       title: 'Nemi and the Stilling',
       status: 'YOUR UNFINISHED BUSINESS',
