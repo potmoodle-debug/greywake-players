@@ -154,9 +154,19 @@
     });
   }
 
+  function ensureMindDashboardScript() {
+    if (document.querySelector('script[data-gm-mind-dashboard]')) return;
+    const script = document.createElement('script');
+    script.src = 'gm-mind-dashboard.js?v=mind1';
+    script.defer = true;
+    script.dataset.gmMindDashboard = 'true';
+    document.head.appendChild(script);
+  }
+
   new MutationObserver(scheduleEnhance).observe(host, { childList: true, subtree: true });
   window.addEventListener('greywake:player-ready', scheduleEnhance);
   window.addEventListener('greywake:engagement-changed', scheduleEnhance);
   document.addEventListener('DOMContentLoaded', scheduleEnhance);
+  ensureMindDashboardScript();
   scheduleEnhance();
 })();
