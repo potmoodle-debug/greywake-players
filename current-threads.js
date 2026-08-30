@@ -99,30 +99,37 @@
     {
       id: 'flickerfly-study',
       title: 'Find a Flickerfly',
-      status: 'PURSUING / NEW LEAD',
+      status: 'PLAYER PROPOSAL / NEW LEAD',
       direction: 'GREYWAKE FIRST / SOUTH ↓',
       tone: 'personal',
       image: 'assets/canon/sessions/session-01.webp',
-      imageNote: 'South-wastes route imagery — Marek has not yet seen a confirmed flickerfly.',
-      visibility: ['marek'],
-      summary: 'Marek wants to find and study a flickerfly. The stories he has heard mostly seem to come from travellers returning from south of Greywake.',
-      known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. Marek can first try to identify that Digger and learn exactly where the fragment was found.',
+      imageNote: 'South-wastes route imagery — nobody in the party has yet seen a confirmed flickerfly.',
+      visibility: ['party'],
+      proposedBy: 'Marek',
+      summary: 'Marek wants the party to find a flickerfly so he can study one. Stories about them mostly seem to come from travellers returning from south of Greywake.',
+      known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. The first step is to identify that Digger and learn exactly where the fragment was found.',
       relevance: {
-        marek: 'This came directly from you: you want the chance to study one. The first lead is a person in Greywake, not yet a known expedition site.'
+        marek: 'This began with something you said you wanted to do: find and study a flickerfly.',
+        velmira: 'If the group follows Marek’s lead, the first useful step is still in Greywake: finding the person who brought the fragment back and working out whether the story is credible.',
+        odie: 'A Digger brought the possible fragment in, which gives you a practical route into the lead through people and places you already understand.'
       }
     },
     {
-      id: 'nemi-stilling',
-      title: 'Nemi and the Stilling',
-      status: 'YOUR UNFINISHED BUSINESS',
-      direction: '? NO EXTERNAL DESTINATION KNOWN',
+      id: 'earlier-stilling-case',
+      title: 'An Earlier Stilling Case',
+      status: 'PLAYER PROPOSAL / KNOWN LEAD',
+      direction: 'OUTSIDE GREYWAKE / EXACT DIRECTION NOT YET ESTABLISHED',
       tone: 'personal',
       image: 'assets/npcs/hq-v3/nemi.webp',
-      visibility: ['velmira'],
-      summary: 'Nemi’s condition remains unresolved. Ordinary remedies, comfort, charms and small workings have not stopped it.',
-      known: 'Possible avenues include previous cases, old records, Faithful claims, Watch observations, Digger finds and desert remedies. None currently establishes an external destination or direction.',
+      imageNote: 'Nemi is the reason Velmira cares about this lead; the historical case was someone else.',
+      visibility: ['party'],
+      proposedBy: 'Velmira',
+      summary: 'One of the earlier publicly known Stilling cases apparently seemed to stabilise for a time after the person had been somewhere outside Greywake. Velmira wants to find that place and see whether anything there might help Nemi.',
+      known: 'The apparent stabilisation followed a journey outside Greywake and the place visited is still identifiable. Nobody knows whether the journey caused the change, what happened there, or whether anything found would help Nemi. The exact direction has not yet been established.',
       relevance: {
-        velmira: 'This belongs to Velmira because she cares about Nemi. It becomes campaign direction only if you decide to pursue it.'
+        marek: 'If the group follows Velmira’s lead, the place may offer an environmental, biological or entirely coincidental clue worth examining carefully.',
+        velmira: 'This came directly from you: follow the strongest known trace left by an earlier Stilling case and see whether it gives Nemi another possibility.',
+        odie: 'A known place outside Greywake means this can become a practical expedition once the route and destination are established.'
       }
     },
     {
@@ -143,15 +150,18 @@
     {
       id: 'closing-ways',
       title: 'The Closing Ways',
-      status: 'PURSUING',
+      status: 'PLAYER PROPOSAL / ACTIVE PROBLEM',
       direction: 'GREYWAKE',
       tone: 'personal',
       image: 'assets/canon/locations/caravan-gate.webp',
       imageNote: 'Greywake access imagery — the concealed Digger entrances remain hidden.',
-      visibility: ['odie'],
-      summary: 'Some Digger crews use concealed haul routes to bring salvage into Greywake without taking every recovery through the normal gates and public unloading points. Several of those hidden entrances are now being deliberately closed, filled or braced shut.',
-      known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie suspects someone is reporting the tunnels, but he does not yet know who is exposing them, who is closing them, whether every closure is connected, or why it is happening now.',
+      visibility: ['party'],
+      proposedBy: 'Odie',
+      summary: 'Several concealed Digger haul routes into Greywake are being deliberately closed, filled or braced shut. Odie wants to find out how their locations are being exposed and stop more of them being lost.',
+      known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie suspects someone is reporting the tunnels, but nobody yet knows who is exposing them, who is closing them, whether every closure is connected, or why it is happening now.',
       relevance: {
+        marek: 'If the group follows Odie’s lead, this is a town-side mystery about hidden movement, changing access and who knows what.',
+        velmira: 'The problem touches secrecy, trust and competing interests inside Greywake; people may have very different reasons for wanting those routes gone.',
         odie: 'Someone somewhere knows something they should not. You want to work out who is exposing the hidden routes and stop more of them from being closed.'
       }
     },
@@ -201,10 +211,14 @@
     const image = item.image
       ? `<img class="thread-card-image" src="${item.image}" alt="" loading="lazy" decoding="async">`
       : `<div class="thread-card-image thread-card-image-fallback" aria-hidden="true"></div>`;
+    const origin = item.proposedBy
+      ? `<span class="thread-origin">PROPOSED BY ${item.proposedBy.toUpperCase()}</span>`
+      : '';
     return `<article class="thread-card thread-${item.tone}" data-thread="${item.id}">
       ${image}<div class="thread-card-shade"></div>
       <div class="thread-card-content">
         <div class="thread-topline"><span class="thread-status">${item.status}</span><span class="thread-scope">${partyVisible(item) ? 'KNOWN TO PARTY' : 'PERSONAL'}</span></div>
+        ${origin}
         ${item.direction ? `<div class="thread-direction">${item.direction}</div>` : ''}
         <h3>${item.title}</h3>
         <p class="thread-summary">${item.summary}</p>
