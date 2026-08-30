@@ -11,10 +11,10 @@
 
   function parseCapacity(value){
     const raw = String(value || '');
-    let m = raw.match(/(\d+)\s*\/\s*(\d+)/);
-    if (m) return { current:Number(m[1]), max:Number(m[2]), mode:'current' };
-    m = raw.match(/(\d+)\s*\/\s*(\d+)\s*marked/i);
+    let m = raw.match(/(\d+)\s*\/\s*(\d+)\s*marked/i);
     if (m) return { current:Number(m[1]), max:Number(m[2]), mode:'marked' };
+    m = raw.match(/(\d+)\s*\/\s*(\d+)/);
+    if (m) return { current:Number(m[1]), max:Number(m[2]), mode:'current' };
     m = raw.match(/(\d+)/);
     if (m) return { current:null, max:Number(m[1]), mode:'capacity' };
     return null;
