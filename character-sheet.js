@@ -75,27 +75,35 @@
     },
     marek: {
       name: 'Marek',
-      subtitle: 'Druid · Warden of Renewal · Wildborne · Half-Human / Half-Simiah',
+      subtitle: 'Druid · Warden of Renewal · Wildborne Mixed Ancestry',
       portrait: null,
-      note: 'Marek’s canonical identity is current, but his personalised numeric character sheet has not yet been imported into the Greywake archive. The site therefore shows only mechanics supported by the current campaign files and the Daggerheart Druid rules.',
+      note: 'Imported from Marek’s current Demiplane sheet. This Greywake page is still a reference view: Demiplane remains the live source for changing Hope, HP, Stress and Armor marks for now.',
       stats: [
-        ['Class','Druid'],['Subclass','Renewal'],['Base Evasion','10'],['Base HP','6'],['Spellcast','Instinct'],['Domains','Sage / Arcana']
+        ['Level','1'],['Evasion','12'],['Armor','4'],['HP','0 / 6 marked'],['Stress','0 / 7 marked'],['Hope','2 / 6']
       ],
-      traits: null,
+      traits: [
+        ['Agility','+1','Sprint · Dodge · Leap'],['Strength','0','Lift · Smash · Grapple'],['Finesse','+1','Control · Hide · Tinker'],['Instinct','+2','Perceive · Sense · Navigate'],['Presence','−1','Charm · Perform · Deceive'],['Knowledge','0','Recall · Analyze · Comprehend']
+      ],
       experiences: [
-        ['Body Language','Experience','Marek reads posture, weight distribution, head angle, movement and muscular tension as practical evidence. The current Greywake file does not yet provide the numeric modifier.'],
-        ['Let Me Try Something','Experience','Marek’s experimental instinct: he learns by testing biological and practical possibilities. The current Greywake file does not yet provide the numeric modifier.']
+        ['Body Language','+2','Marek reads posture, weight distribution, head angle, movement and muscular tension as practical evidence. Spend a Hope when that lived expertise genuinely applies to an action roll.'],
+        ['Let Me Try Something','+2','Marek’s experimental instinct. Spend a Hope when trying, testing or improvising a practical biological solution genuinely draws on this Experience.']
       ],
       features: [
-        ['Evolution','Druid Hope feature · 3 Hope','Transform into a Beastform without marking Stress and raise one trait by +1 until leaving that Beastform.'],
-        ['Beastform','Druid class feature','Mark a Stress to transform into an eligible Beastform. While transformed, use the form’s features and attack trait; armor remains part of the form and already-marked Armor Slots stay marked when changing back.'],
-        ['Wildtouch','Druid class feature','Perform harmless, subtle nature effects at will.'],
+        ['Evolution','Druid Hope feature · 3 Hope','Spend 3 Hope to transform into a Beastform without marking Stress. When you do, choose one trait to raise by +1 until you drop out of that Beastform.'],
+        ['Beastform','Druid class feature','Mark a Stress to transform into a creature of your tier or lower from the Beastform list. You gain that form’s features and Evasion; armor becomes part of the form, and already-marked Armor Slots remain marked when you return.'],
         ['Clarity of Nature','Warden of Renewal','Once per long rest, create a small space of natural serenity; after a few minutes resting there, clear Stress equal to Marek’s Instinct, distributed among Marek and allies.'],
         ['Regeneration','Warden of Renewal · 3 Hope','Touch a creature and spend 3 Hope so it clears 1d4 Hit Points.'],
         ['Anatomical Beastform','Greywake flavour','Marek’s change is fast, physical and anatomical rather than hidden by light or smoke. His amber-gold eyes remain recognisably his. This changes flavour, not mechanics.']
       ],
-      domains: [],
-      gear: []
+      domains: [
+        ['Nature’s Tongue','Sage · Ability','Speak the language of the natural world. To speak to nearby plants or animals, make an Instinct Roll (12); on success they give the information they know, while Fear can limit knowledge or impose a cost. Before a Spellcast Roll in a natural environment, spend a Hope for +2 to the roll.'],
+        ['Wall Walk','Arcana · Spell','Spend a Hope to allow a creature you can touch to climb walls and ceilings as easily as walking on the ground until the end of the scene or until you cast Wall Walk again.']
+      ],
+      gear: [
+        ['Shortstaff','Primary weapon','Instinct · Close · 1d8+1 magical. No additional weapon feature is shown on the current sheet.'],
+        ['Round Shield','Secondary weapon','Strength · Melee · 1d4 physical. Protective (Melee): +1 to Armor Score.'],
+        ['Damage thresholds','Armor reference','Current visible thresholds: 6 / 12. Armor Score is 4 with 0 of 4 Armor Slots currently marked.']
+      ]
     }
   };
 
@@ -134,7 +142,7 @@
         </div>
       </div>
       <div class="character-sheet-body">
-        ${sheet.traits ? group('Traits', sheet.traits, { traits: true, hint: 'Tap a trait for its common uses' }) : `<section class="sheet-group"><div class="sheet-group-head"><h3>Traits & exact loadout</h3></div><div class="sheet-incomplete"><strong>Not imported yet.</strong> Marek’s current Greywake record does not contain the six trait modifiers, armor, weapons or domain-card loadout. Those fields are deliberately left blank rather than guessed.</div></section>`}
+        ${sheet.traits ? group('Traits', sheet.traits, { traits: true, hint: 'Tap a trait for its common uses' }) : `<section class="sheet-group"><div class="sheet-group-head"><h3>Traits & exact loadout</h3></div><div class="sheet-incomplete"><strong>Not imported yet.</strong> This character’s full mechanical loadout has not yet been imported.</div></section>`}
         ${group('Experiences', sheet.experiences, { hint: 'Tap to see when it matters' })}
         ${group('Features', sheet.features, { hint: 'Class, subclass, ancestry and community' })}
         ${group('Domain cards', sheet.domains, { hint: 'Rules reference' })}
