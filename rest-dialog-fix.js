@@ -30,6 +30,7 @@
           banner.setAttribute('role','status');
           banner.scrollIntoView({behavior:'smooth',block:'nearest'});
         }
+        updateChoiceSummary();
       });
     }
     return true;
@@ -58,6 +59,51 @@
     },120);
   }
 
+  function selectedMoves(dialog){
+    const moves=[];
+    dialog.querySelectorAll('.rest-move-card').forEach(card=>{
+      const plus=card.querySelector('[data-move-delta="1"][data-move]');
+      const count=Number(card.querySelector('.rest-move-counter b')?.textContent||0);
+      if(!plus||!count)return;
+      moves.push({id:plus.dataset.move,count,name:card.querySelector(':scope>strong')?.textContent?.trim()||plus.dataset.move});
+    });
+    return moves;
+  }
+
+  function effectText(move,longRest){
+    const repeat=move.count>1?` ×${move.count}`:'';
+    if(move.id==='tend')return longRest?`clear all marked HP${repeat}`:`recover HP${repeat}`;
+    if(move.id==='stress')return longRest?`clear all marked Stress${repeat}`:`recover Stress${repeat}`;
+    if(move.id==='armor')return longRest?`repair all marked Armor Slots${repeat}`:`repair Armor Slots${repeat}`;
+    if(move.id==='prepare')return`gain Hope${repeat}`;
+    if(move.id==='project')return`work on a project${repeat}`;
+    return`${move.name.toLowerCase()}${repeat}`;
+  }
+
+  function updateChoiceSummary(){
+    const dialog=document.getElementById('restDialog');
+    if(!dialog?.open)return;
+    const complete=dialog.querySelector('[data-complete-rest]');
+    if(!complete)return;
+    let summary=dialog.querySelector('[data-rest-choice-summary]');
+    if(!summary){
+      summary=document.createElement('div');
+      summary.dataset.restChoiceSummary='true';
+      summary.style.cssText='margin:.75rem 0;padding:.7rem;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.025);color:#a89f8d;line-height:1.45';
+      complete.insertAdjacentElement('beforebegin',summary);
+    }
+    const moves=selectedMoves(dialog);
+    const longRest=/LONG REST/i.test(dialog.querySelector('.rest-dialog-head span')?.textContent||'') && [...dialog.querySelectorAll('.rest-move-card>strong')].some(n=>n.textContent.trim()==='Tend to All Wounds');
+    if(!moves.length){
+      summary.innerHTML='<span style="display:block;font-size:.62rem;letter-spacing:.14em;color:var(--dossier-accent);font-weight:800">THIS REST WILL…</span><strong style="display:block;color:#eee4cd;margin-top:.18rem">Choose two downtime moves</strong><small>A Long Rest does not automatically clear HP or Stress. Your selected downtime moves determine the recovery.</small>';
+      return;
+    }
+    const effects=moves.map(move=>effectText(move,longRest));
+    const hp=effects.some(text=>/HP/i.test(text));
+    const stress=effects.some(text=>/Stress/i.test(text));
+    summary.innerHTML=`<span style="display:block;font-size:.62rem;letter-spacing:.14em;color:var(--dossier-accent);font-weight:800">THIS REST WILL…</span><strong style="display:block;color:#eee4cd;margin-top:.18rem">${effects.join(' + ')}</strong><small>${hp?'HP recovery selected.':'HP will not change.'} ${stress?'Stress recovery selected.':'Stress will not change.'}</small>`;
+  }
+
   document.addEventListener('click',event=>{
     const closeButton=event.target.closest?.('#restDialog [data-close], #restDialog [data-finish-rest]');
     if(closeButton){
@@ -68,10 +114,18 @@
     }
 
     const completeButton=event.target.closest?.('#restDialog [data-complete-rest]');
-    if(!completeButton||completeButton.disabled)return;
-    if(correctStaleWater(event,completeButton))return;
-    revealOutcome(completeButton);
+    if(completeButton&&!completeButton.disabled){
+      if(correctStaleWater(event,completeButton))return;
+      revealOutcome(completeButton);
+      return;
+    }
+
+    if(event.target.closest?.('[data-rest], #restDialog [data-move-delta]'))setTimeout(updateChoiceSummary,0);
   },true);
+
+  document.addEventListener('change',event=>{
+    if(event.target.closest?.('#restDialog'))setTimeout(updateChoiceSummary,0);
+  });
 
   document.addEventListener('keydown',event=>{
     if(event.key!=='Escape')return;
@@ -79,5 +133,6 @@
     if(dialog?.open)closeRestDialog();
   });
 
-  window.GreywakeRestDialog={close:closeRestDialog};
+  window.addEventListener('greywake:rest-completed',()=>setTimeout(updateChoiceSummary,0));
+  window.GreywakeRestDialog={close:closeRestDialog,refreshSummary:updateChoiceSummary};
 })();
