@@ -8,6 +8,8 @@
     return String(window.GreywakePlayer?.character || document.body.dataset.character || '').toLowerCase() === 'marek';
   }
 
+  function resources(){ return window.GreywakeResources || null; }
+
   function esc(value){
     return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   }
@@ -87,7 +89,9 @@
   function experienceMarkup(){
     const items = experiences();
     if (!items.length) return '';
-    return `<fieldset class="action-roll-experiences"><legend>Experiences <small>1 Hope each</small></legend>${items.map((item,i)=>`<label><input type="checkbox" data-roll-experience="${i}" data-bonus="${item.bonus}"><span><b>${esc(item.name)}</b><small>+${item.bonus}</small></span></label>`).join('')}</fieldset>`;
+    const currentHope = resources()?.getState?.().hope;
+    const available = Number.isFinite(currentHope) ? ` · ${currentHope} Hope available` : '';
+    return `<fieldset class="action-roll-experiences"><legend>Experiences <small>1 Hope each${available}</small></legend>${items.map((item,i)=>`<label><input type="checkbox" data-roll-experience="${i}" data-bonus="${item.bonus}"><span><b>${esc(item.name)}</b><small>+${item.bonus}</small></span></label>`).join('')}</fieldset>`;
   }
 
   function rollerMarkup(spec){
@@ -118,14 +122,31 @@
     host.innerHTML = `<div class="damage-roll-result ${critical?'critical':''}"><div><span>${critical?'CRITICAL DAMAGE':'DAMAGE'}</span><strong>${total}</strong><small>${esc(spec.damage.type || 'damage')}</small></div><p>${rolls.map(r=>`d${spec.damage.sides}: <b>${r}</b>`).join(' · ')}${spec.damage.mod ? ` · modifier <b>${spec.damage.mod>0?'+':''}${spec.damage.mod}</b>` : ''}${critical ? ` · critical maximum <b>+${criticalBonus}</b>` : ''}</p></div>`;
   }
 
+  function resourceError(detail, message){
+    const result = detail.querySelector('[data-roll-result]');
+    if (!result) return;
+    result.innerHTML = `<div class="duality-result resource-error"><div class="duality-outcome"><span>RESOURCE REQUIRED</span><strong>ROLL NOT MADE</strong><small>${esc(message)}</small></div></div>`;
+  }
+
   function performRoll(detail, spec){
+    const selectedExperiences = [...detail.querySelectorAll('[data-roll-experience]:checked')];
+    const expCost = selectedExperiences.length;
+    const resourceAPI = resources();
+
+    if (expCost && resourceAPI?.spendHope){
+      const names = selectedExperiences.map((input,index)=>experiences()[Number(input.dataset.rollExperience)]?.name).filter(Boolean);
+      const spend = resourceAPI.spendHope(expCost,`Experience${expCost>1?'s':''}: ${names.join(' + ')}`);
+      if (!spend.ok){
+        resourceError(detail,spend.message || 'Not enough Hope to use the selected Experience.');
+        return;
+      }
+    }
+
     const trait = currentTrait(spec.trait);
     const hope = die(12);
     const fear = die(12);
     const critical = hope === fear;
     const axis = critical || hope > fear ? 'Hope' : 'Fear';
-
-    const selectedExperiences = [...detail.querySelectorAll('[data-roll-experience]:checked')];
     const experienceBonus = selectedExperiences.reduce((sum,input)=>sum+Number(input.dataset.bonus || 0),0);
     const mode = detail.querySelector('[data-roll-mode]')?.value || 'normal';
     const advantageDie = mode === 'normal' ? 0 : die(6);
@@ -136,15 +157,26 @@
     const total = hope + fear + trait + experienceBonus + advantageBonus + other;
     const success = critical ? true : difficulty == null ? null : total >= difficulty;
 
+    if (resourceAPI){
+      if (critical){
+        resourceAPI.gainHope?.(1,'Critical success');
+        resourceAPI.clearStress?.(1,'Critical success');
+      }else if (axis === 'Hope'){
+        resourceAPI.gainHope?.(1,'Roll with Hope');
+      }
+    }
+
     let headline = critical ? 'CRITICAL SUCCESS' : success == null ? `${total} WITH ${axis.toUpperCase()}` : `${success?'SUCCESS':'FAILURE'} WITH ${axis.toUpperCase()}`;
     let consequence = critical ? 'Gain 1 Hope · clear 1 Stress' : axis === 'Hope' ? 'Gain 1 Hope' : 'GM gains 1 Fear';
     if (critical && spec.isAttack) consequence += ' · critical damage enabled';
 
-    const expCost = selectedExperiences.length;
     const parts = [`${hope} Hope`, `${fear} Fear`, `${spec.trait} ${trait>=0?'+':''}${trait}`];
     if (experienceBonus) parts.push(`Experiences +${experienceBonus}`);
     if (mode !== 'normal') parts.push(`${mode === 'advantage'?'Advantage':'Disadvantage'} ${advantageBonus>=0?'+':''}${advantageBonus}`);
     if (other) parts.push(`Other ${other>=0?'+':''}${other}`);
+
+    const currentResources = resourceAPI?.getState?.();
+    const resourceLine = currentResources ? `<p class="duality-resource-state"><b>Hope ${currentResources.hope}/${currentResources.maxHope}</b> · <b>Stress ${currentResources.stress}/${currentResources.maxStress}</b>${currentResources.vulnerable?' · <strong>VULNERABLE</strong>':''}</p>` : '';
 
     const result = detail.querySelector('[data-roll-result]');
     if (!result) return;
@@ -152,7 +184,8 @@
       <div class="duality-dice"><div class="hope-die"><span>HOPE</span><b>${hope}</b></div><div class="fear-die"><span>FEAR</span><b>${fear}</b></div></div>
       <div class="duality-outcome"><span>${esc(spec.title)}</span><strong>${headline}</strong><b>Total ${total}${difficulty ? ` / Difficulty ${difficulty}` : ''}</b><small>${consequence}</small></div>
       <p class="duality-breakdown">${parts.map(esc).join(' · ')}</p>
-      ${expCost ? `<p class="duality-cost">Chosen Experiences cost <b>${expCost} Hope</b>. This roller does not mark that resource automatically.</p>` : ''}
+      ${expCost ? `<p class="duality-cost"><b>${expCost} Hope</b> spent automatically before the roll for the selected Experience${expCost>1?'s':''}.</p>` : ''}
+      ${resourceLine}
       ${difficulty == null && !critical ? '<p class="duality-cost">No Difficulty entered: tell the GM the total and whether it rolled with Hope or Fear.</p>' : ''}
       ${spec.isAttack && spec.damage ? `<div class="damage-roll-controls"><button type="button" data-roll-damage ${success === false ? 'disabled' : ''}>${critical?'Roll Critical Damage':'Roll Damage'}</button><span>${success === false ? 'Attack failed against the entered Difficulty.' : `${spec.damage.count}d${spec.damage.sides}${spec.damage.mod ? (spec.damage.mod>0?'+':'')+spec.damage.mod : ''} ${esc(spec.damage.type)}`}</span></div><div data-damage-result></div>` : ''}
     </div>`;
@@ -176,6 +209,14 @@
     detail.querySelector('[data-roll-action]')?.addEventListener('click', () => performRoll(detail, spec));
   }
 
+  function refreshResourceLabels(){
+    const detail=actionDetail();
+    if (!detail) return;
+    const legend=detail.querySelector('.action-roll-experiences legend small');
+    const s=resources()?.getState?.();
+    if (legend && s) legend.textContent=`1 Hope each · ${s.hope} Hope available`;
+  }
+
   function observe(){
     const panel = document.getElementById('activeActionsPanel');
     if (!panel) return;
@@ -186,6 +227,7 @@
       observer.observe(panel,{childList:true,subtree:true});
     }
     enhanceDetail();
+    refreshResourceLabels();
   }
 
   function init(){
@@ -197,6 +239,7 @@
   const schedule=()=>{clearTimeout(timer);timer=setTimeout(init,180)};
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('greywake:sheet-enhanced',schedule);
+  window.addEventListener('greywake:resources-changed',refreshResourceLabels);
   window.addEventListener('hashchange',schedule);
   document.addEventListener('DOMContentLoaded',schedule);
 })();
