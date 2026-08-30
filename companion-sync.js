@@ -1,4 +1,5 @@
 (() => {
+  const fixes=document.createElement('script');fixes.src='companion-rules-fixes.js?v=fix1';document.head.appendChild(fixes);
   const API_URL='https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals?include_system=1';
   const API_KEY='sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const SYSTEM_KIND='system_resource_state';
