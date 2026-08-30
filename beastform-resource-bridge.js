@@ -9,6 +9,10 @@
 
   function api(){ return window.GreywakeResources || null; }
 
+  function setText(node,text){
+    if (node && node.textContent !== text) node.textContent = text;
+  }
+
   function ensureChoice(){
     if (!isMarek()) return;
     const dialog=document.getElementById('beastformDialog');
@@ -25,8 +29,7 @@
         <label class="beastform-activation-option"><input type="radio" name="beastformActivation" value="evolution"><span><b>Evolution</b><small>Spend 3 Hope · mark no Stress · +1 to one trait</small></span></label>
         <label class="beastform-evolution-pretrait"><span>Evolution trait</span><select id="beastformPreTrait" disabled><option>Agility</option><option>Strength</option><option>Finesse</option><option>Instinct</option><option>Presence</option><option>Knowledge</option></select></label>
         <div id="beastformActivationError" class="beastform-activation-error" aria-live="polite"></div>`;
-      foot.innerHTML='';
-      foot.appendChild(choice);
+      foot.replaceChildren(choice);
       choice.querySelectorAll('input[name="beastformActivation"]').forEach(input=>input.addEventListener('change',()=>{
         const evolution=choice.querySelector('input[value="evolution"]')?.checked;
         const select=choice.querySelector('#beastformPreTrait');
@@ -46,8 +49,8 @@
     const evolutionOption=choice.querySelector('input[value="evolution"]')?.closest('label');
     stressOption?.classList.toggle('unavailable',resource.stress>=resource.maxStress);
     evolutionOption?.classList.toggle('unavailable',resource.hope<3);
-    stressOption?.querySelector('small')?.replaceChildren(document.createTextNode(resource.stress>=resource.maxStress?'Unavailable · no free Stress slots':'Mark 1 Stress'));
-    evolutionOption?.querySelector('small')?.replaceChildren(document.createTextNode(resource.hope<3?`Unavailable · ${resource.hope}/3 Hope`:'Spend 3 Hope · mark no Stress · +1 to one trait'));
+    setText(stressOption?.querySelector('small'),resource.stress>=resource.maxStress?'Unavailable · no free Stress slots':'Mark 1 Stress');
+    setText(evolutionOption?.querySelector('small'),resource.hope<3?`Unavailable · ${resource.hope}/3 Hope`:'Spend 3 Hope · mark no Stress · +1 to one trait');
   }
 
   function selectedMode(){
@@ -56,7 +59,7 @@
 
   function activationError(message=''){
     const node=document.getElementById('beastformActivationError');
-    if (node) node.textContent=message;
+    setText(node,message);
   }
 
   function currentFormId(){
@@ -117,12 +120,11 @@
     if (checkbox){
       checkbox.disabled=true;
       checkbox.closest('label')?.classList.add('beastform-evolution-locked');
-      const small=checkbox.closest('label')?.querySelector('small');
-      if (small) small.textContent=checkbox.checked?'Evolution was paid when this form was chosen.':'Standard Beastform was paid when this form was chosen.';
+      setText(checkbox.closest('label')?.querySelector('small'),checkbox.checked?'Evolution was paid when this form was chosen.':'Standard Beastform was paid when this form was chosen.');
     }
     if (select) select.disabled=true;
     const cost=document.querySelector('#beastformControl .beastform-cost');
-    if (cost) cost.textContent=checkbox?.checked ? 'Activation paid automatically: 3 Hope · no Stress.' : 'Activation paid automatically: 1 Stress.';
+    setText(cost,checkbox?.checked ? 'Activation paid automatically: 3 Hope · no Stress.' : 'Activation paid automatically: 1 Stress.');
   }
 
   function observeDialog(){
@@ -130,8 +132,10 @@
     if (!dialog || dialog===observedDialog) return;
     dialogObserver?.disconnect();
     observedDialog=dialog;
-    dialogObserver=new MutationObserver(()=>requestAnimationFrame(ensureChoice));
-    dialogObserver.observe(dialog,{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
+    dialogObserver=new MutationObserver(mutations=>{
+      if (mutations.some(m=>m.type==='attributes' && m.attributeName==='open')) requestAnimationFrame(ensureChoice);
+    });
+    dialogObserver.observe(dialog,{attributes:true,attributeFilter:['open']});
     ensureChoice();
   }
 
