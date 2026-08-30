@@ -3,6 +3,13 @@ const DISC=window.GREYWAKE_DISCOVERIES||[];
 const nav=document.getElementById('nav'),article=document.getElementById('article'),brain=document.getElementById('brainView'),home=document.getElementById('home');
 const searchInput=document.getElementById('searchInput'),searchStatus=document.getElementById('searchStatus');
 const SEARCH_INDEX=new Map();
+const LOCATION_GROUPS=[
+ {label:'Greywake',names:['Inner Greywake','Caravan Gate','White Tower','Valve Court','Tangle Lanes']},
+ {label:'Greater Greywake',names:['Greater Greywake','Great-Shell Pens','Digger Yards']},
+ {label:'Old Marker Wash',names:['Old Marker Wash','Failed Marker','Wrong Lower Line','Ash-Plate Groundfall','Broken Runnels',"Joric's Runnel",'Stone-Lip Hollow']},
+ {label:'Route landmarks',names:['High Shelf','Old Marker Line']},
+ {label:'Other known places',names:['Split Rock Shade']}
+];
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 function routeFor(name){return '#/record/'+encodeURIComponent(name)}
@@ -20,6 +27,33 @@ function searchableText(name){
  const text=document.createElement('div');text.innerHTML=entry.html||'';
  const value=`${entry.title||name} ${name} ${entry.category||''} ${text.textContent||''}`.toLowerCase();SEARCH_INDEX.set(name,value);return value;
 }
+function groupedLocations(names){
+ const remaining=new Set(names),groups=[];
+ LOCATION_GROUPS.forEach(group=>{
+   const matches=group.names.filter(name=>remaining.has(name));
+   matches.forEach(name=>remaining.delete(name));
+   if(matches.length)groups.push({label:group.label,names:matches});
+ });
+ if(remaining.size)groups.push({label:'Other known places',names:[...remaining].sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b))});
+ return groups;
+}
+function navLink(name){
+ const button=document.createElement('button');button.className='nav-link';button.textContent=DATA[name].title;button.dataset.note=name;button.onclick=()=>go(routeFor(name));return button;
+}
+function appendLocationNav(group,names,searching){
+ const directory='Known Locations';
+ if(names.includes(directory))group.appendChild(navLink(directory));
+ const active=currentRoute().type==='record'?currentRoute().name:'';
+ groupedLocations(names.filter(name=>name!==directory)).forEach(area=>{
+   const subgroup=document.createElement('div');subgroup.className='nav-subgroup';
+   const expanded=searching||area.names.includes(active);subgroup.classList.toggle('is-collapsed',!expanded);
+   const toggle=document.createElement('button');toggle.type='button';toggle.className='nav-subtoggle';toggle.setAttribute('aria-expanded',String(expanded));
+   toggle.innerHTML=`<span>${area.label}</span><small>${area.names.length}</small>`;
+   toggle.onclick=()=>{const collapsed=subgroup.classList.toggle('is-collapsed');toggle.setAttribute('aria-expanded',String(!collapsed))};
+   const items=document.createElement('div');items.className='nav-subitems';area.names.forEach(name=>items.appendChild(navLink(name)));
+   subgroup.append(toggle,items);group.appendChild(subgroup);
+ });
+}
 function buildNav(filter=''){
  nav.innerHTML='';
  const terms=filter.trim().toLowerCase().split(/\s+/).filter(Boolean);let resultCount=0;
@@ -27,7 +61,7 @@ function buildNav(filter=''){
    const m=names.filter(n=>DATA[n]&&terms.every(term=>searchableText(n).includes(term)));
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat}</h3>`;
-   m.forEach(name=>{const b=document.createElement('button');b.className='nav-link';b.textContent=DATA[name].title;b.dataset.note=name;b.onclick=()=>go(routeFor(name));g.appendChild(b)});
+   if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
    nav.appendChild(g);resultCount+=m.length;
  }
  if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
@@ -81,8 +115,13 @@ function autoLinkHTML(html,current){
 function categoryDirectoryHTML(name){
  const directories={'Known Flora and Fauna':'Flora & Fauna','Known Locations':'Locations','Known People':'People'};
  const category=directories[name];if(!category)return'';
- const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]).sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
+ const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]);
  if(!names.length)return'';
+ if(category==='Locations'){
+   const groups=groupedLocations(names);
+   return `<section class="record-directory location-directory"><div class="related-kicker">PARTY-KNOWN LOCATIONS</div><h2>Travel areas</h2><p class="location-directory-intro">Named sites are grouped beneath the wider area they belong to. Opening a site does not imply another half-day of travel.</p>${groups.map(group=>`<details class="location-directory-group"><summary><strong>${group.label}</strong><span>${group.names.length} ${group.names.length===1?'place':'places'}</span></summary><div class="related-grid">${group.names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${group.label}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></details>`).join('')}</section>`;
+ }
+ names.sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
  return `<section class="record-directory"><div class="related-kicker">PARTY-KNOWN ${category.toUpperCase()}</div><h2>${category}</h2><div class="related-grid">${names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;
 }
 
@@ -110,6 +149,7 @@ function expandActiveNav(name){
  const active=[...document.querySelectorAll('.nav-link')].find(item=>item.dataset.note===name);if(!active)return;
  document.querySelectorAll('.nav-link').forEach(item=>item.classList.toggle('active',item===active));
  const group=active.closest('.nav-group');group?.classList.remove('is-collapsed');group?.querySelector('.nav-toggle')?.setAttribute('aria-expanded','true');
+ const subgroup=active.closest('.nav-subgroup');subgroup?.classList.remove('is-collapsed');subgroup?.querySelector('.nav-subtoggle')?.setAttribute('aria-expanded','true');
 }
 function showNote(name){
  if(!DATA[name]){go('#/');return}

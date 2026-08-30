@@ -27,7 +27,7 @@
     nav.querySelectorAll('.nav-group').forEach(group=>{
       const heading=group.querySelector(':scope > h3');
       if(!heading||heading.dataset.enhanced)return;
-      const label=heading.textContent.trim(),count=group.querySelectorAll(':scope > .nav-link').length;
+      const label=heading.textContent.trim(),count=group.querySelectorAll('.nav-link').length;
       const toggle=document.createElement('button');toggle.type='button';toggle.className='nav-toggle';
       toggle.innerHTML=`<span>${escapeHTML(label)}</span><span class="nav-count">${count}</span>`;
       heading.replaceWith(toggle);toggle.dataset.enhanced='true';
