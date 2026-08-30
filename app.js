@@ -1,6 +1,8 @@
 const DATA=window.GREYWAKE_DATA,EDGES=window.GREYWAKE_EDGES,CATS=window.GREYWAKE_CATEGORIES;
 const DISC=window.GREYWAKE_DISCOVERIES||[];
 const nav=document.getElementById('nav'),article=document.getElementById('article'),brain=document.getElementById('brainView'),home=document.getElementById('home');
+const searchInput=document.getElementById('searchInput'),searchStatus=document.getElementById('searchStatus');
+const SEARCH_INDEX=new Map();
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 function routeFor(name){return '#/record/'+encodeURIComponent(name)}
@@ -12,15 +14,24 @@ function currentRoute(){
 }
 function go(route){if(location.hash===route){renderRoute();return}location.hash=route}
 
+function searchableText(name){
+ if(SEARCH_INDEX.has(name))return SEARCH_INDEX.get(name);
+ const entry=DATA[name]||{};
+ const text=document.createElement('div');text.innerHTML=entry.html||'';
+ const value=`${entry.title||name} ${name} ${entry.category||''} ${text.textContent||''}`.toLowerCase();SEARCH_INDEX.set(name,value);return value;
+}
 function buildNav(filter=''){
  nav.innerHTML='';
+ const terms=filter.trim().toLowerCase().split(/\s+/).filter(Boolean);let resultCount=0;
  for(const [cat,names] of Object.entries(CATS)){
-   const m=names.filter(n=>DATA[n]&&(DATA[n].title+' '+n).toLowerCase().includes(filter.toLowerCase()));
+   const m=names.filter(n=>DATA[n]&&terms.every(term=>searchableText(n).includes(term)));
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat}</h3>`;
    m.forEach(name=>{const b=document.createElement('button');b.className='nav-link';b.textContent=DATA[name].title;b.dataset.note=name;b.onclick=()=>go(routeFor(name));g.appendChild(b)});
-   nav.appendChild(g);
+   nav.appendChild(g);resultCount+=m.length;
  }
+ if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
+ if(searchStatus)searchStatus.textContent=terms.length?`${resultCount} ${resultCount===1?'record':'records'} found`:'';
 }
 
 function renderDiscoveries(){
@@ -91,6 +102,15 @@ function wireArticleLinks(){
  document.getElementById('articleHome')?.addEventListener('click',()=>go('#/'));
  document.getElementById('articleBrain')?.addEventListener('click',()=>go('#/brain'));
 }
+function scrollToTop(){window.scrollTo({top:0,behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
+function focusRouteHeading(target){
+ requestAnimationFrame(()=>{if(document.querySelector('.player-gate'))return;const heading=target?.querySelector('h1,h2');if(!heading)return;heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true})});
+}
+function expandActiveNav(name){
+ const active=[...document.querySelectorAll('.nav-link')].find(item=>item.dataset.note===name);if(!active)return;
+ document.querySelectorAll('.nav-link').forEach(item=>item.classList.toggle('active',item===active));
+ const group=active.closest('.nav-group');group?.classList.remove('is-collapsed');group?.querySelector('.nav-toggle')?.setAttribute('aria-expanded','true');
+}
 function showNote(name){
  if(!DATA[name]){go('#/');return}
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
@@ -98,16 +118,17 @@ function showNote(name){
  article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
- document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.note===name));
- window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.sidebar').classList.remove('open');
+ document.title=DATA[name].title==='Greywake'?'Greywake — Campaign Record':`${DATA[name].title} — Greywake`;expandActiveNav(name);
+ scrollToTop();document.querySelector('.sidebar').classList.remove('open');focusRouteHeading(article);
 }
 function showBrain(){
  home.classList.add('hidden');article.classList.add('hidden');brain.classList.remove('hidden');
- document.getElementById('crumb').textContent='Greywake / Player Brain';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));window.scrollTo({top:0,behavior:'smooth'});
+ document.getElementById('crumb').textContent='Greywake / Player Brain';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));document.title='Player Brain — Greywake';scrollToTop();focusRouteHeading(brain);
+ if(!window.GREYWAKE_DRAW_BRAIN&&!document.querySelector('#graph svg'))drawGraph();
 }
 function showHome(){
  article.classList.add('hidden');brain.classList.add('hidden');home.classList.remove('hidden');
- document.getElementById('crumb').textContent='Greywake / Home';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));window.scrollTo({top:0,behavior:'smooth'});
+ document.getElementById('crumb').textContent='Greywake / Home';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));document.title='Greywake — Player Guide';scrollToTop();focusRouteHeading(home);
 }
 function renderRoute(){const r=currentRoute();if(r.type==='record')showNote(r.name);else if(r.type==='brain')showBrain();else showHome()}
 
@@ -115,7 +136,11 @@ document.getElementById('brainBtn').onclick=()=>go('#/brain');
 document.getElementById('heroBrain').onclick=()=>go('#/brain');
 document.getElementById('fieldBrain').onclick=()=>go('#/brain');
 document.getElementById('menuBtn').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
-document.getElementById('searchInput').addEventListener('input',e=>buildNav(e.target.value));
+searchInput.addEventListener('input',e=>buildNav(e.target.value));
+document.addEventListener('keydown',event=>{
+ if(event.key!=='/'||event.ctrlKey||event.metaKey||event.altKey||/input|textarea|select/i.test(event.target.tagName))return;
+ event.preventDefault();searchInput.focus();searchInput.select();
+});
 document.querySelectorAll('[data-note]').forEach(x=>x.onclick=()=>go(routeFor(x.dataset.note)));
 window.addEventListener('hashchange',renderRoute);
 
@@ -127,7 +152,12 @@ function drawGraph(){
  function line(a,b){const l=document.createElementNS(svg.namespaceURI,'line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('class','edge');svg.appendChild(l)}
  EDGES.forEach(([a,b])=>{if(nodes[a]&&nodes[b])line(nodes[a],nodes[b])});names.forEach(n=>{if(nodes[n]&&!EDGES.some(e=>e.includes('Player Brain')&&e.includes(n)))line(center,nodes[n])});
  Object.values(nodes).forEach(nd=>{const g=document.createElementNS(svg.namespaceURI,'g');g.setAttribute('class','node'+(nd.name==='Player Brain'?' root':''));g.setAttribute('transform',`translate(${nd.x},${nd.y})`);const c=document.createElementNS(svg.namespaceURI,'circle');c.setAttribute('r',nd.name==='Player Brain'?38:25);g.appendChild(c);const t=document.createElementNS(svg.namespaceURI,'text');t.setAttribute('text-anchor','middle');t.setAttribute('y',nd.name==='Player Brain'?55:42);t.textContent=DATA[nd.name]?.title||nd.name;g.appendChild(t);g.onclick=()=>nd.name==='Player Brain'?go('#/brain'):go(routeFor(nd.name));svg.appendChild(g)});
- nodeCount.textContent=Object.keys(nodes).length;edgeCount.textContent=EDGES.length;
+ const nodeCount=document.getElementById('nodeCount'),edgeCount=document.getElementById('edgeCount');if(nodeCount)nodeCount.textContent=Object.keys(nodes).length;if(edgeCount)edgeCount.textContent=EDGES.length;
 }
 
-buildNav();renderDiscoveries();drawGraph();renderRoute();
+function updateSummary(){
+ const records=document.getElementById('recordSummaryCount'),links=document.getElementById('linkSummaryCount'),sessions=document.getElementById('sessionSummaryCount');
+ if(records)records.textContent=Object.keys(DATA).length;if(links)links.textContent=EDGES.length;if(sessions)sessions.textContent=String((CATS.Sessions||[]).length).padStart(2,'0');
+}
+
+buildNav();renderDiscoveries();updateSummary();renderRoute();

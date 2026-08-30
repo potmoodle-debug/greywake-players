@@ -60,7 +60,7 @@
       title: "Session Three",
       note: key,
       kind: "Session",
-      image: "assets/stone-lip.jpg",
+      image: "assets/canon/sessions/session-03.webp",
       text: "The Kestrel Return survivors made it back to Greywake with the Cistern Plate and evidence of a second altered route marker.",
       when: "Latest recap"
     });

@@ -62,6 +62,14 @@
     const host=document.createElement('div');
     host.className='article-media obsidian-media';
     host.dataset.record=name;
+    host.setAttribute('aria-label','Visual references');
+
+    if(items.length>1){
+      const heading=document.createElement('div');
+      heading.className='article-media-heading';
+      heading.innerHTML='<span>VISUAL REFERENCES</span><strong>Open an image to inspect the full-size artwork</strong>';
+      host.appendChild(heading);
+    }
 
     items.forEach(item=>{
       if(!item.src){
@@ -70,6 +78,7 @@
       }
 
       const figure=document.createElement('figure');
+      if(item.layout)figure.classList.add(`media-${item.layout}`);
       const img=document.createElement('img');
       img.alt=item.caption||name;
       img.loading='lazy';

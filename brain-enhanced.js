@@ -174,5 +174,5 @@
     const stage=host.querySelector('#brainNetworkStage');svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,class:'brain-network-svg',role:'img','aria-label':'Greywake relationship map'});edgeLayer=svgEl('g',{class:'brain-network-edges'});nodeLayer=svgEl('g',{class:'brain-network-nodes'});svg.append(edgeLayer,nodeLayer);stage.appendChild(svg);nodeEls=new Map();edgeEls=new Map();activeHover=null;wireControls();wirePointerTracker();buildInitial();
     const nc=document.getElementById('nodeCount'),ec=document.getElementById('edgeCount');if(nc)nc.textContent=names.length;if(ec)ec.textContent=validEdgeCount;
   }
-  window.GREYWAKE_DRAW_BRAIN=render;window.addEventListener('hashchange',()=>{if(location.hash==='#/brain')setTimeout(render,0)});render();
+  window.GREYWAKE_DRAW_BRAIN=render;window.addEventListener('hashchange',()=>{if(location.hash==='#/brain')setTimeout(render,0)});if(location.hash==='#/brain')render();
 })();

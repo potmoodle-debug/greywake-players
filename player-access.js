@@ -52,7 +52,8 @@
       wrap.innerHTML = `<span>GM preview</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Full GM</button>`;
       document.getElementById('switchPlayer').addEventListener('click', returnToGM);
     } else if (ownerIsGM()) {
-      wrap.innerHTML = `<span>GM</span><strong>Full view</strong>`;
+      wrap.innerHTML = `<span>GM</span><strong>Full view</strong><button type="button" id="switchPlayer">Switch</button>`;
+      document.getElementById('switchPlayer').addEventListener('click', clearCurrent);
     } else {
       wrap.innerHTML = `<span>${user.label}</span><strong>${user.character}</strong><button type="button" id="switchPlayer">Switch</button>`;
       document.getElementById('switchPlayer').addEventListener('click', clearCurrent);
@@ -142,23 +143,31 @@
   }
 
   function showGate() {
+    const shell = document.querySelector('.shell');
+    shell?.setAttribute('inert', '');
+    shell?.setAttribute('aria-hidden', 'true');
     const gate = document.createElement('div');
     gate.className = 'player-gate';
+    gate.setAttribute('role', 'dialog');
+    gate.setAttribute('aria-modal', 'true');
+    gate.setAttribute('aria-labelledby', 'playerGateTitle');
+    gate.setAttribute('aria-describedby', 'playerGateDescription');
     gate.innerHTML = `
       <div class="player-gate-card">
         <div class="tower-mark gate-tower"></div>
         <div class="eyebrow">GREYWAKE PLAYER ARCHIVE</div>
-        <h1>Who is entering?</h1>
-        <p>Choose your name, then enter your character name as the access code.</p>
+        <h1 id="playerGateTitle">Who is entering?</h1>
+        <p id="playerGateDescription">Choose your name, then enter your character name as the access code.</p>
         <div class="player-choice-grid">
-          <button data-user="martin"><strong>Martin</strong><span>Marek</span></button>
-          <button data-user="carla"><strong>Carla</strong><span>Velmira</span></button>
-          <button data-user="ritchie"><strong>Ritchie</strong><span>Odie</span></button>
-          <button data-user="gm"><strong>GM</strong><span>Campaign view</span></button>
+          <button type="button" data-user="martin"><strong>Martin</strong><span>Marek</span></button>
+          <button type="button" data-user="carla"><strong>Carla</strong><span>Velmira</span></button>
+          <button type="button" data-user="ritchie"><strong>Ritchie</strong><span>Odie</span></button>
+          <button type="button" data-user="gm"><strong>GM</strong><span>Campaign view</span></button>
         </div>
         <form id="playerCodeForm" class="player-code-form hidden">
           <div id="chosenPlayer" class="chosen-player"></div>
-          <label>Access code<input id="playerCode" autocomplete="off" spellcheck="false" required></label>
+          <label for="playerCode">Access code</label>
+          <input id="playerCode" autocomplete="off" autocapitalize="characters" spellcheck="false" required>
           <button type="submit">Enter Greywake</button>
           <div id="codeError" class="code-error" aria-live="polite"></div>
         </form>
@@ -186,6 +195,8 @@
       const input = document.getElementById('playerCode');
       const typed = input.value.trim().toUpperCase();
       if (typed === USERS[selected].code) {
+        shell?.removeAttribute('inert');
+        shell?.removeAttribute('aria-hidden');
         gate.remove();
         setCurrent(selected);
       } else {
@@ -193,6 +204,8 @@
         input.select();
       }
     });
+
+    gate.querySelector('[data-user]')?.focus();
   }
 
   document.addEventListener('DOMContentLoaded', () => {

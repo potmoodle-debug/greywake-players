@@ -31,7 +31,8 @@
       const toggle=document.createElement('button');toggle.type='button';toggle.className='nav-toggle';
       toggle.innerHTML=`<span>${escapeHTML(label)}</span><span class="nav-count">${count}</span>`;
       heading.replaceWith(toggle);toggle.dataset.enhanced='true';
-      const collapsed=!searching&&!expandedByDefault.has(label);group.classList.toggle('is-collapsed',collapsed);toggle.setAttribute('aria-expanded',String(!collapsed));
+      const hasActive=Boolean(group.querySelector('.nav-link.active'));
+      const collapsed=!searching&&!hasActive&&!expandedByDefault.has(label);group.classList.toggle('is-collapsed',collapsed);toggle.setAttribute('aria-expanded',String(!collapsed));
       toggle.addEventListener('click',()=>{
         const next=!group.classList.contains('is-collapsed');group.classList.toggle('is-collapsed',next);toggle.setAttribute('aria-expanded',String(!next));
       });
@@ -40,12 +41,12 @@
 
   function setupNavigation(){
     const sidebar=document.querySelector('.sidebar'),menu=document.getElementById('menuBtn'),close=document.getElementById('sidebarClose'),backdrop=document.getElementById('navBackdrop');
-    const sync=()=>{const open=sidebar?.classList.contains('open');document.body.classList.toggle('nav-open',!!open);menu?.setAttribute('aria-expanded',String(!!open))};
-    const closeNav=()=>{sidebar?.classList.remove('open');sync()};
-    menu?.addEventListener('click',()=>queueMicrotask(sync));
-    close?.addEventListener('click',closeNav);backdrop?.addEventListener('click',closeNav);
-    document.addEventListener('keydown',event=>{if(event.key==='Escape')closeNav()});
-    window.addEventListener('hashchange',closeNav);
+    const sync=(moveFocus=false)=>{const open=sidebar?.classList.contains('open');document.body.classList.toggle('nav-open',!!open);menu?.setAttribute('aria-expanded',String(!!open));if(open&&moveFocus)requestAnimationFrame(()=>close?.focus())};
+    const closeNav=(restoreFocus=false)=>{const wasOpen=sidebar?.classList.contains('open');sidebar?.classList.remove('open');sync();if(wasOpen&&restoreFocus)menu?.focus()};
+    menu?.addEventListener('click',()=>queueMicrotask(()=>sync(true)));
+    close?.addEventListener('click',()=>closeNav(true));backdrop?.addEventListener('click',()=>closeNav(true));
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&sidebar?.classList.contains('open')){event.preventDefault();closeNav(true)}});
+    window.addEventListener('hashchange',()=>closeNav(false));
     document.getElementById('searchInput')?.addEventListener('input',()=>queueMicrotask(enhanceNav));
   }
 
@@ -85,7 +86,7 @@
     'Locations':'assets/tower-distant.jpg',
     'People':'assets/tower-close.jpg',
     'Flora & Fauna':'assets/great-shell.jpg',
-    'Sessions':'assets/stone-lip.jpg',
+    'Sessions':'assets/canon/sessions/session-03.webp',
     'Player Characters':'assets/tower-distant.jpg',
     'Archived Characters':'assets/tower-distant.jpg',
     'Handouts':'assets/tower-close.jpg',
@@ -94,7 +95,7 @@
     'Caravans':'assets/great-shell.jpg',
     'Player Reference':'assets/tower-distant.jpg',
     'Objects':'assets/tower-close.jpg',
-    'Jobs & Open Threads':'assets/stone-lip.jpg',
+    'Jobs & Open Threads':'assets/canon/sessions/session-01.webp',
     'Equipment':'assets/tower-distant.jpg',
     'Archived Equipment':'assets/tower-distant.jpg'
   };
@@ -106,18 +107,35 @@
     'Valve Court':'assets/generated-scenes/valve-court.webp',
     'Great-Shell Pens':'assets/generated-scenes/great-shell-pens.webp',
     'Digger Yards':'assets/generated-scenes/digger-yards.webp',
-    'Caravan Gate':'assets/generated-scenes/caravan-gate.webp',
+    'Caravan Gate':'assets/canon/locations/caravan-gate.webp',
     'Tangle Lanes':'assets/generated-scenes/tangle-lanes.webp',
     'Welcome to Greywake':'assets/tower-distant.jpg',
     'Player Brain':'assets/tower-distant.jpg',
     'White Tower':'assets/tower-close.jpg',
-    'Stone-Lip Hollow':'assets/stone-lip.jpg',
-    "Joric's Runnel":'assets/stone-lip.jpg',
+    'Stone-Lip Hollow':'assets/canon/sessions/session-02.webp',
+    "Joric's Runnel":'assets/canon/sessions/session-01.webp',
     'Known Locations':'assets/tower-distant.jpg',
     'Known People':'assets/tower-close.jpg',
     'Known Flora and Fauna':'assets/great-shell.jpg',
+    'Cistern Keepers':'assets/generated-scenes/valve-court.webp',
+    'Caravan Syndicate':'assets/canon/locations/caravan-gate.webp',
+    'Tower Watch':'assets/tower-close.jpg',
+    'The Diggers':'assets/generated-scenes/digger-yards.webp',
+    'The Faithful':'assets/npcs/hq-v3/sister-elowen.webp',
     'Creature Harvesting':'assets/generated-scenes/creature-harvesting-field-table.webp',
     'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp'
+  };
+  const FACTION_BACKDROPS=[
+    ['Cistern Keepers','assets/generated-scenes/valve-court.webp','center 48%'],
+    ['Caravan Syndicate','assets/canon/locations/caravan-gate.webp','center 52%'],
+    ['Tower Watch','assets/tower-close.jpg','center 42%'],
+    ['The Diggers','assets/generated-scenes/digger-yards.webp','center 50%'],
+    ['The Faithful','assets/npcs/hq-v3/sister-elowen.webp','center 24%']
+  ];
+  const RECORD_FOCUS={
+    'Caravan Syndicate':'center 52%',
+    'Tower Watch':'center 42%',
+    'The Faithful':'center 24%'
   };
 
   function currentRecordName(){
@@ -128,7 +146,7 @@
     try{return new URL(src,location.href).href.split('?')[0]}catch{return src.split('?')[0]}
   }
   function recordBackdrop(name){
-    const direct=MEDIA[name]?.[0]?.src;if(direct)return direct;
+    const direct=MEDIA[name]?.find(item=>item.backdrop!==false)?.src;if(direct)return direct;
     const equipment=name.match(/^(.+?) — Equipment$/);
     if(equipment&&MEDIA[equipment[1]])return MEDIA[equipment[1]][1]?.src||MEDIA[equipment[1]][0]?.src;
     return NAMED_BACKDROPS[name]||CATEGORY_BACKDROPS[DATA[name]?.category]||'assets/tower-distant.jpg';
@@ -145,8 +163,15 @@
     const src=recordBackdrop(name),category=DATA[name].category||'Record';
     let layer=article.querySelector(':scope > .record-backdrop');
     if(!layer){layer=document.createElement('div');layer.className='record-backdrop';layer.setAttribute('aria-hidden','true');article.prepend(layer)}
-    layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
-    article.style.setProperty('--record-focus',/People|Characters/.test(category)?'center 24%':'center 48%');
+    layer.classList.toggle('faction-overview-backdrop',name==='Known Factions');
+    if(name==='Known Factions'){
+      layer.style.backgroundImage='none';
+      layer.innerHTML=FACTION_BACKDROPS.map(([label,image,focus])=>`<span class="faction-backdrop-panel" style="background-image:url(&quot;${escapeHTML(image)}&quot;);background-position:${escapeHTML(focus)}"><span>${escapeHTML(label)}</span></span>`).join('');
+    }else{
+      layer.replaceChildren();
+      layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
+    }
+    article.style.setProperty('--record-focus',RECORD_FOCUS[name]||(/People|Characters/.test(category)?'center 24%':'center 48%'));
     article.dataset.backdropSrc=normalizedAsset(src);
     article.dataset.recordCategory=category;
     article.classList.add('has-record-backdrop');

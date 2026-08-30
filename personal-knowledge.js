@@ -11,11 +11,13 @@
             {
               title: 'Daro Pell',
               tag: 'Carcass processor · practical contact',
+              image: 'assets/canon/characters/daro-pell.webp',
               body: 'Daro is one of the people who keeps Greywake from wasting what it kills. He decides what from a carcass becomes food, hide, fat, tendon, bone or useful material — and, just as importantly, what is contaminated and must never enter the food supply.'
             },
             {
               title: 'Meren',
               tag: 'Medicinal practitioner · practical contact',
+              image: 'assets/canon/characters/meren.webp',
               body: 'Meren is a practical healer whose knowledge is built around problems that become deadly when water, food and rest are scarce: infected cuts, heat sickness, usable remedies and the small biological warnings people ignore until they become serious.'
             }
           ]
@@ -164,7 +166,8 @@
   };
 
   function cardHTML(card) {
-    return `<article class="personal-card"><div class="personal-tag">${card.tag}</div><h4>${card.title}</h4><p>${card.body}</p></article>`;
+    const image=card.image?`<img class="personal-card-image" src="${card.image}" alt="" loading="lazy" decoding="async">`:'';
+    return `<article class="personal-card${card.image?' has-image':''}">${image}<div class="personal-tag">${card.tag}</div><h4>${card.title}</h4><p>${card.body}</p></article>`;
   }
 
   function profileHTML(profile) {
