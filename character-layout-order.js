@@ -46,9 +46,10 @@
     const beast=key==='marek'?document.getElementById('beastformControl'):null;
     const actions=document.getElementById(key==='marek'?'activeActionsPanel':'companionActionsPanel');
     const damage=document.getElementById('damageHealthPanel');
-    [traits,beast,actions,damage].filter(Boolean).forEach(node=>{
-      if(node.parentElement!==content)content.appendChild(node);
-    });
+
+    // Always append in canonical play order. appendChild moves existing nodes without
+    // recreating them, so their working click handlers and live state are preserved.
+    [traits,beast,actions,damage].filter(Boolean).forEach(node=>content.appendChild(node));
 
     const rest=document.getElementById('restPanel');
     if(rest&&body.nextElementSibling!==rest)body.insertAdjacentElement('afterend',rest);
