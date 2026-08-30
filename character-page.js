@@ -1,6 +1,14 @@
 (() => {
   let previousHash = '#/';
   let initialized = false;
+  let activeTab = 'overview';
+
+  const TAB_RULES = {
+    overview: ['Traits', 'Experiences'],
+    abilities: ['Features', 'Domain cards'],
+    gear: ['Weapons, armor & inventory'],
+    story: ['Character details', 'Background', 'Connections']
+  };
 
   function isCharacterRoute() {
     return (location.hash || '') === '#/character';
@@ -18,11 +26,13 @@
       view.innerHTML = `
         <div class="character-page-toolbar">
           <div class="character-page-toolbar-copy">
-            <div class="eyebrow">PLAYER CHARACTER</div>
-            <h1 id="characterPageHeading">Character sheet</h1>
+            <div class="eyebrow">GREYWAKE · PERSONAL DOSSIER</div>
+            <h1 id="characterPageHeading" tabindex="-1">Character sheet</h1>
+            <p id="characterPageSubheading">Field reference · rules · equipment · personal record</p>
           </div>
           <button id="characterPageClose" class="character-page-close" type="button">← Back to Greywake</button>
-        </div>`;
+        </div>
+        <nav id="characterPageTabs" class="character-page-tabs" aria-label="Character sheet sections"></nav>`;
       const article = document.getElementById('article');
       if (article) article.insertAdjacentElement('beforebegin', view);
       else main.appendChild(view);
@@ -38,7 +48,57 @@
     if (sheet.parentElement !== view) view.appendChild(sheet);
     const character = window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
     const heading = document.getElementById('characterPageHeading');
-    if (heading) heading.textContent = `${character} · Character Sheet`;
+    if (heading) heading.textContent = `${character} · Character Dossier`;
+    sheet.dataset.dossier = 'true';
+    buildTabs();
+    applyTab();
+  }
+
+  function characterGroups() {
+    return [...document.querySelectorAll('#characterSheet .sheet-group')];
+  }
+
+  function groupTitle(group) {
+    return group.querySelector('.sheet-group-head h3')?.textContent.trim() || '';
+  }
+
+  function tabHasContent(tab) {
+    const allowed = TAB_RULES[tab] || [];
+    return characterGroups().some(group => allowed.includes(groupTitle(group)));
+  }
+
+  function buildTabs() {
+    const nav = document.getElementById('characterPageTabs');
+    if (!nav) return;
+    const labels = { overview: 'Overview', abilities: 'Abilities', gear: 'Gear', story: 'Story' };
+    const icons = { overview: '◇', abilities: '✦', gear: '⌁', story: '≋' };
+    nav.innerHTML = Object.keys(TAB_RULES)
+      .filter(tabHasContent)
+      .map(tab => `<button type="button" data-sheet-tab="${tab}" aria-selected="${tab === activeTab ? 'true' : 'false'}"><span aria-hidden="true">${icons[tab]}</span>${labels[tab]}</button>`)
+      .join('');
+    if (!tabHasContent(activeTab)) activeTab = 'overview';
+    nav.querySelectorAll('[data-sheet-tab]').forEach(button => {
+      button.addEventListener('click', () => {
+        activeTab = button.dataset.sheetTab;
+        applyTab();
+        document.getElementById('characterSheet')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
+    });
+  }
+
+  function applyTab() {
+    const nav = document.getElementById('characterPageTabs');
+    nav?.querySelectorAll('[data-sheet-tab]').forEach(button => {
+      const selected = button.dataset.sheetTab === activeTab;
+      button.setAttribute('aria-selected', String(selected));
+      button.classList.toggle('active', selected);
+    });
+    const allowed = TAB_RULES[activeTab] || [];
+    characterGroups().forEach(group => {
+      group.classList.toggle('dossier-group-hidden', !allowed.includes(groupTitle(group)));
+    });
+    const body = document.querySelector('#characterSheet .character-sheet-body');
+    if (body) body.dataset.activeSection = activeTab;
   }
 
   function replaceCharacterButton() {
@@ -57,6 +117,7 @@
 
   function openCharacterPage() {
     if (!isCharacterRoute()) previousHash = location.hash && location.hash !== '#/character' ? location.hash : '#/';
+    activeTab = 'overview';
     location.hash = '#/character';
   }
 
@@ -82,8 +143,10 @@
       button?.setAttribute('aria-label', 'Close character sheet');
       const crumb = document.getElementById('crumb');
       const character = window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
-      if (crumb) crumb.textContent = `Greywake / ${character} / Character`;
-      document.title = `${character} — Character Sheet — Greywake`;
+      if (crumb) crumb.textContent = `Greywake / ${character} / Dossier`;
+      document.title = `${character} — Character Dossier — Greywake`;
+      buildTabs();
+      applyTab();
       requestAnimationFrame(() => view.querySelector('h1')?.focus?.({preventScroll:true}));
       window.scrollTo({top:0,behavior:'auto'});
     } else {
@@ -113,6 +176,10 @@
       const sheet = document.getElementById('characterSheet');
       const button = document.getElementById('characterSheetBtn');
       if ((sheet && sheet.parentElement?.id !== 'characterPageView') || (button && button.dataset.standalonePage !== 'true')) schedule();
+      else if (isCharacterRoute()) {
+        buildTabs();
+        applyTab();
+      }
     }).observe(document.documentElement, {childList:true, subtree:true});
   }
 
