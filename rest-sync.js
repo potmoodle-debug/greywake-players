@@ -1,4 +1,11 @@
 (() => {
+  function loadConditions(){
+    if(!document.querySelector('link[data-greywake-conditions]')){const l=document.createElement('link');l.rel='stylesheet';l.href='conditions-system.css?v=conditions1';l.dataset.greywakeConditions='true';document.head.appendChild(l);}
+    if(window.GreywakeConditions||document.querySelector('script[data-greywake-conditions-system]'))return;
+    const s=document.createElement('script');s.src='conditions-system.js?v=conditions1';s.async=false;s.dataset.greywakeConditionsSystem='true';s.addEventListener('load',()=>{if(document.querySelector('script[data-greywake-conditions-sync]'))return;const q=document.createElement('script');q.src='conditions-sync.js?v=conditions1';q.async=false;q.dataset.greywakeConditionsSync='true';document.head.appendChild(q);});document.head.appendChild(s);
+  }
+  loadConditions();
+
   const API_URL='https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals?include_system=1';
   const API_KEY='sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const SYSTEM_KIND='system_rest_state';
