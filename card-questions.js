@@ -7,7 +7,7 @@
   let enhanceTimer;
 
   function esc(text) {
-    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));
+    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   }
 
   function slug(text) {
@@ -40,6 +40,18 @@
     const character = characterKey(user);
     if (!character) throw new Error('Greywake player identity is unavailable.');
     const code = String(user?.code || CHARACTER_CODES[character]).toUpperCase();
+    const payload = {
+      goal: text.slice(0, MAX_LENGTH),
+      entry_kind: 'question'
+    };
+
+    if (context?.source_key) {
+      payload.source_kind = context.source_kind;
+      payload.source_key = context.source_key;
+      payload.source_title = context.source_title;
+      payload.source_route = context.source_route;
+    }
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -48,14 +60,7 @@
         'x-greywake-character': character,
         'x-greywake-code': code
       },
-      body: JSON.stringify({
-        goal: text.slice(0, MAX_LENGTH),
-        entry_kind: 'question',
-        source_kind: context.source_kind,
-        source_key: context.source_key,
-        source_title: context.source_title,
-        source_route: context.source_route
-      })
+      body: JSON.stringify(payload)
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || 'Greywake could not save that question.');
@@ -167,7 +172,7 @@
       try {
         await createQuestion(context, question);
         textarea.value = '';
-        status.textContent = 'Added to your Questions.';
+        status.textContent = 'Added to your Questions & Interests.';
         window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
         setTimeout(close, 900);
       } catch (error) {
@@ -178,11 +183,60 @@
     });
   }
 
+  function enhanceGeneralComposer() {
+    const form = document.getElementById('goalForm');
+    if (!form || form.dataset.generalQuestionReady === 'true') return;
+
+    const label = form.querySelector('label[for="goalInput"]');
+    const input = form.querySelector('#goalInput');
+    const row = form.querySelector('.goal-input-row');
+    const interestButton = row?.querySelector('button[type="submit"]');
+    if (!input || !row || !interestButton) return;
+
+    form.dataset.generalQuestionReady = 'true';
+    if (label) label.textContent = 'Ask or tell the GM something else';
+    input.placeholder = "A question, idea or direction that isn't attached to a card…";
+    interestButton.textContent = 'Add interest';
+
+    const askButton = document.createElement('button');
+    askButton.type = 'button';
+    askButton.className = 'general-question-button';
+    askButton.textContent = 'Ask question';
+    row.insertBefore(askButton, interestButton);
+
+    const status = document.createElement('span');
+    status.className = 'general-question-status';
+    status.setAttribute('aria-live', 'polite');
+    row.insertAdjacentElement('afterend', status);
+
+    askButton.addEventListener('click', async () => {
+      const question = input.value.trim().replace(/\s+/g, ' ');
+      if (question.length < 3) {
+        status.textContent = 'Add a little more detail.';
+        input.focus();
+        return;
+      }
+      askButton.disabled = true;
+      status.textContent = 'Saving question…';
+      try {
+        await createQuestion(null, question);
+        input.value = '';
+        status.textContent = 'Added as a question.';
+        window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
+      } catch (error) {
+        askButton.disabled = false;
+        status.textContent = error.message;
+      }
+    });
+  }
+
   function enhance() {
     if (!canAsk()) {
       document.querySelectorAll('.context-question').forEach(node => node.remove());
       return;
     }
+
+    enhanceGeneralComposer();
 
     contexts().forEach(context => {
       const directExisting = [...context.element.children].find(
