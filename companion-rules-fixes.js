@@ -3,7 +3,15 @@
   function state(){ return window.GreywakeCompanion?.getState?.() || null; }
   function patternChosen(){ return Boolean(state()?.effects?.strangePatternChosen); }
 
+  function normalizeNote(){
+    const k=key();
+    if(!['odie','velmira'].includes(k)) return;
+    const note=document.querySelector('#characterSheet .character-sheet-note');
+    if(note) note.textContent='Greywake is now the live play sheet for Hope, Stress and Hit Points. Rolls and fixed resource costs update these tracks automatically; changes sync across devices and into the GM preview.';
+  }
+
   function normalizePatternUI(){
+    normalizeNote();
     if(key()!=='velmira') return;
     const select=document.querySelector('#companionActionsPanel [data-pattern-number]');
     if(select && !patternChosen()){
