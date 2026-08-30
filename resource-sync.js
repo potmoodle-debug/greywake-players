@@ -158,7 +158,7 @@
   }
 
   const READONLY_SELECTOR=[
-    '#characterSheet .live-resource-board button',
+    '#characterSheet .live-resource-board button:not([data-resource-test-toggle])',
     '#characterSheet .resource-action-use button',
     '#characterSheet #beastformControl button',
     '#characterSheet #beastformControl input',
@@ -190,6 +190,7 @@
         applyReadOnly();
       });
     }
+    button.disabled=false;
     button.textContent=testingPreview?'End testing':'Enable testing';
   }
 
