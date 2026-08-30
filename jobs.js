@@ -10,7 +10,7 @@
 
       <h2>Player-chosen direction</h2>
       <p><strong>Current active direction:</strong> none selected yet.</p>
-      <p>For any selectable expedition beyond Greywake and Greater Greywake, the broad direction will be shown before you choose it. Exact routes, hexes, hazards and hidden causes may still be unknown.</p>
+      <p>For any selectable expedition beyond Greywake and Greater Greywake, the broad direction will be shown before you choose it. Exact paths, hazards and hidden causes may still be unknown.</p>
 
       <h2>Beyond Greywake</h2>
 

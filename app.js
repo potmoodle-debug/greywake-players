@@ -6,8 +6,7 @@ const SEARCH_INDEX=new Map();
 const LOCATION_GROUPS=[
  {label:'Greywake',names:['Inner Greywake','Caravan Gate','White Tower','Valve Court','Tangle Lanes']},
  {label:'Greater Greywake',names:['Greater Greywake','Great-Shell Pens','Digger Yards']},
- {label:'Old Marker Wash',names:['Old Marker Wash','Failed Marker','Wrong Lower Line','Ash-Plate Groundfall','Broken Runnels',"Joric's Runnel",'Stone-Lip Hollow']},
- {label:'Route landmarks',names:['High Shelf','Old Marker Line']},
+ {label:'Kestrel Return route',names:['High Shelf','Old Marker Wash','Old Marker Line','Failed Marker','Wrong Lower Line','Ash-Plate Groundfall','Broken Runnels',"Joric's Runnel",'Stone-Lip Hollow']},
  {label:'Other known places',names:['Split Rock Shade']}
 ];
 
@@ -60,7 +59,7 @@ function buildNav(filter=''){
  for(const [cat,names] of Object.entries(CATS)){
    const m=names.filter(n=>DATA[n]&&terms.every(term=>searchableText(n).includes(term)));
    if(!m.length)continue;
-   const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat}</h3>`;
+   const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat==='Locations'?'Places & Routes':cat}</h3>`;
    if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
    nav.appendChild(g);resultCount+=m.length;
  }
@@ -119,7 +118,7 @@ function categoryDirectoryHTML(name){
  if(!names.length)return'';
  if(category==='Locations'){
    const groups=groupedLocations(names);
-   return `<section class="record-directory location-directory"><div class="related-kicker">PARTY-KNOWN LOCATIONS</div><h2>Travel areas</h2><p class="location-directory-intro">Named sites are grouped beneath the wider area they belong to. Opening a site does not imply another half-day of travel.</p>${groups.map(group=>`<details class="location-directory-group"><summary><strong>${group.label}</strong><span>${group.names.length} ${group.names.length===1?'place':'places'}</span></summary><div class="related-grid">${group.names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${group.label}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></details>`).join('')}</section>`;
+   return `<section class="record-directory location-directory"><div class="related-kicker">PARTY-KNOWN REGIONS & ROUTES</div><h2>Explore known places</h2><p class="location-directory-intro">Places are grouped by the settlement, wider region or journey through which the party knows them. These groups describe the world naturally and do not imply a separate journey between every named landmark.</p>${groups.map(group=>`<details class="location-directory-group"><summary><strong>${group.label}</strong><span>${group.names.length} ${group.names.length===1?'place':'places'}</span></summary><div class="related-grid">${group.names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${group.label}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></details>`).join('')}</section>`;
  }
  names.sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
  return `<section class="record-directory"><div class="related-kicker">PARTY-KNOWN ${category.toUpperCase()}</div><h2>${category}</h2><div class="related-grid">${names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;

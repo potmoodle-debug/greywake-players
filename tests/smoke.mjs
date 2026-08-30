@@ -45,6 +45,14 @@ const edges = window.GREYWAKE_EDGES || [];
 const discoveries = window.GREYWAKE_DISCOVERIES || [];
 const media = window.GREYWAKE_MEDIA || {};
 
+if (data['Known Locations']?.title !== 'Known Regions & Routes') {
+  fail('The player-facing location directory must remain titled Known Regions & Routes.');
+}
+const playerFacingText = Object.values(data).map(entry => `${entry?.title || ''} ${entry?.html || ''}`).join(' ');
+if (/\bhex(?:es)?\b/i.test(playerFacingText)) {
+  fail('Player-facing records expose GM hex terminology.');
+}
+
 for (const [category, names] of Object.entries(categories)) {
   const seen = new Set();
   for (const name of names) {
