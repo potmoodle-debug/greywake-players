@@ -37,8 +37,31 @@
 .play-dashboard-content .trait-roll-buttons b{font-size:1.15rem}
 .play-dashboard-content .trait-roll-options{margin-top:.5rem;padding-top:.4rem}
 
+/* Expanded actions must stay compact inside the dashboard. Character-specific
+   controls are explicitly placed so they cannot collapse into the icon column. */
+.play-dashboard-content .active-action-detail{grid-template-columns:42px minmax(0,1fr) minmax(250px,360px);align-items:start}
+.play-dashboard-content .active-action-detail>.active-action-detail-mark{grid-column:1;grid-row:1}
+.play-dashboard-content .active-action-detail>.active-action-detail-copy{grid-column:2;grid-row:1;min-width:0}
+.play-dashboard-content .active-action-detail>.companion-effect-banner{grid-column:3;grid-row:1;margin:0;min-width:0}
+.play-dashboard-content .active-action-detail>.resource-action-use,
+.play-dashboard-content .active-action-detail>.companion-no-roll,
+.play-dashboard-content .active-action-detail>.action-roller{grid-column:2/-1;width:100%;min-width:0;margin:.15rem 0 .25rem}
+.play-dashboard-content .active-action-detail>.active-action-detail-tools{grid-column:2/-1;justify-content:flex-start;margin-top:.1rem}
+.play-dashboard-content .active-action-detail>.resource-action-use button{width:100%;white-space:normal}
+
 .character-page-view #restPanel{margin:1rem 1.35rem 1.45rem}
 
+/* Keep the GM-only preview control out of the centre of the play controls. */
+body[data-gm-preview="true"] .gm-preview-bar{left:auto;right:18px;transform:none}
+
+@media(max-width:1100px){
+  .play-dashboard-content .active-action-detail{grid-template-columns:42px minmax(0,1fr)}
+  .play-dashboard-content .active-action-detail>.companion-effect-banner,
+  .play-dashboard-content .active-action-detail>.resource-action-use,
+  .play-dashboard-content .active-action-detail>.companion-no-roll,
+  .play-dashboard-content .active-action-detail>.action-roller,
+  .play-dashboard-content .active-action-detail>.active-action-detail-tools{grid-column:2/-1;grid-row:auto}
+}
 @media(max-width:900px){
   .character-page-view .play-dashboard-ready .character-stat-strip{grid-template-columns:repeat(3,minmax(80px,1fr))}
   .character-page-view .play-dashboard-ready .live-resource-board{grid-template-columns:1fr}
@@ -50,5 +73,13 @@
   .play-dashboard-head{align-items:flex-start;flex-direction:column}
   .play-dashboard-rest{width:100%}.play-dashboard-rest button{flex:1;min-height:40px}
   .play-dashboard-content{padding:.65rem}
+  .play-dashboard-content .active-action-detail{grid-template-columns:36px minmax(0,1fr)}
+  .play-dashboard-content .active-action-detail>.active-action-detail-mark{width:36px;height:36px}
+  .play-dashboard-content .active-action-detail>.companion-effect-banner,
+  .play-dashboard-content .active-action-detail>.resource-action-use,
+  .play-dashboard-content .active-action-detail>.companion-no-roll,
+  .play-dashboard-content .active-action-detail>.action-roller,
+  .play-dashboard-content .active-action-detail>.active-action-detail-tools{grid-column:1/-1}
   .character-page-view #restPanel{margin:.75rem .65rem 1rem}
+  body[data-gm-preview="true"] .gm-preview-bar{left:50%;right:auto;transform:translateX(-50%)}
 }
