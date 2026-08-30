@@ -104,7 +104,7 @@
     'Greater Greywake':'assets/generated-scenes/greater-greywake-ruins.webp',
     'The Wastes':'assets/generated-scenes/the-wastes-route.webp',
     'Inner Greywake':'assets/generated-scenes/inner-greywake.webp',
-    'Valve Court':'assets/generated-scenes/valve-court.webp',
+    'Valve Court':'assets/canon/locations/valve-court-cistern-seal.webp',
     'Great-Shell Pens':'assets/generated-scenes/great-shell-pens.webp',
     'Digger Yards':'assets/generated-scenes/digger-yards.webp',
     'Caravan Gate':'assets/canon/locations/caravan-gate.webp',
@@ -117,7 +117,7 @@
     'Known Locations':'assets/tower-distant.jpg',
     'Known People':'assets/tower-close.jpg',
     'Known Flora and Fauna':'assets/great-shell.jpg',
-    'Cistern Keepers':'assets/generated-scenes/valve-court.webp',
+    'Cistern Keepers':'assets/canon/factions/cistern-keepers-poster.webp',
     'Caravan Syndicate':'assets/canon/locations/caravan-gate.webp',
     'Tower Watch':'assets/tower-close.jpg',
     'The Diggers':'assets/generated-scenes/digger-yards.webp',
@@ -126,13 +126,14 @@
     'Cistern Plate':'assets/generated-scenes/cistern-plate-case.webp'
   };
   const FACTION_BACKDROPS=[
-    ['Cistern Keepers','assets/generated-scenes/valve-court.webp','center 48%'],
+    ['Cistern Keepers','assets/canon/factions/cistern-keepers-poster.webp','center 36%'],
     ['Caravan Syndicate','assets/canon/locations/caravan-gate.webp','center 52%'],
     ['Tower Watch','assets/tower-close.jpg','center 42%'],
     ['The Diggers','assets/generated-scenes/digger-yards.webp','center 50%'],
     ['The Faithful','assets/npcs/hq-v3/sister-elowen.webp','center 24%']
   ];
   const RECORD_FOCUS={
+    'Cistern Keepers':'center 16%',
     'Caravan Syndicate':'center 52%',
     'Tower Watch':'center 42%',
     'The Faithful':'center 24%'
