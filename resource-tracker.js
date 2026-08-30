@@ -85,6 +85,7 @@
   function spendHope(amount=1,reason='Spend Hope'){
     load();
     const n=Math.max(0,Number(amount)||0);
+    if (!n) return {ok:true,before:snapshot(),after:snapshot(),reason};
     if (state.hope<n) return fail(reason,`Not enough Hope. ${n} required; Marek has ${state.hope}.`);
     const result=commit({hope:state.hope-n},reason,{amount:-n,resource:'hope'});
     showNotice(`−${n} Hope · ${result.after.hope}/${result.after.maxHope}`,'hope');
@@ -154,7 +155,7 @@
     const hp=statNode('HP'); if (hp?.querySelector('strong')) hp.querySelector('strong').textContent=`${s.hp} / ${s.maxHP} marked`;
   }
 
-  function pips(resource,current,max,filledMeansMarked=true){
+  function pips(resource,current,max){
     return Array.from({length:max},(_,i)=>{
       const filled=i<current;
       const label=resource==='hope' ? `Set Hope to ${i+1}` : `Set ${resource==='stress'?'Stress':'HP'} marked to ${i+1}`;
@@ -242,14 +243,18 @@
     if (!detail) return;
     const title=detail.querySelector('h3')?.textContent.trim();
     const spec=ACTION_COSTS[title];
-    detail.querySelector('.resource-action-use')?.remove();
-    if (!spec) return;
+    const existing=detail.querySelector('.resource-action-use');
+    if (!spec){ existing?.remove(); return; }
     const tools=detail.querySelector('.active-action-detail-tools');
     if (!tools) return;
-    const wrap=document.createElement('div');
-    wrap.className='resource-action-use';
     const s=snapshot();
     const available=spec.resource==='hope' ? s.hope>=spec.amount : (s.maxStress-s.stress)>=spec.amount;
+    const signature=`${title}|${available}|${s.hope}|${s.stress}`;
+    if (existing?.dataset.signature===signature) return;
+    existing?.remove();
+    const wrap=document.createElement('div');
+    wrap.className='resource-action-use';
+    wrap.dataset.signature=signature;
     wrap.innerHTML=`<button type="button" ${available?'':'disabled'}>${esc(spec.label)} · ${spec.resource==='hope'?'Spend':'Mark'} ${spec.amount} ${spec.resource==='hope'?'Hope':'Stress'}</button><small>${esc(available?spec.note:`Unavailable: not enough ${spec.resource==='hope'?'Hope':'free Stress slots'}.`)}</small>`;
     tools.insertAdjacentElement('beforebegin',wrap);
     wrap.querySelector('button')?.addEventListener('click',()=>{
