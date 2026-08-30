@@ -1,7 +1,6 @@
 (() => {
   const originalFetch = window.fetch.bind(window);
   const PLAYER_GOALS_PATH = '/functions/v1/player-goals';
-  const SYSTEM_KIND = 'system_resource_state';
 
   window.fetch = async (input, init = {}) => {
     const response = await originalFetch(input, init);
@@ -11,7 +10,7 @@
       if (method !== 'GET' || !url.pathname.includes(PLAYER_GOALS_PATH) || url.searchParams.get('include_system') === '1') return response;
       const data = await response.clone().json();
       if (!data || !Array.isArray(data.goals)) return response;
-      const hiddenIds = new Set(data.goals.filter(goal => goal?.source_kind === SYSTEM_KIND).map(goal => Number(goal.id)));
+      const hiddenIds = new Set(data.goals.filter(goal => String(goal?.source_kind || '').startsWith('system_')).map(goal => Number(goal.id)));
       if (!hiddenIds.size) return response;
       data.goals = data.goals.filter(goal => !hiddenIds.has(Number(goal.id)));
       if (Array.isArray(data.messages)) data.messages = data.messages.filter(message => !hiddenIds.has(Number(message.goal_id)));
