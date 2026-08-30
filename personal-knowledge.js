@@ -104,7 +104,7 @@
     odie: {
       kicker: 'ODIE · PERSONAL KNOWLEDGE',
       title: 'Broken things leave evidence.',
-      intro: 'Odie knows Greywake through repair, salvage, failing structures and the physical clues left behind when something stops working the way it should.',
+      intro: 'Odie knows Greywake through repair, salvage, failing structures and the physical clues left behind when something stops working the way it should. The White Door is different: it gave him almost none of the familiar evidence of use, repair or failure.',
       groups: [
         {
           title: 'Your Work',
@@ -132,23 +132,39 @@
             {
               title: 'Oldwork Finger',
               tag: 'Private',
-              body: 'Odie possesses an unusual Oldwork finger that he has not fully understood. It is one of the clearest pieces of genuine Oldwork in his own experience.'
+              body: 'Odie possesses an unusual Oldwork finger that he has not fully understood or fitted into his arm. Whether it has any connection to the White Door is completely unknown.'
             }
           ]
         },
         {
-          title: 'Debts, Favours and Secrets',
+          title: 'The White Door',
           cards: [
             {
-              title: 'The White Tunnel',
-              tag: 'Private mystery',
-              body: 'Odie discovered a clean white tunnel and a strange door. He believes something useful or important lies beyond it, but the true function of the place remains unknown.'
+              title: 'What You Found',
+              tag: 'Private discovery',
+              imageData: 'assets/canon/locations/odie-white-door-dark.webp.b64',
+              body: 'Odie found a pale, precisely made passage exposed behind broken natural rock. Beyond the breach, the surfaces were far cleaner and more exact than ordinary Greywake construction. At the end stood a sealed double door with a circular structure at its centre and no handle, bar or hinge Odie recognised.'
+            },
+            {
+              title: 'No Sign of Anyone Before You',
+              tag: 'What your scavenger eye tells you',
+              body: 'Odie saw no Digger marks, camp traces, pry damage, tool scratches, abandoned gear or failed attempts to force the door. As far as he can tell, he is the first person from Greywake to have found this place.'
+            },
+            {
+              title: 'What You Do Not Know',
+              tag: 'Unanswered',
+              body: 'Odie does not know who built the passage, why it is there, what lies beyond the door, whether the door can open, or whether the Oldwork finger has anything to do with it. None of those answers are established.'
             },
             {
               title: 'Velmira Knows',
               tag: 'Trusted secret',
-              body: 'Velmira is the person Odie trusted with the Oldwork finger and the White Tunnel door. She helped keep him alive after the injury that cost him his arm; the secret sits inside that older trust.'
-            },
+              body: 'Velmira is the only other PC Odie has trusted with the White Door and the Oldwork finger. She knows what Odie told her, not what the place truly is.'
+            }
+          ]
+        },
+        {
+          title: 'Debts and Favours',
+          cards: [
             {
               title: 'Salvage Debt',
               tag: 'Personal obligation',
@@ -166,13 +182,31 @@
   };
 
   function cardHTML(card) {
-    const image=card.image?`<img class="personal-card-image" src="${card.image}" alt="" loading="lazy" decoding="async">`:'';
-    return `<article class="personal-card${card.image?' has-image':''}">${image}<div class="personal-tag">${card.tag}</div><h4>${card.title}</h4><p>${card.body}</p></article>`;
+    const normalImage=card.image?`<img class="personal-card-image" src="${card.image}" alt="" loading="lazy" decoding="async">`:'';
+    const encodedImage=card.imageData?`<img class="personal-card-image" data-b64-image="${card.imageData}" alt="The dark, sealed White Door as Odie remembers it" loading="lazy" decoding="async">`:'';
+    const image=normalImage||encodedImage;
+    return `<article class="personal-card${image?' has-image':''}">${image}<div class="personal-tag">${card.tag}</div><h4>${card.title}</h4><p>${card.body}</p></article>`;
   }
 
   function profileHTML(profile) {
     return `<div class="section-head personal-head"><div><div class="eyebrow">${profile.kicker}</div><h2>${profile.title}</h2></div><p>${profile.intro}</p></div>` +
       profile.groups.map(group => `<section class="personal-group"><h3>${group.title}</h3><div class="personal-grid">${group.cards.map(cardHTML).join('')}</div></section>`).join('');
+  }
+
+  function hydrateEncodedImages(root) {
+    root.querySelectorAll('img[data-b64-image]').forEach(img => {
+      const path = img.dataset.b64Image;
+      fetch(path)
+        .then(response => {
+          if (!response.ok) throw new Error(`Image data unavailable: ${response.status}`);
+          return response.text();
+        })
+        .then(encoded => {
+          img.src = `data:image/webp;base64,${encoded.trim()}`;
+          img.removeAttribute('data-b64-image');
+        })
+        .catch(() => img.remove());
+    });
   }
 
   function render(user) {
@@ -191,6 +225,7 @@
     if (user.role === 'gm') {
       section.innerHTML = `<div class="section-head personal-head"><div><div class="eyebrow">GM · PLAYER PERSPECTIVES</div><h2>Private knowledge by character</h2></div><p>This preview shows the material currently attached to each active PC. Players only see their own section.</p></div>` +
         Object.entries(PROFILES).map(([key, profile]) => `<section class="gm-profile-block"><div class="gm-profile-label">${key.toUpperCase()}</div>${profileHTML(profile)}</section>`).join('');
+      hydrateEncodedImages(section);
       return;
     }
 
@@ -203,6 +238,7 @@
     }
     section.classList.remove('hidden');
     section.innerHTML = profileHTML(profile);
+    hydrateEncodedImages(section);
   }
 
   window.addEventListener('greywake:player-ready', event => render(event.detail));
