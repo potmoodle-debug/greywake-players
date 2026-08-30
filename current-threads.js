@@ -117,6 +117,19 @@
       }
     },
     {
+      id: 'closing-ways',
+      title: 'The Closing Ways',
+      status: 'PURSUING',
+      direction: 'GREYWAKE',
+      tone: 'personal',
+      visibility: ['odie'],
+      summary: 'Some Digger crews use concealed haul routes to bring salvage into Greywake without taking every recovery through the normal gates and public unloading points. Several of those hidden entrances are now being deliberately closed, filled or braced shut.',
+      known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie suspects someone is reporting the tunnels, but he does not yet know who is exposing them, who is closing them, whether every closure is connected, or why it is happening now.',
+      relevance: {
+        odie: 'Someone somewhere knows something they should not. You want to work out who is exposing the hidden routes and stop more of them from being closed.'
+      }
+    },
+    {
       id: 'white-tunnel',
       title: 'The White Door',
       status: 'PRIVATE POSSIBILITY',
