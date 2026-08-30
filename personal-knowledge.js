@@ -142,7 +142,7 @@
             {
               title: 'What You Found',
               tag: 'Private discovery',
-              imageData: 'assets/canon/locations/odie-white-door-dark.webp.b64',
+              image: 'assets/generated/odie-white-door-dark.webp',
               body: 'Odie found a pale, precisely made passage exposed behind broken natural rock. Beyond the breach, the surfaces were far cleaner and more exact than ordinary Greywake construction. At the end stood a sealed double door with a circular structure at its centre and no handle, bar or hinge Odie recognised.'
             },
             {
