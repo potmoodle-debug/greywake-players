@@ -36,13 +36,15 @@ jobs:
           decode_one() {
             src="$1"
             dest="$2"
-            tr -d '\n\r ' < "$src" | base64 --decode > "$dest"
+            python -c 'import base64,sys; from pathlib import Path; s="".join(Path(sys.argv[1]).read_text(encoding="ascii").split()); s += "=" * (-len(s) % 4); data=base64.b64decode(s, validate=False); Path(sys.argv[2]).write_bytes(data); print(f"decoded {sys.argv[1]} -> {sys.argv[2]} ({len(data)} bytes)")' "$src" "$dest"
+            test -s "$dest"
           }
 
           decode_parts() {
             dest="$1"
             shift
-            cat "$@" | tr -d '\n\r ' | base64 --decode > "$dest"
+            python -c 'import base64,sys; from pathlib import Path; dest=sys.argv[1]; s="".join("".join(Path(p).read_text(encoding="ascii").split()) for p in sys.argv[2:]); s += "=" * (-len(s) % 4); data=base64.b64decode(s, validate=False); Path(dest).write_bytes(data); print(f"decoded {len(sys.argv)-2} parts -> {dest} ({len(data)} bytes)")' "$dest" "$@"
+            test -s "$dest"
           }
 
           decode_one assets/obsidian-b64/clay-character-poster.b64 assets/generated/clay-character-poster.avif
@@ -79,7 +81,10 @@ jobs:
           set -euo pipefail
           python -m pip install --disable-pip-version-check pillow pillow-avif-plugin
           mkdir -p .staging/npc-avif-src
-          decode_one() { tr -d '\n\r ' < "$1" | base64 --decode > "$2"; }
+          decode_one() {
+            python -c 'import base64,sys; from pathlib import Path; s="".join(Path(sys.argv[1]).read_text(encoding="ascii").split()); s += "=" * (-len(s) % 4); data=base64.b64decode(s, validate=False); Path(sys.argv[2]).write_bytes(data)' "$1" "$2"
+            test -s "$2"
+          }
           decode_one assets/obsidian-b64/talla-reed/01.b64 .staging/npc-avif-src/talla-reed.img
           decode_one assets/obsidian-b64/joric-noll/01.b64 .staging/npc-avif-src/joric-noll.img
           decode_one assets/obsidian-b64/bessa-trant/01.b64 .staging/npc-avif-src/bessa-trant.img
