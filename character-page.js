@@ -42,6 +42,31 @@
     return view;
   }
 
+  function ensureTabs() {
+    const view = ensureView();
+    if (!view) return null;
+    let nav = document.getElementById('characterPageTabs');
+    if (!nav) {
+      nav = document.createElement('nav');
+      nav.id = 'characterPageTabs';
+      nav.className = 'character-page-tabs';
+      nav.setAttribute('aria-label', 'Character sheet sections');
+      const toolbar = view.querySelector('.character-page-toolbar');
+      if (toolbar) toolbar.insertAdjacentElement('afterend', nav);
+      else view.prepend(nav);
+    }
+    return nav;
+  }
+
+  function moveTabsNearContent() {
+    const nav = ensureTabs();
+    const body = document.querySelector('#characterSheet .character-sheet-body');
+    if (!nav || !body) return;
+    if (nav.parentElement !== body.parentElement || nav.nextElementSibling !== body) {
+      body.insertAdjacentElement('beforebegin', nav);
+    }
+  }
+
   function moveSheetIntoView() {
     const view = ensureView();
     const sheet = document.getElementById('characterSheet');
@@ -52,6 +77,7 @@
     if (heading) heading.textContent = `${character} · Character Dossier`;
     sheet.dataset.dossier = 'true';
     buildTabs();
+    moveTabsNearContent();
     applyTab();
   }
 
@@ -69,7 +95,7 @@
   }
 
   function buildTabs() {
-    const nav = document.getElementById('characterPageTabs');
+    const nav = ensureTabs();
     if (!nav) return;
     const labels = { overview: 'Overview', abilities: 'Abilities', gear: 'Gear', story: 'Story' };
     const icons = { overview: '◇', abilities: '✦', gear: '⌁', story: '≋' };
@@ -88,7 +114,6 @@
         button.addEventListener('click', () => {
           activeTab = button.dataset.sheetTab;
           applyTab();
-          document.getElementById('characterSheet')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
         });
       });
     }
@@ -97,7 +122,7 @@
   }
 
   function applyTab() {
-    const nav = document.getElementById('characterPageTabs');
+    const nav = ensureTabs();
     nav?.querySelectorAll('[data-sheet-tab]').forEach(button => {
       const selected = button.dataset.sheetTab === activeTab;
       button.setAttribute('aria-selected', String(selected));
@@ -157,6 +182,7 @@
       if (crumb) crumb.textContent = `Greywake / ${character} / Dossier`;
       document.title = `${character} — Character Dossier — Greywake`;
       buildTabs();
+      moveTabsNearContent();
       applyTab();
 
       if (!routeWasOpen) {
@@ -191,6 +217,7 @@
       setTimeout(() => {
         moveSheetIntoView();
         buildTabs();
+        moveTabsNearContent();
         applyTab();
       }, 0);
     });
