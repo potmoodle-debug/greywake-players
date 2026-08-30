@@ -1,18 +1,20 @@
 (() => {
-  const WHITE_DOOR_B64 = 'assets/canon/locations/odie-white-door-dark.webp.b64';
+  const WHITE_DOOR_B64 = 'assets/canon/locations/odie-white-door-dark.webp.b64?v=obsidian2';
   let cachedDataUrl = null;
   let loading = null;
 
   async function loadWhiteDoor() {
     if (cachedDataUrl) return cachedDataUrl;
     if (loading) return loading;
-    loading = fetch(WHITE_DOOR_B64, { cache: 'force-cache' })
+    loading = fetch(WHITE_DOOR_B64, { cache: 'no-cache' })
       .then(response => {
         if (!response.ok) throw new Error('White Door image unavailable');
         return response.text();
       })
       .then(base64 => {
-        cachedDataUrl = `data:image/webp;base64,${base64.trim()}`;
+        const clean = base64.trim();
+        if (!clean.startsWith('UklGR')) throw new Error('White Door image payload is invalid');
+        cachedDataUrl = `data:image/webp;base64,${clean}`;
         return cachedDataUrl;
       })
       .finally(() => { loading = null; });
@@ -35,8 +37,8 @@
       img.src = src;
       fallback.replaceWith(img);
       card.dataset.whiteDoorImageReady = 'true';
-    } catch (_) {
-      // Keep the styled fallback if the optional art cannot be read.
+    } catch (error) {
+      console.warn('White Door image could not be loaded', error);
     }
   }
 
