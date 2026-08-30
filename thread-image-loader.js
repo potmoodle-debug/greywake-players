@@ -1,12 +1,12 @@
 (() => {
-  const WHITE_DOOR_B64 = 'assets/canon/locations/odie-white-door-dark.webp.b64?v=obsidian2';
+  const WHITE_DOOR_B64 = 'assets/canon/locations/odie-white-door-dark.webp.b64?v=canon-dark3';
   let cachedDataUrl = null;
   let loading = null;
 
   async function loadWhiteDoor() {
     if (cachedDataUrl) return cachedDataUrl;
     if (loading) return loading;
-    loading = fetch(WHITE_DOOR_B64, { cache: 'no-cache' })
+    loading = fetch(WHITE_DOOR_B64, { cache: 'no-store' })
       .then(response => {
         if (!response.ok) throw new Error('White Door image unavailable');
         return response.text();
