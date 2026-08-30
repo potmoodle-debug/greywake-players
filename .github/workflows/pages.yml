@@ -53,6 +53,7 @@ jobs:
 
           decode_one assets/obsidian-b64/odie-repairer-character-poster.b64 assets/generated/odie-repairer-character-poster.avif
           decode_one assets/obsidian-b64/odie-equipment-and-repair-reference-board.b64 assets/generated/odie-equipment-and-repair-reference-board.avif
+          decode_one assets/obsidian-b64/odie-white-door-dark.b64 assets/generated/odie-white-door-dark.webp
 
           decode_parts assets/generated/mara-vell.avif \
             assets/obsidian-b64/mara-vell-avif/01.b64 \
