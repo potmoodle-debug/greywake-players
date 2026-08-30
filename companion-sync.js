@@ -10,13 +10,13 @@
   function identity(){const user=window.GreywakePlayer,character=key(),code=String(user?.code||character||'').toUpperCase();return{character,code};}
   async function request(method='GET',body=null){const auth=identity();if(!auth.character||!auth.code)throw new Error('Greywake sync identity is unavailable.');const res=await fetch(API_URL,{method,headers:{apikey:API_KEY,'Content-Type':'application/json','x-greywake-character':auth.character,'x-greywake-code':auth.code},body:body?JSON.stringify(body):undefined});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Greywake live state could not sync.');return data;}
 
-  function localState(){const s=window.GreywakeCompanion?.getState?.();if(!s)return null;return{hope:Number(s.hope),maxHope:Number(s.maxHope),stress:Number(s.stress),maxStress:Number(s.maxStress),hp:Number(s.hp),maxHP:Number(s.maxHP),effects:s.effects||{},strangePattern:Number(s.strangePattern||1),damage:window.GreywakeDamage?.getState?.()||null};}
+  function localState(){const s=window.GreywakeCompanion?.getState?.();if(!s)return null;return{hope:Number(s.hope),maxHope:Number(s.maxHope),stress:Number(s.stress),maxStress:Number(s.maxStress),hp:Number(s.hp),maxHP:Number(s.maxHP),effects:s.effects||{},strangePattern:Number(s.strangePattern||1),damage:window.GreywakeDamage?.getState?.()||null,rest:window.GreywakeRest?.getState?.()||null};}
   function valid(v){if(!v||Number(v.v)!==1)return false;return[['hope','maxHope'],['stress','maxStress'],['hp','maxHP']].every(([a,b])=>Number.isInteger(Number(v[a]))&&Number.isInteger(Number(v[b]))&&Number(v[b])>0&&Number(v[a])>=0&&Number(v[a])<=Number(v[b]));}
   function sameResources(a,b){return a&&b&&['hope','maxHope','stress','maxStress','hp','maxHP','strangePattern'].every(k=>Number(a[k]||0)===Number(b[k]||0))&&JSON.stringify(a.effects||{})===JSON.stringify(b.effects||{});}
-  function same(a,b){return sameResources(a,b)&&JSON.stringify(a?.damage||null)===JSON.stringify(b?.damage||null);}
+  function same(a,b){return sameResources(a,b)&&JSON.stringify(a?.damage||null)===JSON.stringify(b?.damage||null)&&JSON.stringify(a?.rest||null)===JSON.stringify(b?.rest||null);}
   function parseLatest(bundle){const goals=Array.isArray(bundle?.goals)?bundle.goals:[],messages=Array.isArray(bundle?.messages)?bundle.messages:[];const g=goals.find(x=>x?.character_slug===activeKey&&x?.source_kind===SYSTEM_KIND&&x?.source_key===activeKey);if(!g)return null;systemGoalId=Number(g.id);const candidates=messages.filter(m=>Number(m.goal_id)===systemGoalId).sort((a,b)=>Number(b.id)-Number(a.id));for(const m of candidates){try{const p=JSON.parse(m.message_text);if(valid(p))return{...p,messageId:Number(m.id),createdAt:m.created_at||null};}catch(_){}}return null;}
   function syncLabel(text,mode='ok'){const n=document.querySelector('#characterSheet .live-resource-board .pro-board-title small');if(n){n.textContent=text;n.dataset.syncMode=mode;}}
-  function applyRemote(remote){const companion=window.GreywakeCompanion,current=localState();if(!companion||!current||!valid(remote)||same(current,remote))return;applying=true;try{if(!sameResources(current,remote))companion.importState(remote);if(remote.damage)window.GreywakeDamage?.importState?.(remote.damage);}finally{applying=false;}}
+  function applyRemote(remote){const companion=window.GreywakeCompanion,current=localState();if(!companion||!current||!valid(remote)||same(current,remote))return;applying=true;try{if(!sameResources(current,remote))companion.importState(remote);if(remote.damage)window.GreywakeDamage?.importState?.(remote.damage);if(remote.rest)window.GreywakeRest?.importState?.(remote.rest);}finally{applying=false;}}
 
   async function pull({initial=false}={}){
     if(!activeKey||!window.GreywakeCompanion)return;
@@ -34,8 +34,9 @@
 
   window.addEventListener('greywake:companion-resources-changed',schedulePush);
   window.addEventListener('greywake:damage-changed',schedulePush);
-  window.addEventListener('greywake:player-ready',()=>setTimeout(init,180));
+  window.addEventListener('greywake:rest-state-changed',schedulePush);
+  window.addEventListener('greywake:player-ready',()=>setTimeout(init,200));
   window.addEventListener('focus',()=>{if(initialized&&activeKey&&!isPreview())pull();});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&initialized&&activeKey&&!isPreview())pull();});
-  document.addEventListener('DOMContentLoaded',()=>setTimeout(init,220));
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(init,240));
 })();
