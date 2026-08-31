@@ -172,6 +172,18 @@ if (/stopImmediatePropagation/.test(restSource)) {
   fail('rest-system-v2.js must not depend on capture-phase event cancellation.');
 }
 
+// Roll results are transient UI. Players must be able to dismiss the result without
+// closing the whole character sheet or relying on a compatibility shim.
+for (const file of ['action-roller.js', 'companion-play.js', 'trait-roller.js']) {
+  const source = readFileSync(join(root, file), 'utf8');
+  if (!source.includes('data-close-roll-result')) {
+    fail(`${file} must render a Close result control.`);
+  }
+  if (!/replaceChildren\(\)/.test(source)) {
+    fail(`${file} must clear its roll result in-place when Close result is used.`);
+  }
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
