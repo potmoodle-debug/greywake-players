@@ -37,12 +37,17 @@
 <link rel="stylesheet" href="visual-refresh.css?v=improvements2">
 <link rel="stylesheet" href="player-portal.css?v=portal2">
 <link rel="stylesheet" href="arrival-experience.css?v=arrival2">
+<style>
+.brand[role="link"],#crumb[role="link"]{cursor:pointer}
+.brand[role="link"]:focus-visible,#crumb[role="link"]:focus-visible{outline:2px solid #b4a168;outline-offset:4px}
+@media(max-width:850px){#crumb{display:none}}
+</style>
 </head>
 <body>
 <a class="skip-link" href="#mainContent">Skip to campaign content</a>
 <div class="shell">
   <aside id="sidebar" class="sidebar" aria-label="Greywake navigation">
-    <div class="brand">
+    <div class="brand" id="brandHome" role="link" tabindex="0" aria-label="Greywake Home" title="Go to Greywake Home" onclick="if(!event.target.closest('#sidebarClose'))location.hash='#/'" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('#sidebarClose')){event.preventDefault();location.hash='#/'}">
       <div class="tower-mark"></div>
       <div><div class="eyebrow">PLAYER GUIDE</div><h1>GREYWAKE</h1></div>
       <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close navigation">×</button>
@@ -58,7 +63,8 @@
   <main id="mainContent" tabindex="-1">
     <header class="topbar">
       <button id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
-      <div id="crumb">Greywake / Home</div>
+      <div id="crumb" role="link" tabindex="0" title="Go to Greywake Home" onclick="location.hash='#/'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();location.hash='#/'}">Greywake / Home</div>
+      <button id="homeBtn" class="brain-cta" type="button" onclick="location.hash='#/'">Home</button>
       <button id="brainBtn" class="brain-cta" type="button">Player Brain</button>
     </header>
 
