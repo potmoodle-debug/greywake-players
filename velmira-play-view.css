@@ -211,6 +211,44 @@ body[data-character="velmira"] .velmira-reference-note {
 
 body[data-character="velmira"] .velmira-reference-note p { margin-bottom: 0; }
 
+body[data-character="velmira"] .sidebar-close {
+  display: inline-grid !important;
+  place-items: center;
+  margin-left: auto;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid rgba(225,199,125,.45);
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  color: #f0e5be;
+  font-size: 1.65rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+body[data-character="velmira"] .sidebar-close:focus-visible {
+  outline: 3px solid rgba(225,199,125,.9);
+  outline-offset: 2px;
+}
+
+body[data-character="velmira"].velmira-sidebar-collapsed .shell {
+  grid-template-columns: 1fr;
+}
+
+body[data-character="velmira"].velmira-sidebar-collapsed .sidebar {
+  display: none;
+}
+
+body[data-character="velmira"].velmira-sidebar-collapsed #menuBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
 @media (max-width:760px) {
   body[data-character="velmira"] .velmira-play-intro {
     grid-template-columns: 1fr;
@@ -229,6 +267,13 @@ body[data-character="velmira"] .velmira-reference-note p { margin-bottom: 0; }
   body[data-character="velmira"] .velmira-play-panel .sheet-grid,
   body[data-character="velmira"] .velmira-play-panel .sheet-grid.traits {
     grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width:850px) {
+  body[data-character="velmira"].velmira-sidebar-collapsed .sidebar {
+    display: block;
+    left: -310px;
   }
 }
 
