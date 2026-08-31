@@ -108,12 +108,13 @@ const scriptSources = [...index.matchAll(/<script\b[^>]*\bsrc="([^"?#]+)(?:[?#][
 const duplicateScripts = scriptSources.filter((src, index, all) => all.indexOf(src) !== index);
 for (const src of [...new Set(duplicateScripts)]) fail(`index.html loads script more than once: ${src}`);
 
-const polishSource = readFileSync(join(root, 'interaction-polish.js'), 'utf8');
-if (/createElement\(['"]script['"]\)/.test(polishSource)) {
-  fail('interaction-polish.js must not dynamically load feature scripts.');
+// Presentation shims must not intercept functional controls. The old interaction-polish
+// script used capture-phase stopImmediatePropagation around Close buttons and is deleted.
+if (index.includes('interaction-polish.js')) {
+  fail('index.html must not load the obsolete interaction-polish.js interception shim.');
 }
-if (/velmira-play-view\.js/.test(polishSource)) {
-  fail('interaction-polish.js must not own or reload the Velmira play module.');
+if (existsSync(join(root, 'interaction-polish.js'))) {
+  fail('interaction-polish.js must remain deleted after P0 handler consolidation.');
 }
 
 // Character navigation has one effective owner. character-page.js may replace an
