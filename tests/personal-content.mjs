@@ -11,7 +11,7 @@ const forbidText = (text, label = text) => { if (source.includes(text)) failures
 // Marek: current canon establishes Meren, the unknown Beastform and fresh PC relationships.
 requireText("title: 'Meren'", 'Marek — Meren');
 requireText("title: 'The Unknown Beastform'", 'Marek — unknown Beastform');
-requireText('His body seemed to know what it was becoming before he did.', 'Marek — Beastform memory boundary');
+requireText('his body seemed to know what it was becoming before he did.', 'Marek — Beastform memory boundary');
 forbidText("title: 'Daro Pell'", 'Marek — unsupported Daro Pell personal contact');
 
 // Velmira: personal relationship set and explicit knowledge boundaries.
