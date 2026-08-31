@@ -173,10 +173,10 @@
       tone: 'personal',
       image: null,
       visibility: ['odie', 'velmira'],
-      summary: 'Odie found a pale, precisely made tunnel ending at a sealed white door. He saw no evidence that another person from Greywake had reached it before him. Velmira is the only other PC he has trusted with the discovery.',
+      summary: 'Odie found a pale, precisely made tunnel ending at a sealed white door. He saw no Digger marks, camp traces or obvious evidence of previous attempts around it. Velmira is the only other PC he has trusted with the discovery.',
       known: 'The door had no handle, bar or hinge Odie recognised. Neither of you knows who built it, what lies beyond it, whether it can open, or whether Odie’s Oldwork finger has any connection to it.',
       relevance: {
-        odie: 'You found it first. Returning, leaving it alone, studying the finger first or telling someone else are all your choice.',
+        odie: 'You found the place and chose to keep it quiet. Returning, leaving it alone, studying the finger first or telling someone else are all your choice.',
         velmira: 'Odie trusted you with this. You know what he told you, not the answer. Whether you encourage him to return, leave it alone or tell someone else is a character choice.'
       }
     }
@@ -194,7 +194,7 @@
 
   const visibleTo = (item, user) => {
     const key = characterKey(user);
-    return user.role === 'gm' || partyVisible(item) || (key && item.visibility.includes(key));
+    return user?.role === 'gm' || partyVisible(item) || (key && item.visibility.includes(key));
   };
 
   function relevanceFor(item, user) {
@@ -229,10 +229,10 @@
     </article>`;
   }
 
-  function render(user) {
+  function render(user = window.GreywakePlayer) {
     const grid = document.getElementById('currentThreadsGrid');
     const count = document.getElementById('currentThreadsCount');
-    if (!grid) return;
+    if (!grid || !user) return;
     const visible = POSSIBILITIES.filter(item => visibleTo(item, user));
     grid.innerHTML = visible.map(item => card(item, user)).join('');
     if (count) count.textContent = `${visible.length} known possibilit${visible.length === 1 ? 'y' : 'ies'}`;
@@ -246,7 +246,11 @@
     }
   }
 
+  window.GreywakeCurrentThreads = { render };
   window.addEventListener('greywake:player-ready', event => render(event.detail));
+  window.addEventListener('greywake:portal-live-mounted', event => {
+    if (event.detail?.kind === 'threads') render(window.GreywakePlayer);
+  });
   document.addEventListener('DOMContentLoaded', () => {
     if (window.GreywakePlayer) render(window.GreywakePlayer);
   });
