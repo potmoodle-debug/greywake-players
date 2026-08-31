@@ -153,11 +153,15 @@
   function openCharacterPage() {
     if (!isCharacterRoute()) previousHash = location.hash && location.hash !== '#/character' ? location.hash : '#/';
     activeTab = 'overview';
-    location.hash = '#/character';
+    if (location.hash !== '#/character') history.pushState(null, '', '#/character');
+    renderCharacterRoute();
   }
 
   function closeCharacterPage() {
-    location.hash = previousHash && previousHash !== '#/character' ? previousHash : '#/';
+    const target = previousHash && previousHash !== '#/character' ? previousHash : '#/';
+    if (location.hash !== target) history.pushState(null, '', target);
+    renderCharacterRoute();
+    window.GreywakePlayerPortal?.render?.();
   }
 
   function renderCharacterRoute() {
@@ -168,12 +172,14 @@
     const home = document.getElementById('home');
     const brain = document.getElementById('brainView');
     const article = document.getElementById('article');
+    const portal = document.getElementById('playerPortal');
     const routeOpen = isCharacterRoute();
 
     if (routeOpen) {
       home?.classList.add('hidden');
       brain?.classList.add('hidden');
       article?.classList.add('hidden');
+      portal?.classList.add('hidden');
       view.classList.remove('hidden');
       button?.setAttribute('aria-current', 'page');
       button?.setAttribute('aria-label', 'Close character sheet');
@@ -206,12 +212,19 @@
     }, 70);
   }
 
+  window.GreywakeCharacterPage = {
+    open: openCharacterPage,
+    close: closeCharacterPage,
+    render: renderCharacterRoute
+  };
+
   function init() {
     if (initialized) return;
     initialized = true;
     ensureView();
     schedule();
     window.addEventListener('hashchange', () => setTimeout(renderCharacterRoute, 0));
+    window.addEventListener('popstate', () => setTimeout(renderCharacterRoute, 0));
     window.addEventListener('greywake:player-ready', schedule);
     window.addEventListener('greywake:sheet-enhanced', () => {
       setTimeout(() => {
