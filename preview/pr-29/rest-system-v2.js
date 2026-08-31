@@ -75,12 +75,31 @@
   }
   function moveCard(def){const count=draft.moves[def.id]||0;return `<div class="rest-move-card"><span>DOWNTIME MOVE</span><strong>${esc(def.name)}</strong><p>${esc(def.copy)}</p><div class="rest-move-counter"><button type="button" data-move-delta="-1" data-move="${def.id}" ${count<=0?'disabled':''}>−</button><b>${count}</b><button type="button" data-move-delta="1" data-move="${def.id}" ${moveTotal()>=2?'disabled':''}>+</button></div>${def.target?`<select class="rest-target-select" data-target="${def.id}" ${count?'':'disabled'}><option value="self" ${draft.targets[def.id]==='self'?'selected':''}>Apply to ${cfg().name}</option><option value="ally" ${draft.targets[def.id]==='ally'?'selected':''}>Apply to an ally · show result only</option></select>`:''}${def.prepare?`<div class="rest-move-extra"><label><input type="checkbox" data-group-prepare ${draft.groupPrepare?'checked':''} ${count?'':'disabled'}> Prepare together (+2 Hope instead of +1)</label></div>`:''}</div>`;}
   function ruleCopy(){if(draft.useWater)return`<strong>Spend 1 Water.</strong> ${draft.attempted==='long'?'Use full Long-Rest moves.':'Use normal Short-Rest moves.'}`;if(draft.attempted==='short')return'<strong>No Water:</strong> Short Rest gives no mechanical benefits.';return'<strong>No Water:</strong> Long Rest is reduced to Short-Rest benefits.';}
+  function choiceSummary(effective){
+    if(effective==='none')return '<div class="rest-choice-summary"><span>THIS REST WILL…</span><strong>No mechanical recovery</strong><small>Short Rest without Water gives no HP, Stress, Armor or Hope recovery.</small></div>';
+    const defs=new Map(moveDefs(effective).map(def=>[def.id,def]));
+    const effects=[];
+    for(const [id,countRaw] of Object.entries(draft.moves)){
+      const count=Number(countRaw)||0;if(!count)continue;
+      const def=defs.get(id);if(!def)continue;
+      const repeat=count>1?` ×${count}`:'';
+      if(id==='tend')effects.push(`${effective==='long'?'clear all marked HP':'recover HP'}${repeat}`);
+      else if(id==='stress')effects.push(`${effective==='long'?'clear all marked Stress':'recover Stress'}${repeat}`);
+      else if(id==='armor')effects.push(`${effective==='long'?'repair all Armor Slots':'repair Armor Slots'}${repeat}`);
+      else if(id==='prepare')effects.push(`gain Hope${repeat}`);
+      else if(id==='project')effects.push(`work on a project${repeat}`);
+    }
+    if(!effects.length)return '<div class="rest-choice-summary"><span>THIS REST WILL…</span><strong>Choose two downtime moves</strong><small>A Long Rest does not automatically clear HP or Stress. The selected downtime moves determine recovery.</small></div>';
+    const hp=effects.some(text=>/HP/i.test(text)),stress=effects.some(text=>/Stress/i.test(text));
+    return `<div class="rest-choice-summary"><span>THIS REST WILL…</span><strong>${effects.map(esc).join(' + ')}</strong><small>${hp?'HP recovery selected.':'HP will not change.'} ${stress?'Stress recovery selected.':'Stress will not change.'}</small></div>`;
+  }
   function renderDialog(){
     const d=ensureDialog(),effective=effectiveType(),defs=effective==='none'?[]:moveDefs(effective),available=state.water!==null&&state.water>0;
     d.innerHTML=`<div class="rest-dialog-shell"><div class="rest-dialog-head"><div><span>${draft.attempted.toUpperCase()} REST · GREYWAKE</span><h2>${cfg().name} rests</h2><p>Swap domain cards at the start of the rest if needed, then resolve downtime.</p></div><button class="rest-dialog-close" type="button" data-close>×</button></div>
       <div class="rest-water-choice"><label class="rest-water-option"><input type="radio" name="restWater" value="water" ${draft.useWater?'checked':''} ${available?'':'disabled'}><span><b>Spend 1 Water</b><small>${available?`${state.water} carried · ${state.water-1} after the rest`:'No Water available'}</small></span></label><label class="rest-water-option"><input type="radio" name="restWater" value="none" ${!draft.useWater?'checked':''}><span><b>Rest without Water</b><small>Apply Greywake’s reduced-benefit rule.</small></span></label></div>
       <div class="rest-rule-banner">${ruleCopy()}</div>
       ${effective!=='none'?`<div class="rest-moves-head"><strong>Choose two downtime moves</strong><span>${moveTotal()} / 2 selected · repeats allowed</span></div><div class="rest-moves">${defs.map(moveCard).join('')}</div>`:`<div class="rest-result"><span>NO RECOVERY</span><strong>Short Rest without Water</strong><p>No HP, Stress, Armor or Hope recovery is granted.</p></div>`}
+      ${choiceSummary(effective)}
       <button class="rest-complete" type="button" data-complete-rest ${(effective!=='none'&&moveTotal()!==2)?'disabled':''}>Complete ${draft.attempted==='long'?'Long':'Short'} Rest</button><div id="restOutcome"></div></div>`;
     d.querySelector('[data-close]')?.addEventListener('click',()=>d.close());
     d.querySelectorAll('input[name="restWater"]').forEach(r=>r.addEventListener('change',()=>{draft.useWater=r.value==='water';draft.moves={tend:0,stress:0,armor:0,prepare:0,project:0};renderDialog();}));
@@ -124,7 +143,18 @@
     window.dispatchEvent(new CustomEvent('greywake:rest-completed',{detail:{character:activeKey,attempted,effective,waterSpent:draft.useWater?1:0}}));
   }
   function completeRest(){
+    if(draft.useWater&&!(state.water>0)){
+      draft.useWater=false;
+      draft.moves={tend:0,stress:0,armor:0,prepare:0,project:0};
+      renderDialog();
+      const banner=document.querySelector('#restDialog .rest-rule-banner');
+      banner?.setAttribute('role','status');
+      banner?.scrollIntoView({behavior:'smooth',block:'nearest'});
+      return;
+    }
     const effective=effectiveType();if(effective!=='none'&&moveTotal()!==2)return;
+    const complete=document.querySelector('#restDialog [data-complete-rest]');
+    if(complete){complete.disabled=true;complete.setAttribute('aria-busy','true');complete.textContent='Resolving…';}
     const lines=[];
     if(effective==='short')applyShortMoves(lines);else if(effective==='long')applyLongMoves(lines);
     const waterSpent=draft.useWater?1:0;if(waterSpent)state.water=Math.max(0,(state.water||0)-1);
@@ -134,7 +164,10 @@
     finishEffects(draft.attempted,effective);
     const out=document.getElementById('restOutcome');
     if(out)out.innerHTML=`<div class="rest-result"><span>REST COMPLETE</span><strong>${draft.attempted==='long'?'Long':'Short'} Rest${effective!==draft.attempted?` · ${effective==='short'?'Short-Rest benefits only':'no recovery'}`:''}</strong><p>${waterSpent?`1 Water spent · ${state.water} remains.`:'No Water spent.'} GM Fear: <b>${fear}</b>${draft.attempted==='long'?` (${PARTY_SIZE} PCs + d4 ${fearDie})`:` (d4 ${fearDie})`}.</p>${lines.length?`<ul>${lines.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>No recovery benefits were applied.</p>'}<button type="button" data-finish-rest>Return to sheet</button></div>`;
+    if(complete)complete.hidden=true;
     out?.querySelector('[data-finish-rest]')?.addEventListener('click',()=>document.getElementById('restDialog')?.close());
+    out?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    setTimeout(()=>out?.querySelector('[data-finish-rest]')?.focus({preventScroll:true}),120);
   }
 
   function resetPreviewTest(){if(!isPreview())return;state={...base()};save();render();}
