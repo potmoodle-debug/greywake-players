@@ -33,7 +33,6 @@
     if (!text.includes('flickerfly')) return {
       status: 'proposed', visibility: 'mixed', why: '', canon: '', development: '', unresolved: '', pressure: '', reward: '', playerCopy: ''
     };
-
     return {
       status: 'proposed',
       visibility: 'mixed',
@@ -59,94 +58,152 @@
 
   function save(card, data) {
     const id = goalId(card);
-    if (!id) return;
-    localStorage.setItem(STORAGE_PREFIX + id, JSON.stringify(data));
+    if (id) localStorage.setItem(STORAGE_PREFIX + id, JSON.stringify(data));
   }
 
-  function fieldValue(panel, name) {
-    return panel.querySelector(`[data-development-field="${name}"]`)?.value?.trim() || '';
+  function field(panel, name) {
+    return panel.querySelector(`[data-development-field="${name}"]`);
+  }
+
+  function value(panel, name) {
+    return field(panel, name)?.value?.trim() || '';
   }
 
   function collect(panel) {
     return {
-      status: fieldValue(panel, 'status') || 'proposed',
-      visibility: fieldValue(panel, 'visibility') || 'mixed',
-      why: fieldValue(panel, 'why'),
-      canon: fieldValue(panel, 'canon'),
-      development: fieldValue(panel, 'development'),
-      unresolved: fieldValue(panel, 'unresolved'),
-      pressure: fieldValue(panel, 'pressure'),
-      reward: fieldValue(panel, 'reward'),
-      playerCopy: fieldValue(panel, 'playerCopy')
+      status: value(panel, 'status') || 'proposed',
+      visibility: value(panel, 'visibility') || 'mixed',
+      why: value(panel, 'why'),
+      canon: value(panel, 'canon'),
+      development: value(panel, 'development'),
+      unresolved: value(panel, 'unresolved'),
+      pressure: value(panel, 'pressure'),
+      reward: value(panel, 'reward'),
+      playerCopy: value(panel, 'playerCopy')
     };
   }
 
-  function statusCopy(data) {
-    if (data.status === 'approved') return 'Approved for canon handling; mirror the approved facts into Obsidian when ready.';
-    if (data.status === 'active') return 'Active in play or between-session interaction. Keep outcomes responsive to player choices.';
-    if (data.status === 'resolved') return 'Resolved development. Record consequences rather than adding more preparation here.';
-    return 'Proposed only. Nothing in these GM notes becomes canon until you approve it.';
+  function statusCopy(status) {
+    if (status === 'approved') return 'Canon-safe and ready to carry forward.';
+    if (status === 'active') return 'Now in play; let player choices determine the outcome.';
+    if (status === 'resolved') return 'Outcome established; record consequences rather than adding prep.';
+    return 'Still proposed. Nothing new here is canon yet.';
   }
 
-  function renderPreview(panel, card) {
-    const copy = fieldValue(panel, 'playerCopy');
-    const player = playerName(card);
-    const body = panel.querySelector('.gm-development-preview-card');
-    if (!body) return;
-    body.innerHTML = copy
-      ? `<span>${esc(player)} · POSSIBLE LEAD</span><p>${esc(copy)}</p>`
-      : `<span>${esc(player)} · PLAYER PREVIEW</span><p class="gm-development-preview-empty">Add player-facing wording to see exactly what would be presented as a lead.</p>`;
+  function summaryLine(label, text) {
+    return text ? `<div class="gm-handoff-line"><span>${esc(label)}</span><p>${esc(text)}</p></div>` : '';
+  }
+
+  function render(panel, card) {
     const data = collect(panel);
+    const player = playerName(card);
+    const statusTag = panel.querySelector('[data-development-status-tag]');
+    if (statusTag) statusTag.textContent = data.status.toUpperCase();
+
+    const summary = panel.querySelector('.gm-handoff-summary');
+    if (summary) {
+      const core = data.development || data.why;
+      summary.innerHTML = core
+        ? `${summaryLine('Development', core)}${summaryLine('Pressure / sign', data.pressure)}${summaryLine('Keep open', data.unresolved)}${summaryLine('Possible payoff', data.reward)}`
+        : `<div class="gm-handoff-empty"><strong>No prep handoff yet.</strong><span>Develop this thread in ChatGPT; the site is only for reviewing and publishing the result.</span></div>`;
+    }
+
+    const preview = panel.querySelector('.gm-development-preview-card');
+    if (preview) {
+      preview.innerHTML = data.playerCopy
+        ? `<span>${esc(player)} · POSSIBLE LEAD</span><p>${esc(data.playerCopy)}</p>`
+        : `<span>${esc(player)} · PLAYER PREVIEW</span><p class="gm-development-preview-empty">Nothing is currently prepared for the player to see.</p>`;
+    }
+
     const line = panel.querySelector('.gm-development-statusline');
-    if (line) line.innerHTML = `<strong>${esc(data.status.toUpperCase())}</strong><span>${esc(statusCopy(data))}</span>`;
+    if (line && !line.classList.contains('gm-development-loaded')) {
+      line.innerHTML = `<strong>${esc(data.status.toUpperCase())}</strong><span>${esc(statusCopy(data.status))}</span>`;
+    }
   }
 
-  function formMarkup(data, player) {
+  function hiddenField(name, valueText) {
+    return `<textarea class="gm-development-hidden" hidden data-development-field="${name}">${esc(valueText)}</textarea>`;
+  }
+
+  function markup(data, player) {
     return `
       <div class="gm-development-body">
-        <p class="gm-development-rule"><strong>GM working layer.</strong> Use this to develop the thread without committing hidden assumptions. Only the player-facing wording can be moved into the existing conversation.</p>
-        <div class="gm-development-grid">
-          <div class="gm-development-field"><label>Status</label><select data-development-field="status"><option value="proposed" ${data.status === 'proposed' ? 'selected' : ''}>Proposed — not canon yet</option><option value="approved" ${data.status === 'approved' ? 'selected' : ''}>Approved — canon-safe</option><option value="active" ${data.status === 'active' ? 'selected' : ''}>Active — in play</option><option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option></select></div>
-          <div class="gm-development-field"><label>Player visibility</label><select data-development-field="visibility"><option value="gm" ${data.visibility === 'gm' ? 'selected' : ''}>GM only / T5</option><option value="t1" ${data.visibility === 't1' ? 'selected' : ''}>T1 — Public</option><option value="t2" ${data.visibility === 't2' ? 'selected' : ''}>T2 — Practical / lived</option><option value="t3" ${data.visibility === 't3' ? 'selected' : ''}>T3 — Investigated</option><option value="t4" ${data.visibility === 't4' ? 'selected' : ''}>T4 — Insider</option><option value="mixed" ${data.visibility === 'mixed' ? 'selected' : ''}>Mixed tiers</option></select></div>
-          <div class="gm-development-field gm-development-wide"><label>Why this matters</label><textarea data-development-field="why" placeholder="Which player interest, consequence, NPC pressure or world change makes this worth developing?">${esc(data.why)}</textarea></div>
-          <div class="gm-development-field"><label>Canon already established</label><textarea data-development-field="canon" placeholder="Only facts already established in Greywake.">${esc(data.canon)}</textarea></div>
-          <div class="gm-development-field"><label>New development</label><textarea data-development-field="development" placeholder="The one new thing you are considering adding.">${esc(data.development)}</textarea></div>
-          <div class="gm-development-field"><label>Keep unresolved</label><textarea data-development-field="unresolved" placeholder="Questions and outcomes that must remain open for play.">${esc(data.unresolved)}</textarea></div>
-          <div class="gm-development-field"><label>Pressure / consequence</label><textarea data-development-field="pressure" placeholder="A danger sign, NPC pressure or consequence — not a forced objective.">${esc(data.pressure)}</textarea></div>
-          <div class="gm-development-field"><label>Potential reward / payoff</label><textarea data-development-field="reward" placeholder="What meaningful benefit could emerge if the players engage?">${esc(data.reward)}</textarea></div>
-          <div class="gm-development-field gm-development-wide"><label>What ${esc(player)} may see</label><textarea data-development-field="playerCopy" placeholder="Spoiler-safe wording only. This can be loaded into Give Lead after you review it.">${esc(data.playerCopy)}</textarea></div>
+        <div class="gm-handoff-intro">
+          <strong>Prep stays in ChatGPT.</strong>
+          <span>This is the handoff: review what was prepared, decide its status, and control what reaches the player.</span>
         </div>
+
+        <div class="gm-handoff-topline">
+          <label>Status
+            <select data-development-field="status">
+              <option value="proposed" ${data.status === 'proposed' ? 'selected' : ''}>Proposed — not canon</option>
+              <option value="approved" ${data.status === 'approved' ? 'selected' : ''}>Approved — canon-safe</option>
+              <option value="active" ${data.status === 'active' ? 'selected' : ''}>Active — in play</option>
+              <option value="resolved" ${data.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+          </label>
+          <span class="gm-handoff-source">Prepared in chat · managed here</span>
+        </div>
+
+        <div class="gm-handoff-summary" aria-label="GM prep summary"></div>
+
+        ${hiddenField('visibility', data.visibility)}
+        ${hiddenField('why', data.why)}
+        ${hiddenField('canon', data.canon)}
+        ${hiddenField('development', data.development)}
+        ${hiddenField('unresolved', data.unresolved)}
+        ${hiddenField('pressure', data.pressure)}
+        ${hiddenField('reward', data.reward)}
+
         <div class="gm-development-preview">
-          <div class="gm-development-preview-head"><span>Player-facing preview</span><span>No GM notes included</span></div>
+          <div class="gm-development-preview-head">
+            <span>What ${esc(player)} may see</span>
+            <button type="button" data-development-edit-player>Edit wording</button>
+          </div>
           <div class="gm-development-preview-card"></div>
+          <div class="gm-player-copy-edit" hidden>
+            <textarea data-development-field="playerCopy" rows="4" placeholder="Only spoiler-safe player-facing wording belongs here.">${esc(data.playerCopy)}</textarea>
+            <span>This is the only prep text you should normally need to edit on the site.</span>
+          </div>
         </div>
+
         <div class="gm-development-actions">
-          <button type="button" class="gm-development-primary" data-development-save>Save GM notes</button>
+          <button type="button" class="gm-development-primary" data-development-save>Save handoff</button>
           <button type="button" data-development-load>Load as Give Lead</button>
-          <button type="button" data-development-preview-player>Preview whole site as ${esc(player)}</button>
+          <button type="button" data-development-preview-player>Preview site as ${esc(player)}</button>
         </div>
         <div class="gm-development-statusline" aria-live="polite"></div>
       </div>`;
   }
 
   function attach(panel, card) {
-    panel.querySelectorAll('[data-development-field]').forEach(field => {
-      field.addEventListener('input', () => renderPreview(panel, card));
-      field.addEventListener('change', () => renderPreview(panel, card));
+    panel.querySelectorAll('[data-development-field]').forEach(control => {
+      control.addEventListener('input', () => render(panel, card));
+      control.addEventListener('change', () => render(panel, card));
+    });
+
+    panel.querySelector('[data-development-edit-player]')?.addEventListener('click', buttonEvent => {
+      const editor = panel.querySelector('.gm-player-copy-edit');
+      if (!editor) return;
+      editor.hidden = !editor.hidden;
+      buttonEvent.currentTarget.textContent = editor.hidden ? 'Edit wording' : 'Hide editor';
+      if (!editor.hidden) field(panel, 'playerCopy')?.focus();
     });
 
     panel.querySelector('[data-development-save]')?.addEventListener('click', () => {
       save(card, collect(panel));
+      render(panel, card);
       const line = panel.querySelector('.gm-development-statusline');
-      renderPreview(panel, card);
-      if (line) line.classList.add('gm-development-saved');
+      line?.classList.add('gm-development-saved');
       setTimeout(() => line?.classList.remove('gm-development-saved'), 1200);
     });
 
     panel.querySelector('[data-development-load]')?.addEventListener('click', () => {
-      const copy = fieldValue(panel, 'playerCopy');
+      const copy = value(panel, 'playerCopy');
       if (!copy) {
-        panel.querySelector('[data-development-field="playerCopy"]')?.focus();
+        const editor = panel.querySelector('.gm-player-copy-edit');
+        if (editor) editor.hidden = false;
+        field(panel, 'playerCopy')?.focus();
         return;
       }
       const reply = card.querySelector('.gm-interest-reply textarea');
@@ -158,7 +215,7 @@
       const line = panel.querySelector('.gm-development-statusline');
       if (line) {
         line.classList.add('gm-development-loaded');
-        line.innerHTML = '<strong>READY TO REVIEW</strong><span>The spoiler-safe copy is in the reply box. Use the existing Give Lead button only when you want the player to receive it.</span>';
+        line.innerHTML = '<strong>READY TO REVIEW</strong><span>The player-safe wording is in Give Lead. Nothing has been sent yet.</span>';
       }
     });
 
@@ -169,7 +226,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    renderPreview(panel, card);
+    render(panel, card);
   }
 
   function enhanceCard(card) {
@@ -178,7 +235,7 @@
     const player = playerName(card);
     const panel = document.createElement('details');
     panel.className = 'gm-development-workspace';
-    panel.innerHTML = `<summary><span>Develop this thread</span><span>${esc(data.status.toUpperCase())}</span></summary>${formMarkup(data, player)}`;
+    panel.innerHTML = `<summary><span>GM handoff</span><span data-development-status-tag>${esc(data.status.toUpperCase())}</span></summary>${markup(data, player)}`;
     const reply = card.querySelector('.gm-interest-reply');
     if (reply) reply.insertAdjacentElement('beforebegin', panel);
     else card.appendChild(panel);
@@ -186,25 +243,18 @@
   }
 
   function cleanup() {
-    if (isFullGM()) return;
-    host.querySelectorAll('.gm-development-workspace').forEach(panel => panel.remove());
+    if (!isFullGM()) host.querySelectorAll('.gm-development-workspace').forEach(panel => panel.remove());
   }
 
   function enhance() {
-    if (!isFullGM()) {
-      cleanup();
-      return;
-    }
+    if (!isFullGM()) return cleanup();
     host.querySelectorAll('.gm-interest-thread').forEach(enhanceCard);
   }
 
   function schedule() {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(() => {
-      scheduled = false;
-      enhance();
-    });
+    requestAnimationFrame(() => { scheduled = false; enhance(); });
   }
 
   const observer = new MutationObserver(schedule);
