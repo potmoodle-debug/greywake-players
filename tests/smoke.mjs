@@ -129,6 +129,20 @@ if (!/dataset\.characterNavOwner\s*=\s*['"]page['"]/.test(characterPageSource)) 
   fail('character-page.js must mark the Character button with its navigation owner.');
 }
 
+// GM preview must never write the real Hope / Stress / HP browser keys.
+const accessSource = readFileSync(join(root, 'player-access.js'), 'utf8');
+for (const character of ['marek', 'velmira', 'odie']) {
+  if (!accessSource.includes(`greywake:resources:${character}:v1`)) {
+    fail(`player-access.js is missing preview isolation for ${character} resources.`);
+  }
+}
+if (!/gmPreview\s*===\s*['"]true['"]/.test(accessSource) && !/dataset\.gmPreview\s*===\s*['"]true['"]/.test(accessSource)) {
+  fail('player-access.js must scope resource storage when GM preview is active.');
+}
+if (!/:gmtest/.test(accessSource)) {
+  fail('GM preview resource storage must use isolated :gmtest keys.');
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
