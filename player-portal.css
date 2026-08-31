@@ -19,12 +19,12 @@
 .player-portal-possibilities #currentThreadsGrid .thread-card a{cursor:pointer}
 .player-portal-possibilities .thread-open-all{display:none!important}
 
-/* Mind page deliberately shows only the five-slot reference strip. */
+/* Mind page deliberately shows only the active priority reference strip. */
 .player-portal-mind #playerGoals{display:block!important;padding:0 clamp(24px,6vw,90px) 64px;background:transparent}
 .player-portal-mind #playerGoals>*:not(.player-mind-view){display:none!important}
 .player-portal-mind .player-mind-view{display:block!important;margin:0!important;padding:0!important}
 .player-portal-mind .player-mind-head{display:none!important}
-.player-portal-mind .player-mind-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}
+.player-portal-mind .player-mind-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
 .player-portal-mind .player-mind-card{min-height:210px}
 
 /* Inbox is the full conversation system, without the compact mind strip. */
@@ -44,7 +44,29 @@
 .player-explore-grid>a:hover{transform:translateY(-3px);border-color:#756840;background:linear-gradient(145deg,#211f16,#13140f)}
 .player-explore-grid small{color:#aa955d;font-size:8px;font-weight:800;letter-spacing:.17em}.player-explore-grid strong{margin:9px 0 8px;color:#eadfc2;font:25px/1.05 Georgia,serif}.player-explore-grid span{max-width:34ch;color:#928a77;font-size:10px;line-height:1.55}.player-explore-grid em{margin-top:auto;padding-top:20px;color:#d3bc74;font-style:normal;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 
-/* On the launch screen the archive becomes an optional drawer, not permanent chrome. */
+/* P1 primary navigation: five player-facing destinations, always in the same order. */
+.primary-nav{display:flex;align-items:stretch;gap:3px;margin-left:auto;min-width:0;overflow-x:auto;scrollbar-width:none}.primary-nav::-webkit-scrollbar{display:none}
+.primary-nav button{flex:0 0 auto;min-height:38px;padding:0 12px;border:1px solid transparent;background:transparent;color:#99917f;font:800 9px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.primary-nav button:hover{color:#e4d8b8;background:rgba(201,170,97,.06)}
+.primary-nav button.active,.primary-nav button[aria-current="page"]{color:#f1dfaa;border-color:rgba(201,170,97,.35);background:linear-gradient(180deg,rgba(201,170,97,.13),rgba(201,170,97,.045));box-shadow:inset 0 -2px 0 rgba(201,170,97,.72)}
+.primary-nav #characterSheetBtn{position:static!important;margin:0!important}
+.p1-legacy-route{display:none!important}
+
+/* My Greywake owns personal material rather than leaving it buried on Home. */
+.player-portal-my-greywake .player-personal-links{grid-template-columns:repeat(2,minmax(0,1fr));padding-bottom:30px}
+.player-portal-my-greywake #personalKnowledge{display:block!important;margin:10px clamp(24px,6vw,90px) 0;padding:32px clamp(18px,3vw,38px) 56px;border:1px solid #343126;background:linear-gradient(180deg,#15150f,#11120e)}
+.player-portal-my-greywake #personalKnowledge .section-head{padding-top:0}
+
+/* Campaign owns current choices and play history. */
+.player-portal-campaign .player-campaign-links{padding-bottom:35px}
+.player-campaign-current{margin:0 clamp(24px,6vw,90px);padding:30px 0 16px;border-top:1px solid #343126}.player-campaign-current h2{margin:6px 0;color:#eadfc2;font:30px/1.1 Georgia,serif}.player-campaign-current p{margin:0;max-width:680px;color:#918a78;font-size:11px;line-height:1.55}
+.player-portal-campaign #currentThreads{display:block!important;padding:0 clamp(24px,6vw,90px) 60px;background:transparent;border:0}
+.player-portal-campaign #currentThreads>.section-head,.player-portal-campaign #currentThreads>.possibility-intro{display:none!important}
+.player-portal-campaign #currentThreadsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.player-portal-campaign #currentThreadsGrid .thread-card{display:block!important;grid-column:auto!important;min-height:330px;cursor:default}
+.player-portal-campaign .thread-open-all{display:none!important}
+
+/* Player home is now a launch page, not an archive dashboard. */
 body.player-portal-enabled[data-player-route="home"] .shell{grid-template-columns:1fr}
 body.player-portal-enabled[data-player-route="home"] .sidebar{position:fixed;left:-320px;top:0;width:300px;height:100vh;transition:left .2s ease;z-index:30;box-shadow:18px 0 55px rgba(0,0,0,.38)}
 body.player-portal-enabled[data-player-route="home"] .sidebar.open{left:0}
@@ -53,9 +75,10 @@ body.player-portal-enabled[data-player-route="home"] #home>.discoveries,
 body.player-portal-enabled[data-player-route="home"] #home>.field-note{display:none!important}
 body.player-portal-enabled[data-player-route="home"] #home .hero-ledger{display:none!important}
 body.player-portal-enabled[data-player-route="home"] .topbar{background:#0d0e0bc7;border-bottom-color:#302e25}
-body.player-portal-enabled[data-player-route="home"] #brainBtn{display:none}
+body.player-portal-enabled[data-player-route="home"] #brainBtn{display:none!important}
 
-@media(max-width:1050px){.player-portal-possibilities #currentThreadsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-portal-mind .player-mind-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.player-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:720px){.player-portal-topbar{grid-template-columns:1fr 1fr;top:58px}.player-portal-title{grid-column:1/-1;grid-row:1}.player-portal-home{grid-row:2}.player-portal-explore{grid-row:2}.player-portal-intro{padding-top:38px}.player-portal-possibilities #currentThreadsGrid,.player-explore-grid{grid-template-columns:1fr}.player-portal-mind .player-mind-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-portal-mind .player-mind-card{min-height:180px}}
-@media(max-width:460px){.player-portal-mind .player-mind-grid{grid-template-columns:1fr}.player-portal-topbar{padding-left:16px;padding-right:16px}.player-portal-intro,.player-portal-possibilities #currentThreads,.player-portal-mind #playerGoals,.player-portal-inbox #playerGoals,.player-explore-grid{padding-left:18px;padding-right:18px}}
+@media(max-width:1050px){.player-portal-possibilities #currentThreadsGrid,.player-portal-campaign #currentThreadsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.primary-nav button{padding:0 9px;font-size:8px}}
+@media(max-width:850px){.topbar{gap:7px}.primary-nav{order:3;width:100%;margin-left:0}.topbar{flex-wrap:wrap}.primary-nav button{flex:1 0 auto}.player-portal-topbar{top:92px}}
+@media(max-width:720px){.player-portal-topbar{grid-template-columns:1fr 1fr}.player-portal-title{grid-column:1/-1;grid-row:1}.player-portal-home{grid-row:2}.player-portal-explore{grid-row:2}.player-portal-intro{padding-top:38px}.player-portal-possibilities #currentThreadsGrid,.player-portal-campaign #currentThreadsGrid,.player-explore-grid{grid-template-columns:1fr}.player-portal-my-greywake .player-personal-links{grid-template-columns:1fr}.player-portal-mind .player-mind-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.player-portal-mind .player-mind-grid{grid-template-columns:1fr}.player-portal-topbar{padding-left:16px;padding-right:16px}.player-portal-intro,.player-portal-possibilities #currentThreads,.player-portal-campaign #currentThreads,.player-portal-mind #playerGoals,.player-portal-inbox #playerGoals,.player-explore-grid{padding-left:18px;padding-right:18px}.player-portal-my-greywake #personalKnowledge{margin-left:18px;margin-right:18px}.primary-nav button{font-size:7px;padding:0 8px}}
 @media(prefers-reduced-motion:reduce){.player-explore-grid>a{transition:none}.player-explore-grid>a:hover{transform:none}}
