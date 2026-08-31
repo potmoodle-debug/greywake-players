@@ -39,6 +39,7 @@ jobs:
           node tests/personal-content.mjs
           node tests/p4-shared-campaign.mjs
           node tests/p5-player-choice.mjs
+          node tests/p6-group-choice.mjs
 
       - name: Check critical JavaScript syntax
         working-directory: pr
@@ -54,6 +55,7 @@ jobs:
           node --check personal-knowledge.js
           node --check current-threads.js
           node --check card-priorities.js
+          node --check group-choice.js
 
       - name: Copy PR into isolated preview path
         shell: bash
