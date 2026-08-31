@@ -143,6 +143,18 @@ if (!/:gmtest/.test(accessSource)) {
   fail('GM preview resource storage must use isolated :gmtest keys.');
 }
 
+// Marek's selected Beastform is also live character state and must be isolated in GM preview.
+const beastformSource = readFileSync(join(root, 'beastform.js'), 'utf8');
+if (!/BASE_STORAGE_KEY\s*=\s*['"]greywake:marek:beastform:v1['"]/.test(beastformSource)) {
+  fail('beastform.js must keep the canonical Marek Beastform storage key.');
+}
+if (!/storageKey\s*\(/.test(beastformSource) || !/:gmtest/.test(beastformSource)) {
+  fail('beastform.js must isolate Beastform state while GM preview is active.');
+}
+if (/localStorage\.(?:getItem|setItem)\(STORAGE_KEY/.test(beastformSource)) {
+  fail('beastform.js must not bypass preview-aware Beastform storage.');
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
