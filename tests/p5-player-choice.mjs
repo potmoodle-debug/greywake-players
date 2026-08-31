@@ -18,6 +18,10 @@ requireText("source_route: '#/campaign'", 'Campaign source route');
 requireText("source_route: '#/my-greywake'", 'My Greywake source route');
 requireText('greywake:engagement-changed', 'cross-view state refresh');
 requireText('window.GreywakeCardPriorities', 'shared priority refresh API');
+requireText('requestAnimationFrame(() => hydrateControl(wrap, context))', 'hydrate only after control is mounted');
+requireText("if (isPreview()) {\n      renderControl(wrap, context, null, true);", 'GM preview renders immediately without API wait');
+requireText('LOAD_TIMEOUT_MS = 5000', 'bounded priority state check');
+requireText('Priority check timed out. Controls are still available.', 'clean timeout fallback');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
