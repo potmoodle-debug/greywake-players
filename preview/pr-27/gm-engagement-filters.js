@@ -141,20 +141,20 @@
     if (!document.querySelector('link[data-gm-development-css]')) {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = 'gm-development.css?v=dev2';
+      link.href = 'gm-development.css?v=dev3';
       link.dataset.gmDevelopmentCss = 'true';
       document.head.appendChild(link);
     }
     if (!document.querySelector('script[data-gm-development]')) {
       const script = document.createElement('script');
-      script.src = 'gm-development.js?v=dev2';
+      script.src = 'gm-development.js?v=dev3';
       script.defer = true;
       script.dataset.gmDevelopment = 'true';
       document.head.appendChild(script);
     }
     if (!document.querySelector('script[data-gm-development-sync]')) {
       const sync = document.createElement('script');
-      sync.src = 'gm-development-sync.js?v=dev2';
+      sync.src = 'gm-development-sync.js?v=dev3';
       sync.defer = true;
       sync.dataset.gmDevelopmentSync = 'true';
       document.head.appendChild(sync);
