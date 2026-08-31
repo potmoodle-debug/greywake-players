@@ -42,7 +42,6 @@ jobs:
           node --check character-page.js
           node --check beastform.js
           node --check rest-system-v2.js
-          node --check interaction-polish.js
 
       - name: Copy PR into isolated preview path
         shell: bash
