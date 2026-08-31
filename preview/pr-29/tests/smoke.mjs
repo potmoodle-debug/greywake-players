@@ -155,6 +155,22 @@ if (/localStorage\.(?:getItem|setItem)\(STORAGE_KEY/.test(beastformSource)) {
   fail('beastform.js must not bypass preview-aware Beastform storage.');
 }
 
+// Rest completion belongs to rest-system-v2.js. The old capture-phase compatibility
+// layer must stay deleted so no second script can stop or replace core rest handlers.
+if (index.includes('rest-dialog-fix.js')) {
+  fail('index.html must not load the obsolete rest-dialog-fix.js compatibility layer.');
+}
+if (existsSync(join(root, 'rest-dialog-fix.js'))) {
+  fail('rest-dialog-fix.js must remain deleted after its guard logic is folded into rest-system-v2.js.');
+}
+const restSource = readFileSync(join(root, 'rest-system-v2.js'), 'utf8');
+if (!/draft\.useWater\s*&&\s*!\(state\.water>0\)/.test(restSource)) {
+  fail('rest-system-v2.js must guard against stale Water before applying rest benefits.');
+}
+if (/stopImmediatePropagation/.test(restSource)) {
+  fail('rest-system-v2.js must not depend on capture-phase event cancellation.');
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
