@@ -1,9 +1,15 @@
-# Greywake Player Guide
+# Greywake Player Archive — v4 clean
 
-Spoiler-conscious player guide and between-session campaign interface for Greywake.
+This restores the original v1 information architecture and applies only the requested improvements:
+- canon Tower establishing image
+- approved Great-Shell / Cacklemaw / Stone-Lip imagery
+- stronger Player Brain
+- Latest Discoveries
+- restrained field-archive visual treatment
+- unchanged spoiler-safe data boundary
 
-The public site combines shared party knowledge with character-specific material, player questions/interests, current possibilities, and character tools. GM-only development features are loaded only in full GM view.
+Brannic Hale now uses the same standard `assets/*.jpg` image path pattern as Great-Shell and Cacklemaw.
 
-## GM development workflow
+## Quick verification
 
-On branches/releases that include the GM development workspace, player questions and interests can be developed through a private GM layer before anything is promoted to canon or published to a player. Proposed developments stay non-canon; approved material can be exported in the live Obsidian vault's Player-Led Development format.
+Run `node tests/smoke.mjs` before publishing. It checks that navigation categories, relationships, discoveries, media, and files referenced by `index.html` still point to valid records and assets.
