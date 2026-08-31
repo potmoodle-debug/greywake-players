@@ -2,6 +2,7 @@
   const host = document.getElementById('playerGoals');
   if (!host) return;
   let scheduled = false;
+  let observer = null;
 
   function isPlayerView() {
     return document.body.dataset.role !== 'gm' || document.body.dataset.gmPreview === 'true';
@@ -93,11 +94,21 @@
   }
 
   function render() {
+    // This section lives inside #playerGoals, which is also the source we watch
+    // for live engagement updates. Disconnect while replacing our own view so
+    // those writes cannot schedule another render on every animation frame.
+    observer?.disconnect();
     host.querySelector('.player-mind-view')?.remove();
-    if (!isPlayerView()) return;
+    if (!isPlayerView()) {
+      observeHost();
+      return;
+    }
 
     const firstThread = host.querySelector('.interest-thread, .goals-empty, .goal-form');
-    if (!firstThread && /Loading|unavailable/i.test(host.textContent || '')) return;
+    if (!firstThread && /Loading|unavailable/i.test(host.textContent || '')) {
+      observeHost();
+      return;
+    }
 
     const minds = activeMindCards();
     ensureStyles();
@@ -130,6 +141,12 @@
       const card = host.querySelector(`.interest-thread[data-goal-id="${button.dataset.playerMindGoal}"]`);
       if (card) openMind(card);
     }));
+    observeHost();
+  }
+
+  function observeHost() {
+    if (!observer) observer = new MutationObserver(schedule);
+    observer.observe(host, {childList:true, subtree:true});
   }
 
   function schedule() {
@@ -141,7 +158,7 @@
     });
   }
 
-  new MutationObserver(schedule).observe(host, {childList:true, subtree:true});
+  observeHost();
   window.addEventListener('greywake:player-ready', schedule);
   window.addEventListener('greywake:engagement-changed', schedule);
   document.addEventListener('DOMContentLoaded', schedule);
