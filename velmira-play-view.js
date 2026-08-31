@@ -92,7 +92,6 @@
         panel.hidden = panel.dataset.panel !== key;
       });
       try { sessionStorage.setItem('greywake-velmira-tab', key); } catch (_) {}
-      root.scrollIntoView({ block: 'start', behavior: 'auto' });
     }
 
     nav.addEventListener('click', event => {
