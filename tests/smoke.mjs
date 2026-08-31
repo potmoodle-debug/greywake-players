@@ -102,6 +102,88 @@ for (const file of ['visual-refresh.js', 'discoveries.js', 'session03.js', 'pers
   }
 }
 
+// P0 stability checks: feature modules are loaded once by index.html and must not be
+// dynamically re-injected by visual-polish or compatibility layers.
+const scriptSources = [...index.matchAll(/<script\b[^>]*\bsrc="([^"?#]+)(?:[?#][^"]*)?"[^>]*>/g)].map(match => match[1]);
+const duplicateScripts = scriptSources.filter((src, index, all) => all.indexOf(src) !== index);
+for (const src of [...new Set(duplicateScripts)]) fail(`index.html loads script more than once: ${src}`);
+
+// Presentation shims must not intercept functional controls. The old interaction-polish
+// script used capture-phase stopImmediatePropagation around Close buttons and is deleted.
+if (index.includes('interaction-polish.js')) {
+  fail('index.html must not load the obsolete interaction-polish.js interception shim.');
+}
+if (existsSync(join(root, 'interaction-polish.js'))) {
+  fail('interaction-polish.js must remain deleted after P0 handler consolidation.');
+}
+
+// Character navigation has one effective owner. character-page.js may replace an
+// earlier compatibility button once, then must keep and reuse the owned button.
+const characterPageSource = readFileSync(join(root, 'character-page.js'), 'utf8');
+if (!/characterNavOwner/.test(characterPageSource)) {
+  fail('character-page.js must explicitly own Character navigation.');
+}
+if (/function\s+replaceCharacterButton\b/.test(characterPageSource)) {
+  fail('character-page.js must not use the old repeated Character-button replacement path.');
+}
+if (!/dataset\.characterNavOwner\s*=\s*['"]page['"]/.test(characterPageSource)) {
+  fail('character-page.js must mark the Character button with its navigation owner.');
+}
+
+// GM preview must never write the real Hope / Stress / HP browser keys.
+const accessSource = readFileSync(join(root, 'player-access.js'), 'utf8');
+for (const character of ['marek', 'velmira', 'odie']) {
+  if (!accessSource.includes(`greywake:resources:${character}:v1`)) {
+    fail(`player-access.js is missing preview isolation for ${character} resources.`);
+  }
+}
+if (!/gmPreview\s*===\s*['"]true['"]/.test(accessSource) && !/dataset\.gmPreview\s*===\s*['"]true['"]/.test(accessSource)) {
+  fail('player-access.js must scope resource storage when GM preview is active.');
+}
+if (!/:gmtest/.test(accessSource)) {
+  fail('GM preview resource storage must use isolated :gmtest keys.');
+}
+
+// Marek's selected Beastform is also live character state and must be isolated in GM preview.
+const beastformSource = readFileSync(join(root, 'beastform.js'), 'utf8');
+if (!/BASE_STORAGE_KEY\s*=\s*['"]greywake:marek:beastform:v1['"]/.test(beastformSource)) {
+  fail('beastform.js must keep the canonical Marek Beastform storage key.');
+}
+if (!/storageKey\s*\(/.test(beastformSource) || !/:gmtest/.test(beastformSource)) {
+  fail('beastform.js must isolate Beastform state while GM preview is active.');
+}
+if (/localStorage\.(?:getItem|setItem)\(STORAGE_KEY/.test(beastformSource)) {
+  fail('beastform.js must not bypass preview-aware Beastform storage.');
+}
+
+// Rest completion belongs to rest-system-v2.js. The old capture-phase compatibility
+// layer must stay deleted so no second script can stop or replace core rest handlers.
+if (index.includes('rest-dialog-fix.js')) {
+  fail('index.html must not load the obsolete rest-dialog-fix.js compatibility layer.');
+}
+if (existsSync(join(root, 'rest-dialog-fix.js'))) {
+  fail('rest-dialog-fix.js must remain deleted after its guard logic is folded into rest-system-v2.js.');
+}
+const restSource = readFileSync(join(root, 'rest-system-v2.js'), 'utf8');
+if (!/draft\.useWater\s*&&\s*!\(state\.water>0\)/.test(restSource)) {
+  fail('rest-system-v2.js must guard against stale Water before applying rest benefits.');
+}
+if (/stopImmediatePropagation/.test(restSource)) {
+  fail('rest-system-v2.js must not depend on capture-phase event cancellation.');
+}
+
+// Roll results are transient UI. Players must be able to dismiss the result without
+// closing the whole character sheet or relying on a compatibility shim.
+for (const file of ['action-roller.js', 'companion-play.js', 'trait-roller.js']) {
+  const source = readFileSync(join(root, file), 'utf8');
+  if (!source.includes('data-close-roll-result')) {
+    fail(`${file} must render a Close result control.`);
+  }
+  if (!/replaceChildren\(\)/.test(source)) {
+    fail(`${file} must clear its roll result in-place when Close result is used.`);
+  }
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);

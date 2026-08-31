@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = 'greywake:marek:beastform:v1';
+  const BASE_STORAGE_KEY = 'greywake:marek:beastform:v1';
 
   const FORMS = [
     {
@@ -70,6 +70,14 @@
     return String(window.GreywakePlayer?.character || document.body.dataset.character || '').toLowerCase() === 'marek';
   }
 
+  function isPreview(){
+    return document.body.dataset.gmPreview === 'true';
+  }
+
+  function storageKey(){
+    return `${BASE_STORAGE_KEY}${isPreview() ? ':gmtest' : ''}`;
+  }
+
   function esc(value){
     return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   }
@@ -118,7 +126,7 @@
 
   function loadSaved(){
     try{
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      const saved = JSON.parse(localStorage.getItem(storageKey()) || 'null');
       if (!saved) return;
       if (FORMS.some(f => f.id === saved.active)) state.active = saved.active;
       state.evolution = Boolean(saved.evolution);
@@ -129,7 +137,7 @@
 
   function save(){
     try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      localStorage.setItem(storageKey(), JSON.stringify({
         active:state.active,
         evolution:state.evolution,
         evolutionTrait:state.evolutionTrait
@@ -169,7 +177,7 @@
             <button type="submit" class="beastform-dialog-close" aria-label="Close Beastform selector">×</button>
           </div>
           <div id="beastformOptions" class="beastform-options"></div>
-          <div class="beastform-dialog-foot">Standard transformation: <strong>mark 1 Stress</strong>. Evolution: <strong>spend 3 Hope instead</strong> and increase one chosen trait by +1. This Greywake view does not spend the resource automatically yet.</div>
+          <div class="beastform-dialog-foot">Standard transformation: <strong>mark 1 Stress</strong>. Evolution: <strong>spend 3 Hope instead</strong> and increase one chosen trait by +1.</div>
         </form>`;
       page.appendChild(dialog);
       dialog.addEventListener('click', event => {
@@ -238,7 +246,7 @@
             ${Object.keys(state.base.traits).map(t=>`<option value="${t}" ${state.evolutionTrait===t?'selected':''}>${t}</option>`).join('')}
           </select>
         </div>
-        <p class="beastform-cost">${state.evolution?'Activation: spend 3 Hope · no Stress':'Activation: mark 1 Stress'} · Resource cost is shown here but not automatically marked on the live sheet.</p>
+        <p class="beastform-cost">${state.evolution?'Activation: spend 3 Hope · no Stress':'Activation: mark 1 Stress'}.</p>
       </div>`;
     }
 

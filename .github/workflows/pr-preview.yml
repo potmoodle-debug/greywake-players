@@ -31,6 +31,21 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           path: pr
 
+      - name: Run Greywake smoke checks
+        working-directory: pr
+        run: node tests/smoke.mjs
+
+      - name: Check critical JavaScript syntax
+        working-directory: pr
+        run: |
+          node --check player-access.js
+          node --check character-page.js
+          node --check beastform.js
+          node --check rest-system-v2.js
+          node --check action-roller.js
+          node --check companion-play.js
+          node --check trait-roller.js
+
       - name: Copy PR into isolated preview path
         shell: bash
         run: |
@@ -39,7 +54,11 @@ jobs:
           DEST="site/preview/pr-${{ github.event.pull_request.number }}"
           rm -rf "$DEST"
           mkdir -p "$DEST"
-          rsync -a --delete             --exclude='.git/'             --exclude='.github/'             --exclude='preview/'             pr/ "$DEST/"
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='preview/' \
+            pr/ "$DEST/"
           test -f "$DEST/index.html"
           test -f "$DEST/assets/tower-distant.jpg"
 
