@@ -2,6 +2,7 @@
   const API_URL = 'https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const API_KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const MAX_LENGTH = 240;
+  const MAX_MIND_SLOTS = 3;
   const CHARACTER_CODES = { marek: 'MAREK', velmira: 'VELMIRA', odie: 'ODIE' };
   let observer;
   let timer;
@@ -38,19 +39,32 @@
     return canRender() && !isPreview();
   }
 
+  function identityHeaders(user, character) {
+    return {
+      apikey: API_KEY,
+      'Content-Type': 'application/json',
+      'x-greywake-character': character,
+      'x-greywake-code': String(user?.code || CHARACTER_CODES[character]).toUpperCase()
+    };
+  }
+
+  async function activeMindCount(user, character) {
+    const response = await fetch(API_URL, { headers: identityHeaders(user, character) });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'Greywake could not check your current priorities.');
+    const goals = Array.isArray(data.goals) ? data.goals : [];
+    return goals.filter(goal => goal.character_slug === character && goal.entry_kind !== 'question' && ['open','pursuing'].includes(goal.status)).length;
+  }
+
   async function createPriority(context) {
     const user = currentUser();
     const character = characterKey(user);
     if (!character) throw new Error('Greywake player identity is unavailable.');
-    const code = String(user?.code || CHARACTER_CODES[character]).toUpperCase();
+    const count = await activeMindCount(user, character);
+    if (count >= MAX_MIND_SLOTS) throw new Error('Your three mind slots are full. Make one dormant or close it before adding another.');
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: {
-        apikey: API_KEY,
-        'Content-Type': 'application/json',
-        'x-greywake-character': character,
-        'x-greywake-code': code
-      },
+      headers: identityHeaders(user, character),
       body: JSON.stringify({
         goal: String(context.source_title).slice(0, MAX_LENGTH),
         entry_kind: 'interest',
@@ -70,13 +84,7 @@
     return [...document.querySelectorAll('.personal-card')].map(card => {
       const title = card.querySelector('h4')?.textContent?.trim();
       if (!title) return null;
-      return {
-        element: card,
-        source_kind: 'personal-card',
-        source_key: `${character}:${slug(title)}`,
-        source_title: title,
-        source_route: '#/'
-      };
+      return { element: card, source_kind: 'personal-card', source_key: `${character}:${slug(title)}`, source_title: title, source_route: '#/' };
     }).filter(Boolean);
   }
 
@@ -84,13 +92,7 @@
     return [...document.querySelectorAll('.thread-card[data-thread]')].map(card => {
       const title = card.querySelector('h3')?.textContent?.trim();
       if (!title) return null;
-      return {
-        element: card,
-        source_kind: 'possibility-card',
-        source_key: card.dataset.thread || slug(title),
-        source_title: title,
-        source_route: '#/'
-      };
+      return { element: card, source_kind: 'possibility-card', source_key: card.dataset.thread || slug(title), source_title: title, source_route: '#/' };
     }).filter(Boolean);
   }
 
@@ -101,13 +103,7 @@
     const hash = location.hash || '';
     if (!heading || !hash.startsWith('#/record/')) return null;
     const key = decodeURIComponent(hash.slice(9));
-    return {
-      element: article,
-      source_kind: 'record',
-      source_key: key,
-      source_title: heading.textContent.trim(),
-      source_route: hash
-    };
+    return { element: article, source_kind: 'record', source_key: key, source_title: heading.textContent.trim(), source_route: hash };
   }
 
   function contexts() {
@@ -146,7 +142,7 @@
       try {
         await createPriority(context);
         button.textContent = '✓ On my mind';
-        status.textContent = 'Added to your current priorities.';
+        status.textContent = 'Added to one of your three current priority slots.';
         window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
       } catch (error) {
         button.disabled = false;
