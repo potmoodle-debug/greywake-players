@@ -21,4 +21,16 @@
       return response;
     }
   };
+
+  function ensureInformationFlow() {
+    if (document.querySelector('script[data-player-information-flow]')) return;
+    const script = document.createElement('script');
+    script.src = 'player-information-flow.js?v=info1';
+    script.defer = true;
+    script.dataset.playerInformationFlow = 'true';
+    document.head.appendChild(script);
+  }
+
+  document.addEventListener('DOMContentLoaded', ensureInformationFlow);
+  ensureInformationFlow();
 })();
