@@ -1,28 +1,7 @@
 (() => {
-  function loadVelmiraPlayView() {
-    if (!document.querySelector('link[data-velmira-play-view]')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'velmira-play-view.css?v=1';
-      link.dataset.velmiraPlayView = 'true';
-      document.head.appendChild(link);
-    }
-
-    if (!document.querySelector('script[data-velmira-play-view]')) {
-      const script = document.createElement('script');
-      script.src = 'velmira-play-view.js?v=1';
-      script.defer = true;
-      script.dataset.velmiraPlayView = 'true';
-      document.body.appendChild(script);
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadVelmiraPlayView, { once: true });
-  } else {
-    loadVelmiraPlayView();
-  }
-
+  // P0 stability: visual polish must never load or own feature modules.
+  // velmira-play-view.js and its stylesheet are loaded exactly once by index.html.
+  // This file is intentionally limited to presentation-only interaction.
   document.addEventListener('click', event => {
     const button = event.target.closest?.('.active-action-detail-close');
     if (!button) return;
