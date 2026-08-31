@@ -42,6 +42,9 @@ jobs:
           node --check character-page.js
           node --check beastform.js
           node --check rest-system-v2.js
+          node --check action-roller.js
+          node --check companion-play.js
+          node --check trait-roller.js
 
       - name: Copy PR into isolated preview path
         shell: bash
