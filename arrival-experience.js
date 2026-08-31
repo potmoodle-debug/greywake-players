@@ -63,35 +63,6 @@
     document.getElementById('arrivalStatus')?.remove();
   }
 
-  function openCharacter(event) {
-    event?.preventDefault?.();
-    if (window.GreywakeCharacterPage?.open) {
-      window.GreywakeCharacterPage.open();
-      return;
-    }
-    if (location.hash === '#/character') window.dispatchEvent(new HashChangeEvent('hashchange'));
-    else location.hash = '#/character';
-  }
-
-  function wireRoutes(root) {
-    root?.querySelectorAll('[data-player-portal-route]').forEach(link => {
-      if (link.dataset.routeWired === 'true') return;
-      link.dataset.routeWired = 'true';
-      link.addEventListener('click', event => {
-        event.preventDefault();
-        const route = link.dataset.playerPortalRoute || link.getAttribute('href');
-        if (window.GreywakePlayerPortal?.navigate) window.GreywakePlayerPortal.navigate(route);
-        else if (location.hash === route) window.dispatchEvent(new HashChangeEvent('hashchange'));
-        else location.hash = route;
-      });
-    });
-    root?.querySelectorAll('[data-character-route]').forEach(link => {
-      if (link.dataset.routeWired === 'true') return;
-      link.dataset.routeWired = 'true';
-      link.addEventListener('click', openCharacter);
-    });
-  }
-
   function build() {
     if (!isPlayerFacing()) {
       cleanGMView();
@@ -120,19 +91,19 @@
     const mindCount = Math.min(activeMindCount(), 5);
     const possibilities = possibilityCount();
     actions.innerHTML = `
-      <a class="arrival-action arrival-action-character" href="#/character" data-character-route="true">
+      <a class="arrival-action arrival-action-character" href="#/character">
         <small>MY CHARACTER</small>
         <strong>${name}</strong>
         <span>Hope, Stress, abilities, attacks, gear and story.</span>
         <em>Open character →</em>
       </a>
-      <a class="arrival-action arrival-action-world" href="#/possibilities" data-player-portal-route="#/possibilities">
+      <a class="arrival-action arrival-action-world" href="#/possibilities">
         <small>THE WORLD IS MOVING</small>
         <strong>What's out there?</strong>
         <span>${possibilities ? `${possibilities} known ${possibilities === 1 ? 'possibility' : 'possibilities'} the party could pursue.` : 'Known leads, rumours and situations the party could pursue.'}</span>
         <em>See possibilities →</em>
       </a>
-      <a class="arrival-action arrival-action-mind" href="#/mind" data-player-portal-route="#/mind">
+      <a class="arrival-action arrival-action-mind" href="#/mind">
         <small>MY PRIORITIES · ${mindCount}/5</small>
         <strong>On my mind</strong>
         <span>The few things currently at the front of your character's attention.</span>
@@ -160,13 +131,10 @@
     const replies = gmReplyCount();
     const latest = latestDiscovery();
     status.innerHTML = `
-      <a href="#/mind" data-player-portal-route="#/mind"><strong>${mindCount}/5</strong><span>on my mind</span></a>
-      <a href="#/inbox" data-player-portal-route="#/inbox"><strong>${replies || q}</strong><span>${replies ? `GM ${replies === 1 ? 'reply' : 'replies'}` : q ? `open ${q === 1 ? 'question' : 'questions'}` : 'questions & replies'}</span></a>
+      <a href="#/mind"><strong>${mindCount}/5</strong><span>on my mind</span></a>
+      <a href="#/inbox"><strong>${replies || q}</strong><span>${replies ? `GM ${replies === 1 ? 'reply' : 'replies'}` : q ? `open ${q === 1 ? 'question' : 'questions'}` : 'questions & replies'}</span></a>
       ${latest.title ? `<div class="arrival-latest"><small>LATEST DISCOVERY</small><span>${latest.title}</span></div>` : ''}
-      <a class="arrival-explore-link" href="#/explore" data-player-portal-route="#/explore">Explore Greywake →</a>`;
-
-    wireRoutes(actions);
-    wireRoutes(status);
+      <a class="arrival-explore-link" href="#/explore">Explore Greywake →</a>`;
   }
 
   document.addEventListener('DOMContentLoaded', build);
