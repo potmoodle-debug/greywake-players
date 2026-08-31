@@ -1,4 +1,12 @@
 (() => {
+  if (!document.querySelector('script[data-p7-usability]')) {
+    const script = document.createElement('script');
+    script.src = 'p7-usability.js?v=p7-1';
+    script.defer = true;
+    script.dataset.p7Usability = 'true';
+    document.head.appendChild(script);
+  }
+
   const home = document.getElementById('home');
   const hero = home?.querySelector('.hero');
   const goals = document.getElementById('playerGoals');
