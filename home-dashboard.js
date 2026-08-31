@@ -10,8 +10,12 @@
     return document.body.dataset.role !== 'gm' || document.body.dataset.gmPreview === 'true';
   }
 
+  function recordHref(name) {
+    return '#/record/' + encodeURIComponent(name);
+  }
+
   function goRecord(name) {
-    location.hash = '#/record/' + encodeURIComponent(name);
+    location.hash = recordHref(name);
   }
 
   function questionCount() {
@@ -52,8 +56,8 @@
     panel.innerHTML = `
       <div class="player-continue-head"><div><div class="eyebrow">START HERE</div><h2>Continue as ${name}</h2></div><p>Your quickest routes back into the game.</p></div>
       <div class="player-continue-grid">
-        <button type="button" class="player-continue-card player-continue-primary" data-home-action="character"><small>Character</small><strong>Open ${name}</strong><span>Hope, Stress, abilities, attacks, gear and character details.</span><em>Open dossier →</em></button>
-        <button type="button" class="player-continue-card" data-home-action="inbox"><small>Between games</small><strong>Questions & replies</strong><span>${q ? `${q} open question${q === 1 ? '' : 's'}` : 'No open questions'}${replies ? ' · GM replies recorded' : ''}.</span><em>Open conversations →</em></button>
+        <a href="#/character" class="player-continue-card player-continue-primary"><small>Character</small><strong>Open ${name}</strong><span>Hope, Stress, abilities, attacks, gear and character details.</span><em>Open dossier →</em></a>
+        <button type="button" class="player-continue-card" data-home-action="inbox"><small>Between games</small><strong>Questions & replies</strong><span>${q ? `${q} open question${q === 1 ? '' : 's'}` : 'No open questions'}${replies ? ' · GM replies recorded' : ''}.</span><em>Open conversations ↓</em></button>
         <button type="button" class="player-continue-card" data-home-action="mind"><small>Your priorities</small><strong>${Math.min(minds,5)}/5 on my mind</strong><span>See what currently matters most to your character.</span><em>View priorities ↓</em></button>
       </div>`;
   }
@@ -75,6 +79,7 @@
       nav = document.createElement('section');
       nav.id = 'playerHomeNav';
       nav.className = 'player-home-nav';
+      nav.setAttribute('aria-label', 'Explore Greywake');
     }
     if (threads.nextElementSibling !== nav) threads.insertAdjacentElement('afterend', nav);
 
@@ -84,12 +89,12 @@
         <p>Browse the parts of the campaign record that are useful to you now.</p>
       </div>
       <div class="player-home-nav-grid">
-        <button type="button" class="player-home-tile" data-home-record="Known People"><small>People</small><strong>Who do I know?</strong><span>NPCs, contacts and people the party has learned about.</span><em>Browse people →</em></button>
-        <button type="button" class="player-home-tile" data-home-record="Known Locations"><small>Places</small><strong>Where can I go?</strong><span>Greywake, Greater Greywake, routes and known locations.</span><em>Browse places →</em></button>
-        <button type="button" class="player-home-tile" data-home-record="Known Flora and Fauna"><small>Field guide</small><strong>Creatures & plants</strong><span>Wildlife, flora, harvesting knowledge and encountered creatures.</span><em>Open field guide →</em></button>
-        <button type="button" class="player-home-tile" data-home-action="brain"><small>Connections</small><strong>Player Brain</strong><span>Follow relationships between people, places, events and discoveries.</span><em>Explore connections →</em></button>
-        <button type="button" class="player-home-tile" data-home-record="Greywake"><small>Settlement</small><strong>Greywake overview</strong><span>Return to the core record for the town and what the party knows about it.</span><em>Open overview →</em></button>
-        <button type="button" class="player-home-tile" data-home-record="Jobs & Open Threads"><small>All possibilities</small><strong>Everything out there</strong><span>Open the complete list rather than only the featured possibilities on Home.</span><em>See all possibilities →</em></button>
+        <a class="player-home-tile" href="${recordHref('Known People')}"><small>People</small><strong>Who do I know?</strong><span>NPCs, contacts and people the party has learned about.</span><em>Browse people →</em></a>
+        <a class="player-home-tile" href="${recordHref('Known Locations')}"><small>Places</small><strong>Where can I go?</strong><span>Greywake, Greater Greywake, routes and known locations.</span><em>Browse places →</em></a>
+        <a class="player-home-tile" href="${recordHref('Known Flora and Fauna')}"><small>Field guide</small><strong>Creatures & plants</strong><span>Wildlife, flora, harvesting knowledge and encountered creatures.</span><em>Open field guide →</em></a>
+        <a class="player-home-tile" href="#/brain"><small>Connections</small><strong>Player Brain</strong><span>Follow relationships between people, places, events and discoveries.</span><em>Explore connections →</em></a>
+        <a class="player-home-tile" href="${recordHref('Greywake')}"><small>Settlement</small><strong>Greywake overview</strong><span>Return to the core record for the town and what the party knows about it.</span><em>Open overview →</em></a>
+        <a class="player-home-tile" href="${recordHref('Jobs & Open Threads')}"><small>All possibilities</small><strong>Everything out there</strong><span>Open the complete list rather than only the featured possibilities on Home.</span><em>See all possibilities →</em></a>
       </div>`;
 
     ensureInboxToggle();
@@ -133,16 +138,7 @@
     const button = event.target.closest('button');
     if (!button || !home.contains(button)) return;
 
-    const record = button.dataset.homeRecord;
-    if (record) {
-      event.preventDefault();
-      goRecord(record);
-      return;
-    }
-
     const action = button.dataset.homeAction;
-    if (action === 'character') { event.preventDefault(); location.hash = '#/character'; return; }
-    if (action === 'brain') { event.preventDefault(); location.hash = '#/brain'; return; }
     if (action === 'inbox') { event.preventDefault(); toggleInbox(); return; }
     if (action === 'mind') { event.preventDefault(); mindSection()?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
     if (action === 'out-there') { event.preventDefault(); threads.scrollIntoView({behavior:'smooth',block:'start'}); return; }
