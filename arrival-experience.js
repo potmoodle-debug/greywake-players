@@ -4,6 +4,7 @@
   const goals = document.getElementById('playerGoals');
   const threads = document.getElementById('currentThreads');
   if (!home || !hero || !goals || !threads) return;
+  let lastSignature = '';
 
   function isPlayerFacing() {
     if (!document.body.dataset.role) return false;
@@ -61,6 +62,7 @@
   function cleanGMView() {
     document.getElementById('arrivalActions')?.remove();
     document.getElementById('arrivalStatus')?.remove();
+    lastSignature = '';
   }
 
   function build() {
@@ -90,6 +92,16 @@
     const name = characterName();
     const mindCount = Math.min(activeMindCount(), 5);
     const possibilities = possibilityCount();
+    const q = questionCount();
+    const replies = gmReplyCount();
+    const latest = latestDiscovery();
+    const characterImage = findImage(document.getElementById('characterSheet'));
+    const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
+    const mindImage = findImage(goals.querySelector('.player-mind-view')) || worldImage;
+    const signature = JSON.stringify({name,mindCount,possibilities,q,replies,latest,characterImage,worldImage,mindImage});
+    const existingStatus = document.getElementById('arrivalStatus');
+    if (lastSignature === signature && actions.isConnected && existingStatus?.isConnected) return;
+    lastSignature = signature;
     actions.innerHTML = `
       <a class="arrival-action arrival-action-character" href="#/character">
         <small>MY CHARACTER</small>
@@ -113,9 +125,6 @@
     const characterCard = actions.querySelector('.arrival-action-character');
     const worldCard = actions.querySelector('.arrival-action-world');
     const mindCard = actions.querySelector('.arrival-action-mind');
-    const characterImage = findImage(document.getElementById('characterSheet'));
-    const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
-    const mindImage = findImage(goals.querySelector('.player-mind-view')) || worldImage;
     applyCardImage(characterCard, characterImage);
     applyCardImage(worldCard, worldImage);
     applyCardImage(mindCard, mindImage);
@@ -127,9 +136,6 @@
       status.className = 'arrival-status';
       actions.insertAdjacentElement('afterend', status);
     }
-    const q = questionCount();
-    const replies = gmReplyCount();
-    const latest = latestDiscovery();
     status.innerHTML = `
       <a href="#/mind"><strong>${mindCount}/5</strong><span>on my mind</span></a>
       <a href="#/inbox"><strong>${replies || q}</strong><span>${replies ? `GM ${replies === 1 ? 'reply' : 'replies'}` : q ? `open ${q === 1 ? 'question' : 'questions'}` : 'questions & replies'}</span></a>

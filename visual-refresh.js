@@ -58,6 +58,9 @@
     const current=jump.value,related=[];
     EDGES.forEach(([a,b])=>{if(a===current&&DATA[b])related.push(b);else if(b===current&&DATA[a])related.push(a)});
     const unique=[...new Set(related)].sort((a,b)=>(DATA[a]?.title||a).localeCompare(DATA[b]?.title||b));
+    const signature=JSON.stringify([current,...unique]);
+    if(panel.dataset.brainListSignature===signature)return;
+    panel.dataset.brainListSignature=signature;
     panel.innerHTML=`<div class="brain-mobile-kicker">${unique.length} direct relationships</div><div class="brain-mobile-links">${unique.map(name=>`<button type="button" class="brain-mobile-link" data-mobile-note="${escapeHTML(name)}"><small>${escapeHTML(DATA[name]?.category||'Record')}</small><strong>${escapeHTML(DATA[name]?.title||name)}</strong></button>`).join('')}</div>`;
     panel.querySelectorAll('[data-mobile-note]').forEach(button=>button.addEventListener('click',()=>{
       const name=button.dataset.mobileNote;if(jump.value===name)location.hash=routeFor(name);else{jump.value=name;jump.dispatchEvent(new Event('change',{bubbles:true}));setTimeout(renderMobileBrainList,700)}
@@ -66,9 +69,12 @@
 
   function setupBrain(){
     const graph=document.getElementById('graph');if(!graph)return;
-    let timer;const refresh=()=>{clearTimeout(timer);timer=setTimeout(renderMobileBrainList,80)};
+    let timer;const refresh=()=>{if((location.hash||'')!=='#/brain')return;clearTimeout(timer);timer=setTimeout(renderMobileBrainList,80)};
     graph.addEventListener('change',()=>{clearTimeout(timer);timer=setTimeout(renderMobileBrainList,720)});
-    new MutationObserver(refresh).observe(graph,{childList:true,subtree:true});
+    new MutationObserver(mutations=>{
+      const externalChange=mutations.some(mutation=>!mutation.target.closest?.('.brain-mobile-list'));
+      if(externalChange)refresh();
+    }).observe(graph,{childList:true,subtree:true});
     window.addEventListener('hashchange',refresh);refresh();
   }
 
@@ -167,9 +173,13 @@
     layer.classList.toggle('faction-overview-backdrop',name==='Known Factions');
     if(name==='Known Factions'){
       layer.style.backgroundImage='none';
-      layer.innerHTML=FACTION_BACKDROPS.map(([label,image,focus])=>`<span class="faction-backdrop-panel" style="background-image:url(&quot;${escapeHTML(image)}&quot;);background-position:${escapeHTML(focus)}"><span>${escapeHTML(label)}</span></span>`).join('');
+      if(layer.dataset.factionPanels!=='ready'){
+        layer.innerHTML=FACTION_BACKDROPS.map(([label,image,focus])=>`<span class="faction-backdrop-panel" style="background-image:url(&quot;${escapeHTML(image)}&quot;);background-position:${escapeHTML(focus)}"><span>${escapeHTML(label)}</span></span>`).join('');
+        layer.dataset.factionPanels='ready';
+      }
     }else{
-      layer.replaceChildren();
+      if(layer.childElementCount)layer.replaceChildren();
+      delete layer.dataset.factionPanels;
       layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
     }
     article.style.setProperty('--record-focus',RECORD_FOCUS[name]||(/People|Characters/.test(category)?'center 24%':'center 48%'));
@@ -182,7 +192,10 @@
     const article=document.getElementById('article');if(!article)return;
     let timer;
     const refresh=()=>{clearTimeout(timer);timer=setTimeout(()=>{enhanceRecordBackdrop();dedupeBackdropMedia()},0)};
-    new MutationObserver(refresh).observe(article,{childList:true,subtree:true});
+    new MutationObserver(mutations=>{
+      const externalChange=mutations.some(mutation=>!mutation.target.closest?.('.record-backdrop'));
+      if(externalChange)refresh();
+    }).observe(article,{childList:true,subtree:true});
     window.addEventListener('hashchange',refresh);
     refresh();
   }
@@ -194,4 +207,3 @@
   enhanceDiscoveries();enhanceNav();setupNavigation();setupBrain();setupReveal();setupRecordBackdrops();syncPlayerChrome();
   window.addEventListener('greywake:player-ready',syncPlayerChrome);
 })();
-

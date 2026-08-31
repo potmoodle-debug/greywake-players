@@ -2,7 +2,12 @@
   const isTouch=()=>window.matchMedia?.('(pointer: coarse)').matches||navigator.maxTouchPoints>0;
   if(!isTouch())return;
 
-  let queuedName=null,lastTouchAt=0;
+  let queuedName=null,lastTouchAt=0,flushTimer=null;
+
+  function scheduleFlush(delay=0){
+    clearTimeout(flushTimer);
+    flushTimer=setTimeout(flushQueued,delay);
+  }
 
   function selectByName(name,allowOpenCurrent=false){
     const host=document.getElementById('graph');if(!host||!name)return;
@@ -53,10 +58,9 @@
     const name=queuedName;queuedName=null;selectByName(name,false);
   }
 
-  const obs=new MutationObserver(()=>{enhance();flushQueued()});
-  window.addEventListener('hashchange',()=>setTimeout(()=>{enhance();flushQueued()},60));
+  const obs=new MutationObserver(()=>{enhance();scheduleFlush()});
+  window.addEventListener('hashchange',()=>setTimeout(()=>{enhance();scheduleFlush()},60));
   const host=document.getElementById('graph');
   if(host)obs.observe(host,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  setInterval(flushQueued,120);
   enhance();
 })();

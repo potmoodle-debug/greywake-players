@@ -98,8 +98,9 @@
     // for live engagement updates. Disconnect while replacing our own view so
     // those writes cannot schedule another render on every animation frame.
     observer?.disconnect();
-    host.querySelector('.player-mind-view')?.remove();
+    const current = host.querySelector('.player-mind-view');
     if (!isPlayerView()) {
+      current?.remove();
       observeHost();
       return;
     }
@@ -113,8 +114,22 @@
     const minds = activeMindCards();
     ensureStyles();
 
+    const signature = JSON.stringify(minds.map(card => ({
+      id: card.dataset.goalId || '',
+      title: titleFor(card),
+      state: stateFor(card),
+      source: sourceFor(card),
+      route: sourceRouteFor(card)
+    })));
+    if (current?.dataset.mindSignature === signature) {
+      observeHost();
+      return;
+    }
+    current?.remove();
+
     const section = document.createElement('section');
     section.className = 'player-mind-view';
+    section.dataset.mindSignature = signature;
     section.setAttribute('aria-label', "What's on my mind");
 
     const cards = [];
