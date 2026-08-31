@@ -14,7 +14,12 @@
 
   let pendingGoalId = '';
 
+  function accessResolved() {
+    return Boolean(document.body.dataset.role);
+  }
+
   function isPlayerFacing() {
+    if (!accessResolved()) return false;
     return document.body.dataset.role !== 'gm' || document.body.dataset.gmPreview === 'true';
   }
 
@@ -122,7 +127,8 @@
     content.appendChild(goals);
     document.title = 'Questions & replies — Greywake';
     requestAnimationFrame(() => {
-      const target = pendingGoalId ? goals.querySelector(`.interest-thread[data-goal-id="${CSS.escape(String(pendingGoalId))}"]`) : null;
+      const safeEscape = window.CSS?.escape ? CSS.escape(String(pendingGoalId)) : String(pendingGoalId).replace(/[^a-zA-Z0-9_-]/g, '');
+      const target = pendingGoalId ? goals.querySelector(`.interest-thread[data-goal-id="${safeEscape}"]`) : null;
       pendingGoalId = '';
       if (!target) return;
       target.scrollIntoView({behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
@@ -157,9 +163,15 @@
     const page = routeName();
     document.body.dataset.playerRoute = page;
 
+    if (!accessResolved()) {
+      document.body.classList.remove('player-portal-enabled');
+      document.getElementById('playerPortal')?.classList.add('hidden');
+      return;
+    }
+
     if (!isPlayerFacing()) {
       document.body.classList.remove('player-portal-enabled');
-      ensurePortal().classList.add('hidden');
+      document.getElementById('playerPortal')?.classList.add('hidden');
       restoreForGM();
       return;
     }
