@@ -24,6 +24,14 @@
     else root.appendChild(group);
   }
 
+  function addPerson(root, card) {
+    const group = findGroup(root, 'People You Know');
+    const grid = group?.querySelector('.personal-grid');
+    if (!grid) return;
+    const exists = [...grid.querySelectorAll('.personal-card h4')].some(h => h.textContent.trim() === card.title);
+    if (!exists) grid.appendChild(makeCard(card.title, card.tag, card.body));
+  }
+
   function rootFor(user) {
     const section = document.getElementById('personalKnowledge');
     if (!section || user.role === 'gm') return null;
@@ -34,6 +42,14 @@
     const root = rootFor(user);
     if (!root) return;
     const character = user.character?.toLowerCase();
+
+    if (character === 'marek') {
+      addPerson(root, {
+        title: 'Daro Pell',
+        tag: 'Carcass processor · professional acquaintance',
+        body: 'Marek knows Daro Pell through Greywake’s practical work around animals and carcasses. Daro is a carcass processor, butcher, hide-worker and food-safety specialist: someone who thinks carefully about what from an animal is useful, contaminated, dangerous or safe to bring back into Greywake.'
+      });
+    }
 
     if (character === 'velmira') {
       const existing = findGroup(root, 'Nemi, Tavi and Lysa');
