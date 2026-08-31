@@ -13,8 +13,10 @@
 .player-portal-possibilities #currentThreads>.section-head{display:none}
 .player-portal-possibilities #currentThreads>.possibility-intro{display:none}
 .player-portal-possibilities #currentThreadsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.player-portal-possibilities #currentThreadsGrid .thread-card{display:block!important;grid-column:auto!important;min-height:330px;cursor:pointer;border-color:#403b2c;box-shadow:0 18px 44px rgba(0,0,0,.22)}
-.player-portal-possibilities #currentThreadsGrid .thread-card:hover{transform:translateY(-3px);border-color:#786943}
+.player-portal-possibilities #currentThreadsGrid .thread-card{display:block!important;grid-column:auto!important;min-height:330px;cursor:default;border-color:#403b2c;box-shadow:0 18px 44px rgba(0,0,0,.22)}
+.player-portal-possibilities #currentThreadsGrid .thread-card:hover{transform:none;border-color:#403b2c}
+.player-portal-possibilities #currentThreadsGrid .thread-card button,
+.player-portal-possibilities #currentThreadsGrid .thread-card a{cursor:pointer}
 .player-portal-possibilities .thread-open-all{display:none!important}
 
 /* Mind page deliberately shows only the five-slot reference strip. */
