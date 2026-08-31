@@ -59,11 +59,17 @@
 
     panel.querySelectorAll('[data-trait-exp]').forEach(n=>{if(selected.has(Number(n.dataset.traitExp)))n.checked=true;});
     panel.querySelectorAll('[data-trait-roll]').forEach(button=>button.addEventListener('click',()=>performRoll(button.dataset.traitRoll)));
+    bindResultClose(panel.querySelector('[data-trait-result]'));
+  }
+
+  function bindResultClose(host){
+    host?.querySelector('[data-close-roll-result]')?.addEventListener('click',()=>host.replaceChildren());
   }
 
   function errorResult(message){
     const host=document.querySelector('#traitRollPanel [data-trait-result]');if(!host)return;
-    host.innerHTML=`<div class="duality-result resource-error"><div class="duality-outcome"><span>RESOURCE REQUIRED</span><strong>ROLL NOT MADE</strong><small>${esc(message)}</small></div></div>`;
+    host.innerHTML=`<div class="duality-result resource-error"><button type="button" class="action-roll-result-close" data-close-roll-result>Close result ×</button><div class="duality-outcome"><span>RESOURCE REQUIRED</span><strong>ROLL NOT MADE</strong><small>${esc(message)}</small></div></div>`;
+    bindResultClose(host);
   }
 
   function selectedExperiences(){
@@ -128,8 +134,9 @@
     const canAdapt=success===false&&selected.length>0&&['odie','velmira'].includes(activeKey)&&!reroll;
     const result=panel.querySelector('[data-trait-result]');if(!result)return;
 
-    result.innerHTML=`<div class="duality-result trait-duality-result ${critical?'critical':axis.toLowerCase()}"><div class="duality-dice"><div class="hope-die"><span>HOPE</span><b>${hope}</b></div><div class="fear-die"><span>FEAR</span><b>${fear}</b></div></div><div class="duality-outcome"><span>${esc(trait)} ROLL</span><strong>${headline}</strong><b>Total ${total}${difficulty?` / Difficulty ${difficulty}`:''}</b><small>${critical?'Gain 1 Hope · clear 1 Stress':axis==='Hope'?'Gain 1 Hope':'GM gains 1 Fear'}</small></div><p class="duality-breakdown">${parts.map(esc).join(' · ')}</p>${expCost?`<p class="duality-cost">${esc(expCost)}</p>`:''}${after?`<p class="duality-resource-state"><b>Hope ${after.hope}/${after.maxHope}</b> · <b>Stress ${after.stress}/${after.maxStress}</b></p>`:''}${difficulty==null&&!critical?'<p class="duality-cost">No Difficulty entered: give the GM the total and whether it rolled with Hope or Fear.</p>':''}${renderPatternChoice(result,hope,fear)}${canAdapt?'<button class="companion-adaptability" type="button" data-trait-adapt>Adaptability · mark 1 Stress and reroll</button>':''}</div>`;
+    result.innerHTML=`<div class="duality-result trait-duality-result ${critical?'critical':axis.toLowerCase()}"><button type="button" class="action-roll-result-close" data-close-roll-result>Close result ×</button><div class="duality-dice"><div class="hope-die"><span>HOPE</span><b>${hope}</b></div><div class="fear-die"><span>FEAR</span><b>${fear}</b></div></div><div class="duality-outcome"><span>${esc(trait)} ROLL</span><strong>${headline}</strong><b>Total ${total}${difficulty?` / Difficulty ${difficulty}`:''}</b><small>${critical?'Gain 1 Hope · clear 1 Stress':axis==='Hope'?'Gain 1 Hope':'GM gains 1 Fear'}</small></div><p class="duality-breakdown">${parts.map(esc).join(' · ')}</p>${expCost?`<p class="duality-cost">${esc(expCost)}</p>`:''}${after?`<p class="duality-resource-state"><b>Hope ${after.hope}/${after.maxHope}</b> · <b>Stress ${after.stress}/${after.maxStress}</b></p>`:''}${difficulty==null&&!critical?'<p class="duality-cost">No Difficulty entered: give the GM the total and whether it rolled with Hope or Fear.</p>':''}${renderPatternChoice(result,hope,fear)}${canAdapt?'<button class="companion-adaptability" type="button" data-trait-adapt>Adaptability · mark 1 Stress and reroll</button>':''}</div>`;
 
+    bindResultClose(result);
     result.querySelector('[data-trait-pattern-gain]')?.addEventListener('click',e=>{api?.gainHope?.(1,'Strange Patterns');e.currentTarget.parentElement.remove();});
     result.querySelector('[data-trait-pattern-clear]')?.addEventListener('click',e=>{api?.clearStress?.(1,'Strange Patterns');e.currentTarget.parentElement.remove();});
     result.querySelector('[data-trait-adapt]')?.addEventListener('click',()=>{const s=resourceState();if(!s||s.maxStress-s.stress<1){errorResult('Adaptability requires 1 free Stress slot.');return;}const marked=api?.markStress?.(1,{reason:'Adaptability reroll',cost:true});if(marked?.ok!==false)performRoll(trait,{reroll:true});});
