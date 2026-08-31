@@ -2,13 +2,13 @@
   const API_URL = 'https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const API_KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const LOCAL_PREFIX = 'greywake-player-goals-v1:';
-  const MAX_INTERESTS = 5;
+  const MAX_INTERESTS = 3;
   const MAX_LENGTH = 240;
   const MAX_REPLY_LENGTH = 1200;
   const CHARACTER_NAMES = { marek: 'Marek', velmira: 'Velmira', odie: 'Odie' };
 
   function esc(text) {
-    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));
   }
 
   function characterKey(user) {
@@ -278,7 +278,7 @@
       const current = activeGoals(goals), resolved = resolvedGoals(goals), counts = splitCounts(goals), isPreview = document.body.dataset.gmPreview === 'true';
       const list = current.length ? `<div class="interest-thread-list">${current.map(goal => playerThreadCard(goal, messages, user, false, isPreview)).join('')}</div>` : `<div class="goals-empty">Nothing current yet. Questions you ask from cards and records will appear here automatically, without becoming a quest unless you choose to pursue them.</div>`;
       const resolvedSection = resolved.length ? `<details class="resolved-goals"><summary>Resolved / closed (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => playerThreadCard(goal, messages, user, true, isPreview)).join('')}</div></details>` : '';
-      host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">YOUR DIRECTION</div><h2>Questions & Interests</h2></div><p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved questions and interests.` : `Ask directly from things you are reading. A question stays a question until you decide it matters enough to become an interest or something you want to pursue.`}</p></div><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${list}${resolvedSection}${isPreview ? `<div class="goal-hint">GM preview · replies and changes are disabled in preview mode</div>` : `<form id="goalForm" class="goal-form"><label for="goalInput">Start a new interest or direction</label><div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. I'd love to study a flickerfly."><button type="submit" ${activeInterestCount(current) >= MAX_INTERESTS ? 'disabled' : ''}>Add interest</button></div><div class="goal-hint">${activeInterestCount(current)}/${MAX_INTERESTS} active interests · questions asked from cards do not use this limit</div></form>`}`;
+      host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">YOUR DIRECTION</div><h2>Questions & Interests</h2></div><p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved questions and interests.` : `Ask directly from things you are reading. A question stays a question until you decide it matters enough to become one of the three things currently on your mind.`}</p></div><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${list}${resolvedSection}${isPreview ? `<div class="goal-hint">GM preview · replies and changes are disabled in preview mode</div>` : `<form id="goalForm" class="goal-form"><label for="goalInput">Start a new interest or direction</label><div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. I'd love to study a flickerfly."><button type="submit" ${activeInterestCount(current) >= MAX_INTERESTS ? 'disabled' : ''}>Add interest</button></div><div class="goal-hint">${activeInterestCount(current)}/${MAX_INTERESTS} things on your mind · questions do not use a slot</div></form>`}`;
       attachSourceActions(host);
       if (!isPreview) {
         attachPlayerActions(host, user);
