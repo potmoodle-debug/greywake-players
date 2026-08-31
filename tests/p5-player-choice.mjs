@@ -26,8 +26,8 @@ requireText(source, 'requestAnimationFrame(() => hydrateControl(wrap, context))'
 requireText(source, "if (isPreview()) {\n      renderControl(wrap, context, null, true);", 'GM preview renders immediately without API wait');
 requireText(source, 'LOAD_TIMEOUT_MS = 5000', 'bounded interest state check');
 requireText(source, 'Interest check timed out. Controls are still available.', 'clean timeout fallback');
-requireText(portal, 'Interested means this matters to your character', 'Campaign explains Interested');
-requireText(portal, 'Pursue</strong> means you want it treated as an active choice', 'Campaign explains Pursue');
+requireText(portal, '<strong>Interested</strong> means this matters to your character', 'Campaign explains Interested');
+requireText(portal, '<strong>Pursue</strong> means you want it treated as an active choice', 'Campaign explains Pursue');
 requireText(portal, 'Neither automatically commits the whole party.', 'My Greywake preserves player choice boundary');
 
 if (failures.length) {
