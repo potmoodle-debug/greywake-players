@@ -113,6 +113,10 @@
     </section>`;
   }
 
+  function bindResultClose(result){
+    result?.querySelector('[data-close-roll-result]')?.addEventListener('click',()=>result.replaceChildren());
+  }
+
   function rollDamage(spec, critical, host){
     if (!spec.damage) return;
     const rolls = Array.from({length:spec.damage.count}, () => die(spec.damage.sides));
@@ -125,7 +129,8 @@
   function resourceError(detail, message){
     const result = detail.querySelector('[data-roll-result]');
     if (!result) return;
-    result.innerHTML = `<div class="duality-result resource-error"><div class="duality-outcome"><span>RESOURCE REQUIRED</span><strong>ROLL NOT MADE</strong><small>${esc(message)}</small></div></div>`;
+    result.innerHTML = `<div class="duality-result resource-error"><button type="button" class="action-roll-result-close" data-close-roll-result>Close result ×</button><div class="duality-outcome"><span>RESOURCE REQUIRED</span><strong>ROLL NOT MADE</strong><small>${esc(message)}</small></div></div>`;
+    bindResultClose(result);
   }
 
   function performRoll(detail, spec){
@@ -181,6 +186,7 @@
     const result = detail.querySelector('[data-roll-result]');
     if (!result) return;
     result.innerHTML = `<div class="duality-result ${critical?'critical':axis.toLowerCase()}">
+      <button type="button" class="action-roll-result-close" data-close-roll-result>Close result ×</button>
       <div class="duality-dice"><div class="hope-die"><span>HOPE</span><b>${hope}</b></div><div class="fear-die"><span>FEAR</span><b>${fear}</b></div></div>
       <div class="duality-outcome"><span>${esc(spec.title)}</span><strong>${headline}</strong><b>Total ${total}${difficulty ? ` / Difficulty ${difficulty}` : ''}</b><small>${consequence}</small></div>
       <p class="duality-breakdown">${parts.map(esc).join(' · ')}</p>
@@ -190,6 +196,7 @@
       ${spec.isAttack && spec.damage ? `<div class="damage-roll-controls"><button type="button" data-roll-damage ${success === false ? 'disabled' : ''}>${critical?'Roll Critical Damage':'Roll Damage'}</button><span>${success === false ? 'Attack failed against the entered Difficulty.' : `${spec.damage.count}d${spec.damage.sides}${spec.damage.mod ? (spec.damage.mod>0?'+':'')+spec.damage.mod : ''} ${esc(spec.damage.type)}`}</span></div><div data-damage-result></div>` : ''}
     </div>`;
 
+    bindResultClose(result);
     result.querySelector('[data-roll-damage]')?.addEventListener('click', () => {
       const host = result.querySelector('[data-damage-result]');
       if (host) rollDamage(spec, critical, host);
