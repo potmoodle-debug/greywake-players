@@ -37,6 +37,7 @@ jobs:
           node tests/smoke.mjs
           node tests/p1-navigation.mjs
           node tests/personal-content.mjs
+          node tests/p4-shared-campaign.mjs
 
       - name: Check critical JavaScript syntax
         working-directory: pr
@@ -50,6 +51,7 @@ jobs:
           node --check trait-roller.js
           node --check player-portal.js
           node --check personal-knowledge.js
+          node --check current-threads.js
 
       - name: Copy PR into isolated preview path
         shell: bash
