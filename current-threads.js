@@ -3,13 +3,13 @@
     {
       id: 'something-moved-in',
       title: 'Something Moved In',
-      status: 'RUMOUR / EXPEDITION LEAD',
+      status: 'RUMOUR / SELECTABLE EXPEDITION',
       direction: 'SOUTH ↓',
       tone: 'rumour',
       image: 'assets/canon/sessions/session-02.webp',
       visibility: ['party'],
-      summary: 'Diggers say something dangerous has occupied an old ruin and work has stopped. Nobody seems certain what it is or why it chose that site.',
-      known: 'The dig site is south of Greywake. You can investigate it, ask questions first, ignore it, or come back to it later. The exact route and what is inside remain uncertain.',
+      summary: 'Diggers say something dangerous has occupied an old ruin south of Greywake and work has stopped. Nobody seems certain what it is or why it chose that site.',
+      known: 'This is the currently established selectable Wastes expedition. The exact route, the creature and what the Diggers had uncovered remain uncertain. Getting the work moving again may earn access to a Minor Stamina Potion recipe.',
       relevance: {
         marek: 'Why this place? What biological problem does the creature solve there, and what changed to make the ruin useful to it?',
         velmira: 'The useful question may be who has actually seen it, who is repeating the story, and what the Diggers need before they return.',
@@ -19,29 +19,29 @@
     {
       id: 'groundfall-freight',
       title: 'Freight at Ash-Plate Groundfall',
-      status: 'POTENTIALLY RECOVERABLE',
-      direction: 'EAST →',
+      status: 'KNOWN OPPORTUNITY · NOT SELECTABLE YET',
+      direction: 'DIRECTION NOT YET ESTABLISHED',
       tone: 'open',
       image: 'assets/canon/sessions/session-01.webp',
       visibility: ['party'],
       summary: 'Significant expensive caravan freight was left behind when the group chose lives over cargo during the Kestrel Return.',
-      known: 'Ash-Plate Groundfall is on the eastern Kestrel Return route corridor through Old Marker Wash. The party travelled this route during Sessions One to Three. The direction is known; what has happened to the freight since then is not.',
+      known: 'The freight is still potentially recoverable, but Greywake canon does not yet establish the Groundfall’s North/East/South/West direction. Under the directional opportunity rule, it should not become a selectable Wastes expedition until that direction is learned or established.',
       relevance: {
         marek: 'Time, scavengers and animals may already have changed the site since the caravan left it.',
         velmira: 'The freight has owners, value and consequences. Who wants it back may matter as much as what is there.',
-        odie: 'Abandoned freight and a damaged route can mean salvage, evidence and practical parts — if returning is worth the risk.'
+        odie: 'Abandoned freight and a damaged route can mean salvage, evidence and practical parts — if returning becomes a viable choice.'
       }
     },
     {
       id: 'route-markers',
       title: 'The Altered Route Markers',
-      status: 'UNRESOLVED',
-      direction: 'GREYWAKE FIRST / EASTERN SITES',
+      status: 'UNRESOLVED · ACT IN GREYWAKE',
+      direction: 'GREYWAKE FIRST',
       tone: 'active',
       image: 'assets/canon/sessions/session-03.webp',
       visibility: ['party'],
       summary: 'At least two route markers were deliberately altered. The party still does not know who did it, when, why, or whether the same person was responsible for both.',
-      known: 'This can begin as an investigation in Greywake by speaking to people, comparing route knowledge or examining what was brought back. The marker sites already encountered lie on the eastern Kestrel Return route corridor.',
+      known: 'The physical evidence and surviving witnesses are back in Greywake. The party can begin by asking who recognises the work, who had access to the route, or who benefited from travellers being redirected.',
       relevance: {
         marek: 'A changed route affects animals, travellers and where danger concentrates, even before anyone knows the motive.',
         velmira: 'People who use, maintain or profit from routes may know who had reason or opportunity to alter them.',
@@ -57,11 +57,11 @@
       image: 'assets/canon/locations/valve-court-cistern-seal.webp',
       visibility: ['party'],
       summary: 'The precision-made ceramic waterworks plate reached Greywake intact, but what it can actually do and who takes responsibility for it remain unresolved.',
-      known: 'This is a town-side situation, not a Wastes expedition. Greywake may act on it whether or not the party chooses to become involved.',
+      known: 'This is a town-side situation, not a Wastes expedition. Custody, examination, practical value and what its return changes are unresolved.',
       relevance: {
         marek: 'Anything affecting water distribution eventually affects animals, food, medicine and the settlement’s ability to endure.',
         velmira: 'Custody, competing claims and who is trusted to examine the Plate may matter before its technical use is even understood.',
-        odie: 'It is a precision-made component intended to interface with Greywake’s waterworks. Understanding how it fits is a practical problem.'
+        odie: 'Its construction is precise and clearly relevant to Greywake’s waterworks, but exactly how it fits, what it can do and its compatibility are not established.'
       }
     },
     {
@@ -73,7 +73,7 @@
       image: 'assets/canon/fauna/ash-plate.webp',
       visibility: ['party'],
       summary: 'Ash-Plate made it home under her own strength but carried no load and needs proper assessment before returning to work.',
-      known: 'This is part of Greywake’s continuing life rather than an assignment. The party can become involved if they care to.',
+      known: 'Treatment, cost, responsibility and the consequences for Great-Shell work remain unresolved. This is part of Greywake’s continuing life rather than an assigned quest.',
       relevance: {
         marek: 'Her recovery is an animal-health problem with a known injury, recent overexertion and practical consequences for future hauling.',
         velmira: 'Her condition affects the people and work built around her, not just the animal herself.',
@@ -99,37 +99,37 @@
     {
       id: 'flickerfly-study',
       title: 'Find a Flickerfly',
-      status: 'PLAYER PROPOSAL / NEW LEAD',
-      direction: 'GREYWAKE FIRST / SOUTH ↓',
+      status: 'PLAYER INTEREST · NO ACTIONABLE LEAD YET',
+      direction: 'DIRECTION NOT YET ESTABLISHED',
       tone: 'personal',
-      image: 'assets/canon/sessions/session-01.webp',
-      imageNote: 'South-wastes route imagery — nobody in the party has yet seen a confirmed flickerfly.',
+      image: null,
+      imageNote: 'No confirmed sighting, specimen location or expedition direction has been established yet.',
       visibility: ['party'],
       proposedBy: 'Marek',
-      summary: 'Marek wants the party to find a flickerfly so he can study one. Stories about them mostly seem to come from travellers returning from south of Greywake.',
-      known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. The first step is to identify that Digger and learn exactly where the fragment was found.',
+      summary: 'Marek has heard that a creature called a flickerfly exists somewhere in the wastes and wants to find and study one.',
+      known: 'The interest is established; a specific sighting, Digger witness, wing fragment, route or cardinal direction is not. Once an in-world source turns this into an actionable Wastes lead, its broad direction should be shown before the party chooses it.',
       relevance: {
         marek: 'This began with something you said you wanted to do: find and study a flickerfly.',
-        velmira: 'If the group follows Marek’s lead, the first useful step is still in Greywake: finding the person who brought the fragment back and working out whether the story is credible.',
-        odie: 'A Digger brought the possible fragment in, which gives you a practical route into the lead through people and places you already understand.'
+        velmira: 'If the group wants to follow Marek’s interest, the first step is finding a credible source rather than treating an unconfirmed location as fact.',
+        odie: 'If somebody in Greywake has actually seen one or brought back evidence, that would turn Marek’s interest into a practical lead.'
       }
     },
     {
       id: 'earlier-stilling-case',
       title: 'An Earlier Stilling Case',
-      status: 'PLAYER PROPOSAL / KNOWN LEAD',
-      direction: 'OUTSIDE GREYWAKE / EXACT DIRECTION NOT YET ESTABLISHED',
+      status: 'VELMIRA PRIORITY · NOT SELECTABLE YET',
+      direction: 'DIRECTION NOT YET ESTABLISHED',
       tone: 'personal',
       image: 'assets/npcs/hq-v3/nemi.webp',
       imageNote: 'Nemi is the reason Velmira cares about this lead; the historical case was someone else.',
       visibility: ['party'],
       proposedBy: 'Velmira',
       summary: 'One of the earlier publicly known Stilling cases apparently seemed to stabilise for a time after the person had been somewhere outside Greywake. Velmira wants to find that place and see whether anything there might help Nemi.',
-      known: 'The apparent stabilisation followed a journey outside Greywake and the place visited is still identifiable. Nobody knows whether the journey caused the change, what happened there, or whether anything found would help Nemi. The exact direction has not yet been established.',
+      known: 'The apparent stabilisation followed a journey outside Greywake and the place visited is still identifiable. Nobody knows whether the journey caused the change, what happened there, or whether anything found would help Nemi. Its broad direction has not yet been established.',
       relevance: {
         marek: 'If the group follows Velmira’s lead, the place may offer an environmental, biological or entirely coincidental clue worth examining carefully.',
         velmira: 'This came directly from you: follow the strongest known trace left by an earlier Stilling case and see whether it gives Nemi another possibility.',
-        odie: 'A known place outside Greywake means this can become a practical expedition once the route and destination are established.'
+        odie: 'A known place outside Greywake can become a practical expedition once its route and broad direction are established.'
       }
     },
     {
@@ -150,14 +150,14 @@
     {
       id: 'closing-ways',
       title: 'The Closing Ways',
-      status: 'PLAYER PROPOSAL / ACTIVE PROBLEM',
+      status: 'ODIE PRIORITY · ACTIVE IN GREYWAKE',
       direction: 'GREYWAKE',
       tone: 'personal',
       image: 'assets/canon/locations/caravan-gate.webp',
       imageNote: 'Greywake access imagery — the concealed Digger entrances remain hidden.',
       visibility: ['party'],
       proposedBy: 'Odie',
-      summary: 'Several concealed Digger haul routes into Greywake are being deliberately closed, filled or braced shut. Odie wants to find out how their locations are being exposed and stop more of them being lost.',
+      summary: 'Several concealed Digger haul routes into Greywake are being deliberately closed or filled. Odie wants to find out how their locations are being exposed and stop more of them being lost.',
       known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie suspects someone is reporting the tunnels, but nobody yet knows who is exposing them, who is closing them, whether every closure is connected, or why it is happening now.',
       relevance: {
         marek: 'If the group follows Odie’s lead, this is a town-side mystery about hidden movement, changing access and who knows what.',
