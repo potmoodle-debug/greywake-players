@@ -34,14 +34,14 @@
     if (!head) return;
     const paragraph = head.querySelector('p');
     if (paragraph && document.body.dataset.gmPreview !== 'true') {
-      text(paragraph, 'Ask as many questions as you need. Questions do not use your three On My Mind slots. A question only becomes a priority if you choose to make it one.');
+      text(paragraph, 'You can keep multiple questions open. Questions do not use your three On My Mind slots. A question only becomes a priority if you choose to make it one.');
     }
 
     let rule = host.querySelector('.question-flow-rule');
     if (!rule) {
       rule = document.createElement('div');
       rule.className = 'question-flow-rule';
-      rule.innerHTML = '<strong>QUESTIONS ARE FREE</strong><span>Ask, follow up, and close them when answered. Only things you deliberately put On My Mind use one of your three slots.</span>';
+      rule.innerHTML = '<strong>QUESTIONS DO NOT USE SLOTS</strong><span>Ask, follow up, and close them when answered. Only things you deliberately put On My Mind use one of your three slots.</span>';
       const counts = host.querySelector('.engagement-counts');
       (counts || head).insertAdjacentElement('afterend', rule);
     }
