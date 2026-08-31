@@ -7,6 +7,32 @@
     gm: { label: 'GM', character: 'GM', code: 'GREYWAKE', role: 'gm' }
   };
 
+  const PREVIEW_RESOURCE_KEYS = new Set([
+    'greywake:resources:marek:v1',
+    'greywake:resources:velmira:v1',
+    'greywake:resources:odie:v1'
+  ]);
+
+  function installPreviewStorageIsolation() {
+    const proto = window.Storage?.prototype;
+    if (!proto || proto.__greywakePreviewIsolation === true) return;
+    const originalGet = proto.getItem;
+    const originalSet = proto.setItem;
+    const originalRemove = proto.removeItem;
+    const scopedKey = key => {
+      const value = String(key);
+      return document.body?.dataset.gmPreview === 'true' && PREVIEW_RESOURCE_KEYS.has(value)
+        ? `${value}:gmtest`
+        : value;
+    };
+    proto.getItem = function(key) { return originalGet.call(this, scopedKey(key)); };
+    proto.setItem = function(key, value) { return originalSet.call(this, scopedKey(key), value); };
+    proto.removeItem = function(key) { return originalRemove.call(this, scopedKey(key)); };
+    Object.defineProperty(proto, '__greywakePreviewIsolation', { value: true });
+  }
+
+  installPreviewStorageIsolation();
+
   let gmPreviewKey = null;
 
   function current() {
