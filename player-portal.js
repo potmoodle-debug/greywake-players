@@ -131,6 +131,10 @@
     return content;
   }
 
+  function notifyLiveMounted(kind) {
+    requestAnimationFrame(() => window.dispatchEvent(new CustomEvent('greywake:portal-live-mounted', {detail:{kind}})));
+  }
+
   function introBlock(kicker, title, copy) {
     const section = document.createElement('section');
     section.className = 'player-portal-intro';
@@ -167,6 +171,7 @@
     if (!content) return;
     content.appendChild(introBlock('THE WORLD IS MOVING', "What's out there?", 'These are concrete things the party knows it could pursue. Nothing here is an assignment; choosing one is what turns a possibility into play.'));
     content.appendChild(threads);
+    notifyLiveMounted('threads');
     document.title = "What's out there — Greywake";
   }
 
@@ -175,6 +180,7 @@
     if (!content) return;
     content.appendChild(introBlock('YOUR THREE SLOTS', "What's on my mind", 'A quick reference to the few things currently at the front of your character’s attention. These are interests, not automatic quests or party commitments.'));
     content.appendChild(goals);
+    notifyLiveMounted('goals');
     document.title = 'On my mind — Greywake';
   }
 
@@ -183,6 +189,7 @@
     if (!content) return;
     content.appendChild(introBlock('YOUR CONVERSATIONS', 'Questions & replies', 'Ask about something you have seen, follow a reply from the GM, or turn a question into something you want to keep on your mind.'));
     content.appendChild(goals);
+    notifyLiveMounted('goals');
     document.title = 'Questions & replies — Greywake';
     requestAnimationFrame(() => {
       const safeEscape = window.CSS?.escape ? CSS.escape(String(pendingGoalId)) : String(pendingGoalId).replace(/[^a-zA-Z0-9_-]/g, '');
@@ -228,6 +235,7 @@
     label.innerHTML = '<div class="eyebrow">CURRENT POSSIBILITIES</div><h2>What could happen next</h2><p>These are known options, not assignments. The party decides what becomes play.</p>';
     content.appendChild(label);
     content.appendChild(threads);
+    notifyLiveMounted('threads');
     document.title = 'Campaign — Greywake';
   }
 
