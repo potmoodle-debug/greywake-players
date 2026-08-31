@@ -1,6 +1,7 @@
 (() => {
   const host = document.getElementById('playerGoals');
   if (!host) return;
+  const MAX_MIND_SLOTS = 3;
   let scheduled = false;
   let observer = null;
 
@@ -17,7 +18,7 @@
       const kind = (card.dataset.entryKind || '').toLowerCase();
       const status = (card.querySelector('.interest-status')?.textContent || '').toUpperCase();
       return kind === 'interest' && !status.includes('DORMANT') && !status.includes('RESOLVED');
-    }).slice(0, 5);
+    }).slice(0, MAX_MIND_SLOTS);
   }
 
   function titleFor(card) {
@@ -58,7 +59,7 @@
       .player-mind-view .section-head{align-items:center;margin-bottom:14px}.player-mind-view .section-head p{max-width:520px;font-size:11px}
       .player-mind-summary{margin:-2px 0 15px;color:#8f8875;font-size:10px;line-height:1.5;border-left:2px solid #756a43;padding-left:12px}
       .player-mind-count{display:inline-flex;align-items:center;margin-top:7px;padding:5px 8px;border:1px solid rgba(210,190,128,.42);background:rgba(16,17,13,.76);color:#e4d298;font-size:8px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}
-      .player-mind-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+      .player-mind-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
       .player-mind-card{position:relative;min-height:164px;display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate;border:1px solid #3a3b2e;background:#171811;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;cursor:pointer;text-align:left;color:inherit;padding:0}
       .player-mind-card-bg{position:absolute;inset:0;z-index:-4;width:100%;height:100%;object-fit:cover;filter:saturate(.7) contrast(1.07) brightness(.65);transition:transform .4s ease,filter .4s ease}
       .player-mind-card-fallback{position:absolute;inset:0;z-index:-4;background:radial-gradient(circle at 72% 18%,rgba(104,88,48,.55),#171811 60%)}
@@ -76,7 +77,6 @@
       .player-mind-open{display:inline-block;margin-top:7px;color:#dcc989;font-size:7px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
       .player-mind-empty{min-height:164px;border:1px dashed #3e3c31;background:linear-gradient(180deg,#171811,#13140f);display:flex;align-items:flex-end;padding:13px;text-align:left;color:#777261}
       .player-mind-empty strong{display:block;color:#9d9680;font:16px Georgia,serif;margin-bottom:3px}.player-mind-empty span{font-size:8px;line-height:1.4}
-      @media(max-width:1200px){.player-mind-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
       @media(max-width:820px){.player-mind-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
       @media(max-width:520px){.player-mind-grid{grid-template-columns:1fr}.player-mind-card,.player-mind-empty{min-height:145px}.player-mind-view{padding-top:28px}.player-mind-view .section-head{display:block}.player-mind-summary{margin-top:10px}}
       @media(prefers-reduced-motion:reduce){.player-mind-card,.player-mind-card-bg{transition:none}.player-mind-card:hover{transform:none}}
@@ -94,9 +94,6 @@
   }
 
   function render() {
-    // This section lives inside #playerGoals, which is also the source we watch
-    // for live engagement updates. Disconnect while replacing our own view so
-    // those writes cannot schedule another render on every animation frame.
     observer?.disconnect();
     const current = host.querySelector('.player-mind-view');
     if (!isPlayerView()) {
@@ -143,13 +140,13 @@
         ? `<img class="player-mind-card-bg" src="${escapeHTML(image)}" alt="" loading="lazy" decoding="async">`
         : `<span class="player-mind-card-fallback" aria-hidden="true"></span>`;
       const openLabel = sourceRouteFor(card) ? 'Open record →' : 'Open details →';
-      cards.push(`<button type="button" class="player-mind-card" data-player-mind-goal="${escapeHTML(id)}">${visual}<span class="player-mind-card-content"><span class="player-mind-topline"><span class="player-mind-state">${escapeHTML(state)}</span><span class="player-mind-slot">${index + 1}/5</span></span><h3>${escapeHTML(title)}</h3>${source ? `<span class="player-mind-source">${escapeHTML(source)}</span>` : ''}<span class="player-mind-open">${openLabel}</span></span></button>`);
+      cards.push(`<button type="button" class="player-mind-card" data-player-mind-goal="${escapeHTML(id)}">${visual}<span class="player-mind-card-content"><span class="player-mind-topline"><span class="player-mind-state">${escapeHTML(state)}</span><span class="player-mind-slot">${index + 1}/${MAX_MIND_SLOTS}</span></span><h3>${escapeHTML(title)}</h3>${source ? `<span class="player-mind-source">${escapeHTML(source)}</span>` : ''}<span class="player-mind-open">${openLabel}</span></span></button>`);
     });
-    for (let index = minds.length; index < 5; index++) {
-      cards.push(`<div class="player-mind-empty" aria-label="Empty priority slot ${index + 1}"><div><strong>Open slot</strong><span>${index + 1}/5 · Add something from around Greywake.</span></div></div>`);
+    for (let index = minds.length; index < MAX_MIND_SLOTS; index++) {
+      cards.push(`<div class="player-mind-empty" aria-label="Empty priority slot ${index + 1}"><div><strong>Open slot</strong><span>${index + 1}/${MAX_MIND_SLOTS} · Add something from around Greywake.</span></div></div>`);
     }
 
-    section.innerHTML = `<div class="section-head"><div><div class="eyebrow">YOUR CURRENT PRIORITIES</div><h2>What's on my mind</h2><div class="player-mind-count">${minds.length}/5 ACTIVE</div></div><p>The things your character currently cares about most.</p></div><p class="player-mind-summary">Open a card to return to its record or to its conversation with the GM.</p><div class="player-mind-grid">${cards.join('')}</div>`;
+    section.innerHTML = `<div class="section-head"><div><div class="eyebrow">YOUR CURRENT PRIORITIES</div><h2>What's on my mind</h2><div class="player-mind-count">${minds.length}/${MAX_MIND_SLOTS} ACTIVE</div></div><p>Up to three things your character currently cares about most.</p></div><p class="player-mind-summary">Open a card to return to its record or to its conversation with the GM. Questions can stay questions without taking a slot.</p><div class="player-mind-grid">${cards.join('')}</div>`;
 
     host.prepend(section);
     section.querySelectorAll('[data-player-mind-goal]').forEach(button => button.addEventListener('click', () => {
