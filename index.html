@@ -35,7 +35,7 @@
 <link rel="stylesheet" href="interaction-polish.css?v=polish1">
 <link rel="stylesheet" href="companion-play.css?v=companion2">
 <link rel="stylesheet" href="visual-refresh.css?v=improvements2">
-<link rel="stylesheet" href="player-portal.css?v=portal2">
+<link rel="stylesheet" href="player-portal.css?v=portal3">
 <link rel="stylesheet" href="arrival-experience.css?v=arrival2">
 <link rel="stylesheet" href="velmira-play-view.css?v=velmira2">
 <style>
@@ -65,8 +65,14 @@
     <header class="topbar">
       <button id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
       <div id="crumb" role="link" tabindex="0" title="Go to Greywake Home" onclick="location.hash='#/'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();location.hash='#/'}">Greywake / Home</div>
-      <button id="homeBtn" class="brain-cta" type="button" onclick="location.hash='#/'">Home</button>
-      <button id="brainBtn" class="brain-cta" type="button">Player Brain</button>
+      <nav id="primaryNav" class="primary-nav" aria-label="Main player sections">
+        <button id="homeBtn" type="button" data-primary-section="home" onclick="location.hash='#/'">Home</button>
+        <button id="characterSheetBtn" type="button" class="sheet-topbar-button" data-primary-section="character">Character</button>
+        <button id="myGreywakeBtn" type="button" data-primary-section="my-greywake" onclick="location.hash='#/my-greywake'">My Greywake</button>
+        <button id="greywakeBtn" type="button" data-primary-section="greywake" onclick="location.hash='#/greywake'">Greywake</button>
+        <button id="campaignBtn" type="button" data-primary-section="campaign" onclick="location.hash='#/campaign'">Campaign</button>
+      </nav>
+      <button id="brainBtn" class="brain-cta p1-legacy-route" type="button" hidden>Player Brain</button>
     </header>
 
     <section id="home">
@@ -78,8 +84,9 @@
           <h2>What you know of Greywake.</h2>
           <p>The shared record keeps what the party has earned together. Your personal view can also contain knowledge, relationships and unfinished questions that belong specifically to your character.</p>
           <div class="hero-buttons">
-            <button id="heroBrain" type="button">Open Player Brain</button>
-            <button type="button" data-note="Greywake">Greywake overview</button>
+            <button type="button" onclick="location.hash='#/my-greywake'">Open My Greywake</button>
+            <button type="button" onclick="location.hash='#/greywake'">Explore Greywake</button>
+            <button id="heroBrain" type="button" hidden>Open Player Brain</button>
           </div>
           <div class="hero-ledger" aria-label="Campaign summary">
             <span><strong id="recordSummaryCount">70</strong> known records</span>
@@ -188,7 +195,7 @@
 <script defer src="card-questions.js?v=questions2"></script>
 <script defer src="card-priorities.js?v=mind2"></script>
 <script defer src="player-mind-view.js?v=mindview5"></script>
-<script defer src="player-portal.js?v=portal5"></script>
+<script defer src="player-portal.js?v=portal6"></script>
 <script defer src="arrival-experience.js?v=arrival5"></script>
 <script defer src="character-page.js?v=page6"></script>
 </body>
