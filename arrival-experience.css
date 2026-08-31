@@ -1,0 +1,66 @@
+/* Cinematic player arrival layer. Loaded last so the homepage feels like a game portal, not an admin dashboard. */
+body.player-home-dashboard .hero,
+#home .hero{min-height:clamp(560px,76vh,820px);height:auto;display:flex;align-items:flex-end;position:relative;overflow:hidden;background:#080906}
+#home .hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;filter:saturate(.82) contrast(1.08) brightness(.72);transform:scale(1.015)}
+#home .hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,8,6,.96) 0%,rgba(7,8,6,.78) 38%,rgba(7,8,6,.32) 67%,rgba(7,8,6,.16) 100%),linear-gradient(0deg,rgba(8,9,6,.96) 0%,rgba(8,9,6,.18) 44%,rgba(8,9,6,.18) 100%)}
+#home .hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 74% 26%,rgba(218,190,105,.12),transparent 28%),linear-gradient(180deg,rgba(255,255,255,.025),transparent 18%)}
+#home .hero-copy{position:relative;z-index:2;width:min(1180px,100%);max-width:none;padding:clamp(54px,8vh,96px) clamp(24px,6vw,90px) clamp(42px,7vh,74px)}
+#home .hero-copy .eyebrow{font-size:9px;letter-spacing:.28em;color:#d0b86f;text-shadow:0 1px 18px #000}
+#home .hero-copy h2{max-width:900px;margin:10px 0 12px;font:clamp(46px,6vw,78px)/.98 Georgia,serif;letter-spacing:-.025em;color:#f0e5c8;text-wrap:balance;text-shadow:0 3px 26px rgba(0,0,0,.68)}
+#home .hero-copy>p{max-width:760px;margin:0;color:#c6bfa9;font-size:clamp(13px,1.25vw,17px);line-height:1.58;text-shadow:0 2px 16px #000}
+#home .hero-buttons{display:none!important}
+
+.arrival-actions{display:grid;grid-template-columns:1.12fr 1fr 1fr;gap:12px;margin-top:30px;max-width:1080px}
+.arrival-action{appearance:none;display:block;min-height:172px;padding:20px 21px 18px;border:1px solid rgba(211,185,108,.32);background:linear-gradient(145deg,rgba(25,25,18,.93),rgba(12,13,10,.88));backdrop-filter:blur(6px);text-decoration:none!important;color:inherit;text-align:left;position:relative;overflow:hidden;cursor:pointer;box-shadow:0 16px 40px rgba(0,0,0,.24);transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
+.arrival-action:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(222,193,109,.10),transparent 42%);opacity:.55;pointer-events:none}
+.arrival-action:after{content:"";position:absolute;right:-42px;bottom:-72px;width:150px;height:150px;border:1px solid rgba(220,194,113,.11);transform:rotate(33deg);pointer-events:none}
+.arrival-action:hover{transform:translateY(-4px);border-color:rgba(223,198,121,.72);background:linear-gradient(145deg,rgba(37,35,23,.97),rgba(16,17,12,.93));box-shadow:0 20px 46px rgba(0,0,0,.34)}
+.arrival-action:focus-visible{outline:2px solid #dbc47c;outline-offset:3px}
+.arrival-action small{display:block;color:#ccb36a;font:800 8px/1.1 Arial,sans-serif;letter-spacing:.18em;margin-bottom:10px}
+.arrival-action strong{display:block;color:#f0e4c5;font:clamp(23px,2.4vw,31px)/1.05 Georgia,serif;margin-bottom:8px;position:relative;z-index:1}
+.arrival-action span{display:block;max-width:35ch;color:#aaa18d;font-size:11px;line-height:1.5;position:relative;z-index:1}
+.arrival-action em{display:block;margin-top:16px;color:#e0c779;font-style:normal;font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;position:relative;z-index:1}
+.arrival-action-character{border-color:rgba(226,196,103,.54);background:linear-gradient(145deg,rgba(52,45,25,.93),rgba(17,17,12,.91))}
+.arrival-action-world{background:linear-gradient(145deg,rgba(25,30,25,.94),rgba(12,14,11,.90))}
+.arrival-action-mind{background:linear-gradient(145deg,rgba(30,26,22,.94),rgba(13,12,10,.9))}
+
+.arrival-utility{display:flex;flex-wrap:wrap;gap:7px 16px;align-items:center;margin-top:17px;max-width:1080px}
+.arrival-utility a,.arrival-utility button{appearance:none;border:0;background:transparent;padding:5px 0;color:#b8ae95;text-decoration:none;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;cursor:pointer;border-bottom:1px solid transparent}
+.arrival-utility a:hover,.arrival-utility button:hover{color:#e2cc87;border-bottom-color:#7f7045}
+
+body.player-home-dashboard .player-continue-panel{display:none!important}
+body.player-home-dashboard #playerHomeNav{background:#0d0e0b;padding-top:36px}
+body.player-home-dashboard #playerHomeNav .player-home-nav-head .eyebrow{color:#81775c}
+body.player-home-dashboard #playerHomeNav .player-home-nav-head h2{font-size:26px;color:#bfb59d}
+body.player-home-dashboard #playerHomeNav .player-home-nav-head p{color:#777162}
+body.player-home-dashboard .player-home-tile{min-height:95px;background:#12130f;border-color:#2e2d25;box-shadow:none}
+body.player-home-dashboard .player-home-tile strong{font-size:18px;color:#d6ccb2}
+body.player-home-dashboard .player-home-tile span{font-size:8px;color:#777062}
+
+body.player-home-dashboard #currentThreads{position:relative;padding-top:46px;background:linear-gradient(180deg,#11120e,#0f100d)}
+body.player-home-dashboard #currentThreads .section-head h2{font-size:clamp(32px,4vw,48px)}
+body.player-home-dashboard #currentThreadsGrid .thread-card{min-height:320px;border-color:#3e392a;box-shadow:0 14px 35px rgba(0,0,0,.18)}
+body.player-home-dashboard #currentThreadsGrid .thread-card:hover{transform:translateY(-3px);border-color:#7c6b3e}
+
+body.player-home-dashboard #playerGoals{background:#0f100d}
+body.player-home-dashboard .player-mind-view{scroll-margin-top:70px}
+body.player-home-dashboard #currentThreads{scroll-margin-top:70px}
+
+@media(max-width:980px){
+  #home .hero{min-height:680px}
+  .arrival-actions{grid-template-columns:1fr 1fr}
+  .arrival-action-character{grid-column:1/-1;min-height:150px}
+}
+@media(max-width:680px){
+  #home .hero{min-height:760px;align-items:flex-end}
+  #home .hero-overlay{background:linear-gradient(0deg,rgba(7,8,6,.98) 0%,rgba(7,8,6,.82) 54%,rgba(7,8,6,.28) 100%)}
+  #home .hero-copy{padding:70px 20px 34px}
+  #home .hero-copy h2{font-size:43px;max-width:12ch}
+  .arrival-actions{grid-template-columns:1fr;gap:9px;margin-top:23px}
+  .arrival-action-character{grid-column:auto}
+  .arrival-action{min-height:128px;padding:16px 17px}
+  .arrival-action strong{font-size:24px}
+  .arrival-action span{font-size:9px}
+  .arrival-action em{margin-top:11px}
+}
+@media(prefers-reduced-motion:reduce){.arrival-action{transition:none}.arrival-action:hover{transform:none}}
