@@ -185,6 +185,16 @@
     if (page === 'explore') return renderExplore();
 
     ensurePortal().classList.add('hidden');
+    if (page === 'home') {
+      home.classList.remove('hidden');
+      brain?.classList.add('hidden');
+      article?.classList.add('hidden');
+      document.getElementById('characterPageView')?.classList.add('hidden');
+      const crumb = document.getElementById('crumb');
+      if (crumb) crumb.textContent = 'Greywake / Home';
+      document.title = 'Greywake — Player Guide';
+      window.scrollTo({top:0, behavior:'auto'});
+    }
   }
 
   function navigate(route) {
