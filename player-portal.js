@@ -46,7 +46,7 @@
       <div class="player-portal-topbar">
         <a class="player-portal-home" href="#/">← Greywake home</a>
         <div class="player-portal-title"><small id="playerPortalEyebrow">PLAYER VIEW</small><strong id="playerPortalHeading">Greywake</strong></div>
-        <a class="player-portal-explore" href="#/explore">Explore Greywake</a>
+        <a class="player-portal-explore" href="#/explore" data-player-portal-route="#/explore">Explore Greywake</a>
       </div>
       <div id="playerPortalContent" class="player-portal-content"></div>
       <div id="playerPortalParking" class="player-portal-parking" hidden></div>`;
@@ -154,7 +154,7 @@
       <a href="${recordHref('Known Flora and Fauna')}"><small>FIELD GUIDE</small><strong>Creatures & plants</strong><span>Wildlife, flora and practical harvesting knowledge.</span><em>Open field guide →</em></a>
       <a href="${recordHref('Greywake')}"><small>THE SETTLEMENT</small><strong>Greywake</strong><span>The party-known record of the hold itself.</span><em>Open overview →</em></a>
       <a href="#/brain"><small>CONNECTIONS</small><strong>Player Brain</strong><span>Follow relationships between people, places, events and discoveries.</span><em>Explore connections →</em></a>
-      <a href="#/possibilities"><small>ACTIVE PLAY</small><strong>What's out there?</strong><span>Return to the concrete possibilities currently available to the party.</span><em>See possibilities →</em></a>`;
+      <a href="#/possibilities" data-player-portal-route="#/possibilities"><small>ACTIVE PLAY</small><strong>What's out there?</strong><span>Return to the concrete possibilities currently available to the party.</span><em>See possibilities →</em></a>`;
     content.appendChild(grid);
     document.title = 'Explore Greywake — Player Guide';
   }
@@ -187,10 +187,27 @@
     ensurePortal().classList.add('hidden');
   }
 
+  function navigate(route) {
+    if (!route || !route.startsWith('#/')) return;
+    if (location.hash !== route) history.pushState(null, '', route);
+    render();
+  }
+
+  window.GreywakePlayerPortal = { render, navigate };
+
+  document.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest?.('[data-player-portal-route]');
+    if (!link) return;
+    const route = link.getAttribute('data-player-portal-route') || link.getAttribute('href');
+    if (!route) return;
+    event.preventDefault();
+    navigate(route);
+  });
+
   window.addEventListener('greywake:open-player-inbox', event => {
     pendingGoalId = event.detail?.goalId || '';
-    if ((location.hash || '') === '#/inbox') renderInbox();
-    else location.hash = '#/inbox';
+    navigate('#/inbox');
   });
   window.addEventListener('greywake:player-ready', render);
   window.addEventListener('greywake:engagement-changed', () => {
@@ -198,6 +215,7 @@
     if (['mind','inbox'].includes(page)) render();
   });
   window.addEventListener('hashchange', () => setTimeout(render, 0));
+  window.addEventListener('popstate', () => setTimeout(render, 0));
   document.addEventListener('DOMContentLoaded', render);
   setTimeout(render, 140);
   render();
