@@ -9,6 +9,7 @@ const LOCATION_GROUPS=[
  {label:'Kestrel Return route',names:['High Shelf','Old Marker Wash','Old Marker Line','Failed Marker','Wrong Lower Line','Ash-Plate Groundfall','Broken Runnels',"Joric's Runnel",'Stone-Lip Hollow']},
  {label:'Other known places',names:['Split Rock Shade']}
 ];
+const APP_EXTERNAL_ROUTES=new Set(['#/character','#/possibilities','#/mind','#/inbox','#/explore']);
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 function routeFor(name){return '#/record/'+encodeURIComponent(name)}
@@ -16,6 +17,7 @@ function currentRoute(){
  const h=location.hash||'';
  if(h==='#/brain')return{type:'brain'};
  if(h.startsWith('#/record/'))return{type:'record',name:decodeURIComponent(h.slice(9))};
+ if(APP_EXTERNAL_ROUTES.has(h))return{type:'external'};
  return{type:'home'};
 }
 function go(route){if(location.hash===route){renderRoute();return}location.hash=route}
@@ -169,7 +171,11 @@ function showHome(){
  article.classList.add('hidden');brain.classList.add('hidden');home.classList.remove('hidden');
  document.getElementById('crumb').textContent='Greywake / Home';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));document.title='Greywake — Player Guide';scrollToTop();focusRouteHeading(home);
 }
-function renderRoute(){const r=currentRoute();if(r.type==='record')showNote(r.name);else if(r.type==='brain')showBrain();else showHome()}
+function showExternal(){
+ home.classList.add('hidden');article.classList.add('hidden');brain.classList.add('hidden');
+ document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));
+}
+function renderRoute(){const r=currentRoute();if(r.type==='record')showNote(r.name);else if(r.type==='brain')showBrain();else if(r.type==='external')showExternal();else showHome()}
 
 document.getElementById('brainBtn').onclick=()=>go('#/brain');
 document.getElementById('heroBrain').onclick=()=>go('#/brain');
