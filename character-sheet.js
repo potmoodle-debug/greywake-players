@@ -76,7 +76,7 @@
     marek: {
       name: 'Marek',
       subtitle: 'Druid · Warden of Renewal · Wildborne Mixed Ancestry',
-      portrait: null,
+      portrait: 'assets/canon/characters/marek-canon.jpg',
       note: 'Imported from Marek’s current Demiplane sheet. This Greywake page is still a reference view: Demiplane remains the live source for changing Hope, HP, Stress and Armor marks for now.',
       stats: [
         ['Level','1'],['Evasion','12'],['Armor','4'],['HP','0 / 6 marked'],['Stress','0 / 7 marked'],['Hope','2 / 6']
