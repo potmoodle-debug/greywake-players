@@ -116,6 +116,19 @@ if (/velmira-play-view\.js/.test(polishSource)) {
   fail('interaction-polish.js must not own or reload the Velmira play module.');
 }
 
+// Character navigation has one effective owner. character-page.js may replace an
+// earlier compatibility button once, then must keep and reuse the owned button.
+const characterPageSource = readFileSync(join(root, 'character-page.js'), 'utf8');
+if (!/characterNavOwner/.test(characterPageSource)) {
+  fail('character-page.js must explicitly own Character navigation.');
+}
+if (/function\s+replaceCharacterButton\b/.test(characterPageSource)) {
+  fail('character-page.js must not use the old repeated Character-button replacement path.');
+}
+if (!/dataset\.characterNavOwner\s*=\s*['"]page['"]/.test(characterPageSource)) {
+  fail('character-page.js must mark the Character button with its navigation owner.');
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
