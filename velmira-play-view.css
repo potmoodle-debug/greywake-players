@@ -1,5 +1,53 @@
-body[data-character="velmira"] .velmira-play-view {
-  scroll-margin-top: 5.5rem;
+body[data-character="velmira"] .velmira-play-launch {
+  border-color: rgba(225,199,125,.55);
+  background: rgba(225,199,125,.12);
+  color: #fff4cc;
+}
+
+html.velmira-play-open,
+body.velmira-play-open {
+  overflow: hidden !important;
+}
+
+body[data-character="velmira"].velmira-play-open #characterSheet {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem;
+  background: #11120f;
+}
+
+body[data-character="velmira"] .velmira-play-close {
+  display: none;
+}
+
+body[data-character="velmira"].velmira-play-open .velmira-play-close {
+  position: sticky;
+  top: 0;
+  z-index: 5100;
+  display: block;
+  margin: 0 0 .75rem auto;
+  min-height: 48px;
+  padding: .7rem 1rem;
+  border: 1px solid rgba(225,199,125,.4);
+  border-radius: 12px;
+  background: #23231d;
+  color: #fff4cc;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+body[data-character="velmira"].velmira-play-open .character-sheet-hero {
+  display: none;
+}
+
+body[data-character="velmira"].velmira-play-open .character-sheet-shell {
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 body[data-character="velmira"] .velmira-play-view .character-sheet-body {
@@ -8,76 +56,76 @@ body[data-character="velmira"] .velmira-play-view .character-sheet-body {
 
 body[data-character="velmira"] .velmira-play-intro {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.9fr);
+  grid-template-columns: minmax(0,1fr) minmax(15rem,.9fr);
   gap: 1rem;
   align-items: end;
   margin: 0 0 1rem;
   padding: 1rem 1.1rem;
-  border: 1px solid rgba(225, 199, 125, 0.24);
+  border: 1px solid rgba(225,199,125,.24);
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(225, 199, 125, 0.08), rgba(255,255,255,0.02));
+  background: linear-gradient(135deg,rgba(225,199,125,.08),rgba(255,255,255,.02));
 }
 
 body[data-character="velmira"] .velmira-play-kicker {
   display: block;
-  margin-bottom: 0.25rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  margin-bottom: .25rem;
+  font-size: .72rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: #d8c78d;
 }
 
 body[data-character="velmira"] .velmira-play-intro strong {
   display: block;
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-size: clamp(1.1rem,2vw,1.4rem);
   line-height: 1.2;
 }
 
 body[data-character="velmira"] .velmira-play-intro p {
   margin: 0;
   line-height: 1.45;
-  color: rgba(255,255,255,0.72);
+  color: rgba(255,255,255,.72);
 }
 
 body[data-character="velmira"] .velmira-play-tabs {
   position: sticky;
-  top: 4.2rem;
-  z-index: 12;
+  top: .25rem;
+  z-index: 5050;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.55rem;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: .55rem;
   margin: 0 0 1rem;
-  padding: 0.65rem;
-  border: 1px solid rgba(225, 199, 125, 0.18);
+  padding: .65rem;
+  border: 1px solid rgba(225,199,125,.18);
   border-radius: 18px;
-  background: rgba(20, 20, 17, 0.94);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+  background: rgba(20,20,17,.97);
+  box-shadow: 0 10px 30px rgba(0,0,0,.28);
   backdrop-filter: blur(12px);
 }
 
 body[data-character="velmira"] .velmira-play-tab {
-  min-height: 54px;
-  padding: 0.8rem 0.65rem;
-  border: 1px solid rgba(255,255,255,0.1);
+  min-height: 58px;
+  padding: .85rem .65rem;
+  border: 1px solid rgba(255,255,255,.1);
   border-radius: 13px;
-  background: rgba(255,255,255,0.035);
-  color: rgba(255,255,255,0.84);
+  background: rgba(255,255,255,.035);
+  color: rgba(255,255,255,.84);
   font: inherit;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: .02em;
   cursor: pointer;
   touch-action: manipulation;
 }
 
 body[data-character="velmira"] .velmira-play-tab[aria-selected="true"] {
-  border-color: rgba(225, 199, 125, 0.7);
-  background: rgba(225, 199, 125, 0.14);
+  border-color: rgba(225,199,125,.7);
+  background: rgba(225,199,125,.14);
   color: #fff4cc;
-  box-shadow: inset 0 0 0 1px rgba(225, 199, 125, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(225,199,125,.12);
 }
 
 body[data-character="velmira"] .velmira-play-tab:focus-visible {
-  outline: 3px solid rgba(225, 199, 125, 0.9);
+  outline: 3px solid rgba(225,199,125,.9);
   outline-offset: 3px;
 }
 
@@ -88,44 +136,43 @@ body[data-character="velmira"] .velmira-play-panel[hidden] {
 body[data-character="velmira"] .velmira-play-panel {
   display: grid;
   gap: 1rem;
-  animation: velmira-panel-in 140ms ease-out;
 }
 
 body[data-character="velmira"] .velmira-play-panel .sheet-group {
   margin: 0;
   padding: 1rem;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: 18px;
-  background: rgba(255,255,255,0.025);
+  background: rgba(255,255,255,.025);
 }
 
 body[data-character="velmira"] #velmira-panel-play .sheet-group:first-child {
-  border-color: rgba(117, 178, 193, 0.3);
-  background: linear-gradient(145deg, rgba(117,178,193,0.09), rgba(255,255,255,0.025));
+  border-color: rgba(117,178,193,.3);
+  background: linear-gradient(145deg,rgba(117,178,193,.09),rgba(255,255,255,.025));
 }
 
 body[data-character="velmira"] #velmira-panel-play .sheet-group:nth-child(2) {
-  border-color: rgba(225, 199, 125, 0.28);
-  background: linear-gradient(145deg, rgba(225,199,125,0.08), rgba(255,255,255,0.025));
+  border-color: rgba(225,199,125,.28);
+  background: linear-gradient(145deg,rgba(225,199,125,.08),rgba(255,255,255,.025));
 }
 
 body[data-character="velmira"] #velmira-panel-magic .sheet-group:first-child {
-  border-color: rgba(165, 132, 194, 0.3);
-  background: linear-gradient(145deg, rgba(165,132,194,0.09), rgba(255,255,255,0.025));
+  border-color: rgba(165,132,194,.3);
+  background: linear-gradient(145deg,rgba(165,132,194,.09),rgba(255,255,255,.025));
 }
 
 body[data-character="velmira"] #velmira-panel-magic .sheet-group:nth-child(2) {
-  border-color: rgba(119, 156, 202, 0.3);
-  background: linear-gradient(145deg, rgba(119,156,202,0.09), rgba(255,255,255,0.025));
+  border-color: rgba(119,156,202,.3);
+  background: linear-gradient(145deg,rgba(119,156,202,.09),rgba(255,255,255,.025));
 }
 
 body[data-character="velmira"] #velmira-panel-gear .sheet-group {
-  border-color: rgba(187, 151, 101, 0.3);
-  background: linear-gradient(145deg, rgba(187,151,101,0.08), rgba(255,255,255,0.025));
+  border-color: rgba(187,151,101,.3);
+  background: linear-gradient(145deg,rgba(187,151,101,.08),rgba(255,255,255,.025));
 }
 
 body[data-character="velmira"] .velmira-play-panel .sheet-grid {
-  gap: 0.8rem;
+  gap: .8rem;
 }
 
 body[data-character="velmira"] .velmira-play-panel .sheet-card {
@@ -134,8 +181,8 @@ body[data-character="velmira"] .velmira-play-panel .sheet-card {
 }
 
 body[data-character="velmira"] .velmira-play-panel .sheet-card summary {
-  min-height: 60px;
-  padding: 0.9rem 1rem;
+  min-height: 64px;
+  padding: 1rem;
   align-items: center;
   touch-action: manipulation;
 }
@@ -146,74 +193,50 @@ body[data-character="velmira"] .velmira-play-panel .sheet-card summary h4 {
 }
 
 body[data-character="velmira"] .velmira-play-panel .sheet-value {
-  font-size: 0.78rem;
+  font-size: .78rem;
 }
 
 body[data-character="velmira"] .velmira-play-panel .sheet-card-body {
   padding: 0 1rem 1rem;
-  font-size: 0.98rem;
+  font-size: .98rem;
   line-height: 1.55;
 }
 
 body[data-character="velmira"] .velmira-reference-note {
   padding: 1rem 1.1rem;
-  border: 1px dashed rgba(225,199,125,0.28);
+  border: 1px dashed rgba(225,199,125,.28);
   border-radius: 16px;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255,255,255,.02);
 }
 
-body[data-character="velmira"] .velmira-reference-note p {
-  margin-bottom: 0;
-}
+body[data-character="velmira"] .velmira-reference-note p { margin-bottom: 0; }
 
-@keyframes velmira-panel-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 760px) {
+@media (max-width:760px) {
   body[data-character="velmira"] .velmira-play-intro {
     grid-template-columns: 1fr;
     align-items: start;
   }
-
+  body[data-character="velmira"].velmira-play-open #characterSheet { padding: .65rem; }
   body[data-character="velmira"] .velmira-play-tabs {
-    top: 3.7rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.45rem;
-    padding: 0.5rem;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: .45rem;
+    padding: .5rem;
   }
-
   body[data-character="velmira"] .velmira-play-tab {
-    min-height: 58px;
+    min-height: 60px;
     font-size: 1rem;
   }
-
   body[data-character="velmira"] .velmira-play-panel .sheet-grid,
   body[data-character="velmira"] .velmira-play-panel .sheet-grid.traits {
     grid-template-columns: 1fr !important;
   }
-
-  body[data-character="velmira"] .velmira-play-panel .sheet-card summary {
-    min-height: 64px;
-    padding: 1rem;
-  }
 }
 
-@media (max-width: 430px) {
-  body[data-character="velmira"] .velmira-play-tabs {
-    position: sticky;
-    top: 3.5rem;
-  }
-
+@media (max-width:430px) {
   body[data-character="velmira"] .velmira-play-intro,
-  body[data-character="velmira"] .velmira-play-panel .sheet-group {
-    border-radius: 14px;
-  }
+  body[data-character="velmira"] .velmira-play-panel .sheet-group { border-radius: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body[data-character="velmira"] .velmira-play-panel {
-    animation: none;
-  }
+  body[data-character="velmira"] * { scroll-behavior: auto !important; }
 }
