@@ -129,7 +129,7 @@
       const refreshed = await loadGoals(true);
       return matchingGoal(refreshed, context) || existing;
     }
-    if (activeMindCount(goals) >= MAX_MIND_SLOTS) throw new Error('Your three mind slots are full. Make one dormant or close it before adding another.');
+    if (activeMindCount(goals) >= MAX_MIND_SLOTS) throw new Error('You already have three current interests. Set one aside or close it before adding another.');
     const response = await fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: identityHeaders(user, character),
@@ -143,7 +143,7 @@
       })
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || 'Greywake could not add that to your mind.');
+    if (!response.ok) throw new Error(data.error || 'Greywake could not save that interest.');
     clearGoalCache();
     return data.goal || data;
   }
@@ -156,7 +156,7 @@
       goals = await loadGoals(true);
       goal = matchingGoal(goals, context);
     }
-    if (!goal) throw new Error('Greywake could not find that priority after adding it.');
+    if (!goal) throw new Error('Greywake could not find that interest after adding it.');
     if (goal.status !== 'pursuing') await patchGoal(goal.id, { entry_kind: 'interest', status: 'pursuing' });
     return goal;
   }
@@ -214,19 +214,19 @@
 
   function renderControl(wrap, context, goal, preview = false) {
     if (preview) {
-      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>＋ Add to Things on my mind</button><span class="context-mind-status">Player control · disabled in GM preview</span>`;
+      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>☆ Interested</button><button type="button" class="context-pursue-button" disabled>◆ Pursue</button><span class="context-mind-status">Preview only — these are player controls.</span>`;
       return;
     }
     if (goal?.status === 'pursuing') {
-      wrap.innerHTML = `<button type="button" class="context-mind-button is-active" disabled>✓ On my mind</button><button type="button" class="context-pursue-button is-active" disabled>◆ Pursuing</button><span class="context-mind-status">This is one of your current priorities.</span>`;
+      wrap.innerHTML = `<button type="button" class="context-mind-button is-active" disabled>✓ Interested</button><button type="button" class="context-pursue-button is-active" disabled>◆ Pursuing</button><span class="context-mind-status">You want this treated as an active choice.</span>`;
       return;
     }
     if (goal && goal.status === 'open') {
-      wrap.innerHTML = `<button type="button" class="context-mind-button is-active" disabled>✓ On my mind</button><button type="button" class="context-pursue-button" data-context-pursue>◆ Pursue this</button><span class="context-mind-status">Already using one of your three mind slots.</span>`;
+      wrap.innerHTML = `<button type="button" class="context-mind-button is-active" disabled>✓ Interested</button><button type="button" class="context-pursue-button" data-context-pursue>◆ Pursue</button><span class="context-mind-status">This matters to your character. Pursue it when you want it treated as an active choice.</span>`;
       wrap.querySelector('[data-context-pursue]').addEventListener('click', () => actPursue(wrap, context));
       return;
     }
-    wrap.innerHTML = `<button type="button" class="context-mind-button" data-context-add>＋ Add to Things on my mind</button><button type="button" class="context-pursue-button" data-context-pursue>◆ Pursue this</button><span class="context-mind-status"></span>`;
+    wrap.innerHTML = `<button type="button" class="context-mind-button" data-context-add>☆ Interested</button><button type="button" class="context-pursue-button" data-context-pursue>◆ Pursue</button><span class="context-mind-status">Interested saves this to My Greywake. Pursue marks it as something you want to actively follow.</span>`;
     wrap.querySelector('[data-context-add]').addEventListener('click', () => actAdd(wrap, context));
     wrap.querySelector('[data-context-pursue]').addEventListener('click', () => actPursue(wrap, context));
   }
@@ -238,7 +238,7 @@
       return;
     }
     const status = wrap.querySelector('.context-mind-status');
-    if (status) status.textContent = 'Checking your current priorities…';
+    if (status) status.textContent = 'Checking your interests…';
     try {
       const goals = await loadGoals();
       if (!wrap.isConnected) return;
@@ -247,7 +247,7 @@
       if (!wrap.isConnected) return;
       renderControl(wrap, context, null);
       const nextStatus = wrap.querySelector('.context-mind-status');
-      if (nextStatus) nextStatus.textContent = error.message === 'Priority check timed out.' ? 'Priority check timed out. Controls are still available.' : 'Could not check current state. You can still try the control.';
+      if (nextStatus) nextStatus.textContent = error.message === 'Priority check timed out.' ? 'Interest check timed out. Controls are still available.' : 'Could not check current interests. You can still try the controls.';
     }
   }
 
@@ -258,7 +258,7 @@
   async function actAdd(wrap, context) {
     disableControls(wrap);
     const status = wrap.querySelector('.context-mind-status');
-    if (status) status.textContent = 'Adding…';
+    if (status) status.textContent = 'Saving interest…';
     try {
       await createPriority(context);
       await loadGoals(true);

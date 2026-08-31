@@ -4,24 +4,31 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'card-priorities.js'), 'utf8');
+const portal = readFileSync(join(root, 'player-portal.js'), 'utf8');
 const failures = [];
-const requireText = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P5 player-choice behaviour: ${label}`); };
+const requireText = (haystack, text, label = text) => { if (!haystack.includes(text)) failures.push(`Missing P5 player-choice behaviour: ${label}`); };
 
-requireText('matchingGoal(goals, context)', 'existing interest matching');
-requireText("goal.source_kind === context.source_kind", 'source identity matching');
-requireText("['open','pursuing'].includes(existing.status)", 'duplicate prevention for active priorities');
-requireText('Your three mind slots are full', 'three-slot boundary');
-requireText('✓ On my mind', 'campaign card active state');
-requireText('◆ Pursuing', 'campaign card pursuing state');
-requireText('◆ Pursue this', 'direct pursue action');
-requireText("source_route: '#/campaign'", 'Campaign source route');
-requireText("source_route: '#/my-greywake'", 'My Greywake source route');
-requireText('greywake:engagement-changed', 'cross-view state refresh');
-requireText('window.GreywakeCardPriorities', 'shared priority refresh API');
-requireText('requestAnimationFrame(() => hydrateControl(wrap, context))', 'hydrate only after control is mounted');
-requireText("if (isPreview()) {\n      renderControl(wrap, context, null, true);", 'GM preview renders immediately without API wait');
-requireText('LOAD_TIMEOUT_MS = 5000', 'bounded priority state check');
-requireText('Priority check timed out. Controls are still available.', 'clean timeout fallback');
+requireText(source, 'matchingGoal(goals, context)', 'existing interest matching');
+requireText(source, "goal.source_kind === context.source_kind", 'source identity matching');
+requireText(source, "['open','pursuing'].includes(existing.status)", 'duplicate prevention for active priorities');
+requireText(source, 'You already have three current interests', 'three-interest boundary');
+requireText(source, '☆ Interested', 'clear interested action');
+requireText(source, '✓ Interested', 'interested active state');
+requireText(source, '◆ Pursuing', 'campaign card pursuing state');
+requireText(source, '◆ Pursue', 'direct pursue action');
+requireText(source, 'Interested saves this to My Greywake', 'button meaning explained');
+requireText(source, 'Preview only — these are player controls.', 'GM preview explains disabled controls');
+requireText(source, "source_route: '#/campaign'", 'Campaign source route');
+requireText(source, "source_route: '#/my-greywake'", 'My Greywake source route');
+requireText(source, 'greywake:engagement-changed', 'cross-view state refresh');
+requireText(source, 'window.GreywakeCardPriorities', 'shared priority refresh API');
+requireText(source, 'requestAnimationFrame(() => hydrateControl(wrap, context))', 'hydrate only after control is mounted');
+requireText(source, "if (isPreview()) {\n      renderControl(wrap, context, null, true);", 'GM preview renders immediately without API wait');
+requireText(source, 'LOAD_TIMEOUT_MS = 5000', 'bounded interest state check');
+requireText(source, 'Interest check timed out. Controls are still available.', 'clean timeout fallback');
+requireText(portal, '<strong>Interested</strong> means this matters to your character', 'Campaign explains Interested');
+requireText(portal, '<strong>Pursue</strong> means you want it treated as an active choice', 'Campaign explains Pursue');
+requireText(portal, 'Neither automatically commits the whole party.', 'My Greywake preserves player choice boundary');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
