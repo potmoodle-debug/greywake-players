@@ -33,7 +33,9 @@ jobs:
 
       - name: Run Greywake smoke checks
         working-directory: pr
-        run: node tests/smoke.mjs
+        run: |
+          node tests/smoke.mjs
+          node tests/p1-navigation.mjs
 
       - name: Check critical JavaScript syntax
         working-directory: pr
@@ -45,6 +47,7 @@ jobs:
           node --check action-roller.js
           node --check companion-play.js
           node --check trait-roller.js
+          node --check player-portal.js
 
       - name: Copy PR into isolated preview path
         shell: bash
