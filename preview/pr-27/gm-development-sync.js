@@ -108,8 +108,11 @@
       if (control) control.value = next;
     });
     panel.dataset.remoteApplied = 'true';
+    panel.dataset.remoteHydrating = 'true';
     field(panel, 'status')?.dispatchEvent(new Event('change', { bubbles: true }));
     field(panel, 'playerCopy')?.dispatchEvent(new Event('input', { bubbles: true }));
+    panel.dataset.remoteHydrating = 'false';
+    panel.dataset.gmDirty = 'false';
   }
 
   async function saveRemote(card, panel) {
@@ -213,8 +216,14 @@
     panel.dataset.syncEnhanced = 'true';
 
     panel.querySelectorAll('[data-development-field]').forEach(control => {
-      control.addEventListener('input', () => { panel.dataset.gmDirty = 'true'; refreshHandoff(card, panel); });
-      control.addEventListener('change', () => { panel.dataset.gmDirty = 'true'; refreshHandoff(card, panel); });
+      control.addEventListener('input', () => {
+        if (panel.dataset.remoteHydrating !== 'true') panel.dataset.gmDirty = 'true';
+        refreshHandoff(card, panel);
+      });
+      control.addEventListener('change', () => {
+        if (panel.dataset.remoteHydrating !== 'true') panel.dataset.gmDirty = 'true';
+        refreshHandoff(card, panel);
+      });
     });
 
     const actions = panel.querySelector('.gm-development-actions');
