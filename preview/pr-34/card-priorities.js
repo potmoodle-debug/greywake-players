@@ -3,6 +3,7 @@
   const API_KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const MAX_LENGTH = 240;
   const MAX_MIND_SLOTS = 3;
+  const LOAD_TIMEOUT_MS = 5000;
   const CHARACTER_CODES = { marek: 'MAREK', velmira: 'VELMIRA', odie: 'ODIE' };
   let observer;
   let timer;
@@ -38,10 +39,6 @@
     return Boolean(user && user.role === 'player' && characterKey(user));
   }
 
-  function canWrite() {
-    return canRender() && !isPreview();
-  }
-
   function identityHeaders(user, character) {
     return {
       apikey: API_KEY,
@@ -60,6 +57,16 @@
     goalRequest = null;
   }
 
+  async function fetchWithTimeout(url, options = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), LOAD_TIMEOUT_MS);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   async function loadGoals(force = false) {
     const user = currentUser();
     const character = characterKey(user);
@@ -71,12 +78,16 @@
     }
     if (!force && goalCache) return goalCache;
     if (!force && goalRequest) return goalRequest;
-    goalRequest = fetch(API_URL, { headers: identityHeaders(user, character) })
+    goalRequest = fetchWithTimeout(API_URL, { headers: identityHeaders(user, character) })
       .then(async response => {
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || 'Greywake could not check your current priorities.');
         goalCache = (Array.isArray(data.goals) ? data.goals : []).filter(goal => goal.character_slug === character);
         return goalCache;
+      })
+      .catch(error => {
+        if (error?.name === 'AbortError') throw new Error('Priority check timed out.');
+        throw error;
       })
       .finally(() => { goalRequest = null; });
     return goalRequest;
@@ -95,7 +106,7 @@
   async function patchGoal(id, patch) {
     const user = currentUser();
     const character = characterKey(user);
-    const response = await fetch(API_URL, {
+    const response = await fetchWithTimeout(API_URL, {
       method: 'PATCH',
       headers: identityHeaders(user, character),
       body: JSON.stringify({ id: Number(id), ...patch })
@@ -119,7 +130,7 @@
       return matchingGoal(refreshed, context) || existing;
     }
     if (activeMindCount(goals) >= MAX_MIND_SLOTS) throw new Error('Your three mind slots are full. Make one dormant or close it before adding another.');
-    const response = await fetch(API_URL, {
+    const response = await fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: identityHeaders(user, character),
       body: JSON.stringify({
@@ -202,9 +213,8 @@
   }
 
   function renderControl(wrap, context, goal, preview = false) {
-    const status = wrap.querySelector('.context-mind-status');
     if (preview) {
-      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>＋ Add to Things on my mind</button><span class="context-mind-status">Player control · disabled only in GM preview</span>`;
+      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>＋ Add to Things on my mind</button><span class="context-mind-status">Player control · disabled in GM preview</span>`;
       return;
     }
     if (goal?.status === 'pursuing') {
@@ -222,7 +232,7 @@
   }
 
   async function hydrateControl(wrap, context) {
-    if (!wrap.isConnected || !canRender()) return;
+    if (!canRender()) return;
     if (isPreview()) {
       renderControl(wrap, context, null, true);
       return;
@@ -237,7 +247,7 @@
       if (!wrap.isConnected) return;
       renderControl(wrap, context, null);
       const nextStatus = wrap.querySelector('.context-mind-status');
-      if (nextStatus) nextStatus.textContent = 'Could not check current state. You can still try the control.';
+      if (nextStatus) nextStatus.textContent = error.message === 'Priority check timed out.' ? 'Priority check timed out. Controls are still available.' : 'Could not check current state. You can still try the control.';
     }
   }
 
@@ -281,8 +291,12 @@
     const wrap = document.createElement('div');
     wrap.className = 'context-mind-action';
     wrap.dataset.contextMind = context.source_key;
-    wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>Checking…</button><span class="context-mind-status" aria-live="polite"></span>`;
-    hydrateControl(wrap, context);
+    if (isPreview()) {
+      renderControl(wrap, context, null, true);
+    } else {
+      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>Checking…</button><span class="context-mind-status" aria-live="polite"></span>`;
+      requestAnimationFrame(() => hydrateControl(wrap, context));
+    }
     return wrap;
   }
 
