@@ -136,6 +136,24 @@
     document.head.appendChild(script);
   }
 
+  function ensureDevelopmentWorkspaceAssets() {
+    if (!isFullGM()) return;
+    if (!document.querySelector('link[data-gm-development-css]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'gm-development.css?v=dev1';
+      link.dataset.gmDevelopmentCss = 'true';
+      document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[data-gm-development]')) {
+      const script = document.createElement('script');
+      script.src = 'gm-development.js?v=dev1';
+      script.defer = true;
+      script.dataset.gmDevelopment = 'true';
+      document.head.appendChild(script);
+    }
+  }
+
   const observer = new MutationObserver(() => {
     if (isFullGM()) scheduleEnhance();
   });
@@ -144,6 +162,7 @@
   function refresh() {
     if (!isFullGM()) return;
     ensureMindDashboardScript();
+    ensureDevelopmentWorkspaceAssets();
     scheduleEnhance();
   }
 
