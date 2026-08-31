@@ -153,8 +153,52 @@
     topbar.insertBefore(button, character || document.getElementById('brainBtn') || null);
   }
 
+  function closeSidebar() {
+    if (activeCharacter() !== CHARACTER) return;
+    const sidebar = document.getElementById('sidebar');
+    const menu = document.getElementById('menuBtn');
+    sidebar?.classList.remove('open');
+    document.body.classList.add('velmira-sidebar-collapsed');
+    menu?.setAttribute('aria-expanded', 'false');
+    menu?.focus({ preventScroll: true });
+  }
+
+  function openSidebar() {
+    if (activeCharacter() !== CHARACTER) return;
+    document.body.classList.remove('velmira-sidebar-collapsed');
+    const menu = document.getElementById('menuBtn');
+    menu?.setAttribute('aria-expanded', 'true');
+  }
+
+  function ensureSidebarControls() {
+    const close = document.getElementById('sidebarClose');
+    const menu = document.getElementById('menuBtn');
+    const backdrop = document.getElementById('navBackdrop');
+
+    if (close && close.dataset.velmiraCollapse !== 'ready') {
+      close.dataset.velmiraCollapse = 'ready';
+      close.title = 'Collapse navigation';
+      close.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        closeSidebar();
+      });
+    }
+
+    if (menu && menu.dataset.velmiraCollapse !== 'ready') {
+      menu.dataset.velmiraCollapse = 'ready';
+      menu.addEventListener('click', openSidebar);
+    }
+
+    if (backdrop && backdrop.dataset.velmiraCollapse !== 'ready') {
+      backdrop.dataset.velmiraCollapse = 'ready';
+      backdrop.addEventListener('click', closeSidebar);
+    }
+  }
+
   function enhance() {
     if (activeCharacter() !== CHARACTER) return;
+    ensureSidebarControls();
     const root = sheetRoot();
     if (!root) return;
     if (root.dataset.velmiraTabs !== 'ready') {
@@ -170,6 +214,7 @@
 
   function schedule() {
     requestAnimationFrame(() => {
+      ensureSidebarControls();
       ensurePlayButton();
       enhance();
       setTimeout(enhance, 120);
@@ -184,6 +229,7 @@
   });
 
   const observer = new MutationObserver(() => {
+    ensureSidebarControls();
     ensurePlayButton();
     if (activeCharacter() === CHARACTER) enhance();
   });
