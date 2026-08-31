@@ -4,24 +4,38 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'p7-usability.js'), 'utf8');
-const loader = readFileSync(join(root, 'arrival-experience.js'), 'utf8');
+const mind = readFileSync(join(root, 'player-mind-view.js'), 'utf8');
 const failures = [];
-const requireText = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P7 behaviour: ${label}`); };
+const requireSource = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P7 behaviour: ${label}`); };
+const requireMind = (text, label = text) => { if (!mind.includes(text)) failures.push(`Missing mind hierarchy: ${label}`); };
 
-requireText('Add to inventory', 'player-added inventory');
-requireText('Current conditions', 'condition tracking');
-requireText('No action roll · roll 1d4 healing', 'Regeneration uses d4 rather than Duality roll');
-requireText('Apply to', 'Regeneration target selector');
-requireText('No roll · +2 Stress recovery', 'Clarity of Nature fixed +2 effect');
-requireText("title === 'Beastform' || title === 'Evolution'", 'Beastform and Evolution open form picker');
-requireText("title === 'Evolution' ? 'evolution' : 'stress'", 'correct transformation mode preselection');
-requireText("button.dataset.p7Reversible === 'pursuing' ? 'open' : 'dormant'", 'Pursuing and Interested can be unticked');
-requireText("button.textContent = 'Q&A'", 'quick Q&A access');
-requireText('p7Utilities: loadUtilityState()', 'custom inventory and conditions join equipment sync payload');
-requireText("priorityObserver.observe(root,{childList:true,subtree:true})", 'priority observer is scoped');
-if (source.includes("observe(document.body,{childList:true,subtree:true})")) failures.push('P7 must not use a full-page childList observer that re-renders character utilities.');
-if (source.includes('new MutationObserver(() => { renderUtilities()')) failures.push('P7 utility rendering must not recursively trigger from its own DOM mutations.');
-if (!loader.includes("p7-usability.js?v=p7-2")) failures.push('P7 usability script is not loaded with the fixed cache version');
+requireSource('Inventory & Conditions', 'stable visible inventory and conditions area');
+requireSource("group.querySelector(':scope > .p7-utilities')", 'utilities mount outside live equipment manager');
+requireSource('Add to inventory', 'player-added inventory');
+requireSource('Current conditions', 'condition tracking');
+requireSource('No Duality roll', 'Regeneration does not use a Duality roll');
+requireSource('✓ 3 Hope spent once', 'Regeneration makes the single cost explicit');
+requireSource("if(button.disabled)return", 'Regeneration/Clarity action cannot double-trigger while resolving');
+requireSource('Apply Clarity of Nature', 'Clarity is an actionable control');
+requireSource('First Stress recovery', 'Clarity can distribute its first Stress');
+requireSource('Second Stress recovery', 'Clarity can distribute its second Stress');
+requireSource("['Beastform','Evolution','Regeneration','Clarity of Nature']", 'special Marek actions are captured directly');
+requireSource("title==='Evolution'?'evolution':'stress'", 'correct Beastform transformation mode');
+requireSource('MAX_ACTIVE_INTERESTS=12', 'Interested capacity expanded');
+requireSource('MAX_PURSUING=3', 'Pursuing remains a focused shortlist');
+requireSource("goal?.status==='pursuing'", 'Pursuing can be demoted');
+requireSource("goal?.status==='open'", 'Interested can be removed or promoted');
+requireSource("className='p7-fixed-qna'", 'Q&A is a fixed global affordance');
+requireSource("location.hash='#/inbox'", 'fixed Q&A opens inbox');
+requireSource('p7Utilities:loadUtilityState()', 'custom inventory and conditions join equipment sync payload');
+if (source.includes("observe(document.body,{childList:true,subtree:true})")) failures.push('P7 must not use a full-page recursive childList observer.');
+
+requireMind('Pursuing', 'Pursuing tier');
+requireMind('Interested', 'Interested tier');
+requireMind('This is a hierarchy', 'hierarchy explanation');
+requireMind('MAX_PURSUING=3', 'three-item Pursuing cap');
+requireMind('MAX_INTERESTS=12', 'larger Interested holding area');
+requireMind('Interested → Pursuing → Group Choice.', 'player-facing hierarchy path');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
