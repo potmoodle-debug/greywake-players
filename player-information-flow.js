@@ -47,6 +47,45 @@
     }
   }
 
+  function makeFlowGroup(title, subtitle, cards, emptyCopy) {
+    const section = document.createElement('section');
+    section.className = 'player-flow-group';
+    section.innerHTML = `<div class="player-flow-group-head"><div><span>${title.toUpperCase()}</span><h3>${title}</h3></div><p>${subtitle}</p></div>`;
+    const list = document.createElement('div');
+    list.className = 'player-flow-group-list';
+    if (cards.length) cards.forEach(card => list.appendChild(card));
+    else list.innerHTML = `<div class="player-flow-empty">${emptyCopy}</div>`;
+    section.appendChild(list);
+    return section;
+  }
+
+  function groupCurrentThreads() {
+    const list = host.querySelector(':scope > .interest-thread-list');
+    if (!list || list.dataset.flowGrouped === 'true') return;
+    const cards = [...list.children].filter(node => node.classList?.contains('interest-thread'));
+    if (!cards.length) return;
+
+    const questions = cards.filter(card => (card.dataset.entryKind || '').toLowerCase() === 'question');
+    const interests = cards.filter(card => (card.dataset.entryKind || '').toLowerCase() === 'interest');
+
+    list.dataset.flowGrouped = 'true';
+    list.classList.add('player-flow-groups');
+    list.replaceChildren(
+      makeFlowGroup(
+        'Questions',
+        `${questions.length} open · these do not use priority slots`,
+        questions,
+        'No open questions. Ask from any Greywake card or use Ask question below.'
+      ),
+      makeFlowGroup(
+        'On My Mind conversations',
+        `${Math.min(interests.length, 3)}/3 priority slots represented here`,
+        interests,
+        'Nothing is currently occupying an On My Mind slot.'
+      )
+    );
+  }
+
   function enhanceQuestionCard(card) {
     const state = questionState(card);
     const promote = card.querySelector('.engagement-promote');
@@ -92,6 +131,7 @@
   function enhancePlayer() {
     if (!isPlayerSurface()) return;
     ensurePlayerRule();
+    groupCurrentThreads();
     host.querySelectorAll('.interest-thread[data-entry-kind="question"]:not(.interest-thread-resolved)').forEach(enhanceQuestionCard);
 
     const hint = host.querySelector('.goal-hint');
@@ -132,10 +172,18 @@
     style.textContent = `
       .question-flow-rule{display:flex;gap:10px;align-items:flex-start;margin:10px 0 16px;padding:10px 12px;border-left:2px solid #9c8750;background:#171711;color:#9f9782;font-size:10px;line-height:1.45}
       .question-flow-rule strong{flex:0 0 auto;color:#dac98f;font-size:8px;letter-spacing:.12em}
+      .player-flow-groups{display:grid!important;gap:18px!important}
+      .player-flow-group{border-top:1px solid #353328;padding-top:14px}
+      .player-flow-group-head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:10px}
+      .player-flow-group-head span{display:block;color:#a48e55;font-size:8px;font-weight:800;letter-spacing:.13em}
+      .player-flow-group-head h3{margin:3px 0 0;color:#e7dcc0;font:20px/1.1 Georgia,serif}
+      .player-flow-group-head p{max-width:360px;margin:0;color:#817a68;font-size:9px;line-height:1.4;text-align:right}
+      .player-flow-group-list{display:grid;gap:12px}
+      .player-flow-empty{padding:12px;border:1px dashed #3e3b30;background:#14140f;color:#77715f;font-size:10px;line-height:1.45}
       .gm-question-flow-note{margin:10px 0;padding:9px 11px;border-left:2px solid #6f6544;background:#15150f;color:#8f8875;font-size:10px;line-height:1.45}
       .gm-question-flow-note strong{color:#c9b77f}
       .engagement-promote[hidden]{display:none!important}
-      @media(max-width:620px){.question-flow-rule{display:block}.question-flow-rule strong{display:block;margin-bottom:5px}}
+      @media(max-width:620px){.question-flow-rule{display:block}.question-flow-rule strong{display:block;margin-bottom:5px}.player-flow-group-head{display:block}.player-flow-group-head p{margin-top:5px;text-align:left}}
     `;
     document.head.appendChild(style);
   }
