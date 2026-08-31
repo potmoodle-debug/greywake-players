@@ -171,8 +171,12 @@
   }
 
   observeHost();
+  window.GreywakePlayerMindView = { render: schedule };
   window.addEventListener('greywake:player-ready', schedule);
   window.addEventListener('greywake:engagement-changed', schedule);
+  window.addEventListener('greywake:portal-live-mounted', event => {
+    if (event.detail?.kind === 'goals') schedule();
+  });
   document.addEventListener('DOMContentLoaded', schedule);
   schedule();
 })();
