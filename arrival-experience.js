@@ -1,7 +1,7 @@
 (() => {
   if (!document.querySelector('script[data-p7-usability]')) {
     const script = document.createElement('script');
-    script.src = 'p7-usability.js?v=p7-1';
+    script.src = 'p7-usability.js?v=p7-2';
     script.defer = true;
     script.dataset.p7Usability = 'true';
     document.head.appendChild(script);
