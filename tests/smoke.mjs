@@ -102,6 +102,20 @@ for (const file of ['visual-refresh.js', 'discoveries.js', 'session03.js', 'pers
   }
 }
 
+// P0 stability checks: feature modules are loaded once by index.html and must not be
+// dynamically re-injected by visual-polish or compatibility layers.
+const scriptSources = [...index.matchAll(/<script\b[^>]*\bsrc="([^"?#]+)(?:[?#][^"]*)?"[^>]*>/g)].map(match => match[1]);
+const duplicateScripts = scriptSources.filter((src, index, all) => all.indexOf(src) !== index);
+for (const src of [...new Set(duplicateScripts)]) fail(`index.html loads script more than once: ${src}`);
+
+const polishSource = readFileSync(join(root, 'interaction-polish.js'), 'utf8');
+if (/createElement\(['"]script['"]\)/.test(polishSource)) {
+  fail('interaction-polish.js must not dynamically load feature scripts.');
+}
+if (/velmira-play-view\.js/.test(polishSource)) {
+  fail('interaction-polish.js must not own or reload the Velmira play module.');
+}
+
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
