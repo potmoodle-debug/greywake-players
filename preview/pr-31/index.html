@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171713">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%2310110d'/%3E%3Cpath d='M28 6h8l4 52H24z' fill='%23e1c77d'/%3E%3C/svg%3E">
+<meta name="description" content="A spoiler-conscious player guide for the Greywake Daggerheart campaign: current interests, discoveries, people, places, creatures, session records and relationships.">
+<link rel="canonical" href="https://potmoodle-debug.github.io/greywake-players/">
+<meta property="og:title" content="Greywake — Player Guide">
+<meta property="og:description" content="Known. Seen. Earned. Explore what matters to your character in Greywake.">
+<meta property="og:image" content="https://potmoodle-debug.github.io/greywake-players/assets/tower-distant.jpg">
+<meta property="og:type" content="website">
+<title>Greywake — Player Guide</title>
+<link rel="preload" as="image" href="assets/tower-distant.jpg" fetchpriority="high">
+<link rel="stylesheet" href="style.css?v=images2">
+<link rel="stylesheet" href="brain-enhanced.css?v=brain12">
+<link rel="stylesheet" href="brain-mobile-fix.css?v=mobile3">
+<link rel="stylesheet" href="player-access.css?v=access1">
+<link rel="stylesheet" href="personal-knowledge.css?v=personal2">
+<link rel="stylesheet" href="player-goals.css?v=goals6">
+<link rel="stylesheet" href="current-threads.css?v=threads4">
+<link rel="stylesheet" href="character-sheet.css?v=sheet1">
+<link rel="stylesheet" href="character-page.css?v=page2">
+<link rel="stylesheet" href="character-professional.css?v=pro2">
+<link rel="stylesheet" href="beastform.css?v=beast1">
+<link rel="stylesheet" href="active-actions.css?v=actions1">
+<link rel="stylesheet" href="action-roller.css?v=roller3">
+<link rel="stylesheet" href="resource-tracker.css?v=resources1">
+<link rel="stylesheet" href="trait-roller.css?v=traits1">
+<link rel="stylesheet" href="damage-system.css?v=damage2">
+<link rel="stylesheet" href="rest-system.css?v=rest2">
+<link rel="stylesheet" href="play-dashboard.css?v=dashboard2">
+<link rel="stylesheet" href="equipment-system-v2.css?v=equipment1">
+<link rel="stylesheet" href="interaction-polish.css?v=polish1">
+<link rel="stylesheet" href="companion-play.css?v=companion2">
+<link rel="stylesheet" href="visual-refresh.css?v=improvements2">
+<link rel="stylesheet" href="player-portal.css?v=portal3">
+<link rel="stylesheet" href="arrival-experience.css?v=arrival2">
+<link rel="stylesheet" href="velmira-play-view.css?v=velmira2">
+<link rel="stylesheet" href="character-presentation-v2.css?v=p2-1">
+<style>
+.brand[role="link"],#crumb[role="link"]{cursor:pointer}
+.brand[role="link"]:focus-visible,#crumb[role="link"]:focus-visible{outline:2px solid #b4a168;outline-offset:4px}
+@media(max-width:850px){#crumb{display:none}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#mainContent">Skip to campaign content</a>
+<div class="shell">
+  <aside id="sidebar" class="sidebar" aria-label="Greywake navigation">
+    <div class="brand" id="brandHome" role="link" tabindex="0" aria-label="Greywake Home" title="Go to Greywake Home" onclick="if(!event.target.closest('#sidebarClose'))location.hash='#/'" onkeydown="if((event.key==='Enter'||event.key===' ')&&!event.target.closest('#sidebarClose')){event.preventDefault();location.hash='#/'}">
+      <div class="tower-mark"></div>
+      <div><div class="eyebrow">PLAYER GUIDE</div><h1>GREYWAKE</h1></div>
+      <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close navigation">×</button>
+    </div>
+    <div class="safe-mark">Shared + personal player record</div>
+    <label class="search"><span>Search Greywake <kbd>/</kbd></span><input id="searchInput" type="search" placeholder="Place, person, creature…" autocomplete="off" aria-controls="nav" aria-describedby="searchStatus"></label>
+    <div id="searchStatus" class="search-status" aria-live="polite"></div>
+    <nav id="nav" aria-label="Campaign records"></nav>
+    <div class="sidebar-foot">Your view combines shared party knowledge with information meant for your character. Unrevealed GM material stays outside player views.</div>
+  </aside>
+  <button id="navBackdrop" class="nav-backdrop" type="button" aria-label="Close navigation"></button>
+
+  <main id="mainContent" tabindex="-1">
+    <header class="topbar">
+      <button id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">☰</button>
+      <div id="crumb" role="link" tabindex="0" title="Go to Greywake Home" onclick="location.hash='#/'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();location.hash='#/'}">Greywake / Home</div>
+      <nav id="primaryNav" class="primary-nav" aria-label="Main player sections">
+        <button id="homeBtn" type="button" data-primary-section="home" onclick="location.hash='#/'">Home</button>
+        <button id="characterSheetBtn" type="button" class="sheet-topbar-button" data-primary-section="character">Character</button>
+        <button id="myGreywakeBtn" type="button" data-primary-section="my-greywake" onclick="location.hash='#/my-greywake'">My Greywake</button>
+        <button id="greywakeBtn" type="button" data-primary-section="greywake" onclick="location.hash='#/greywake'">Greywake</button>
+        <button id="campaignBtn" type="button" data-primary-section="campaign" onclick="location.hash='#/campaign'">Campaign</button>
+      </nav>
+      <button id="brainBtn" class="brain-cta p1-legacy-route" type="button" hidden>Player Brain</button>
+    </header>
+
+    <section id="home">
+      <section class="hero">
+        <img class="hero-photo" src="assets/tower-distant.jpg" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
+        <div class="hero-overlay"></div>
+        <div class="hero-copy">
+          <div class="eyebrow">A FRONTIER HOLD IN THE WASTES</div>
+          <h2>What you know of Greywake.</h2>
+          <p>The shared record keeps what the party has earned together. Your personal view can also contain knowledge, relationships and unfinished questions that belong specifically to your character.</p>
+          <div class="hero-buttons">
+            <button type="button" onclick="location.hash='#/my-greywake'">Open My Greywake</button>
+            <button type="button" onclick="location.hash='#/greywake'">Explore Greywake</button>
+            <button id="heroBrain" type="button" hidden>Open Player Brain</button>
+          </div>
+          <div class="hero-ledger" aria-label="Campaign summary">
+            <span><strong id="recordSummaryCount">70</strong> known records</span>
+            <span><strong id="linkSummaryCount">184</strong> recorded links</span>
+            <span><strong id="sessionSummaryCount">03</strong> sessions archived</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="playerGoals" class="player-goals" aria-label="Player questions and interests"></section>
+
+      <section id="currentThreads" class="current-threads">
+        <div class="section-head">
+          <div><div class="eyebrow">KNOWN POSSIBILITIES</div><h2>What's out there</h2></div>
+          <div class="current-thread-tools">
+            <span id="currentThreadsCount" class="current-thread-count">Known possibilities</span>
+            <button id="openAllThreads" class="thread-open-all" type="button">Open possibilities record →</button>
+          </div>
+        </div>
+        <p class="possibility-intro">Nothing here is an assignment. These are things your character knows they could pursue. Your choices decide what becomes part of the active campaign.</p>
+        <div id="currentThreadsGrid" class="current-threads-grid"></div>
+      </section>
+
+      <section class="discoveries">
+        <div class="section-head">
+          <div><div class="eyebrow">RECENTLY ADDED</div><h2>Latest discoveries</h2></div>
+          <p>Shared discoveries appear here as the party learns them together.</p>
+        </div>
+        <div id="discoveryGrid" class="discovery-grid"></div>
+      </section>
+
+      <section class="field-note">
+        <div class="field-note-mark" aria-hidden="true">✦</div>
+        <div>
+          <div class="eyebrow">CAMPAIGN RECORD</div>
+          <h2>Known. Seen. Earned.</h2>
+          <p>This is not the GM encyclopedia. Shared facts and your character’s legitimate knowledge belong here; unrevealed motives, hidden truths and another character’s private information do not.</p>
+        </div>
+        <button id="fieldBrain" type="button">Explore relationships →</button>
+      </section>
+    </section>
+
+    <section id="brainView" class="brain-view hidden">
+      <section class="brain-archive-banner" aria-label="The White Tower">
+        <img src="assets/tower-distant.jpg" width="1672" height="941" alt="" loading="lazy" decoding="async">
+        <div class="brain-archive-banner-shade"></div>
+        <div class="brain-archive-banner-copy">
+          <span>THE SHARED RECORD</span>
+          <strong>Every known thread leads back to Greywake.</strong>
+        </div>
+      </section>
+      <div class="section-head brain-head">
+        <div><div class="eyebrow">RELATIONSHIP VIEW</div><h2 id="brainHeading">Player Brain</h2></div>
+        <div class="brain-copy"><p>Navigate Greywake by what is connected, not by folders.</p><div><strong id="nodeCount">0</strong> known records · <strong id="edgeCount">0</strong> known links</div></div>
+      </div>
+      <div id="graph"></div>
+    </section>
+
+    <article id="article" class="article hidden" tabindex="-1"></article>
+  </main>
+</div>
+<script defer src="player-access.js?v=improvements1"></script>
+<script defer src="personal-knowledge.js?v=personal4"></script>
+<script defer src="character-sheet.js?v=sheet2"></script>
+<script defer src="velmira-play-view.js?v=velmira2"></script>
+<script defer src="marek-sheet-extra.js?v=marek2"></script>
+<script defer src="character-professional.js?v=pro2"></script>
+<script defer src="companion-play.js?v=companion4"></script>
+<script defer src="resource-tracker.js?v=resources1"></script>
+<script defer src="beastform.js?v=beast2"></script>
+<script defer src="beastform-resource-bridge.js?v=resources2"></script>
+<script defer src="active-actions.js?v=actions1"></script>
+<script defer src="action-roller.js?v=roller3"></script>
+<script defer src="damage-system-v2.js?v=damage2"></script>
+<script defer src="rest-system-v2.js?v=rest2"></script>
+<script defer src="trait-roller.js?v=traits2"></script>
+<script defer src="equipment-system-v2.js?v=equipment1"></script>
+<script defer src="character-layout-order.js?v=order4"></script>
+<script defer src="player-goals-system-filter.js?v=system1"></script>
+<script defer src="resource-sync.js?v=sync6"></script>
+<script defer src="companion-sync.js?v=companion6"></script>
+<script defer src="personal-audit.js?v=audit1"></script>
+<script defer src="data.js?v=content1"></script>
+<script defer src="flora-extra.js?v=flora1"></script>
+<script defer src="harvesting-extra.js?v=harvest1"></script>
+<script defer src="locations-extra.js?v=content1"></script>
+<script defer src="shared-knowledge.js?v=content1"></script>
+<script defer src="npc-extra.js?v=npcsanitation3"></script>
+<script defer src="reference-extra.js?v=content1"></script>
+<script defer src="backstory-public.js?v=background1"></script>
+<script defer src="discoveries.js?v=content1"></script>
+<script defer src="session03.js?v=session3"></script>
+<script defer src="jobs.js?v=regions1"></script>
+<script defer src="inventory-extra.js?v=inventory2"></script>
+<script defer src="current-state-audit.js?v=regions1"></script>
+<script defer src="media.js?v=approved-shells-1"></script>
+<script defer src="image-restore.js?v=images3"></script>
+<script defer src="player-goals.js?v=goals6"></script>
+<script defer src="gm-engagement-filters.js?v=filters2"></script>
+<script defer src="current-threads.js?v=threads7"></script>
+<script defer src="thread-image-loader.js?v=card-actions1"></script>
+<script defer src="app.js?v=router2"></script>
+<script defer src="brain-enhanced.js?v=improvements1"></script>
+<script defer src="brain-mobile-fix.js?v=mobile5"></script>
+<script defer src="visual-refresh.js?v=improvements4"></script>
+<script defer src="card-questions.js?v=questions2"></script>
+<script defer src="card-priorities.js?v=mind2"></script>
+<script defer src="player-mind-view.js?v=mindview5"></script>
+<script defer src="player-portal.js?v=portal6"></script>
+<script defer src="arrival-experience.js?v=arrival5"></script>
+<script defer src="character-page.js?v=page6"></script>
+</body>
+</html>
