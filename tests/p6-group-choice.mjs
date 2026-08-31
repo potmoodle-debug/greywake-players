@@ -8,8 +8,8 @@ const index = readFileSync(join(root, 'index.html'), 'utf8');
 const failures = [];
 const requireText = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P6 group-choice behaviour: ${label}`); };
 
-requireText("campaign-choice", 'dedicated group-choice API');
-requireText("status === 'pursuing'", 'pursuing-only eligibility marker');
+requireText('campaign-choice', 'dedicated group-choice API');
+requireText('(state.pursuits || [])', 'group options derive from pursuing state returned by API');
 requireText('One vote per player', 'single-vote player guidance');
 requireText('Vote for this', 'vote action');
 requireText('✓ Your vote', 'current vote state');
