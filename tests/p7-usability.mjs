@@ -21,7 +21,7 @@ requireText('p7Utilities: loadUtilityState()', 'custom inventory and conditions 
 requireText("priorityObserver.observe(root,{childList:true,subtree:true})", 'priority observer is scoped');
 if (source.includes("observe(document.body,{childList:true,subtree:true})")) failures.push('P7 must not use a full-page childList observer that re-renders character utilities.');
 if (source.includes('new MutationObserver(() => { renderUtilities()')) failures.push('P7 utility rendering must not recursively trigger from its own DOM mutations.');
-if (!loader.includes("p7-usability.js?v=p7-1")) failures.push('P7 usability script is not loaded by the site');
+if (!loader.includes("p7-usability.js?v=p7-2")) failures.push('P7 usability script is not loaded with the fixed cache version');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
