@@ -1,0 +1,59 @@
+/* Dedicated player destinations. Home stays cinematic; live campaign systems live here. */
+.player-portal{min-height:calc(100vh - 58px);background:linear-gradient(180deg,#11120e 0%,#0c0d0a 100%)}
+.player-portal-topbar{min-height:74px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;padding:12px clamp(22px,5vw,72px);border-bottom:1px solid #343126;background:#0d0e0bf0;position:sticky;top:58px;z-index:4;backdrop-filter:blur(12px)}
+.player-portal-topbar a{text-decoration:none;color:#bdb39a;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.player-portal-topbar a:hover{color:#e4cd85}
+.player-portal-home{justify-self:start}.player-portal-explore{justify-self:end}
+.player-portal-title{text-align:center}.player-portal-title small{display:block;color:#8b7e57;font-size:7px;font-weight:800;letter-spacing:.18em}.player-portal-title strong{display:block;margin-top:4px;color:#e8ddc0;font:22px Georgia,serif}
+.player-portal-content{padding-bottom:70px}
+.player-portal-intro{padding:52px clamp(24px,6vw,90px) 30px;max-width:1180px}.player-portal-intro h1{margin:7px 0 10px;color:#eee3c7;font:clamp(38px,5vw,62px)/1 Georgia,serif;letter-spacing:-.025em}.player-portal-intro p{max-width:720px;margin:0;color:#a8a08c;font-size:13px;line-height:1.65}
+.player-portal-intro .eyebrow{font-size:8px}
+
+/* Possibilities is a full destination rather than a Home preview. */
+.player-portal-possibilities #currentThreads{display:block!important;padding:0 clamp(24px,6vw,90px) 60px;background:transparent;border:0}
+.player-portal-possibilities #currentThreads>.section-head{display:none}
+.player-portal-possibilities #currentThreads>.possibility-intro{display:none}
+.player-portal-possibilities #currentThreadsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.player-portal-possibilities #currentThreadsGrid .thread-card{display:block!important;grid-column:auto!important;min-height:330px;cursor:pointer;border-color:#403b2c;box-shadow:0 18px 44px rgba(0,0,0,.22)}
+.player-portal-possibilities #currentThreadsGrid .thread-card:hover{transform:translateY(-3px);border-color:#786943}
+.player-portal-possibilities .thread-open-all{display:none!important}
+
+/* Mind page deliberately shows only the five-slot reference strip. */
+.player-portal-mind #playerGoals{display:block!important;padding:0 clamp(24px,6vw,90px) 64px;background:transparent}
+.player-portal-mind #playerGoals>*:not(.player-mind-view){display:none!important}
+.player-portal-mind .player-mind-view{display:block!important;margin:0!important;padding:0!important}
+.player-portal-mind .player-mind-head{display:none!important}
+.player-portal-mind .player-mind-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}
+.player-portal-mind .player-mind-card{min-height:210px}
+
+/* Inbox is the full conversation system, without the compact mind strip. */
+.player-portal-inbox #playerGoals{display:block!important;padding:0 clamp(24px,6vw,90px) 64px;background:transparent}
+.player-portal-inbox #playerGoals>.player-mind-view{display:none!important}
+.player-portal-inbox #playerGoals>.player-goals-head{display:none!important}
+.player-portal-inbox #playerGoals>.engagement-counts,
+.player-portal-inbox #playerGoals>.interest-thread-list,
+.player-portal-inbox #playerGoals>.resolved-goals,
+.player-portal-inbox #playerGoals>.goal-form,
+.player-portal-inbox #playerGoals>.goal-hint,
+.player-portal-inbox #playerGoals>.interest-legend{display:block!important}
+
+.player-explore-grid{margin:0!important;padding:0 clamp(24px,6vw,90px) 70px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.player-explore-grid>a{display:flex;flex-direction:column;min-height:190px;padding:20px;border:1px solid #38352a;background:linear-gradient(145deg,#191914,#10110d);text-decoration:none;color:inherit;transition:transform .18s ease,border-color .18s ease,background .18s ease;position:relative;overflow:hidden}
+.player-explore-grid>a:after{content:"";position:absolute;right:-55px;bottom:-80px;width:170px;height:170px;border:1px solid rgba(215,190,114,.08);transform:rotate(34deg)}
+.player-explore-grid>a:hover{transform:translateY(-3px);border-color:#756840;background:linear-gradient(145deg,#211f16,#13140f)}
+.player-explore-grid small{color:#aa955d;font-size:8px;font-weight:800;letter-spacing:.17em}.player-explore-grid strong{margin:9px 0 8px;color:#eadfc2;font:25px/1.05 Georgia,serif}.player-explore-grid span{max-width:34ch;color:#928a77;font-size:10px;line-height:1.55}.player-explore-grid em{margin-top:auto;padding-top:20px;color:#d3bc74;font-style:normal;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+
+/* On the launch screen the archive becomes an optional drawer, not permanent chrome. */
+body.player-portal-enabled[data-player-route="home"] .shell{grid-template-columns:1fr}
+body.player-portal-enabled[data-player-route="home"] .sidebar{position:fixed;left:-320px;top:0;width:300px;height:100vh;transition:left .2s ease;z-index:30;box-shadow:18px 0 55px rgba(0,0,0,.38)}
+body.player-portal-enabled[data-player-route="home"] .sidebar.open{left:0}
+body.player-portal-enabled[data-player-route="home"] #menuBtn{display:block}
+body.player-portal-enabled[data-player-route="home"] #home>.discoveries,
+body.player-portal-enabled[data-player-route="home"] #home>.field-note{display:none!important}
+body.player-portal-enabled[data-player-route="home"] #home .hero-ledger{display:none!important}
+body.player-portal-enabled[data-player-route="home"] .topbar{background:#0d0e0bc7;border-bottom-color:#302e25}
+body.player-portal-enabled[data-player-route="home"] #brainBtn{display:none}
+
+@media(max-width:1050px){.player-portal-possibilities #currentThreadsGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-portal-mind .player-mind-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.player-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.player-portal-topbar{grid-template-columns:1fr 1fr;top:58px}.player-portal-title{grid-column:1/-1;grid-row:1}.player-portal-home{grid-row:2}.player-portal-explore{grid-row:2}.player-portal-intro{padding-top:38px}.player-portal-possibilities #currentThreadsGrid,.player-explore-grid{grid-template-columns:1fr}.player-portal-mind .player-mind-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-portal-mind .player-mind-card{min-height:180px}}
+@media(max-width:460px){.player-portal-mind .player-mind-grid{grid-template-columns:1fr}.player-portal-topbar{padding-left:16px;padding-right:16px}.player-portal-intro,.player-portal-possibilities #currentThreads,.player-portal-mind #playerGoals,.player-portal-inbox #playerGoals,.player-explore-grid{padding-left:18px;padding-right:18px}}
+@media(prefers-reduced-motion:reduce){.player-explore-grid>a{transition:none}.player-explore-grid>a:hover{transform:none}}
