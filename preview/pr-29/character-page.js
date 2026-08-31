@@ -136,17 +136,34 @@
     if (body) body.dataset.activeSection = activeTab;
   }
 
-  function replaceCharacterButton() {
-    const old = document.getElementById('characterSheetBtn');
-    if (!old || old.dataset.standalonePage === 'true') return old;
-    const button = old.cloneNode(true);
-    button.dataset.standalonePage = 'true';
-    button.textContent = 'Character';
-    old.replaceWith(button);
-    button.addEventListener('click', () => {
-      if (isCharacterRoute()) closeCharacterPage();
-      else openCharacterPage();
-    });
+  function ensureCharacterButton() {
+    const topbar = document.querySelector('.topbar');
+    if (!topbar) return null;
+
+    let button = document.getElementById('characterSheetBtn');
+    if (!button) {
+      button = document.createElement('button');
+      button.id = 'characterSheetBtn';
+      button.type = 'button';
+      button.className = 'brain-cta sheet-topbar-button';
+      button.textContent = 'Character';
+      const brain = document.getElementById('brainBtn');
+      topbar.insertBefore(button, brain || null);
+    }
+
+    if (button.dataset.characterNavOwner !== 'page') {
+      const owned = button.cloneNode(true);
+      owned.dataset.standalonePage = 'true';
+      owned.dataset.characterNavOwner = 'page';
+      owned.textContent = 'Character';
+      button.replaceWith(owned);
+      button = owned;
+      button.addEventListener('click', () => {
+        if (isCharacterRoute()) closeCharacterPage();
+        else openCharacterPage();
+      });
+    }
+
     return button;
   }
 
@@ -168,7 +185,7 @@
     const view = ensureView();
     if (!view) return;
     moveSheetIntoView();
-    const button = replaceCharacterButton();
+    const button = ensureCharacterButton();
     const home = document.getElementById('home');
     const brain = document.getElementById('brainView');
     const article = document.getElementById('article');
@@ -207,7 +224,7 @@
   function schedule() {
     setTimeout(() => {
       moveSheetIntoView();
-      replaceCharacterButton();
+      ensureCharacterButton();
       renderCharacterRoute();
     }, 70);
   }
@@ -222,6 +239,7 @@
     if (initialized) return;
     initialized = true;
     ensureView();
+    ensureCharacterButton();
     schedule();
     window.addEventListener('hashchange', () => setTimeout(renderCharacterRoute, 0));
     window.addEventListener('popstate', () => setTimeout(renderCharacterRoute, 0));
