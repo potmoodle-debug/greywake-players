@@ -2,6 +2,7 @@
   const host = document.getElementById('playerGoals');
   if (!host) return;
 
+  const MAX_MIND_SLOTS = 3;
   let scheduled = false;
   let observer = null;
 
@@ -19,7 +20,7 @@
       .gm-mind-dashboard-head h2{margin:4px 0 0;font:30px/1.1 Georgia,serif;color:#eadfbd}
       .gm-mind-dashboard-head p{max-width:600px;margin:0;color:#9b927a;font-size:12px;line-height:1.5}
       .gm-mind-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-      .gm-mind-player{position:relative;min-height:360px;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid #3a3b2e;background:#171811;overflow:hidden;box-shadow:0 18px 48px rgba(0,0,0,.2)}
+      .gm-mind-player{position:relative;min-height:320px;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid #3a3b2e;background:#171811;overflow:hidden;box-shadow:0 18px 48px rgba(0,0,0,.2)}
       .gm-mind-player:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 72% 20%,#4a4028,#171811 58%);z-index:0}
       .gm-mind-player:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,9,6,.05),rgba(8,9,6,.25) 36%,rgba(8,9,6,.98) 100%);z-index:1}
       .gm-mind-player>*{position:relative;z-index:2}
@@ -74,16 +75,16 @@
       const cards = groups.map(group => {
         const name = playerName(group);
         const minds = activeMindCards(group);
-        const items = minds.length ? minds.slice(0,5).map(card => {
+        const items = minds.length ? minds.slice(0, MAX_MIND_SLOTS).map(card => {
           const text = card.querySelector('.interest-thread-head h3')?.textContent?.trim() || 'Current interest';
           const status = (card.querySelector('.interest-status')?.textContent || '').replace(/^.*?·\s*/, '').trim();
           const id = card.dataset.goalId || '';
           return `<button type="button" class="gm-mind-item" data-mind-goal="${id}"><small>${status || 'ON THEIR MIND'}</small>${text}</button>`;
         }).join('') : '<div class="gm-mind-empty">Nothing currently occupying an active slot.</div>';
-        return `<article class="gm-mind-player"><div class="gm-mind-player-head"><strong>${name[0] + name.slice(1).toLowerCase()}</strong><span class="gm-mind-count">${Math.min(minds.length,5)}/5 ON THEIR MIND</span></div><div class="gm-mind-list">${items}</div></article>`;
+        return `<article class="gm-mind-player"><div class="gm-mind-player-head"><strong>${name[0] + name.slice(1).toLowerCase()}</strong><span class="gm-mind-count">${Math.min(minds.length, MAX_MIND_SLOTS)}/${MAX_MIND_SLOTS} ON THEIR MIND</span></div><div class="gm-mind-list">${items}</div></article>`;
       }).join('');
 
-      dashboard.innerHTML = `<div class="gm-mind-dashboard-head"><div><div class="eyebrow">PLAYER PRIORITY SIGNALS</div><h2>What's on their minds</h2></div><p>The active interests occupying each player's five slots.</p></div><div class="gm-mind-grid">${cards}</div><button type="button" class="gm-mind-open-inbox">Open full questions & interests inbox ↓</button>`;
+      dashboard.innerHTML = `<div class="gm-mind-dashboard-head"><div><div class="eyebrow">PLAYER PRIORITY SIGNALS</div><h2>What's on their minds</h2></div><p>Each player can keep up to three active interests. Questions remain separate and do not consume a slot.</p></div><div class="gm-mind-grid">${cards}</div><button type="button" class="gm-mind-open-inbox">Open full questions & interests inbox ↓</button>`;
       host.prepend(dashboard);
 
       dashboard.querySelectorAll('[data-mind-goal]').forEach(button => button.addEventListener('click', () => {
