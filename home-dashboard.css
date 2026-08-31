@@ -10,8 +10,8 @@ body.player-home-dashboard .hero-buttons{display:none}
 .player-continue-head h2{font:clamp(24px,2.8vw,34px)/1.08 Georgia,serif;color:#eee4c8;margin:4px 0 0}
 .player-continue-head p{margin:0;color:#8f8875;font-size:10px}
 .player-continue-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:9px}
-.player-continue-card{min-height:104px;border:1px solid #403b2d;background:#171711;color:inherit;padding:14px 15px;text-align:left;cursor:pointer;position:relative;transition:border-color .18s ease,background .18s ease,transform .18s ease}
-.player-continue-card:hover{border-color:#8f7d49;background:#1d1c15;transform:translateY(-2px)}
+.player-continue-card{display:block;appearance:none;text-decoration:none;min-height:104px;border:1px solid #403b2d;background:#171711;color:inherit;padding:14px 15px;text-align:left;cursor:pointer;position:relative;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.player-continue-card:hover{border-color:#8f7d49;background:#1d1c15;transform:translateY(-2px);text-decoration:none}
 .player-continue-card:focus-visible{outline:2px solid #cdb676;outline-offset:3px}
 .player-continue-card small{display:block;color:#baa467;font-size:7px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;margin-bottom:6px}
 .player-continue-card strong{display:block;color:#e8dec2;font:20px/1.08 Georgia,serif;margin-bottom:5px}
@@ -49,9 +49,9 @@ body.player-home-dashboard #currentThreads .thread-open-all{cursor:pointer}
 .player-home-nav-head h2{font:clamp(25px,3vw,36px)/1.08 Georgia,serif;color:#eee4c8;margin:5px 0 0}
 .player-home-nav-head p{margin:0;max-width:470px;color:#918a77;font-size:10px;line-height:1.5}
 .player-home-nav-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-.player-home-tile{min-height:118px;border:1px solid #3d3a2d;background:linear-gradient(145deg,#1b1b15,#12130f);padding:15px;text-align:left;color:inherit;cursor:pointer;position:relative;overflow:hidden;transition:border-color .18s ease,transform .18s ease,background .18s ease}
+.player-home-tile{display:block;appearance:none;text-decoration:none;min-height:118px;border:1px solid #3d3a2d;background:linear-gradient(145deg,#1b1b15,#12130f);padding:15px;text-align:left;color:inherit;cursor:pointer;position:relative;overflow:hidden;transition:border-color .18s ease,transform .18s ease,background .18s ease}
 .player-home-tile:after{content:"";position:absolute;inset:auto -25px -42px auto;width:115px;height:115px;border:1px solid rgba(205,183,118,.08);transform:rotate(32deg);pointer-events:none}
-.player-home-tile:hover{border-color:#8e7e4d;background:linear-gradient(145deg,#222117,#151611);transform:translateY(-2px)}
+.player-home-tile:hover{border-color:#8e7e4d;background:linear-gradient(145deg,#222117,#151611);transform:translateY(-2px);text-decoration:none}
 .player-home-tile:focus-visible{outline:2px solid #cdb676;outline-offset:3px}
 .player-home-tile small{display:block;color:#b9a264;font-size:8px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;margin-bottom:7px}
 .player-home-tile strong{display:block;font:21px/1.05 Georgia,serif;color:#e9dfc4;margin-bottom:5px}
@@ -67,7 +67,6 @@ body.player-home-dashboard .field-note{display:none}
 .player-inbox-toggle:hover{border-color:#766b47}
 .player-inbox-toggle strong{font:18px Georgia,serif;color:#e7dcc0}.player-inbox-toggle span{color:#8e866f;font-size:9px}.player-inbox-toggle em{font-style:normal;color:#c9b36f;font-size:8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 
-/* Only actual controls get the strong interactive treatment. */
 body.player-home-dashboard .hero-ledger span,
 body.player-home-dashboard .player-mind-empty{cursor:default;transform:none}
 body.player-home-dashboard button:disabled{cursor:not-allowed;opacity:.55}
