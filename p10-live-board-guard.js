@@ -9,6 +9,15 @@
     return location.hash==='#/character' || Boolean(document.querySelector('#characterSheet .character-sheet-shell'));
   }
 
+  function ensurePolish(){
+    if(document.querySelector('link[data-p10-live-polish]'))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='p10-live-play-polish.css?v=p10polish1';
+    link.dataset.p10LivePolish='true';
+    document.head.appendChild(link);
+  }
+
   function needsRepair(){
     const board=document.querySelector('#characterSheet .live-resource-board');
     if(!board)return true;
@@ -31,11 +40,13 @@
 
   function verify(){
     if(!isMarek()||!onCharacterRoute())return;
+    ensurePolish();
     if(needsRepair())repair();
   }
 
   function watchRoot(){
     if(!isMarek()||!onCharacterRoute())return;
+    ensurePolish();
     const root=document.getElementById('characterSheet');
     if(!root){timer=setTimeout(watchRoot,120);return;}
     if(root!==observedRoot){
