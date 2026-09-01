@@ -1,44 +1,70 @@
 (() => {
   const isMarek=()=>String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase()==='marek';
-  let observed=null;
-  let observer=null;
+  let rootObserver=null;
+  let observedRoot=null;
   let timer=null;
-  let probes=0;
+  let repairing=false;
 
-  function needsRepair(board){
-    return !board.querySelector('.live-resource-water')||
-      !board.querySelector('.live-resource-armor')||
-      !board.querySelector('.p10-field-actions');
+  function onCharacterRoute(){
+    return location.hash==='#/character' || Boolean(document.querySelector('#characterSheet .character-sheet-shell'));
+  }
+
+  function needsRepair(){
+    const board=document.querySelector('#characterSheet .live-resource-board');
+    if(!board)return true;
+    return !board.querySelector('.live-resource-water') ||
+      !board.querySelector('.live-resource-armor') ||
+      !board.querySelector('.p10-field-actions') ||
+      !board.querySelector('[data-p10-backpack]') ||
+      !board.querySelector('[data-p10-beastform]');
   }
 
   function repair(){
-    if(!isMarek()||!document.querySelector('#characterSheet .character-sheet-shell'))return;
-    window.GreywakeLivePlayUsability?.refresh?.();
+    if(repairing||!isMarek()||!onCharacterRoute())return;
+    const shell=document.querySelector('#characterSheet .character-sheet-shell');
+    const api=window.GreywakeLivePlayUsability;
+    if(!shell||!api?.refresh)return;
+    repairing=true;
+    try{ api.refresh(); }
+    finally{ setTimeout(()=>{repairing=false;},25); }
   }
 
-  function watch(){
-    if(!isMarek())return;
-    const board=document.querySelector('.live-resource-board');
-    if(!board){
-      if(probes++<20)timer=setTimeout(watch,150);
-      return;
-    }
-    if(board!==observed){
-      observer?.disconnect();
-      observed=board;
-      observer=new MutationObserver(()=>{
-        if(needsRepair(board))setTimeout(repair,0);
+  function verify(){
+    if(!isMarek()||!onCharacterRoute())return;
+    if(needsRepair())repair();
+  }
+
+  function watchRoot(){
+    if(!isMarek()||!onCharacterRoute())return;
+    const root=document.getElementById('characterSheet');
+    if(!root){timer=setTimeout(watchRoot,120);return;}
+    if(root!==observedRoot){
+      rootObserver?.disconnect();
+      observedRoot=root;
+      rootObserver=new MutationObserver(()=>{
+        clearTimeout(timer);
+        timer=setTimeout(verify,30);
       });
-      observer.observe(board,{childList:true,subtree:true});
+      rootObserver.observe(root,{childList:true,subtree:true});
     }
-    if(needsRepair(board))repair();
+    verify();
   }
 
-  function schedule(){clearTimeout(timer);timer=setTimeout(watch,80);}
-  for(const event of ['greywake:player-ready','greywake:sheet-enhanced','greywake:resources-changed','greywake:damage-changed','greywake:rest-state-changed','greywake:equipment-state-changed'])window.addEventListener(event,schedule);
+  function schedule(){
+    clearTimeout(timer);
+    timer=setTimeout(watchRoot,60);
+  }
+
+  for(const event of [
+    'greywake:player-ready','greywake:sheet-enhanced','greywake:resources-changed',
+    'greywake:damage-changed','greywake:rest-state-changed','greywake:equipment-state-changed',
+    'greywake:beastform-changed'
+  ])window.addEventListener(event,schedule);
   window.addEventListener('hashchange',schedule);
   document.addEventListener('DOMContentLoaded',schedule);
-  setTimeout(schedule,250);
-  setTimeout(schedule,750);
-  setTimeout(schedule,1500);
+
+  setTimeout(schedule,150);
+  setTimeout(schedule,500);
+  setTimeout(schedule,1200);
+  setTimeout(schedule,2500);
 })();
