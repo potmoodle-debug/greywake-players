@@ -1,8 +1,8 @@
 (() => {
   const META = {
-    marek: { sigil:'⌇', line:'WARDEN OF RENEWAL', field:'WILDBORNE', material:'FIELD BIOLOGY · WASTES' },
-    velmira: { sigil:'✦', line:'SCHOOL OF KNOWLEDGE', field:'WANDERBORNE', material:'ARCANE RECORD · GREYWAKE' },
-    odie: { sigil:'◇', line:'NIGHTWALKER', field:'UNDERBORNE', material:'SALVAGE RECORD · GREYWAKE' }
+    marek: { sigil:'⌇', line:'WARDEN OF RENEWAL', field:'WILDBORNE' },
+    velmira: { sigil:'✦', line:'SCHOOL OF KNOWLEDGE', field:'WANDERBORNE' },
+    odie: { sigil:'◇', line:'NIGHTWALKER', field:'UNDERBORNE' }
   };
 
   function characterKey(){
@@ -41,14 +41,29 @@
     return `<div class="pro-resource pro-resource-${kind}"><div class="pro-resource-head"><span>${label}</span><strong>${caption}</strong></div><div class="pro-pips" aria-label="${label} ${caption}">${pips}</div></div>`;
   }
 
+  function ensurePortraitFrame(hero){
+    if (!hero) return;
+    const portrait = hero.querySelector('.character-sheet-portrait,.character-sheet-monogram');
+    if (!portrait || portrait.closest('.pro-portrait-frame')) return;
+    const frame = document.createElement('div');
+    frame.className = 'pro-portrait-frame';
+    portrait.parentNode.insertBefore(frame, portrait);
+    frame.appendChild(portrait);
+    frame.insertAdjacentHTML('beforeend','<span class="pro-corner tl"></span><span class="pro-corner tr"></span><span class="pro-corner bl"></span><span class="pro-corner br"></span><em>FIELD IDENT</em>');
+  }
+
   function buildHeroInstrumentation(){
     const shell = document.querySelector('#characterSheet .character-sheet-shell');
     const hero = shell?.querySelector('.character-sheet-hero');
-    if (!shell || !hero || shell.dataset.professionalised === 'true') return false;
-    const key = characterKey();
-    const meta = META[key] || {sigil:'◇',line:'FIELD DOSSIER',field:'GREYWAKE',material:'PERSONAL RECORD'};
-    shell.dataset.professionalised = 'true';
+    if (!shell || !hero) return false;
+
     shell.classList.add('pro-dossier');
+    ensurePortraitFrame(hero);
+    if (shell.dataset.professionalised === 'true') return false;
+
+    const key = characterKey();
+    const meta = META[key] || {sigil:'◇',line:'FIELD DOSSIER',field:'GREYWAKE'};
+    shell.dataset.professionalised = 'true';
 
     const identity = hero.querySelector('.character-sheet-identity');
     const subtitle = identity?.querySelector('.character-sheet-subtitle');
@@ -58,11 +73,6 @@
     ribbon.className = 'pro-identity-ribbon';
     ribbon.innerHTML = `<span class="pro-sigil" aria-hidden="true">${meta.sigil}</span><span>${meta.line}</span><b>${meta.field}</b>`;
     subtitle?.insertAdjacentElement('afterend', ribbon);
-
-    const stamp = document.createElement('div');
-    stamp.className = 'pro-record-stamp';
-    stamp.innerHTML = `<span>GREYWAKE</span><strong>${meta.material}</strong><small>PERSONAL / PLAYER SAFE</small>`;
-    hero.appendChild(stamp);
 
     const stats = readStats();
     const byLabel = label => stats.find(s => s.label.toLowerCase() === label.toLowerCase());
@@ -90,15 +100,6 @@
       if (l === 'armor') node.classList.add('pro-stat-armor');
       if (l === 'level') node.classList.add('pro-stat-level');
     });
-
-    const portrait = hero.querySelector('.character-sheet-portrait,.character-sheet-monogram');
-    if (portrait){
-      const frame = document.createElement('div');
-      frame.className = 'pro-portrait-frame';
-      portrait.parentNode.insertBefore(frame, portrait);
-      frame.appendChild(portrait);
-      frame.insertAdjacentHTML('beforeend','<span class="pro-corner tl"></span><span class="pro-corner tr"></span><span class="pro-corner bl"></span><span class="pro-corner br"></span><em>FIELD IDENT</em>');
-    }
 
     return true;
   }

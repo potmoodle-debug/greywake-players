@@ -44,6 +44,7 @@ jobs:
           node tests/p9-equipment-library.mjs
           node tests/p9-armor.mjs
           node tests/p9-mechanics.mjs
+          node tests/p10-live-play.mjs
 
       - name: Check critical JavaScript syntax
         working-directory: pr
@@ -72,6 +73,8 @@ jobs:
           node --check p9-mechanics-completion.js
           node --check p9-nomadic-pack.js
           node --check p9-consumable-feedback.js
+          node --check p10-live-play-usability.js
+          node --check p10-live-board-guard.js
 
       - name: Copy PR into isolated preview path
         shell: bash
@@ -95,7 +98,7 @@ jobs:
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '418982+github-actions[bot]@users.noreply.github.com'
           git add "preview/pr-${{ github.event.pull_request.number }}"
           if git diff --cached --quiet; then
             echo 'Preview snapshot already current.'
@@ -141,7 +144,7 @@ jobs:
           fi
           rm -rf "$DEST"
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '418982+github-actions[bot]@users.noreply.github.com'
           git add -A "$DEST"
           git commit -m "Remove preview for PR #${{ github.event.pull_request.number }}"
           git push origin main
