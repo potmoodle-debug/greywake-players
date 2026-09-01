@@ -1,8 +1,8 @@
 (() => {
   const META = {
-    marek: { sigil:'⌇', line:'WARDEN OF RENEWAL', field:'WILDBORNE', material:'FIELD BIOLOGY · WASTES' },
-    velmira: { sigil:'✦', line:'SCHOOL OF KNOWLEDGE', field:'WANDERBORNE', material:'ARCANE RECORD · GREYWAKE' },
-    odie: { sigil:'◇', line:'NIGHTWALKER', field:'UNDERBORNE', material:'SALVAGE RECORD · GREYWAKE' }
+    marek: { sigil:'⌇', line:'WARDEN OF RENEWAL', field:'WILDBORNE' },
+    velmira: { sigil:'✦', line:'SCHOOL OF KNOWLEDGE', field:'WANDERBORNE' },
+    odie: { sigil:'◇', line:'NIGHTWALKER', field:'UNDERBORNE' }
   };
 
   function characterKey(){
@@ -62,7 +62,7 @@
     if (shell.dataset.professionalised === 'true') return false;
 
     const key = characterKey();
-    const meta = META[key] || {sigil:'◇',line:'FIELD DOSSIER',field:'GREYWAKE',material:'PERSONAL RECORD'};
+    const meta = META[key] || {sigil:'◇',line:'FIELD DOSSIER',field:'GREYWAKE'};
     shell.dataset.professionalised = 'true';
 
     const identity = hero.querySelector('.character-sheet-identity');
@@ -73,11 +73,6 @@
     ribbon.className = 'pro-identity-ribbon';
     ribbon.innerHTML = `<span class="pro-sigil" aria-hidden="true">${meta.sigil}</span><span>${meta.line}</span><b>${meta.field}</b>`;
     subtitle?.insertAdjacentElement('afterend', ribbon);
-
-    const stamp = document.createElement('div');
-    stamp.className = 'pro-record-stamp';
-    stamp.innerHTML = `<span>GREYWAKE</span><strong>${meta.material}</strong><small>PERSONAL / PLAYER SAFE</small>`;
-    hero.appendChild(stamp);
 
     const stats = readStats();
     const byLabel = label => stats.find(s => s.label.toLowerCase() === label.toLowerCase());
