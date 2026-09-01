@@ -1,7 +1,7 @@
 (() => {
   const MAX_WATER=9;
   const SUPPORTED=['velmira','odie'];
-  let observer=null, observedRoot=null, timer=null, repairing=false;
+  let observer=null, observedRoot=null, timer=null, repairing=false, freezeTimer=null;
   const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   const key=()=>String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();
   const active=()=>SUPPORTED.includes(key());
@@ -69,17 +69,22 @@
     d.querySelector('[data-close]')?.addEventListener('click',()=>d.close());d.querySelectorAll('[data-p11-action-title]').forEach(b=>b.addEventListener('click',()=>{const title=b.dataset.p11ActionTitle;d.close();openActionUse(title);}));if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');
   }
 
+  function freezeLiveBoard(){
+    const board=document.querySelector('#characterSheet .live-resource-board');if(!board)return;
+    const height=Math.ceil(board.getBoundingClientRect().height);if(height>0)board.style.minHeight=`${height}px`;
+    clearTimeout(freezeTimer);freezeTimer=setTimeout(()=>{const current=document.querySelector('#characterSheet .live-resource-board');if(current)current.style.minHeight='';},180);
+  }
   function preserveResourceScroll(e){
-    if(!active())return;const t=e.target.closest?.('[data-companion-adjust],[data-companion-set],[data-companion-undo]');if(!t)return;const y=window.scrollY;
+    if(!active())return;const t=e.target.closest?.('[data-companion-adjust],[data-companion-set],[data-companion-undo]');if(!t)return;freezeLiveBoard();const y=window.scrollY;
     requestAnimationFrame(()=>window.scrollTo(0,y));setTimeout(()=>window.scrollTo(0,y),40);setTimeout(()=>window.scrollTo(0,y),120);
   }
   function makeBackpackTestable(){if(document.body.dataset.gmPreview!=='true')return;document.querySelectorAll('#p7BackpackDialog button,#p7BackpackDialog input,#p7BackpackDialog select').forEach(n=>{n.disabled=false;});}
   function prepareBackpack(){window.GreywakeEquipmentLibrary?.enhance?.();window.GreywakeInventoryConsolidation?.refresh?.();makeBackpackTestable();}
   function handleClick(e){
     if(!active()||!onCharacterRoute())return;const t=e.target.closest('button');if(!t||!document.getElementById('characterSheet')?.contains(t))return;
-    if(t.matches('[data-p11-water-delta]')){e.preventDefault();setWater(water()+Number(t.dataset.p11WaterDelta||0));return;}
-    if(t.matches('[data-p11-water-value]')){e.preventDefault();const v=Number(t.dataset.p11WaterValue||0),cur=water();setWater(cur===v?v-1:v);return;}
-    if(t.matches('[data-p11-armor-value]')){e.preventDefault();const d=damage(),score=Math.max(0,Number(combat()?.armorScore||stat('Armor'))||0),cur=Math.max(0,Math.min(score,Number(d?.armorMarked)||0)),v=Number(t.dataset.p11ArmorValue||0);setArmor(cur===v?v-1:v);return;}
+    if(t.matches('[data-p11-water-delta]')){e.preventDefault();freezeLiveBoard();setWater(water()+Number(t.dataset.p11WaterDelta||0));return;}
+    if(t.matches('[data-p11-water-value]')){e.preventDefault();freezeLiveBoard();const v=Number(t.dataset.p11WaterValue||0),cur=water();setWater(cur===v?v-1:v);return;}
+    if(t.matches('[data-p11-armor-value]')){e.preventDefault();freezeLiveBoard();const d=damage(),score=Math.max(0,Number(combat()?.armorScore||stat('Armor'))||0),cur=Math.max(0,Math.min(score,Number(d?.armorMarked)||0)),v=Number(t.dataset.p11ArmorValue||0);setArmor(cur===v?v-1:v);return;}
     if(t.matches('[data-p11-short-rest]')){e.preventDefault();window.GreywakeRest?.openShort?.();return;}
     if(t.matches('[data-p11-long-rest]')){e.preventDefault();window.GreywakeRest?.openLong?.();return;}
     if(t.matches('[data-p11-take-damage]')){e.preventDefault();window.GreywakeDamage?.openDamage?.();return;}
@@ -91,10 +96,10 @@
   function refresh(){if(!active()||!onCharacterRoute())return;ensureWaterRow();ensureArmorRow();ensureRestUtility();ensureFieldActions();ensureEvasionReadout();removeDuplicates();positionQuickRolls();document.body.dataset.p11Companion='true';}
   function repair(){if(repairing||!active()||!onCharacterRoute())return;repairing=true;try{refresh();}finally{setTimeout(()=>{repairing=false;},40);}}
   function verify(){if(!active()||!onCharacterRoute())return;if(needsRepair())repair();else{ensureWaterRow();ensureArmorRow();ensureEvasionReadout();removeDuplicates();positionQuickRolls();}}
-  function watch(){if(!active()||!onCharacterRoute())return;const root=document.getElementById('characterSheet');if(!root){timer=setTimeout(watch,120);return;}if(root!==observedRoot){observer?.disconnect();observedRoot=root;root.addEventListener('click',preserveResourceScroll,true);root.addEventListener('click',handleClick);observer=new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(verify,70);});observer.observe(root,{childList:true,subtree:true});}verify();}
-  function schedule(){clearTimeout(timer);timer=setTimeout(watch,70);}
-  window.addEventListener('greywake:companion-resources-changed',()=>{if(active())refresh();});
+  function watch(){if(!active()||!onCharacterRoute())return;const root=document.getElementById('characterSheet');if(!root){timer=setTimeout(watch,80);return;}if(root!==observedRoot){observer?.disconnect();observedRoot=root;root.addEventListener('click',preserveResourceScroll,true);root.addEventListener('click',handleClick);observer=new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(verify,40);});observer.observe(root,{childList:true,subtree:true});}verify();}
+  function schedule(){clearTimeout(timer);timer=setTimeout(watch,20);}
+  window.addEventListener('greywake:companion-resources-changed',()=>{if(active()){refresh();const board=document.querySelector('#characterSheet .live-resource-board');if(board){requestAnimationFrame(()=>{board.style.minHeight='';});}}});
   for(const event of ['greywake:player-ready','greywake:sheet-enhanced','greywake:damage-changed','greywake:rest-state-changed','greywake:equipment-state-changed'])window.addEventListener(event,schedule);
-  window.addEventListener('hashchange',schedule);document.addEventListener('DOMContentLoaded',schedule);setTimeout(schedule,160);setTimeout(schedule,550);setTimeout(schedule,1200);
+  window.addEventListener('hashchange',schedule);document.addEventListener('DOMContentLoaded',schedule);schedule();setTimeout(schedule,80);setTimeout(schedule,320);
   window.GreywakeCompanionLivePlay={refresh};
 })();
