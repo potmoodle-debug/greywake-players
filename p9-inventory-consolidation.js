@@ -1,6 +1,16 @@
 (() => {
   const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 
+  function bootEquipmentV4(){
+    if(document.querySelector('script[data-greywake-equipment-v4]'))return;
+    const s=document.createElement('script');s.src='equipment-system-v4.js?v=equipment4';s.defer=true;s.dataset.greywakeEquipmentV4='true';
+    s.addEventListener('load',()=>{
+      window.dispatchEvent(new CustomEvent('greywake:sheet-enhanced',{detail:{reason:'Equipment v4 ready'}}));
+      setTimeout(refresh,100);
+    });
+    document.head.appendChild(s);
+  }
+
   function hideDuplicateGearView(){
     const gearTab=document.querySelector('[data-sheet-tab="gear"]');
     if(gearTab){
@@ -32,9 +42,7 @@
     });
   }
 
-  function refresh(){
-    hideDuplicateGearView();rerouteReadyGear();renderStoredArmorInBackpack();
-  }
+  function refresh(){hideDuplicateGearView();rerouteReadyGear();renderStoredArmorInBackpack();}
 
   document.addEventListener('click',e=>{
     const openGear=e.target.closest?.('[data-open-gear]');
@@ -45,6 +53,6 @@
   window.addEventListener('greywake:sheet-enhanced',()=>setTimeout(refresh,60));
   window.addEventListener('greywake:player-ready',()=>setTimeout(refresh,60));
   window.addEventListener('hashchange',()=>setTimeout(refresh,60));
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,80));else setTimeout(refresh,80);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{bootEquipmentV4();setTimeout(refresh,80);});else{bootEquipmentV4();setTimeout(refresh,80);}
   window.GreywakeInventoryConsolidation={refresh};
 })();
