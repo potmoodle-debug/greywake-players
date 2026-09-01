@@ -51,8 +51,12 @@
       }
     });
   }
+  function ensureDamageUndo(){
+    if(window.GreywakeDamageUndo||document.querySelector('script[data-p9-damage-undo]'))return;
+    const s=document.createElement('script');s.src='p9-damage-undo.js?v=p9damageundo1';s.defer=true;s.dataset.p9DamageUndo='true';document.head.appendChild(s);
+  }
   const schedule=()=>setTimeout(enhance,70);
   document.addEventListener('click',e=>{if(e.target.closest?.('#characterBackpackButton,#p7BackpackEntry .p7-backpack-button,[data-pack-add-open],[data-filter="consumable"]'))schedule();},true);
   window.addEventListener('greywake:equipment-state-changed',schedule);window.addEventListener('greywake:player-ready',schedule);window.addEventListener('hashchange',schedule);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{ensureDamageUndo();schedule();});else{ensureDamageUndo();schedule();}
 })();
