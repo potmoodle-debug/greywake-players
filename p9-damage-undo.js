@@ -50,6 +50,11 @@
     if(/damage/i.test(reason)&&detail.before)saveCheckpoint(detail.before);
     setTimeout(refresh,20);
   }
+  document.addEventListener('click',event=>{
+    const undo=event.target.closest?.('[data-resource-undo],[data-companion-undo]');if(!undo||restoring||!loadCheckpoint())return;
+    const status=damageAPI()?.getState?.()?.status;if(!['death_move','unconscious','blaze_pending','dead','retired'].includes(status))return;
+    event.preventDefault();event.stopImmediatePropagation();restoreCheckpoint();
+  },true);
   window.addEventListener('greywake:resources-changed',onResourceChange);
   window.addEventListener('greywake:companion-resources-changed',onResourceChange);
   window.addEventListener('greywake:damage-changed',()=>setTimeout(refresh,20));
