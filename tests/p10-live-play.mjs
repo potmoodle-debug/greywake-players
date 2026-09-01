@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 const live=fs.readFileSync('p10-live-play-usability.js','utf8');
+const fixes=fs.readFileSync('p10-live-fixes.js','utf8');
 const boot=fs.readFileSync('p9-inventory-consolidation.js','utf8');
+const index=fs.readFileSync('index.html','utf8');
 for(const marker of ['MAX_WATER=9','live-resource-water','live-resource-armor','data-p10-take-damage','openDamage','p10-sticky','p10-can-do-field','What can I do?','data-p10-action-title','openActionUse','p10-action-use-dialog','p10-action-chip','p10-traits-duplicate','#damageHealthPanel,#readyGearPanel,#restPanel','GreywakeLivePlayUsability']){
   if(!live.includes(marker))throw new Error(`Missing P10 live-play marker: ${marker}`);
 }
@@ -11,6 +13,11 @@ if(/data-p10-armor-delta/.test(live))throw new Error('Armor Slots should be cont
 for(const marker of ["'Nature’s Tongue':['1 Hope'","'Wall Walk':['1 Hope'","'Regeneration':['3 Hope'","'Beastform':['1 Stress'"]){
   if(!live.includes(marker))throw new Error(`Missing P10 action metadata: ${marker}`);
 }
+for(const marker of ['clip-path:polygon','data-p10-backpack','data-p10-beastform','GreywakeBackpack','changeBeastform','p10SuppressNextClose','GreywakeLivePlayFixes']){
+  if(!fixes.includes(marker))throw new Error(`Missing P10 follow-up fix marker: ${marker}`);
+}
 if(!boot.includes("p10-live-play-usability.js?v=p10live5"))throw new Error('P10 live-play script is not bootstrapped with the current cache key.');
-if(/beastform\.js/.test(live))throw new Error('P10 must not replace or load Beastform owner.');
-console.log('P10 streamlined live-play controls checks passed');
+if(!boot.includes("p10-live-fixes.js?v=p10fix1"))throw new Error('P10 follow-up fixes are not bootstrapped.');
+if(!index.includes('p9-inventory-consolidation.js?v=p9inventory6'))throw new Error('Outer P10/P9 loader cache key is stale.');
+if(/beastform\.js/.test(live)||/loadScript\([^\n]*beastform\.js/.test(fixes))throw new Error('P10 must not replace or load Beastform owner.');
+console.log('P10 streamlined live-play controls and follow-up fixes checks passed');
