@@ -12,7 +12,10 @@ for(const marker of ['velmira','odie','MAX_WATER=9','live-resource-water','live-
 }
 
 if(live.includes('MutationObserver'))throw new Error('P11 must not use a MutationObserver repair loop.');
-if(live.includes('greywake:companion-resources-changed'))throw new Error('P11 must not rerun layout/presentation work on ordinary Hope/Stress/HP changes.');
+const resourceListener=live.match(/window\.addEventListener\('greywake:companion-resources-changed',[^\n]+/g)||[];
+if(resourceListener.length!==1||!resourceListener[0].includes('ensureEvasionReadout()')||/setup\(|schedule\(|ensureWaterRow\(|ensureArmorRow\(|positionQuickRolls\(/.test(resourceListener[0])){
+  throw new Error('Companion resource changes may update Evasion only; they must not trigger layout or board reconstruction.');
+}
 if(layout.includes("window.addEventListener('greywake:companion-resources-changed'"))throw new Error('Character layout must not normalize on companion resource changes.');
 if(/visibility\s*:\s*hidden/.test(css))throw new Error('P11 must never hide the base character sheet while enhancements initialise.');
 
