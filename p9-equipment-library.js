@@ -20,17 +20,54 @@
   function weaponItems(){return (equipment()?.catalog?.()||[]).map(w=>({id:w.id,name:w.name,type:'weapon',effect:`${w.trait} · ${w.range} · ${w.damage} ${w.damageType}${w.feature&&w.feature!=='—'?` · ${w.feature}`:''}`,automated:true}));}
   function items(){return [...weaponItems(),...consumableItems(),...(GEAR[character()]||[])];}
   function isCarried(item){const api=equipment(),s=api?.getState?.();if(item.type==='weapon')return Boolean(api?.isOwned?.(item.id));if(item.type==='consumable')return Number(s?.consumables?.[item.id]||0)>0;return visibleTitles().includes(item.name.toLowerCase());}
-  function addKnown(item){if(preview())return;const api=equipment();let result={ok:false};if(item.type==='weapon')result=api?.addWeapon?.(item.id)||result;else if(item.type==='consumable')result=api?.adjustConsumable?.(item.id,1)||result;else result={ok:customAdd(item.name)};showStatus(result?.message||result?.ok===false?'Could not add that item.':`${item.name} added.`);setTimeout(()=>{window.GreywakeBackpack?.render?.();enhanceBackpack();},40);}
+  function addKnown(item){
+    if(preview())return;
+    const api=equipment();let result={ok:false};
+    if(item.type==='weapon')result=api?.addWeapon?.(item.id)||result;
+    else if(item.type==='consumable')result=api?.adjustConsumable?.(item.id,1)||result;
+    else result={ok:customAdd(item.name)};
+    const message=result?.message || (result?.ok===false ? 'Could not add that item.' : `${item.name} added.`);
+    setTimeout(()=>refreshBackpack(message),30);
+  }
   function showStatus(text){const d=backpackDialog();if(!d)return;let n=d.querySelector('.p9-library-status');if(!n){n=document.createElement('div');n.className='p9-library-status';d.querySelector('.p9-library')?.appendChild(n);}n.textContent=text||'';}
 
   function renderLibrary(panel){const q=(panel.querySelector('.p9-library-search')?.value||'').trim().toLowerCase(),filter=panel.dataset.filter||'all';const filtered=items().filter(i=>(filter==='all'||i.type===filter)&&(!q||`${i.name} ${i.type} ${i.effect}`.toLowerCase().includes(q)));const grid=panel.querySelector('.p9-library-grid');grid.innerHTML=filtered.map(i=>{const carried=isCarried(i);return `<div class="p9-library-item"><div><span>${esc(i.type)}${i.automated?' · live':''}</span><strong>${esc(i.name)}</strong><small>${esc(i.effect)}</small></div><button type="button" data-p9-add="${esc(i.type)}:${esc(i.id)}" ${carried?'disabled':''}>${carried?'Carried':'Add'}</button></div>`;}).join('')||'<div class="p9-library-note">No known items match that search.</div>';grid.querySelectorAll('[data-p9-add]').forEach(b=>b.addEventListener('click',()=>{const [type,id]=b.dataset.p9Add.split(':');const item=items().find(i=>i.type===type&&i.id===id);if(item)addKnown(item);}));}
   function openLibrary(){const d=backpackDialog();if(!d||preview())return;let panel=d.querySelector('.p9-library');if(!panel){panel=document.createElement('section');panel.className='p9-library';panel.dataset.filter='all';panel.innerHTML=`<div class="p9-library-head"><div><small>KNOWN · OFFICIAL DAGGERHEART</small><strong>Add from item library</strong></div><small>Tier 1 weapons supported by the live sheet, plus known consumables and gear.</small></div><input class="p9-library-search" type="search" placeholder="Search known items…" aria-label="Search known official items"><div class="p9-library-filters"><button type="button" data-filter="all" class="active">All</button><button type="button" data-filter="weapon">Weapons</button><button type="button" data-filter="consumable">Consumables</button><button type="button" data-filter="gear">Gear</button></div><div class="p9-library-grid"></div><p class="p9-library-note">Adding records equipment the character has actually acquired; it does not purchase or create it in the fiction. Inventory weapons are limited to two.</p>`;const addPanel=d.querySelector('[data-pack-add-panel]');(addPanel||d.querySelector('.p7-backpack-grid'))?.insertAdjacentElement('beforebegin',panel);panel.querySelector('.p9-library-search').addEventListener('input',()=>renderLibrary(panel));panel.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{panel.dataset.filter=b.dataset.filter;panel.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderLibrary(panel);}));}panel.hidden=!panel.hidden;if(!panel.hidden){renderLibrary(panel);panel.querySelector('.p9-library-search').focus();}}
 
-  function bindCardAction(card,item){let host=card.querySelector('.p9-card-actions');if(!host){host=document.createElement('div');host.className='p9-card-actions';card.querySelector('.p7-pack-content')?.appendChild(host);}host.replaceChildren();const api=equipment(),s=api?.getState?.();if(item.type==='weapon'){const active=api?.isEquipped?.(item.id);const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=active?'Use':'Equip';b.addEventListener('click',()=>active?api?.openWeaponUse?.(item.id):api?.openEquip?.(item.id));host.appendChild(b);}else if(item.type==='consumable'){const count=Number(s?.consumables?.[item.id]||0);if(count>0){const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=`Use · ${count} left`;b.addEventListener('click',()=>{api?.useConsumable?.(item.id);setTimeout(()=>{window.GreywakeBackpack?.render?.();enhanceBackpack();},30);});host.appendChild(b);}}}
-  function enhanceBackpack(){ensureStyles();const d=backpackDialog();if(!d)return;const add=d.querySelector('[data-pack-add-open]');if(add&&!add.dataset.p9Owned){add.dataset.p9Owned='true';add.textContent='+ Add item';add.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();openLibrary();},true);}const all=items();d.querySelectorAll('.p7-pack-card').forEach(card=>{const title=card.querySelector('h3')?.textContent.trim();const item=all.find(i=>i.name===title&&i.automated);if(item)bindCardAction(card,item);});}
-  const observer=new MutationObserver(()=>enhanceBackpack());
-  function init(){ensureStyles();observer.observe(document.body,{childList:true,subtree:true});enhanceBackpack();}
+  function bindCardAction(card,item){
+    const api=equipment(),s=api?.getState?.();
+    const active=item.type==='weapon' ? Boolean(api?.isEquipped?.(item.id)) : false;
+    const count=item.type==='consumable' ? Number(s?.consumables?.[item.id]||0) : 0;
+    const signature=item.type==='weapon'?`weapon:${item.id}:${active?'use':'equip'}`:`consumable:${item.id}:${count}`;
+    let host=card.querySelector('.p9-card-actions');
+    if(host?.dataset.signature===signature)return;
+    if(!host){host=document.createElement('div');host.className='p9-card-actions';card.querySelector('.p7-pack-content')?.appendChild(host);}
+    host.dataset.signature=signature;
+    host.replaceChildren();
+    if(item.type==='weapon'){
+      const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=active?'Use':'Equip';b.addEventListener('click',()=>active?api?.openWeaponUse?.(item.id):api?.openEquip?.(item.id));host.appendChild(b);
+    }else if(item.type==='consumable'&&count>0){
+      const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=`Use · ${count} left`;b.addEventListener('click',()=>{api?.useConsumable?.(item.id);setTimeout(()=>refreshBackpack(),30);});host.appendChild(b);
+    }
+  }
+  function enhanceBackpack(){
+    ensureStyles();const d=backpackDialog();if(!d)return;
+    const add=d.querySelector('[data-pack-add-open]');
+    if(add&&!add.dataset.p9Owned){add.dataset.p9Owned='true';add.textContent='+ Add item';add.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();openLibrary();},true);}
+    const all=items();d.querySelectorAll('.p7-pack-card').forEach(card=>{const title=card.querySelector('h3')?.textContent.trim();const item=all.find(i=>i.name===title&&i.automated);if(item)bindCardAction(card,item);});
+  }
+  function refreshBackpack(status=''){
+    if(!backpackDialog())return;
+    window.GreywakeBackpack?.render?.();
+    enhanceBackpack();
+    if(status)showStatus(status);
+  }
+  function scheduleEnhance(){setTimeout(enhanceBackpack,40);}
+  function init(){ensureStyles();enhanceBackpack();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-  window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(enhanceBackpack,0));
+  document.addEventListener('click',e=>{if(e.target.closest?.('#characterBackpackButton,#p7BackpackEntry .p7-backpack-button'))scheduleEnhance();},true);
+  window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(()=>refreshBackpack(),0));
+  window.addEventListener('greywake:player-ready',scheduleEnhance);
+  window.addEventListener('hashchange',scheduleEnhance);
   window.GreywakeEquipmentLibrary={known:()=>items().map(x=>({...x})),enhance:enhanceBackpack};
 })();
