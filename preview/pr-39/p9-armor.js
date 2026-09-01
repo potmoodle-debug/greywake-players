@@ -10,15 +10,16 @@
     velmira:{name:'Velmira',level:1,start:'leather-armor',baseEvasion:11,baseAgility:-1},
     odie:{name:'Odie',level:1,start:'gambeson',baseEvasion:12,baseAgility:1}
   };
-  const PREFIX='greywake:p9-armor:v1:';
+  const PREFIX='greywake:p9-armor:v2:';
+  const LEGACY_PREFIX='greywake:p9-armor:v1:';
   let activeKey=null,state=null,originalGetState=null,originalImportState=null;
   const key=()=>{const k=String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();return CONFIG[k]?k:null;};
   const preview=()=>document.body.dataset.gmPreview==='true';
   const storeKey=k=>`${PREFIX}${k}${preview()?':gmtest':''}`;
+  const legacyKey=k=>`${LEGACY_PREFIX}${k}${preview()?':gmtest':''}`;
   const cfg=()=>activeKey?CONFIG[activeKey]:null;
   const armor=id=>ARMORS[id]||null;
   const activeArmor=()=>armor(state?.activeArmor)||armor(cfg()?.start);
-  const clone=v=>JSON.parse(JSON.stringify(v));
   const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 
   function load(k){
@@ -26,8 +27,11 @@
     if(activeKey===k&&state)return state;
     activeKey=k;let raw=null;
     try{raw=JSON.parse(localStorage.getItem(storeKey(k))||'null');}catch(_){raw=null;}
+    if(!raw){try{raw=JSON.parse(localStorage.getItem(legacyKey(k))||'null');}catch(_){raw=null;}}
     const start=CONFIG[k].start;
-    state={activeArmor:ARMORS[raw?.activeArmor]?raw.activeArmor:start,marksByArmor:{...(raw?.marksByArmor||{})}};
+    const active=ARMORS[raw?.activeArmor]?raw.activeArmor:start;
+    const owned=[];[start,active,...(Array.isArray(raw?.ownedArmor)?raw.ownedArmor:[])].filter(id=>ARMORS[id]).forEach(id=>{if(!owned.includes(id))owned.push(id);});
+    state={activeArmor:active,ownedArmor:owned,marksByArmor:{...(raw?.marksByArmor||{})}};
     if(!Number.isFinite(Number(state.marksByArmor[start])))state.marksByArmor[start]=Number(window.GreywakeDamage?.getState?.()?.armorMarked||0);
     save();return state;
   }
@@ -39,7 +43,7 @@
     const rogueDodge=activeKey==='odie'&&Boolean(window.GreywakeCompanion?.getState?.()?.effects?.rogueDodge);
     return{id:a.id,name:a.name,major:a.baseMajor+c.level,severe:a.baseSevere+c.level,armorScore:a.score+shield,evasion:c.baseEvasion+a.evasion+(rogueDodge?2:0),agility:c.baseAgility+a.agility,feature:a.feature,baseMajor:a.baseMajor,baseSevere:a.baseSevere,baseScore:a.score};
   }
-  function snapshot(){ensure();return state?{activeArmor:state.activeArmor,marksByArmor:{...state.marksByArmor}}:null;}
+  function snapshot(){ensure();return state?{activeArmor:state.activeArmor,ownedArmor:[...state.ownedArmor],marksByArmor:{...state.marksByArmor}}:null;}
   function emit(reason){window.dispatchEvent(new CustomEvent('greywake:equipment-state-changed',{detail:{ok:true,key:activeKey,reason,armor:snapshot()}}));}
 
   function statNode(label){return[...document.querySelectorAll('#characterSheet .character-stat')].find(n=>n.querySelector('span')?.textContent.trim().toLowerCase()===label.toLowerCase())||null;}
@@ -69,19 +73,26 @@
   }
 
   function rememberCurrentMarks(){ensure();if(!state)return;state.marksByArmor[state.activeArmor]=Number(window.GreywakeDamage?.getState?.()?.armorMarked||0);save();}
+  function addArmor(id){
+    ensure();const a=armor(id);if(!state||!a||preview())return{ok:false,message:'Armor cannot be added in GM preview.'};
+    if(state.ownedArmor.includes(id))return{ok:false,message:`${a.name} is already owned.`};
+    state.ownedArmor.push(id);save();emit(`Acquired ${a.name}`);
+    return{ok:true,message:`${a.name} acquired and stored. Daggerheart does not allow spare armor in carried inventory.`};
+  }
   function equipArmor(id){
     ensure();const next=armor(id);if(!state||!next||preview())return{ok:false,message:'Armor cannot be changed in GM preview.'};
+    if(!state.ownedArmor.includes(id))return{ok:false,message:`${next.name} must be acquired before it can be equipped.`};
     if(state.activeArmor===id)return{ok:true,message:`${next.name} is already equipped.`};
     rememberCurrentMarks();state.activeArmor=id;save();
     const restore=Math.max(0,Math.min(next.score,Number(state.marksByArmor[id]||0)));window.GreywakeDamage?.setArmorMarked?.(restore);
     applyStats();window.GreywakeEquipment?.render?.();setTimeout(applyStats,20);emit(`Equipped ${next.name}`);
-    return{ok:true,message:`Equipped ${next.name}. Previous armor is no longer carried.`};
+    return{ok:true,message:`Equipped ${next.name}. Previous armor is stored rather than carried.`};
   }
   function openArmorEquip(id){
-    ensure();const a=armor(id);if(!a||preview())return;
+    ensure();const a=armor(id);if(!a||preview()||!state?.ownedArmor.includes(id))return;
     let d=document.getElementById('p9ArmorEquipDialog');if(!d){d=document.createElement('dialog');d.id='p9ArmorEquipDialog';d.className='equipment-dialog';document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});}
     const c=cfg(),major=a.baseMajor+c.level,severe=a.baseSevere+c.level;
-    d.innerHTML=`<div class="equip-dialog-shell"><div class="equip-dialog-head"><div><span>SWITCH ARMOR</span><h2>${esc(a.name)}</h2><p>Daggerheart does not allow armor changes while in danger or under pressure. Confirm this is a calm/preparation moment.</p></div><button class="equip-dialog-close" type="button" data-close>×</button></div><div class="equip-contexts"><div class="equip-context" style="grid-column:1/-1"><strong>Level ${c.level} thresholds ${major}/${severe} · Armor ${a.score}</strong><p>${esc(a.feature==='—'?'No additional armor feature.':a.feature)}</p><button type="button" data-confirm-armor>Equip armor</button></div></div></div>`;
+    d.innerHTML=`<div class="equip-dialog-shell"><div class="equip-dialog-head"><div><span>SWITCH ARMOR</span><h2>${esc(a.name)}</h2><p>Daggerheart does not allow armor changes while in danger or under pressure. Confirm this is a calm/preparation moment.</p></div><button class="equip-dialog-close" type="button" data-close>×</button></div><div class="equip-contexts"><div class="equip-context" style="grid-column:1/-1"><strong>Level ${c.level} thresholds ${major}/${severe} · Armor ${a.score}</strong><p>${esc(a.feature==='—'?'No additional armor feature.':a.feature)}</p><button type="button" data-confirm-armor>Equip owned armor</button></div></div></div>`;
     d.querySelector('[data-close]')?.addEventListener('click',()=>d.close());d.querySelector('[data-confirm-armor]')?.addEventListener('click',()=>{equipArmor(id);d.close();});
     if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');
   }
@@ -101,12 +112,13 @@
   function extendEquipmentAPI(){
     const api=window.GreywakeEquipment;if(!api||api.__p9ArmorExtended)return false;
     originalGetState=api.getState?.bind(api);originalImportState=api.importState?.bind(api);
-    api.getState=()=>({...((originalGetState?.()||{})),activeArmor:snapshot()?.activeArmor||cfg()?.start,armorMarks:{...(snapshot()?.marksByArmor||{})}});
-    api.importState=remote=>{originalImportState?.(remote);ensure();if(remote?.activeArmor&&ARMORS[remote.activeArmor]){rememberCurrentMarks();state.activeArmor=remote.activeArmor;if(remote.armorMarks&&typeof remote.armorMarks==='object')state.marksByArmor={...state.marksByArmor,...remote.armorMarks};save();const a=activeArmor();window.GreywakeDamage?.setArmorMarked?.(Math.min(a.score,Number(state.marksByArmor[state.activeArmor]||0)));setTimeout(applyStats,20);}};
+    api.getState=()=>({...((originalGetState?.()||{})),activeArmor:snapshot()?.activeArmor||cfg()?.start,ownedArmor:[...(snapshot()?.ownedArmor||[])],armorMarks:{...(snapshot()?.marksByArmor||{})}});
+    api.importState=remote=>{originalImportState?.(remote);ensure();if(remote?.activeArmor&&ARMORS[remote.activeArmor]){rememberCurrentMarks();state.activeArmor=remote.activeArmor;if(Array.isArray(remote.ownedArmor))state.ownedArmor=[...new Set([cfg().start,remote.activeArmor,...remote.ownedArmor].filter(id=>ARMORS[id]))];if(remote.armorMarks&&typeof remote.armorMarks==='object')state.marksByArmor={...state.marksByArmor,...remote.armorMarks};save();const a=activeArmor();window.GreywakeDamage?.setArmorMarked?.(Math.min(a.score,Number(state.marksByArmor[state.activeArmor]||0)));setTimeout(applyStats,20);}};
     api.armorCatalog=()=>Object.values(ARMORS).map(x=>({...x,major:x.baseMajor+(cfg()?.level||1),severe:x.baseSevere+(cfg()?.level||1)}));
     api.armor=id=>armor(id)?{...armor(id),major:armor(id).baseMajor+(cfg()?.level||1),severe:armor(id).baseSevere+(cfg()?.level||1)}:null;
     api.isArmorEquipped=id=>snapshot()?.activeArmor===id;
-    api.equipArmor=equipArmor;api.openArmorEquip=openArmorEquip;api.combatStats=combatStats;api.__p9ArmorExtended=true;return true;
+    api.isArmorOwned=id=>Boolean(snapshot()?.ownedArmor?.includes(id));
+    api.addArmor=addArmor;api.equipArmor=equipArmor;api.openArmorEquip=openArmorEquip;api.combatStats=combatStats;api.__p9ArmorExtended=true;return true;
   }
 
   function schedule(){setTimeout(()=>{const k=key();if(!k)return;load(k);if(!extendEquipmentAPI()){setTimeout(schedule,100);return;}applyStats();},80);}
