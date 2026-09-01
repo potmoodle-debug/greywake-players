@@ -11,6 +11,6 @@ if(/data-p10-armor-delta/.test(live))throw new Error('Armor Slots should be cont
 for(const marker of ["'Nature’s Tongue':['1 Hope'","'Wall Walk':['1 Hope'","'Regeneration':['3 Hope'","'Beastform':['1 Stress'"]){
   if(!live.includes(marker))throw new Error(`Missing P10 action metadata: ${marker}`);
 }
-if(!boot.includes("p10-live-play-usability.js?v=p10live1"))throw new Error('P10 live-play script is not bootstrapped.');
+if(!boot.includes("p10-live-play-usability.js?v=p10live5"))throw new Error('P10 live-play script is not bootstrapped with the current cache key.');
 if(/beastform\.js/.test(live))throw new Error('P10 must not replace or load Beastform owner.');
 console.log('P10 streamlined live-play controls checks passed');
