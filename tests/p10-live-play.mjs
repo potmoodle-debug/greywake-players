@@ -12,7 +12,7 @@ for(const marker of ['#4d9bc7','#8bd4fa','setArmorMarked','click a shield','clip
 for(const marker of ['appendChild(detail)','closeActionUse','action-roller']){
   if(!live.includes(marker))throw new Error(`P10 must use the real live action detail, not a cloned roller: ${marker}`);
 }
-for(const marker of ['MutationObserver','needsRepair','live-resource-water','live-resource-armor','p10-field-actions','GreywakeLivePlayUsability?.refresh']){
+for(const marker of ['MutationObserver','needsRepair','p10-field-actions','data-p10-backpack','data-p10-beastform','GreywakeLivePlayUsability','observedRoot']){
   if(!guard.includes(marker))throw new Error(`Missing P10 live-board redraw guard marker: ${marker}`);
 }
 if(/source\.outerHTML/.test(live)||/cloneButtons/.test(live))throw new Error('P10 must not clone action detail/roller controls.');
