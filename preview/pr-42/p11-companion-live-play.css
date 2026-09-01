@@ -1,4 +1,7 @@
 /* P11 companion live-play parity for Velmira and Odie */
+body[data-character="velmira"]:not([data-p11-companion="true"]) #characterSheet .character-sheet-shell,
+body[data-character="odie"]:not([data-p11-companion="true"]) #characterSheet .character-sheet-shell{visibility:hidden}
+body[data-p11-companion="true"] #characterSheet .character-sheet-shell{visibility:visible}
 body[data-p11-companion="true"] #characterSheet .character-sheet-subtitle,
 body[data-p11-companion="true"] #characterSheet .p11-hidden-duplicate{display:none!important}
 body[data-p11-companion="true"] #characterSheet .character-sheet-identity{padding:1.35rem 1.5rem 1.05rem 1.35rem!important}
