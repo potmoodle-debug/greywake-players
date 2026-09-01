@@ -62,6 +62,7 @@ jobs:
           node --check group-choice.js
           node --check p7-usability.js
           node --check equipment-system-v2.js
+          node --check equipment-system-v4.js
           node --check p9-armor.js
           node --check p9-equipment-library.js
           node --check p9-item-removal.js
@@ -69,6 +70,7 @@ jobs:
           node --check p9-inventory-consolidation.js
           node --check p9-damage-undo.js
           node --check p9-mechanics-completion.js
+          node --check p9-nomadic-pack.js
 
       - name: Copy PR into isolated preview path
         shell: bash
