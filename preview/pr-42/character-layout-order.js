@@ -76,7 +76,6 @@
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('greywake:sheet-enhanced',schedule);
   window.addEventListener('greywake:resources-changed',()=>setTimeout(normalize,0));
-  window.addEventListener('greywake:companion-resources-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:damage-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:rest-state-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(normalize,0));
