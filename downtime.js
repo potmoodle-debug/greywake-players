@@ -3,6 +3,7 @@
   const GOALS_API_URL='https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const API_KEY='sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const NAMES={marek:'Marek',velmira:'Velmira',odie:'Odie'};
+  const PARTY=['marek','velmira','odie'];
   const SUGGESTIONS={
     marek:['Investigate something','Study or research something','Prepare for the next expedition','Nothing special'],
     odie:['Check the Digger tunnels','Work on or repair something','Investigate something','Prepare for the next expedition','Nothing special'],
@@ -33,6 +34,7 @@
     .downtime-focus{font-family:Georgia,'Times New Roman',serif;font-size:1.22rem;line-height:1.35;color:#f2ead2;margin:0 0 8px}
     .downtime-response{margin:10px 0 0;color:#d4ccb5;line-height:1.55}
     .downtime-waiting{margin-top:16px;padding-top:14px;border-top:1px solid rgba(205,187,121,.16);font-size:.78rem;letter-spacing:.11em;text-transform:uppercase;color:#cdbb79}
+    .downtime-ready-note{margin-top:9px;color:#aaa28d;line-height:1.45;font-size:.86rem}
     .downtime-actions{display:grid;gap:10px;margin-top:16px}
     .downtime-actions textarea,.downtime-actions input,.downtime-actions select{width:100%;box-sizing:border-box;background:#14130f;color:#eee5cd;border:1px solid #5f5742;padding:11px 12px;font:inherit}
     .downtime-actions button,.downtime-suggestions button,.downtime-pursuits button{border:1px solid #766b4c;background:rgba(178,156,88,.08);color:#e8dfc5;padding:9px 12px;font:inherit;cursor:pointer}
@@ -55,7 +57,7 @@
   `;
   document.head.appendChild(style);
 
-  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
   function currentUser(){return window.GreywakePlayer||null;}
   function identity(){
     const u=currentUser(); if(!u)return null;
@@ -81,6 +83,11 @@
     return host;
   }
   function stateLabel(s){return({waiting_gm:'Waiting on GM',waiting_player:'Waiting on player',resolved_today:'Resolved for today',live_scene:'Live scene',complete:'Complete'})[s]||s;}
+  function dayStatus(actions,w){
+    const dayActions=actions.filter(x=>x.day_number===w.current_day);
+    const submitted=new Set(dayActions.map(x=>x.character_slug));
+    return{dayActions,submitted,count:PARTY.filter(slug=>submitted.has(slug)).length,allSubmitted:PARTY.every(slug=>submitted.has(slug))};
+  }
   function progressMarkup(w){
     return `<div class="downtime-progress" aria-label="Downtime progress">${Array.from({length:w.total_days},(_,i)=>`<span class="${i+1<w.current_day?'is-done':i+1===w.current_day?'is-current':''}"></span>`).join('')}</div>`;
   }
@@ -100,11 +107,22 @@
 
   function renderPlayer(host,w,actions,id,pursuing=[]){
     if(!w){host.innerHTML=shell('<div class="downtime-kicker">TIME IN GREYWAKE</div><h2 class="downtime-title">No downtime right now</h2><p class="downtime-copy">When the fiction creates a stretch of free time, it will appear here.</p>','<div class="downtime-focus-label">BETWEEN GAMES</div><p class="downtime-note">Interests and questions still work normally.</p>');return;}
-    const a=actions.find(x=>x.day_number===w.current_day); const paused=w.status==='paused';
-    const main=`<div class="downtime-kicker">TIME IN GREYWAKE</div><h2 class="downtime-title">${w.total_days===1?'A day in Greywake':`${w.total_days} days in Greywake`}</h2><p class="downtime-copy">${esc(w.reason||'There is time before the next major departure.')}</p><div class="downtime-clock"><span class="downtime-day">DAY <strong>${w.current_day}</strong> / ${w.total_days}</span><span class="downtime-state ${paused?'is-paused':''}">${paused?'Shared clock paused':'Shared clock active'}</span></div>${progressMarkup(w)}${paused?`<div class="downtime-paused-note"><strong>Something now needs live play.</strong><br>${esc(w.pause_reason||'Nobody moves further forward until that scene is resolved.')}</div>`:''}`;
+    const status=dayStatus(actions,w);
+    const a=status.dayActions.find(x=>x.character_slug===id.character);
+    const paused=w.status==='paused';
+    const main=`<div class="downtime-kicker">TIME IN GREYWAKE</div><h2 class="downtime-title">${w.total_days===1?'A day in Greywake':`${w.total_days} days in Greywake`}</h2><p class="downtime-copy">${esc(w.reason||'There is time before the next major departure.')}</p><div class="downtime-clock"><span class="downtime-day">DAY <strong>${w.current_day}</strong> / ${w.total_days}</span><span class="downtime-state ${paused?'is-paused':''}">${paused?'Shared clock paused':status.allSubmitted?'Everyone ready':'Collecting choices'}</span></div>${progressMarkup(w)}${paused?`<div class="downtime-paused-note"><strong>Something now needs live play.</strong><br>${esc(w.pause_reason||'Nobody moves further forward until that scene is resolved.')}</div>`:''}`;
     let side='';
     if(a){
-      side=`<div class="downtime-focus-label">${esc(NAMES[id.character]||'Your character')} · TODAY</div><p class="downtime-focus">${esc(a.focus_text)}</p>${a.gm_response?`<p class="downtime-response">${esc(a.gm_response)}</p>`:''}<div class="downtime-waiting">${esc(stateLabel(a.state))}</div>`;
+      let displayState=stateLabel(a.state);
+      let extra='';
+      if(!paused&&a.state==='waiting_gm'&&!status.allSubmitted){
+        displayState='Waiting for other players';
+        extra=`<p class="downtime-ready-note">Your choice is locked in. ${status.count} of ${PARTY.length} characters are ready for Day ${w.current_day}.</p>`;
+      }else if(!paused&&a.state==='waiting_gm'&&status.allSubmitted){
+        displayState='Ready for GM';
+        extra='<p class="downtime-ready-note">Everyone has chosen. The shared day is ready to be adjudicated.</p>';
+      }
+      side=`<div class="downtime-focus-label">${esc(NAMES[id.character]||'Your character')} · TODAY</div><p class="downtime-focus">${esc(a.focus_text)}</p>${a.gm_response?`<p class="downtime-response">${esc(a.gm_response)}</p>`:''}<div class="downtime-waiting">${esc(displayState)}</div>${extra}`;
       if(!paused&&a.state==='waiting_player')side+=`<div class="downtime-actions"><textarea id="downtimeFocus" rows="3" placeholder="What does ${esc(NAMES[id.character]||'your character')} do next?"></textarea><button id="downtimeSubmit">Send next step</button></div>`;
     }else if(!paused){
       const pursuitMarkup=pursuing.length?`<div class="downtime-focus-label">ALREADY PURSUING</div><div class="downtime-pursuits">${pursuing.map(g=>`<button type="button" data-dt-focus="${esc(g.goal_text)}"><small>Continue this</small>${esc(g.goal_text)}</button>`).join('')}</div><div class="downtime-divider"></div>`:'';
@@ -113,7 +131,16 @@
     }else side='<div class="downtime-focus-label">TODAY</div><p class="downtime-note">This timeline is waiting for the live scene to be resolved.</p>';
     host.innerHTML=shell(main,side);
     host.querySelectorAll('[data-dt-focus]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await req('POST',{action:'submit_focus',focus:b.dataset.dtFocus});await render();}catch(e){alert(e.message);b.disabled=false;}});
-    host.querySelectorAll('[data-dt-suggestion]').forEach(b=>b.onclick=()=>{const t=host.querySelector('#downtimeFocus');if(t){t.value='';t.placeholder=`What specifically does ${NAMES[id.character]||'your character'} do to ${b.dataset.dtSuggestion.toLowerCase()}?`;t.focus();}});
+    host.querySelectorAll('[data-dt-suggestion]').forEach(b=>b.onclick=async()=>{
+      const suggestion=b.dataset.dtSuggestion;
+      if(suggestion==='Nothing special'){
+        b.disabled=true;
+        try{await req('POST',{action:'submit_focus',focus:'Nothing special — ordinary Greywake life and preparation.'});await render();}catch(e){alert(e.message);b.disabled=false;}
+        return;
+      }
+      const t=host.querySelector('#downtimeFocus');
+      if(t){t.value='';t.placeholder=`What specifically does ${NAMES[id.character]||'your character'} do to ${suggestion.toLowerCase()}?`;t.focus();}
+    });
     const submit=host.querySelector('#downtimeSubmit'); if(submit)submit.onclick=async()=>{const t=host.querySelector('#downtimeFocus');const focus=t?.value.trim();if(!focus)return;t.disabled=submit.disabled=true;try{await req('POST',{action:'submit_focus',focus});await render();}catch(e){alert(e.message);t.disabled=submit.disabled=false;}};
   }
 
@@ -122,11 +149,16 @@
       host.innerHTML=shell('<div class="downtime-kicker">GM · TIME IN GREYWAKE</div><h2 class="downtime-title">No downtime window</h2><p class="downtime-copy">Downtime is managed through your Greywake ChatGPT conversation when the fiction creates a period of spare time.</p>','<div class="downtime-focus-label">GM WORKFLOW</div><p class="downtime-note">Tell ChatGPT when downtime begins. The site will update for the players automatically.</p>');
       return;
     }
-    const cards=['marek','velmira','odie'].map(slug=>{
-      const a=actions.find(x=>x.character_slug===slug&&x.day_number===w.current_day);
-      return `<div class="downtime-entry"><div class="downtime-status">${esc(NAMES[slug])} · ${a?esc(stateLabel(a.state)):'No focus yet'}</div>${a?`<strong>${esc(a.focus_text)}</strong>${a.gm_response?`<p class="downtime-response">${esc(a.gm_response)}</p>`:''}`:'<p class="downtime-note">Waiting for player input.</p>'}</div>`;
+    const status=dayStatus(actions,w);
+    const cards=PARTY.map(slug=>{
+      const a=status.dayActions.find(x=>x.character_slug===slug);
+      let label=a?stateLabel(a.state):'No focus yet';
+      if(a?.state==='waiting_gm'&&!status.allSubmitted)label='Focus received';
+      if(a?.state==='waiting_gm'&&status.allSubmitted)label='Ready for GM';
+      return `<div class="downtime-entry"><div class="downtime-status">${esc(NAMES[slug])} · ${esc(label)}</div>${a?`<strong>${esc(a.focus_text)}</strong>${a.gm_response?`<p class="downtime-response">${esc(a.gm_response)}</p>`:''}`:'<p class="downtime-note">Waiting for player input.</p>'}</div>`;
     }).join('');
-    const main=`<div class="downtime-kicker">GM · SHARED GREYWAKE CLOCK</div><h2 class="downtime-title">Day ${w.current_day} of ${w.total_days}</h2><p class="downtime-copy">${esc(w.reason)}</p><div class="downtime-clock"><span class="downtime-state ${w.status==='paused'?'is-paused':''}">${w.status==='paused'?'PAUSED — LIVE SCENE':'OPEN — CONCURRENT ACTIONS'}</span></div>${progressMarkup(w)}${w.status==='paused'?`<div class="downtime-paused-note"><strong>Shared timeline paused.</strong><br>${esc(w.pause_reason||'Resolve the live scene before time advances.')}</div>`:''}<div class="downtime-gm-note"><strong>GM actions happen in ChatGPT.</strong><br>Tell ChatGPT how you want to resolve a player action, whether it needs player input, or whether it becomes a live scene. ChatGPT updates the shared clock and player site.</div>`;
+    const collectionState=w.status==='paused'?'PAUSED — LIVE SCENE':status.allSubmitted?'READY — ALL CHOICES IN':`COLLECTING CHOICES — ${status.count}/${PARTY.length}`;
+    const main=`<div class="downtime-kicker">GM · SHARED GREYWAKE CLOCK</div><h2 class="downtime-title">Day ${w.current_day} of ${w.total_days}</h2><p class="downtime-copy">${esc(w.reason)}</p><div class="downtime-clock"><span class="downtime-state ${w.status==='paused'?'is-paused':''}">${collectionState}</span></div>${progressMarkup(w)}${w.status==='paused'?`<div class="downtime-paused-note"><strong>Shared timeline paused.</strong><br>${esc(w.pause_reason||'Resolve the live scene before time advances.')}</div>`:''}<div class="downtime-gm-note"><strong>GM actions happen in ChatGPT.</strong><br>${status.allSubmitted?'All three choices are in. Adjudicate the shared day in ChatGPT.':'Wait until all three players have submitted a focus or chosen Nothing special before adjudicating the shared day.'}</div>`;
     host.innerHTML=shell(main,`<div class="downtime-grid">${cards}</div>`);
   }
 
