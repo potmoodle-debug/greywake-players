@@ -48,9 +48,17 @@
     const readyGear=document.getElementById('readyGearPanel');
     const damage=document.getElementById('damageHealthPanel');
 
-    // Always append in canonical play order. appendChild moves existing nodes without
-    // recreating them, so their working click handlers and live state are preserved.
-    [traits,beast,actions,readyGear,damage].filter(Boolean).forEach(node=>content.appendChild(node));
+    if(key==='marek'&&traits&&resources){
+      if(traits.parentElement!==identity || traits.nextElementSibling!==resources){
+        resources.insertAdjacentElement('beforebegin',traits);
+      }
+    }else if(traits){
+      content.appendChild(traits);
+    }
+
+    // Always append the remaining live-play panels in canonical order. appendChild
+    // moves existing nodes without recreating them, preserving their handlers/state.
+    [beast,actions,readyGear,damage].filter(Boolean).forEach(node=>content.appendChild(node));
 
     const rest=document.getElementById('restPanel');
     if(rest&&body.nextElementSibling!==rest)body.insertAdjacentElement('afterend',rest);
