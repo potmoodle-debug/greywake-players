@@ -96,7 +96,7 @@
         gap:6px!important;
       }
       #characterSheet .p10-field-actions{
-        grid-template-columns:repeat(6,minmax(0,1fr))!important;
+        grid-template-columns:repeat(4,minmax(0,1fr))!important;
         gap:7px!important;
         padding-top:8px!important;
       }
@@ -105,16 +105,40 @@
         padding-top:8px!important;
         padding-bottom:8px!important;
       }
-      #characterSheet .p10-rest-button{
-        border-color:rgba(100,125,139,.45)!important;
-        background:linear-gradient(180deg,#253139,#192228)!important;
-        color:#d3e0e6!important;
+      #characterSheet .live-resource-board .pro-board-title{
+        display:flex!important;
+        align-items:center!important;
+        gap:10px!important;
       }
-      #characterSheet .p10-short-rest::before{content:'◐'!important}
-      #characterSheet .p10-long-rest::before{content:'☾'!important}
+      #characterSheet .p10-rest-utility{
+        margin-left:auto;
+        display:flex;
+        align-items:center;
+        gap:6px;
+      }
+      #characterSheet .p10-rest-utility button{
+        min-height:30px;
+        padding:5px 9px;
+        border:1px solid rgba(100,125,139,.38);
+        background:linear-gradient(180deg,#242d32,#171d21);
+        color:#ccd9df;
+        font-size:.64rem;
+        font-weight:800;
+        letter-spacing:.035em;
+        cursor:pointer;
+      }
+      #characterSheet .p10-rest-utility button:hover{
+        border-color:rgba(139,167,181,.7);
+        background:linear-gradient(180deg,#2d3a40,#1c262b);
+      }
+      #characterSheet .p10-rest-utility button span{
+        display:inline-block;
+        margin-right:5px;
+        font-size:.82rem;
+      }
       #playDashboard .play-dashboard-rest{display:none!important}
       @media(max-width:950px){
-        #characterSheet .p10-field-actions{grid-template-columns:repeat(3,1fr)!important}
+        #characterSheet .p10-field-actions{grid-template-columns:repeat(2,1fr)!important}
       }
       @media(max-width:700px){
         #characterSheet .live-resource-hope .live-resource-pip,
@@ -126,7 +150,9 @@
           height:20px!important;
           flex-basis:20px!important;
         }
-        #characterSheet .p10-field-actions{grid-template-columns:1fr 1fr!important}
+        #characterSheet .live-resource-board .pro-board-title{align-items:flex-start!important;flex-wrap:wrap}
+        #characterSheet .p10-rest-utility{width:100%;margin-left:0}
+        #characterSheet .p10-rest-utility button{flex:1}
       }
     `;
     document.head.appendChild(style);
@@ -152,25 +178,18 @@
   }
 
   function ensureRestButtons(){
-    const host=document.querySelector('#characterSheet .p10-field-actions');
-    if(!host)return;
-    if(!host.querySelector('[data-p10-short-rest]')){
-      const short=document.createElement('button');
-      short.type='button';
-      short.className='p10-field-action p10-rest-button p10-short-rest';
-      short.dataset.p10ShortRest='';
-      short.textContent='Short Rest';
-      short.addEventListener('click',()=>window.GreywakeRest?.openShort?.());
-      host.appendChild(short);
-    }
-    if(!host.querySelector('[data-p10-long-rest]')){
-      const long=document.createElement('button');
-      long.type='button';
-      long.className='p10-field-action p10-rest-button p10-long-rest';
-      long.dataset.p10LongRest='';
-      long.textContent='Long Rest';
-      long.addEventListener('click',()=>window.GreywakeRest?.openLong?.());
-      host.appendChild(long);
+    document.querySelectorAll('#characterSheet .p10-field-actions [data-p10-short-rest],#characterSheet .p10-field-actions [data-p10-long-rest]').forEach(node=>node.remove());
+    const title=document.querySelector('#characterSheet .live-resource-board .pro-board-title');
+    if(!title)return;
+    let host=title.querySelector('.p10-rest-utility');
+    if(!host){
+      host=document.createElement('div');
+      host.className='p10-rest-utility';
+      host.setAttribute('aria-label','Rest controls');
+      host.innerHTML=`<button type="button" data-p10-short-rest><span aria-hidden="true">◐</span>Short Rest</button><button type="button" data-p10-long-rest><span aria-hidden="true">☾</span>Long Rest</button>`;
+      host.querySelector('[data-p10-short-rest]')?.addEventListener('click',()=>window.GreywakeRest?.openShort?.());
+      host.querySelector('[data-p10-long-rest]')?.addEventListener('click',()=>window.GreywakeRest?.openLong?.());
+      title.appendChild(host);
     }
   }
 
