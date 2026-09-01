@@ -41,14 +41,29 @@
     return `<div class="pro-resource pro-resource-${kind}"><div class="pro-resource-head"><span>${label}</span><strong>${caption}</strong></div><div class="pro-pips" aria-label="${label} ${caption}">${pips}</div></div>`;
   }
 
+  function ensurePortraitFrame(hero){
+    if (!hero) return;
+    const portrait = hero.querySelector('.character-sheet-portrait,.character-sheet-monogram');
+    if (!portrait || portrait.closest('.pro-portrait-frame')) return;
+    const frame = document.createElement('div');
+    frame.className = 'pro-portrait-frame';
+    portrait.parentNode.insertBefore(frame, portrait);
+    frame.appendChild(portrait);
+    frame.insertAdjacentHTML('beforeend','<span class="pro-corner tl"></span><span class="pro-corner tr"></span><span class="pro-corner bl"></span><span class="pro-corner br"></span><em>FIELD IDENT</em>');
+  }
+
   function buildHeroInstrumentation(){
     const shell = document.querySelector('#characterSheet .character-sheet-shell');
     const hero = shell?.querySelector('.character-sheet-hero');
-    if (!shell || !hero || shell.dataset.professionalised === 'true') return false;
+    if (!shell || !hero) return false;
+
+    shell.classList.add('pro-dossier');
+    ensurePortraitFrame(hero);
+    if (shell.dataset.professionalised === 'true') return false;
+
     const key = characterKey();
     const meta = META[key] || {sigil:'◇',line:'FIELD DOSSIER',field:'GREYWAKE',material:'PERSONAL RECORD'};
     shell.dataset.professionalised = 'true';
-    shell.classList.add('pro-dossier');
 
     const identity = hero.querySelector('.character-sheet-identity');
     const subtitle = identity?.querySelector('.character-sheet-subtitle');
@@ -90,15 +105,6 @@
       if (l === 'armor') node.classList.add('pro-stat-armor');
       if (l === 'level') node.classList.add('pro-stat-level');
     });
-
-    const portrait = hero.querySelector('.character-sheet-portrait,.character-sheet-monogram');
-    if (portrait){
-      const frame = document.createElement('div');
-      frame.className = 'pro-portrait-frame';
-      portrait.parentNode.insertBefore(frame, portrait);
-      frame.appendChild(portrait);
-      frame.insertAdjacentHTML('beforeend','<span class="pro-corner tl"></span><span class="pro-corner tr"></span><span class="pro-corner bl"></span><span class="pro-corner br"></span><em>FIELD IDENT</em>');
-    }
 
     return true;
   }
