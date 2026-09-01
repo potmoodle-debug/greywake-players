@@ -20,12 +20,22 @@
   function weaponItems(){return (equipment()?.catalog?.()||[]).map(w=>({id:w.id,name:w.name,type:'weapon',effect:`${w.trait} · ${w.range} · ${w.damage} ${w.damageType}${w.feature&&w.feature!=='—'?` · ${w.feature}`:''}`,automated:true}));}
   function armorItems(){return (equipment()?.armorCatalog?.()||[]).map(a=>({id:a.id,name:a.name,type:'armor',effect:`Thresholds ${a.major}/${a.severe} · Armor ${a.score}${a.feature&&a.feature!=='—'?` · ${a.feature}`:''}`,automated:true}));}
   function items(){return [...weaponItems(),...armorItems(),...consumableItems(),...(GEAR[character()]||[])];}
-  function isCarried(item){const api=equipment(),s=api?.getState?.();if(item.type==='weapon')return Boolean(api?.isOwned?.(item.id));if(item.type==='armor')return Boolean(api?.isArmorEquipped?.(item.id));if(item.type==='consumable')return Number(s?.consumables?.[item.id]||0)>0;return visibleTitles().includes(item.name.toLowerCase());}
+  function statusFor(item){
+    const api=equipment(),s=api?.getState?.();
+    if(item.type==='weapon')return api?.isOwned?.(item.id)?'owned':'missing';
+    if(item.type==='armor'){if(api?.isArmorEquipped?.(item.id))return'equipped';return api?.isArmorOwned?.(item.id)?'owned':'missing';}
+    if(item.type==='consumable')return Number(s?.consumables?.[item.id]||0)>0?'owned':'missing';
+    return visibleTitles().includes(item.name.toLowerCase())?'owned':'missing';
+  }
   function addKnown(item){
     if(preview())return;
-    const api=equipment();let result={ok:false};
+    const api=equipment(),status=statusFor(item);let result={ok:false};
     if(item.type==='weapon')result=api?.addWeapon?.(item.id)||result;
-    else if(item.type==='armor'){api?.openArmorEquip?.(item.id);return;}
+    else if(item.type==='armor'){
+      if(status==='missing')result=api?.addArmor?.(item.id)||result;
+      else if(status==='owned'){api?.openArmorEquip?.(item.id);return;}
+      else return;
+    }
     else if(item.type==='consumable')result=api?.adjustConsumable?.(item.id,1)||result;
     else result={ok:customAdd(item.name)};
     const message=result?.message || (result?.ok===false ? 'Could not add that item.' : `${item.name} added.`);
@@ -33,8 +43,14 @@
   }
   function showStatus(text){const d=backpackDialog();if(!d)return;let n=d.querySelector('.p9-library-status');if(!n){n=document.createElement('div');n.className='p9-library-status';d.querySelector('.p9-library')?.appendChild(n);}n.textContent=text||'';}
 
-  function renderLibrary(panel){const q=(panel.querySelector('.p9-library-search')?.value||'').trim().toLowerCase(),filter=panel.dataset.filter||'all';const filtered=items().filter(i=>(filter==='all'||i.type===filter)&&(!q||`${i.name} ${i.type} ${i.effect}`.toLowerCase().includes(q)));const grid=panel.querySelector('.p9-library-grid');grid.innerHTML=filtered.map(i=>{const carried=isCarried(i),label=i.type==='armor'?(carried?'Equipped':'Equip'):(carried?'Carried':'Add');return `<div class="p9-library-item"><div><span>${esc(i.type)}${i.automated?' · live':''}</span><strong>${esc(i.name)}</strong><small>${esc(i.effect)}</small></div><button type="button" data-p9-add="${esc(i.type)}:${esc(i.id)}" ${carried?'disabled':''}>${label}</button></div>`;}).join('')||'<div class="p9-library-note">No known items match that search.</div>';grid.querySelectorAll('[data-p9-add]').forEach(b=>b.addEventListener('click',()=>{const [type,id]=b.dataset.p9Add.split(':');const item=items().find(i=>i.type===type&&i.id===id);if(item)addKnown(item);}));}
-  function openLibrary(){const d=backpackDialog();if(!d||preview())return;let panel=d.querySelector('.p9-library');if(!panel){panel=document.createElement('section');panel.className='p9-library';panel.dataset.filter='all';panel.innerHTML=`<div class="p9-library-head"><div><small>KNOWN · OFFICIAL DAGGERHEART</small><strong>Add from item library</strong></div><small>Tier 1 weapons and armor supported by the live sheet, plus known consumables and gear.</small></div><input class="p9-library-search" type="search" placeholder="Search known items…" aria-label="Search known official items"><div class="p9-library-filters"><button type="button" data-filter="all" class="active">All</button><button type="button" data-filter="weapon">Weapons</button><button type="button" data-filter="armor">Armor</button><button type="button" data-filter="consumable">Consumables</button><button type="button" data-filter="gear">Gear</button></div><div class="p9-library-grid"></div><p class="p9-library-note">Adding records equipment the character has actually acquired; it does not purchase or create it in the fiction. Inventory weapons are limited to two. Daggerheart does not allow carrying spare armor; choosing armor equips it and replaces the current set.</p>`;const addPanel=d.querySelector('[data-pack-add-panel]');(addPanel||d.querySelector('.p7-backpack-grid'))?.insertAdjacentElement('beforebegin',panel);panel.querySelector('.p9-library-search').addEventListener('input',()=>renderLibrary(panel));panel.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{panel.dataset.filter=b.dataset.filter;panel.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderLibrary(panel);}));}panel.hidden=!panel.hidden;if(!panel.hidden){renderLibrary(panel);panel.querySelector('.p9-library-search').focus();}}
+  function renderLibrary(panel){
+    const q=(panel.querySelector('.p9-library-search')?.value||'').trim().toLowerCase(),filter=panel.dataset.filter||'all';
+    const filtered=items().filter(i=>(filter==='all'||i.type===filter)&&(!q||`${i.name} ${i.type} ${i.effect}`.toLowerCase().includes(q)));
+    const grid=panel.querySelector('.p9-library-grid');
+    grid.innerHTML=filtered.map(i=>{const status=statusFor(i);let label='Add',disabled=false,extra='';if(i.type==='armor'){if(status==='equipped'){label='Equipped';disabled=true;extra=' · active';}else if(status==='owned'){label='Equip';extra=' · stored';}}else if(status==='owned'){label='Carried';disabled=true;}return `<div class="p9-library-item"><div><span>${esc(i.type)}${i.automated?' · live':''}${extra}</span><strong>${esc(i.name)}</strong><small>${esc(i.effect)}</small></div><button type="button" data-p9-add="${esc(i.type)}:${esc(i.id)}" ${disabled?'disabled':''}>${label}</button></div>`;}).join('')||'<div class="p9-library-note">No known items match that search.</div>';
+    grid.querySelectorAll('[data-p9-add]').forEach(b=>b.addEventListener('click',()=>{const [type,id]=b.dataset.p9Add.split(':');const item=items().find(i=>i.type===type&&i.id===id);if(item)addKnown(item);}));
+  }
+  function openLibrary(){const d=backpackDialog();if(!d||preview())return;let panel=d.querySelector('.p9-library');if(!panel){panel=document.createElement('section');panel.className='p9-library';panel.dataset.filter='all';panel.innerHTML=`<div class="p9-library-head"><div><small>KNOWN · OFFICIAL DAGGERHEART</small><strong>Add from item library</strong></div><small>Tier 1 weapons and armor supported by the live sheet, plus known consumables and gear.</small></div><input class="p9-library-search" type="search" placeholder="Search known items…" aria-label="Search known official items"><div class="p9-library-filters"><button type="button" data-filter="all" class="active">All</button><button type="button" data-filter="weapon">Weapons</button><button type="button" data-filter="armor">Armor</button><button type="button" data-filter="consumable">Consumables</button><button type="button" data-filter="gear">Gear</button></div><div class="p9-library-grid"></div><p class="p9-library-note">Add records equipment the character has acquired. Armor is acquired first, then equipped separately when safe. Daggerheart does not allow spare armor in carried inventory, so unequipped owned armor is shown as stored.</p>`;const addPanel=d.querySelector('[data-pack-add-panel]');(addPanel||d.querySelector('.p7-backpack-grid'))?.insertAdjacentElement('beforebegin',panel);panel.querySelector('.p9-library-search').addEventListener('input',()=>renderLibrary(panel));panel.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{panel.dataset.filter=b.dataset.filter;panel.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderLibrary(panel);}));}panel.hidden=!panel.hidden;if(!panel.hidden){renderLibrary(panel);panel.querySelector('.p9-library-search').focus();}}
 
   function bindCardAction(card,item){
     const api=equipment(),s=api?.getState?.();
@@ -48,7 +64,7 @@
     if(item.type==='weapon'){
       const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=active?'Use':'Equip';b.addEventListener('click',()=>active?api?.openWeaponUse?.(item.id):api?.openEquip?.(item.id));host.appendChild(b);
     }else if(item.type==='armor'){
-      const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=active?'Equipped':'Equip';b.disabled=active;if(!active)b.addEventListener('click',()=>api?.openArmorEquip?.(item.id));host.appendChild(b);
+      const owned=Boolean(api?.isArmorOwned?.(item.id));const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=active?'Equipped':owned?'Equip':'Add';b.disabled=active;b.addEventListener('click',()=>{if(active)return;if(!owned){api?.addArmor?.(item.id);setTimeout(()=>refreshBackpack(),30);}else api?.openArmorEquip?.(item.id);});host.appendChild(b);
     }else if(item.type==='consumable'&&count>0){
       const b=document.createElement('button');b.type='button';b.className='p9-item-action';b.textContent=`Use · ${count} left`;b.addEventListener('click',()=>{api?.useConsumable?.(item.id);setTimeout(()=>refreshBackpack(),30);});host.appendChild(b);
     }
