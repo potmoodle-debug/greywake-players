@@ -35,8 +35,8 @@
     .downtime-waiting{margin-top:16px;padding-top:14px;border-top:1px solid rgba(205,187,121,.16);font-size:.78rem;letter-spacing:.11em;text-transform:uppercase;color:#cdbb79}
     .downtime-actions{display:grid;gap:10px;margin-top:16px}
     .downtime-actions textarea,.downtime-actions input,.downtime-actions select{width:100%;box-sizing:border-box;background:#14130f;color:#eee5cd;border:1px solid #5f5742;padding:11px 12px;font:inherit}
-    .downtime-actions button,.downtime-suggestions button,.downtime-gm-controls button,.downtime-pursuits button{border:1px solid #766b4c;background:rgba(178,156,88,.08);color:#e8dfc5;padding:9px 12px;font:inherit;cursor:pointer}
-    .downtime-actions button:hover,.downtime-suggestions button:hover,.downtime-gm-controls button:hover,.downtime-pursuits button:hover{background:rgba(178,156,88,.16);border-color:#ad9b62}
+    .downtime-actions button,.downtime-suggestions button,.downtime-pursuits button{border:1px solid #766b4c;background:rgba(178,156,88,.08);color:#e8dfc5;padding:9px 12px;font:inherit;cursor:pointer}
+    .downtime-actions button:hover,.downtime-suggestions button:hover,.downtime-pursuits button:hover{background:rgba(178,156,88,.16);border-color:#ad9b62}
     .downtime-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
     .downtime-suggestions button{font-size:.84rem}
     .downtime-pursuits{display:grid;gap:7px;margin:12px 0 16px}
@@ -47,16 +47,15 @@
     .downtime-paused-note{margin-top:14px;padding:11px 12px;border-left:2px solid #b87456;background:rgba(129,68,45,.12);color:#dbc4b5}
     .downtime-error{color:#e2a18e}
     .downtime-grid{display:grid;gap:10px}
-    .downtime-entry{padding:12px 0;border-top:1px solid rgba(205,187,121,.14)}
+    .downtime-entry{padding:13px 0;border-top:1px solid rgba(205,187,121,.14)}
     .downtime-entry:first-child{border-top:0}
-    .downtime-status{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#cdbb79;margin-bottom:4px}
-    .downtime-gm-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .downtime-gm-controls textarea{width:100%;background:#14130f;color:#eee5cd;border:1px solid #5f5742;padding:9px}
+    .downtime-status{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#cdbb79;margin-bottom:5px}
+    .downtime-gm-note{margin-top:16px;padding:12px 13px;border:1px solid rgba(205,187,121,.22);background:rgba(205,187,121,.05);color:#c9c1aa;line-height:1.5}
     @media(max-width:760px){.downtime-panel{padding:0 12px}.downtime-inner{grid-template-columns:1fr}.downtime-main{border-right:0;border-bottom:1px solid rgba(203,184,119,.20)}.downtime-main,.downtime-side{padding:20px}}
   `;
   document.head.appendChild(style);
 
-  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+  function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));}
   function currentUser(){return window.GreywakePlayer||null;}
   function identity(){
     const u=currentUser(); if(!u)return null;
@@ -119,15 +118,16 @@
   }
 
   function renderGM(host,w,actions){
-    if(!w){host.innerHTML=shell('<div class="downtime-kicker">GM · TIME IN GREYWAKE</div><h2 class="downtime-title">No downtime window</h2><p class="downtime-copy">Open one only when the fiction has genuinely created spare time.</p>',`<form id="dtOpen" class="downtime-actions"><select id="dtDays"><option value="1">1 day</option><option value="3" selected>3 days</option><option value="7">1 week</option></select><input id="dtReason" maxlength="500" placeholder="Why is this time available?"><button>Open downtime window</button></form>`);host.querySelector('#dtOpen').onsubmit=async e=>{e.preventDefault();await req('POST',{action:'open_window',total_days:Number(host.querySelector('#dtDays').value),reason:host.querySelector('#dtReason').value});await render();};return;}
-    const cards=['marek','velmira','odie'].map(slug=>{const a=actions.find(x=>x.character_slug===slug&&x.day_number===w.current_day);return `<div class="downtime-entry" data-dt-card="${slug}"><div class="downtime-status">${esc(NAMES[slug])} · ${a?esc(stateLabel(a.state)):'No focus yet'}</div>${a?`<strong>${esc(a.focus_text)}</strong>${a.gm_response?`<p>${esc(a.gm_response)}</p>`:''}<textarea rows="2" data-dt-response="${a.id}" placeholder="Routine result, information, or why this becomes a live scene"></textarea><div class="downtime-gm-controls"><button data-dt-state="resolved_today" data-id="${a.id}">Resolve today</button><button data-dt-state="waiting_player" data-id="${a.id}">Needs player</button><button data-dt-state="live_scene" data-id="${a.id}">Hold for live scene</button></div>`:'<p class="downtime-note">Waiting for player input.</p>'}</div>`;}).join('');
-    const main=`<div class="downtime-kicker">GM · SHARED GREYWAKE CLOCK</div><h2 class="downtime-title">Day ${w.current_day} of ${w.total_days}</h2><p class="downtime-copy">${esc(w.reason)}</p><div class="downtime-clock"><span class="downtime-state ${w.status==='paused'?'is-paused':''}">${w.status==='paused'?'PAUSED — LIVE SCENE':'OPEN — CONCURRENT ACTIONS'}</span></div>${progressMarkup(w)}${w.status==='paused'?`<div class="downtime-paused-note"><strong>Do not advance anyone beyond this point.</strong><br>${esc(w.pause_reason||'Resolve the live scene first.')}</div>`:''}`;
-    const side=`<div class="downtime-grid">${cards}</div><div class="downtime-gm-controls">${w.status==='paused'?'<button id="dtResume">Scene resolved — resume shared clock</button>':'<button id="dtAdvance">Advance shared day</button>'}<button id="dtClose">Close downtime window</button></div>`;
-    host.innerHTML=shell(main,side);
-    host.querySelectorAll('[data-dt-state]').forEach(b=>b.onclick=async()=>{const area=host.querySelector(`[data-dt-response="${b.dataset.id}"]`);b.disabled=true;try{await req('PATCH',{action:'resolve_action',id:Number(b.dataset.id),state:b.dataset.dtState,response:area?.value||''});await render();}catch(e){alert(e.message);b.disabled=false;}});
-    host.querySelector('#dtResume')?.addEventListener('click',async()=>{await req('PATCH',{action:'resume'});await render();});
-    host.querySelector('#dtAdvance')?.addEventListener('click',async()=>{try{await req('PATCH',{action:'advance_day'});await render();}catch(e){alert(e.message);}});
-    host.querySelector('#dtClose')?.addEventListener('click',async()=>{await req('PATCH',{action:'close_window'});await render();});
+    if(!w){
+      host.innerHTML=shell('<div class="downtime-kicker">GM · TIME IN GREYWAKE</div><h2 class="downtime-title">No downtime window</h2><p class="downtime-copy">Downtime is managed through your Greywake ChatGPT conversation when the fiction creates a period of spare time.</p>','<div class="downtime-focus-label">GM WORKFLOW</div><p class="downtime-note">Tell ChatGPT when downtime begins. The site will update for the players automatically.</p>');
+      return;
+    }
+    const cards=['marek','velmira','odie'].map(slug=>{
+      const a=actions.find(x=>x.character_slug===slug&&x.day_number===w.current_day);
+      return `<div class="downtime-entry"><div class="downtime-status">${esc(NAMES[slug])} · ${a?esc(stateLabel(a.state)):'No focus yet'}</div>${a?`<strong>${esc(a.focus_text)}</strong>${a.gm_response?`<p class="downtime-response">${esc(a.gm_response)}</p>`:''}`:'<p class="downtime-note">Waiting for player input.</p>'}</div>`;
+    }).join('');
+    const main=`<div class="downtime-kicker">GM · SHARED GREYWAKE CLOCK</div><h2 class="downtime-title">Day ${w.current_day} of ${w.total_days}</h2><p class="downtime-copy">${esc(w.reason)}</p><div class="downtime-clock"><span class="downtime-state ${w.status==='paused'?'is-paused':''}">${w.status==='paused'?'PAUSED — LIVE SCENE':'OPEN — CONCURRENT ACTIONS'}</span></div>${progressMarkup(w)}${w.status==='paused'?`<div class="downtime-paused-note"><strong>Shared timeline paused.</strong><br>${esc(w.pause_reason||'Resolve the live scene before time advances.')}</div>`:''}<div class="downtime-gm-note"><strong>GM actions happen in ChatGPT.</strong><br>Tell ChatGPT how you want to resolve a player action, whether it needs player input, or whether it becomes a live scene. ChatGPT updates the shared clock and player site.</div>`;
+    host.innerHTML=shell(main,`<div class="downtime-grid">${cards}</div>`);
   }
 
   window.addEventListener('greywake:player-ready',render);
