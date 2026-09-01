@@ -15,9 +15,36 @@
     return (location.hash || '') === '#/character';
   }
 
+  function ensureHeaderStyles() {
+    if (document.getElementById('characterBackpackHeaderStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'characterBackpackHeaderStyles';
+    style.textContent = `
+      .character-page-toolbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+      .character-page-backpack{display:inline-flex;align-items:center;gap:9px;border:1px solid #8f7540;background:linear-gradient(180deg,#352a18,#211a10);color:#f2d78e;padding:9px 13px;cursor:pointer;font-weight:900;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+      .character-page-backpack-icon{font-size:22px;line-height:1}
+      .character-page-backpack small{display:block;color:#b6aa8a;font-size:7px;letter-spacing:.13em;text-align:left}
+      .character-page-backpack strong{display:block;color:#f3dfaa;font-size:11px;text-align:left}
+      .character-page-backpack:hover,.character-page-backpack:focus-visible{border-color:#c2a45b;background:linear-gradient(180deg,#46371e,#2b2113)}
+      #p7BackpackEntry{display:none!important}
+      @media(max-width:760px){.character-page-toolbar-actions{width:100%;justify-content:stretch}.character-page-backpack{flex:1;justify-content:center}.character-page-close{flex:1}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function openBackpackFromHeader() {
+    const trigger = document.querySelector('#p7BackpackEntry .p7-backpack-button');
+    if (trigger) {
+      trigger.click();
+      return;
+    }
+    setTimeout(() => document.querySelector('#p7BackpackEntry .p7-backpack-button')?.click(), 120);
+  }
+
   function ensureView() {
     const main = document.getElementById('mainContent');
     if (!main) return null;
+    ensureHeaderStyles();
     let view = document.getElementById('characterPageView');
     if (!view) {
       view = document.createElement('section');
@@ -31,13 +58,20 @@
             <h1 id="characterPageHeading" tabindex="-1">Character sheet</h1>
             <p id="characterPageSubheading">Field reference · rules · equipment · personal record</p>
           </div>
-          <button id="characterPageClose" class="character-page-close" type="button">← Back to Greywake</button>
+          <div class="character-page-toolbar-actions">
+            <button id="characterBackpackButton" class="character-page-backpack" type="button" aria-label="Open backpack">
+              <span class="character-page-backpack-icon" aria-hidden="true">🎒</span>
+              <span><small>INVENTORY</small><strong>Backpack</strong></span>
+            </button>
+            <button id="characterPageClose" class="character-page-close" type="button">← Back to Greywake</button>
+          </div>
         </div>
         <nav id="characterPageTabs" class="character-page-tabs" aria-label="Character sheet sections"></nav>`;
       const article = document.getElementById('article');
       if (article) article.insertAdjacentElement('beforebegin', view);
       else main.appendChild(view);
       view.querySelector('#characterPageClose').addEventListener('click', closeCharacterPage);
+      view.querySelector('#characterBackpackButton').addEventListener('click', openBackpackFromHeader);
     }
     return view;
   }
