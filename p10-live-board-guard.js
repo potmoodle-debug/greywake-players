@@ -61,6 +61,61 @@
         font:700 1.15rem/1 Georgia,serif;
         color:#f0e6c8;
       }
+      #characterSheet .character-sheet-subtitle{display:none!important}
+      #characterSheet .character-sheet-identity{
+        padding:1.35rem 1.5rem 1.05rem 1.35rem!important;
+      }
+      #characterSheet .character-sheet-identity h2{
+        margin:.05rem 0 .22rem!important;
+        font-size:clamp(2.7rem,5vw,4.6rem)!important;
+      }
+      #characterSheet .pro-identity-ribbon{margin:.45rem 0 .05rem!important}
+      #traitRollPanel{
+        margin-top:.65rem!important;
+        padding:.75rem!important;
+      }
+      #traitRollPanel .trait-roll-buttons{
+        margin-top:.55rem!important;
+        gap:.38rem!important;
+      }
+      #traitRollPanel .trait-roll-buttons button{
+        min-height:48px!important;
+        padding:.42rem .35rem!important;
+      }
+      #traitRollPanel .trait-roll-options{
+        margin-top:.48rem!important;
+        padding-top:.4rem!important;
+      }
+      #characterSheet .live-resource-board{
+        margin-top:.6rem!important;
+        padding:10px!important;
+        gap:8px!important;
+      }
+      #characterSheet .live-resource-row{
+        padding:8px 9px!important;
+        gap:6px!important;
+      }
+      #characterSheet .p10-field-actions{
+        grid-template-columns:repeat(6,minmax(0,1fr))!important;
+        gap:7px!important;
+        padding-top:8px!important;
+      }
+      #characterSheet .p10-field-action{
+        min-height:44px!important;
+        padding-top:8px!important;
+        padding-bottom:8px!important;
+      }
+      #characterSheet .p10-rest-button{
+        border-color:rgba(100,125,139,.45)!important;
+        background:linear-gradient(180deg,#253139,#192228)!important;
+        color:#d3e0e6!important;
+      }
+      #characterSheet .p10-short-rest::before{content:'◐'!important}
+      #characterSheet .p10-long-rest::before{content:'☾'!important}
+      #playDashboard .play-dashboard-rest{display:none!important}
+      @media(max-width:950px){
+        #characterSheet .p10-field-actions{grid-template-columns:repeat(3,1fr)!important}
+      }
       @media(max-width:700px){
         #characterSheet .live-resource-hope .live-resource-pip,
         #characterSheet .live-resource-stress .live-resource-pip,
@@ -71,6 +126,7 @@
           height:20px!important;
           flex-basis:20px!important;
         }
+        #characterSheet .p10-field-actions{grid-template-columns:1fr 1fr!important}
       }
     `;
     document.head.appendChild(style);
@@ -93,6 +149,29 @@
     mark.removeAttribute('aria-hidden');
     mark.setAttribute('aria-label',`Evasion ${value}`);
     mark.innerHTML=`<span>EVASION</span><strong>${value}</strong>`;
+  }
+
+  function ensureRestButtons(){
+    const host=document.querySelector('#characterSheet .p10-field-actions');
+    if(!host)return;
+    if(!host.querySelector('[data-p10-short-rest]')){
+      const short=document.createElement('button');
+      short.type='button';
+      short.className='p10-field-action p10-rest-button p10-short-rest';
+      short.dataset.p10ShortRest='';
+      short.textContent='Short Rest';
+      short.addEventListener('click',()=>window.GreywakeRest?.openShort?.());
+      host.appendChild(short);
+    }
+    if(!host.querySelector('[data-p10-long-rest]')){
+      const long=document.createElement('button');
+      long.type='button';
+      long.className='p10-field-action p10-rest-button p10-long-rest';
+      long.dataset.p10LongRest='';
+      long.textContent='Long Rest';
+      long.addEventListener('click',()=>window.GreywakeRest?.openLong?.());
+      host.appendChild(long);
+    }
   }
 
   function needsRepair(){
@@ -120,6 +199,7 @@
     ensurePolish();
     if(needsRepair())repair();
     ensureEvasionReadout();
+    ensureRestButtons();
   }
 
   function watchRoot(){
