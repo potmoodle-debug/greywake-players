@@ -55,8 +55,9 @@
   function routeCanonicalWeapon(id){
     const map=CANONICAL_ACTIONS[character()]||{},actionId=map[id];if(!actionId)return false;
     let button=null;
-    if(character()==='marek')button=document.querySelector(`#activeActionsPanel [data-active-action="${CSS.escape(actionId)}"]`);
-    else button=document.querySelector(`#companionActionsPanel [data-companion-action="${CSS.escape(actionId)}"]`);
+    const safe=String(actionId).replace(/"/g,'\\"');
+    if(character()==='marek')button=document.querySelector(`#activeActionsPanel [data-active-action="${safe}"]`);
+    else button=document.querySelector(`#companionActionsPanel [data-companion-action="${safe}"]`);
     if(!button)return false;
     backpack()?.close?.();button.click();setTimeout(()=>document.querySelector('#activeActionsPanel .active-action-detail,#companionActionsPanel .active-action-detail')?.scrollIntoView({behavior:'smooth',block:'center'}),60);return true;
   }
@@ -125,7 +126,7 @@
     if(e.target.closest?.('[data-pack-add-open],[data-filter],#characterBackpackButton,#p7BackpackEntry .p7-backpack-button'))schedule();
   },true);
   document.addEventListener('input',e=>{if(e.target.closest?.('.p9-library-search'))setTimeout(enhanceLibrary,0);},true);
-  window.addEventListener('greywake:equipment-state-changed',schedule);window.addEventListener('greywake:player-ready',schedule);window.addEventListener('greywake:sheet-enhanced',schedule);window.addEventListener('hashchange',schedule);
+  window.addEventListener('greywake:equipment-state-changed',schedule);window.addEventListener('greywake:player-ready',schedule);window.addEventListener('greywake:sheet-enhanced',schedule);window.addEventListener('greywake:companion-resources-changed',schedule);window.addEventListener('hashchange',schedule);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
   window.GreywakeP9Mechanics={enhance,openWeaponUse:openDynamicWeapon};
 })();
