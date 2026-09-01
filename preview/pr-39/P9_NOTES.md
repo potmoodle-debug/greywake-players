@@ -2,19 +2,21 @@
 
 Goal: make equipment selection and use feel like a real character-sheet system without creating a second inventory owner.
 
-## Current slice
+## Mechanics-complete scope
 - Backpack is the single full inventory-management surface; Ready Gear is summary-only.
-- Adds a searchable known-item library to Backpack.
-- Library only exposes official Daggerheart items that are also established as known in Greywake.
-- Minor Health Potion and Minor Stamina Potion are automated: using them clears 1d4 HP or Stress and decrements the quantity.
-- Consumables show quantity controls and can be increased up to the Daggerheart maximum of five copies.
-- Official Tier 1 weapons can be acquired, equipped and used through the live sheet.
-- Official Tier 1 armor can be acquired first, stored when not worn, then equipped when safe.
-- Starting equipment is not permanently protected: once an active weapon/armor is replaced, it can be removed like other equipment. Ordinary starting gear can also be removed.
-- Equipped gear must be replaced/unequipped before removal so stale mechanical effects cannot remain on the live sheet.
+- Searchable known-item library supports official Tier 1 weapons, Tier 1 armor, known consumables, ordinary gear, personal gear, and an explicit Other / custom item path.
+- Minor Health Potion and Minor Stamina Potion are automated: using one clears 1d4 HP or Stress and decrements quantity.
+- Consumables show quantities and support Add one / Use / Remove one, capped at the Daggerheart maximum of five copies.
+- Official Tier 1 weapons can be acquired, carried in the two inventory-weapon slots, equipped, switched under pressure for 1 Stress, removed, reacquired, and used through the live sheet.
+- Weapon features only apply while equipped. Starting weapons route to their established character action rollers so existing character mechanics are preserved.
+- Greatstaff Powerful, Whip Startling, Odie Sneak Attack and Small Dagger Paired are supported through the live weapon flow; Velmira’s Strange Patterns, Adept and Adaptability remain available on applicable rolls.
+- Official Tier 1 armor can be acquired first, stored when not worn, then equipped when safe. Active armor updates thresholds, Armor Score, Evasion and Full Plate’s Agility penalty.
+- Starting equipment is not permanently protected: once active weapon/armor is replaced, it can be removed like other equipment. Ordinary and personal starting gear can also be removed and added back.
+- Removed equipment is included in the synced equipment snapshot so a discarded starting item does not reappear on another device.
+- Removing gear that grants an action affects that action; for example, Velmira’s Nomadic Pack action is unavailable while the pack is not carried.
+- Lethal damage stores a combined resource/damage checkpoint. Normal Undo or the accidental-death correction control can restore HP and death state together.
 - GM preview remains read-only.
 
-## Next P9 slices
-- Expand the known official catalogue deliberately, rather than exposing the full loot table.
-- Consolidate remaining equipment-state compatibility layers after the player-facing flow is proven.
-- Add item-card art after mechanics are stable.
+## Deliberately deferred
+- Visual redesign and item-card artwork. Mechanics are being stabilised before the aesthetic pass.
+- Broader future-tier/special-loot catalogue. Availability should remain campaign- and knowledge-driven rather than exposing every item automatically.
