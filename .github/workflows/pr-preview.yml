@@ -71,6 +71,7 @@ jobs:
           node --check p9-damage-undo.js
           node --check p9-mechanics-completion.js
           node --check p9-nomadic-pack.js
+          node --check p9-consumable-feedback.js
 
       - name: Copy PR into isolated preview path
         shell: bash
