@@ -74,6 +74,7 @@ jobs:
           node --check p9-nomadic-pack.js
           node --check p9-consumable-feedback.js
           node --check p10-live-play-usability.js
+          node --check p10-live-board-guard.js
 
       - name: Copy PR into isolated preview path
         shell: bash
