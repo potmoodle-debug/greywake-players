@@ -12,7 +12,7 @@ for(const marker of ['#4d9bc7','#8bd4fa','setArmorMarked','click a shield','clip
 for(const marker of ['appendChild(detail)','closeActionUse','action-roller']){
   if(!live.includes(marker))throw new Error(`P10 must use the real live action detail, not a cloned roller: ${marker}`);
 }
-for(const marker of ['MutationObserver','needsRepair','p10-field-actions','data-p10-backpack','data-p10-beastform','GreywakeLivePlayUsability','observedRoot']){
+for(const marker of ['MutationObserver','needsRepair','p10-field-actions','data-p10-backpack','data-p10-beastform','GreywakeLivePlayUsability','observedRoot','p10-rest-utility','data-p10-short-rest','data-p10-long-rest']){
   if(!guard.includes(marker))throw new Error(`Missing P10 live-board redraw guard marker: ${marker}`);
 }
 if(/source\.outerHTML/.test(live)||/cloneButtons/.test(live))throw new Error('P10 must not clone action detail/roller controls.');
@@ -23,6 +23,6 @@ for(const marker of ["'Nature’s Tongue':['1 Hope'","'Wall Walk':['1 Hope'","'R
 if(boot.includes('p10-live-play-usability.js')||boot.includes('p10-live-fixes.js'))throw new Error('P10 must not be bootstrapped through the shared inventory loader.');
 if(!index.includes('p9-inventory-consolidation.js?v=p9inventory1'))throw new Error('Shared inventory loader must retain the normal-site cache key.');
 if(!index.includes('p10-live-play-usability.js?v=p10live7'))throw new Error('P10 must be loaded directly with its own cache key.');
-if(!index.includes('p10-live-board-guard.js?v=p10guard1'))throw new Error('P10 live board guard must load after the usability layer.');
+if(!index.includes('p10-live-board-guard.js?v=p10guard2'))throw new Error('P10 live board guard must load after the usability layer with the current cache key.');
 if(/beastform\.js/.test(live)||/beastform\.js/.test(guard))throw new Error('P10 must not replace or load Beastform owner.');
-console.log('P10 isolated live-play controls, real action bridge and board redraw guard checks passed');
+console.log('P10 isolated live-play controls, real action bridge, rest utility and board redraw guard checks passed');
