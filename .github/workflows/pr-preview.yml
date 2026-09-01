@@ -44,6 +44,7 @@ jobs:
           node tests/p9-equipment-library.mjs
           node tests/p9-armor.mjs
           node tests/p9-mechanics.mjs
+          node tests/p10-live-play.mjs
 
       - name: Check critical JavaScript syntax
         working-directory: pr
@@ -72,6 +73,7 @@ jobs:
           node --check p9-mechanics-completion.js
           node --check p9-nomadic-pack.js
           node --check p9-consumable-feedback.js
+          node --check p10-live-play-usability.js
 
       - name: Copy PR into isolated preview path
         shell: bash
