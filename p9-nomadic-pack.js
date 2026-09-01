@@ -17,7 +17,7 @@
   }
   function resetForNewSession(){save({used:false,item:null});refresh();const d=document.getElementById('nomadicPackDialog');if(d?.open)open();return{ok:true};}
   function open(){
-    if(!isVelmira()||preview())return;const state=load(),d=ensureDialog(),has=carried();
+    if(!isVelmira())return;const state=load(),d=ensureDialog(),has=carried();
     d.innerHTML=`<div class="equip-dialog-shell"><div class="equip-dialog-head"><div><span>WANDERBORNE · COMMUNITY FEATURE</span><h2>Nomadic Pack</h2><p>Once per session, spend 1 Hope to pull out a mundane item useful to the current situation. Work with the GM to agree what the item is.</p></div><button class="equip-dialog-close" type="button" data-close>×</button></div><div class="equip-contexts"><div class="equip-context" style="grid-column:1/-1"><strong>${!has?'Nomadic Pack is not currently carried.':state.used?`Used this session${state.item?` · ${esc(state.item)}`:''}`:'Available · costs 1 Hope'}</strong>${has&&!state.used?'<label style="display:block;margin:12px 0"><span>Mundane useful item</span><input data-nomadic-item type="text" maxlength="80" placeholder="Agree the item with the GM" style="width:100%;box-sizing:border-box;margin-top:6px"></label><button data-use-nomadic type="button">Spend 1 Hope · Take item</button>':''}${state.used?'<p>This feature does not reset on a rest.</p><button data-reset-nomadic type="button">Reset for new session</button>':''}</div></div><div data-nomadic-result></div></div>`;
     d.querySelector('[data-close]')?.addEventListener('click',()=>d.close());
     d.querySelector('[data-use-nomadic]')?.addEventListener('click',()=>{
