@@ -41,6 +41,9 @@ jobs:
           node tests/p5-player-choice.mjs
           node tests/p6-group-choice.mjs
           node tests/p7-usability.mjs
+          node tests/p9-equipment-library.mjs
+          node tests/p9-armor.mjs
+          node tests/p9-mechanics.mjs
 
       - name: Check critical JavaScript syntax
         working-directory: pr
@@ -58,6 +61,17 @@ jobs:
           node --check card-priorities.js
           node --check group-choice.js
           node --check p7-usability.js
+          node --check equipment-system-v2.js
+          node --check equipment-system-v4.js
+          node --check p9-armor.js
+          node --check p9-equipment-library.js
+          node --check p9-item-removal.js
+          node --check p9-remove-ui.js
+          node --check p9-inventory-consolidation.js
+          node --check p9-damage-undo.js
+          node --check p9-mechanics-completion.js
+          node --check p9-nomadic-pack.js
+          node --check p9-consumable-feedback.js
 
       - name: Copy PR into isolated preview path
         shell: bash
