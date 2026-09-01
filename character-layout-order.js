@@ -48,12 +48,13 @@
     const readyGear=document.getElementById('readyGearPanel');
     const damage=document.getElementById('damageHealthPanel');
 
-    if(key==='marek'&&traits&&resources){
+    // Quick Action Rolls is part of the identity/live-condition block for every
+    // active Greywake character. Keeping one owner for this final position avoids
+    // companion pages moving it into the dashboard and then moving it back again.
+    if(traits&&resources){
       if(traits.parentElement!==identity || traits.nextElementSibling!==resources){
         resources.insertAdjacentElement('beforebegin',traits);
       }
-    }else if(traits){
-      content.appendChild(traits);
     }
 
     // Always append the remaining live-play panels in canonical order. appendChild
