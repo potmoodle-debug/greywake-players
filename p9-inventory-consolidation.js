@@ -8,6 +8,7 @@
     });
     loadScript('p9-nomadic-pack.js?v=nomadic2','data-greywake-nomadic-pack',()=>setTimeout(()=>window.GreywakeNomadicPack?.getState?.(),40));
     loadScript('p9-consumable-feedback.js?v=consumables2','data-greywake-consumable-feedback');
+    loadScript('p10-live-play-usability.js?v=p10live1','data-greywake-live-play-usability');
   }
 
   function hideDuplicateGearView(){
