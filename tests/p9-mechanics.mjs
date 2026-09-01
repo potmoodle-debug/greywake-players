@@ -22,7 +22,7 @@ for (const needle of ['Once per session','spendHope','Nomadic Pack','data-nomadi
 for (const needle of ['Minor Health Potion','Minor Stamina Potion','cleared ${cleared}','potion','data-p9-consumable-result']) {
   if (!consumableFeedback.includes(needle)) throw new Error(`Missing Backpack consumable feedback marker: ${needle}`);
 }
-for (const needle of ['equipment-system-v4.js?v=equipment4','p9-nomadic-pack.js?v=nomadic2','p9-consumable-feedback.js?v=consumables2']) {
+for (const needle of ['equipment-system-v4.js?v=equipment4','p9-nomadic-pack.js?v=nomadic3','p9-consumable-feedback.js?v=consumables2']) {
   if (!consolidation.includes(needle)) throw new Error(`Missing P9 bootstrap marker: ${needle}`);
 }
 for (const needle of ['removedItems:clean(r)','api.importState=remote','remote.removedItems','api.restoreGear']) {
