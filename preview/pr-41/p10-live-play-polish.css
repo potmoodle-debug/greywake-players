@@ -70,19 +70,19 @@
 }
 #characterSheet .live-resource-controls{
   display:grid;
-  grid-template-columns:30px minmax(0,1fr) 30px;
-  gap:6px;
+  grid-template-columns:34px minmax(0,1fr) 34px;
+  gap:7px;
   align-items:center;
 }
 #characterSheet .live-resource-controls>button{
-  min-height:30px;
+  min-height:34px;
   border-color:rgba(208,193,151,.14);
   background:rgba(255,255,255,.02);
   color:#bdb49f;
 }
-#characterSheet .live-resource-pips{gap:4px}
+#characterSheet .live-resource-pips{gap:5px}
 #characterSheet .live-resource-pip{
-  height:15px;
+  height:20px;
   border-color:rgba(255,255,255,.11);
   background:rgba(255,255,255,.015);
 }
@@ -104,7 +104,7 @@
   background:linear-gradient(90deg,rgba(31,77,103,.1),rgba(20,22,20,.5));
 }
 #characterSheet .live-resource-water .live-resource-pip{
-  height:16px!important;
+  height:20px!important;
   border-color:#315f78!important;
   background:rgba(22,54,72,.34)!important;
 }
@@ -127,9 +127,9 @@
 }
 #characterSheet .live-resource-armor .live-resource-pip{
   position:relative;
-  width:27px!important;
-  height:31px!important;
-  flex:0 0 27px;
+  width:29px!important;
+  height:33px!important;
+  flex:0 0 29px;
   clip-path:polygon(50% 0,93% 16%,84% 70%,50% 100%,16% 70%,7% 16%);
   border:0!important;
   background:#25231d!important;
@@ -258,6 +258,20 @@
   border-color:rgba(166,190,111,.5)!important;
   background:#23251a!important;
 }
+
+/* Marek no longer needs duplicate summary strips: Live Field Condition is the source. */
+#characterSheet .character-stat-strip,
+#p10StickyVitals{display:none!important}
+
+/* Quick Action Rolls now sits directly above Live Field Condition in the hero. */
+#characterSheet .character-sheet-identity>#traitRollPanel{
+  margin:1rem 0 0;
+  max-width:none;
+}
+#characterSheet .character-sheet-identity>#traitRollPanel + .live-resource-board{
+  margin-top:.65rem;
+}
+
 @media(max-width:900px){
   #characterSheet .live-resource-hope,
   #characterSheet .live-resource-stress,
