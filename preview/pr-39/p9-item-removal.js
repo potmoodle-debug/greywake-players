@@ -3,15 +3,22 @@
   const character=()=>String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();
   const preview=()=>document.body.dataset.gmPreview==='true';
   const key=()=>`${PREFIX}${character()}${preview()?':gmtest':''}`;
-  const load=()=>{try{const raw=JSON.parse(localStorage.getItem(key())||'null');return{weapons:Array.isArray(raw?.weapons)?raw.weapons:[],armor:Array.isArray(raw?.armor)?raw.armor:[],gear:Array.isArray(raw?.gear)?raw.gear:[]};}catch(_){return{weapons:[],armor:[],gear:[]};}};
-  const save=s=>{try{localStorage.setItem(key(),JSON.stringify(s));}catch(_){}};
-  const has=(kind,id)=>load()[kind]?.includes(id);
-  const setRemoved=(kind,id,removed=true)=>{const s=load(),list=new Set(s[kind]||[]);removed?list.add(id):list.delete(id);s[kind]=[...list];save(s);window.dispatchEvent(new CustomEvent('greywake:equipment-state-changed',{detail:{ok:true,key:character(),reason:removed?'Item removed':'Item restored'}}));return s;};
+  const empty=()=>({weapons:[],armor:[],gear:[]});
+  const clean=raw=>({
+    weapons:Array.isArray(raw?.weapons)?[...new Set(raw.weapons.map(String).filter(Boolean))]:[],
+    armor:Array.isArray(raw?.armor)?[...new Set(raw.armor.map(String).filter(Boolean))]:[],
+    gear:Array.isArray(raw?.gear)?[...new Set(raw.gear.map(String).filter(Boolean))]:[]
+  });
+  const load=()=>{try{return clean(JSON.parse(localStorage.getItem(key())||'null'));}catch(_){return empty();}};
+  const save=s=>{try{localStorage.setItem(key(),JSON.stringify(clean(s)));}catch(_){}};
+  const has=(kind,id)=>load()[kind]?.includes(String(id));
+  const setRemoved=(kind,id,removed=true)=>{const s=load(),list=new Set(s[kind]||[]),value=String(id||'');if(!value)return s;removed?list.add(value):list.delete(value);s[kind]=[...list];save(s);window.dispatchEvent(new CustomEvent('greywake:equipment-state-changed',{detail:{ok:true,key:character(),reason:removed?'Item removed':'Item restored'}}));return s;};
 
   function extend(){
     const api=window.GreywakeEquipment;if(!api||api.__p9RemovalExtended||!api.getState)return false;
     const original={
       getState:api.getState.bind(api),
+      importState:api.importState?.bind(api),
       isOwned:api.isOwned?.bind(api),
       addWeapon:api.addWeapon?.bind(api),
       removeWeapon:api.removeWeapon?.bind(api),
@@ -24,8 +31,16 @@
       return{...s,
         ownedWeapons:(s.ownedWeapons||[]).filter(id=>!r.weapons.includes(id)),
         inventoryWeapons:(s.inventoryWeapons||[]).filter(id=>!r.weapons.includes(id)),
-        ownedArmor:(s.ownedArmor||[]).filter(id=>!r.armor.includes(id))
+        ownedArmor:(s.ownedArmor||[]).filter(id=>!r.armor.includes(id)),
+        removedItems:clean(r)
       };
+    };
+    api.importState=remote=>{
+      if(!remote)return;
+      original.importState?.(remote);
+      if(remote.removedItems)save(remote.removedItems);
+      window.GreywakeEquipment?.render?.();
+      setTimeout(()=>window.GreywakeInventoryConsolidation?.refresh?.(),30);
     };
     api.isOwned=id=>!has('weapons',id)&&Boolean(original.isOwned?.(id));
     api.isArmorOwned=id=>!has('armor',id)&&Boolean(original.isArmorOwned?.(id));
@@ -65,8 +80,9 @@
     };
 
     api.isItemRemoved=(kind,id)=>has(kind,id);
-    api.removeGear=name=>{if(preview())return{ok:false};setRemoved('gear',String(name||''),true);return{ok:true,message:`${name} removed from the backpack.`};};
-    api.restoreGear=name=>{setRemoved('gear',String(name||''),false);return{ok:true};};
+    api.removeGear=name=>{if(preview())return{ok:false,message:'Items cannot be removed in GM preview.'};setRemoved('gear',String(name||''),true);return{ok:true,message:`${name} removed from the backpack.`};};
+    api.restoreGear=name=>{if(preview())return{ok:false,message:'Items cannot be restored in GM preview.'};setRemoved('gear',String(name||''),false);return{ok:true,message:`${name} added back to the backpack.`};};
+    api.removedItems=()=>clean(load());
     api.__p9RemovalExtended=true;
     return true;
   }
