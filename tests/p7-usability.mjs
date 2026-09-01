@@ -7,6 +7,7 @@ const source = readFileSync(join(root, 'p7-usability.js'), 'utf8');
 const mind = readFileSync(join(root, 'player-mind-view.js'), 'utf8');
 const cardCss = readFileSync(join(root, 'greywake-item-cards.css'), 'utf8');
 const arrival = readFileSync(join(root, 'arrival-experience.js'), 'utf8');
+const backpack = readFileSync(join(root, 'p7-backpack.js'), 'utf8');
 const failures = [];
 const requireSource = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P7 behaviour: ${label}`); };
 const requireMind = (text, label = text) => { if (!mind.includes(text)) failures.push(`Missing mind hierarchy: ${label}`); };
@@ -48,6 +49,11 @@ if (!cardCss.includes('#equipmentManager .equip-item')) failures.push('Equipment
 if (!cardCss.includes('.p7-utility-card[data-p7-kind="items"] .p7-list-row')) failures.push('Player-added items are not covered by the Greywake item-card theme.');
 if (!cardCss.includes('aspect-ratio:5/7')) failures.push('Greywake item cards must retain a collectible-card proportion.');
 if (!arrival.includes('greywake-item-cards.css?v=p7-card1')) failures.push('Greywake item-card stylesheet is not loaded by the player site.');
+if (!arrival.includes('p7-backpack.js?v=pack1')) failures.push('Backpack experience is not loaded by the player site.');
+if (!backpack.includes('Open Backpack')) failures.push('Character page does not expose a clear Backpack button.');
+if (!backpack.includes(".p7-utility-card[data-p7-kind=\"items\"]{display:none!important}")) failures.push('Old permanent item-entry form is still visible.');
+if (!backpack.includes('What did you pick up?')) failures.push('Backpack add-item flow is missing.');
+if (!backpack.includes("location.hash") && !backpack.includes("#/character")) failures.push('Backpack is not scoped to the character page.');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
