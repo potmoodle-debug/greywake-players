@@ -48,10 +48,7 @@
     const readyGear=document.getElementById('readyGearPanel');
     const damage=document.getElementById('damageHealthPanel');
 
-    // All three characters use the same live-play placement: Quick Action Rolls
-    // sits directly above Live Field Condition. Keeping one owner for this order
-    // prevents the companion layer from moving it away and then moving it back.
-    if(traits&&resources){
+    if(key==='marek'&&traits&&resources){
       if(traits.parentElement!==identity || traits.nextElementSibling!==resources){
         resources.insertAdjacentElement('beforebegin',traits);
       }
