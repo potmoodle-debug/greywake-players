@@ -7,6 +7,14 @@
     document.head.appendChild(script);
   }
 
+  if (!document.querySelector('link[data-greywake-item-cards]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'greywake-item-cards.css?v=p7-card1';
+    link.dataset.greywakeItemCards = 'true';
+    document.head.appendChild(link);
+  }
+
   const home = document.getElementById('home');
   const hero = home?.querySelector('.hero');
   const goals = document.getElementById('playerGoals');
