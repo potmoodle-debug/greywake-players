@@ -74,6 +74,7 @@
     requestAnimationFrame(()=>window.scrollTo(0,y));setTimeout(()=>window.scrollTo(0,y),40);setTimeout(()=>window.scrollTo(0,y),120);
   }
   function makeBackpackTestable(){if(document.body.dataset.gmPreview!=='true')return;document.querySelectorAll('#p7BackpackDialog button,#p7BackpackDialog input,#p7BackpackDialog select').forEach(n=>{n.disabled=false;});}
+  function prepareBackpack(){window.GreywakeEquipmentLibrary?.enhance?.();window.GreywakeInventoryConsolidation?.refresh?.();makeBackpackTestable();}
   function handleClick(e){
     if(!active()||!onCharacterRoute())return;const t=e.target.closest('button');if(!t||!document.getElementById('characterSheet')?.contains(t))return;
     if(t.matches('[data-p11-water-delta]')){e.preventDefault();setWater(water()+Number(t.dataset.p11WaterDelta||0));return;}
@@ -83,7 +84,7 @@
     if(t.matches('[data-p11-long-rest]')){e.preventDefault();window.GreywakeRest?.openLong?.();return;}
     if(t.matches('[data-p11-take-damage]')){e.preventDefault();window.GreywakeDamage?.openDamage?.();return;}
     if(t.matches('[data-p11-can-do]')){e.preventDefault();openCanDo();return;}
-    if(t.matches('[data-p11-backpack]')){e.preventDefault();window.GreywakeBackpack?.open?.();setTimeout(makeBackpackTestable,20);}
+    if(t.matches('[data-p11-backpack]')){e.preventDefault();window.GreywakeBackpack?.open?.();setTimeout(prepareBackpack,0);setTimeout(prepareBackpack,40);}
   }
 
   function needsRepair(){const board=document.querySelector('#characterSheet .live-resource-board');return !board||!board.querySelector('.live-resource-water')||!board.querySelector('.live-resource-armor')||!board.querySelector('.p11-field-actions')||!board.querySelector('.p11-rest-utility');}
