@@ -33,12 +33,19 @@
   }
 
   function openBackpackFromHeader() {
+    if (window.GreywakeBackpack?.open) {
+      window.GreywakeBackpack.open();
+      return;
+    }
     const trigger = document.querySelector('#p7BackpackEntry .p7-backpack-button');
     if (trigger) {
       trigger.click();
       return;
     }
-    setTimeout(() => document.querySelector('#p7BackpackEntry .p7-backpack-button')?.click(), 120);
+    setTimeout(() => {
+      if (window.GreywakeBackpack?.open) window.GreywakeBackpack.open();
+      else document.querySelector('#p7BackpackEntry .p7-backpack-button')?.click();
+    }, 120);
   }
 
   function ensureView() {
