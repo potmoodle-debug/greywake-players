@@ -6,3 +6,16 @@
   .brain-control-btn{font-size:9px;padding:0 10px}
   .brain-network-controls{gap:9px}
 }
+
+/* GM downtime layout */
+body[data-role="gm"] .downtime-side{min-width:0}
+body[data-role="gm"] .downtime-grid{gap:0}
+body[data-role="gm"] .downtime-entry{display:block;padding:18px 0}
+body[data-role="gm"] .downtime-entry>strong{display:block;margin:5px 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:1.08rem;line-height:1.35;color:#f2ead2}
+body[data-role="gm"] .downtime-entry>p{display:block;margin:8px 0 12px;line-height:1.5}
+body[data-role="gm"] .downtime-entry>textarea{display:block;width:100%;min-width:100%;max-width:100%;min-height:84px;box-sizing:border-box;margin:0 0 12px;padding:11px 12px;resize:vertical;background:#14130f;color:#eee5cd;border:1px solid #5f5742;font:inherit;line-height:1.45}
+body[data-role="gm"] .downtime-entry .downtime-gm-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:0}
+body[data-role="gm"] .downtime-entry .downtime-gm-controls button{width:100%;min-height:42px;white-space:normal;text-align:center}
+@media(max-width:900px){
+  body[data-role="gm"] .downtime-entry .downtime-gm-controls{grid-template-columns:1fr}
+}
