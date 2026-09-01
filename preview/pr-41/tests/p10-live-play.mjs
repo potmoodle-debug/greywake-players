@@ -16,8 +16,8 @@ if(/data-p10-armor-delta/.test(live))throw new Error('Armor Slots should be cont
 for(const marker of ["'Nature’s Tongue':['1 Hope'","'Wall Walk':['1 Hope'","'Regeneration':['3 Hope'","'Beastform':['1 Stress'"]){
   if(!live.includes(marker))throw new Error(`Missing P10 action metadata: ${marker}`);
 }
-if(!boot.includes("p10-live-play-usability.js?v=p10live6"))throw new Error('P10 live-play script is not bootstrapped with the current cache key.');
-if(boot.includes('p10-live-fixes.js'))throw new Error('Obsolete P10 live-fixes shim must not be loaded.');
-if(!index.includes('p9-inventory-consolidation.js?v=p9inventory6'))throw new Error('Outer P10/P9 loader cache key is stale.');
+if(boot.includes('p10-live-play-usability.js')||boot.includes('p10-live-fixes.js'))throw new Error('P10 must not be bootstrapped through the shared inventory loader.');
+if(!index.includes('p9-inventory-consolidation.js?v=p9inventory1'))throw new Error('Shared inventory loader must retain the normal-site cache key.');
+if(!index.includes('p10-live-play-usability.js?v=p10live7'))throw new Error('P10 must be loaded directly with its own cache key.');
 if(/beastform\.js/.test(live))throw new Error('P10 must not replace or load Beastform owner.');
-console.log('P10 unified live-play controls and real action bridge checks passed');
+console.log('P10 isolated live-play controls and real action bridge checks passed');
