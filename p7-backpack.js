@@ -33,5 +33,6 @@
 
   function ensureEntry(){ensureStyles();if((location.hash||'')!=='#/character')return;const body=document.querySelector('#characterSheet .character-sheet-body');if(!body)return;let entry=document.getElementById('p7BackpackEntry');if(!entry){entry=document.createElement('div');entry.id='p7BackpackEntry';entry.className='p7-backpack-entry';entry.innerHTML=`<button type="button" class="p7-backpack-button">${bagIcon}<span><small>WHAT AM I CARRYING?</small><strong>Open Backpack</strong></span></button>`;const tabs=document.getElementById('characterPageTabs');if(tabs)tabs.insertAdjacentElement('afterend',entry);else body.insertAdjacentElement('beforebegin',entry);entry.querySelector('button')?.addEventListener('click',openBackpack);} }
   function schedule(){setTimeout(ensureEntry,80);}
+  window.GreywakeBackpack={open:openBackpack,render:renderDialog,loadState};
   window.addEventListener('hashchange',schedule);window.addEventListener('greywake:player-ready',schedule);window.addEventListener('greywake:sheet-enhanced',schedule);document.addEventListener('DOMContentLoaded',schedule);schedule();
 })();

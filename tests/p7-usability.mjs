@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'p7-usability.js'), 'utf8');
+const priorities = readFileSync(join(root, 'card-priorities.js'), 'utf8');
 const mind = readFileSync(join(root, 'player-mind-view.js'), 'utf8');
 const cardCss = readFileSync(join(root, 'greywake-item-cards.css'), 'utf8');
 const arrival = readFileSync(join(root, 'arrival-experience.js'), 'utf8');
@@ -11,6 +12,7 @@ const backpack = readFileSync(join(root, 'p7-backpack.js'), 'utf8');
 const characterPage = readFileSync(join(root, 'character-page.js'), 'utf8');
 const failures = [];
 const requireSource = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P7 behaviour: ${label}`); };
+const requirePriority = (text, label = text) => { if (!priorities.includes(text)) failures.push(`Missing priority-owner behaviour: ${label}`); };
 const requireMind = (text, label = text) => { if (!mind.includes(text)) failures.push(`Missing mind hierarchy: ${label}`); };
 
 requireSource('Inventory & Conditions', 'stable visible inventory and conditions area');
@@ -25,14 +27,21 @@ requireSource('First Stress recovery', 'Clarity can distribute its first Stress'
 requireSource('Second Stress recovery', 'Clarity can distribute its second Stress');
 requireSource("['Beastform','Evolution','Regeneration','Clarity of Nature']", 'special Marek actions are captured directly');
 requireSource("title==='Evolution'?'evolution':'stress'", 'correct Beastform transformation mode');
-requireSource('MAX_ACTIVE_INTERESTS=12', 'Interested capacity expanded');
-requireSource('MAX_PURSUING=3', 'Pursuing remains a focused shortlist');
-requireSource("goal?.status==='pursuing'", 'Pursuing can be demoted');
-requireSource("goal?.status==='open'", 'Interested can be removed or promoted');
 requireSource("className='p7-fixed-qna'", 'Q&A is a fixed global affordance');
 requireSource("location.hash='#/inbox'", 'fixed Q&A opens inbox');
 requireSource('p7Utilities:loadUtilityState()', 'custom inventory and conditions join equipment sync payload');
+if (source.includes('handlePriorityClick')) failures.push('P7 must not intercept priority clicks after consolidation.');
+if (source.includes('MAX_ACTIVE_INTERESTS') || source.includes('MAX_PURSUING')) failures.push('Priority hierarchy limits must not be owned by P7.');
 if (source.includes("observe(document.body,{childList:true,subtree:true})")) failures.push('P7 must not use a full-page recursive childList observer.');
+
+requirePriority('MAX_ACTIVE_INTERESTS = 12', 'Interested capacity is twelve');
+requirePriority('MAX_PURSUING = 3', 'Pursuing remains a focused shortlist');
+requirePriority("await patchGoal(goal.id, 'dormant')", 'Interested can be set aside');
+requirePriority("await patchGoal(goal.id, 'open')", 'Pursuing can be demoted');
+requirePriority("await patchGoal(goal.id, 'pursuing')", 'Interested can be promoted');
+requirePriority('ownsPriorityActions: true', 'card-priorities declares action ownership');
+requirePriority("data-context-interest", 'priority owner binds Interested directly');
+requirePriority("data-context-pursue", 'priority owner binds Pursue directly');
 
 requireMind('Pursuing', 'Pursuing tier');
 requireMind('Interested', 'Interested tier');
@@ -64,4 +73,4 @@ if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
   process.exit(1);
 }
-console.log('P7 usability checks passed.');
+console.log('P7/P8 usability checks passed.');

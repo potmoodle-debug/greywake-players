@@ -1,16 +1,10 @@
 (() => {
-  const GOALS_API='https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
-  const API_KEY='sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
-  const CODES={marek:'MAREK',velmira:'VELMIRA',odie:'ODIE'};
   const PARTY=['Marek','Velmira','Odie'];
-  const MAX_PURSUING=3;
-  const MAX_ACTIVE_INTERESTS=12;
   let equipmentWrapped=false;
   let initTimer=null;
-  let priorityTimer=null;
 
-  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
-  const characterKey=()=>{const key=String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();return CODES[key]?key:null;};
+  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));
+  const characterKey=()=>{const key=String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();return ['marek','velmira','odie'].includes(key)?key:null;};
   const isPreview=()=>document.body.dataset.gmPreview==='true';
   const storeKey=()=>`greywake:p7-utilities:${characterKey()||'unknown'}${isPreview()?':gmtest':''}`;
   const die=sides=>{if(window.crypto?.getRandomValues){const b=new Uint32Array(1);window.crypto.getRandomValues(b);return(b[0]%sides)+1;}return Math.floor(Math.random()*sides)+1;};
@@ -19,11 +13,13 @@
     try{const raw=JSON.parse(localStorage.getItem(storeKey())||'null');return{items:Array.isArray(raw?.items)?raw.items.map(v=>String(v).trim()).filter(Boolean).slice(0,40):[],conditions:Array.isArray(raw?.conditions)?raw.conditions.map(v=>String(v).trim()).filter(Boolean).slice(0,20):[]};}
     catch(_){return{items:[],conditions:[]};}
   }
+
   function saveUtilityState(next,reason='Character utility update'){
     try{localStorage.setItem(storeKey(),JSON.stringify(next));}catch(_){}
     renderUtilities(true);
     window.dispatchEvent(new CustomEvent('greywake:equipment-state-changed',{detail:{ok:true,reason}}));
   }
+
   function wrapEquipmentSync(){
     const api=window.GreywakeEquipment;if(!api||equipmentWrapped||api.__p7Wrapped)return;
     const originalGet=api.getState?.bind(api),originalImport=api.importState?.bind(api);if(!originalGet||!originalImport)return;
@@ -48,6 +44,7 @@
   function groupByTitle(title){return[...document.querySelectorAll('#characterSheet .sheet-group')].find(g=>g.querySelector('.sheet-group-head h3')?.textContent.trim()===title)||null;}
   function utilityCard(kind,title,state){const values=state[kind],noun=kind==='items'?'item':'condition';return `<section class="p7-utility-card" data-p7-kind="${kind}"><span>${kind==='items'?'INVENTORY CONTROLS':'CONDITIONS'}</span><strong>${esc(title)}</strong><small>${kind==='items'?'Add things picked up in play. Remove them when used, lost or handed over.':'Track temporary conditions here and remove them when they end.'}</small><div class="p7-add-row"><input type="text" maxlength="80" placeholder="Add ${noun}…" aria-label="Add ${noun}"><button type="button" data-p7-add>Add ${noun}</button></div><div class="p7-list">${values.length?values.map((value,index)=>`<div class="p7-list-row"><span>${esc(value)}</span><button class="p7-remove" type="button" data-p7-remove="${index}">Remove</button></div>`).join(''):`<div class="p7-empty">No custom ${noun}${noun==='item'?'s':''} currently recorded.</div>`}</div></section>`;}
   function bindUtilityCard(card){const kind=card.dataset.p7Kind,input=card.querySelector('input');const add=()=>{if(isPreview())return;const value=String(input?.value||'').trim();if(!value)return;const next=loadUtilityState();if(!next[kind].some(v=>v.toLowerCase()===value.toLowerCase()))next[kind].push(value);saveUtilityState(next,`Added ${kind==='items'?'inventory item':'condition'}: ${value}`);};card.querySelector('[data-p7-add]')?.addEventListener('click',add);input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();add();}});card.querySelectorAll('[data-p7-remove]').forEach(button=>button.addEventListener('click',()=>{if(isPreview())return;const next=loadUtilityState();next[kind].splice(Number(button.dataset.p7Remove),1);saveUtilityState(next,`Removed ${kind==='items'?'inventory item':'condition'}`);}));}
+
   function renderUtilities(force=false){
     const group=groupByTitle('Weapons, armor & inventory');if(!group||!characterKey())return false;
     ensureStyles();wrapEquipmentSync();let root=group.querySelector(':scope > .p7-utilities');if(root&&!force)return true;
@@ -61,10 +58,12 @@
   function showDialog(html){const dialog=ensureDialog();dialog.innerHTML=`<div class="p7-dialog-shell">${html}</div>`;dialog.querySelector('[data-p7-close]')?.addEventListener('click',()=>dialog.close());if(typeof dialog.showModal==='function'&&!dialog.open)dialog.showModal();else dialog.setAttribute('open','');return dialog;}
   function targetOptions(includeNone=false){return `${includeNone?'<option value="">Nobody</option>':''}${PARTY.map(n=>`<option value="${n}">${n}</option>`).join('')}`;}
   function applyMarekStress(amount){const api=window.GreywakeResources,state=api?.getState?.();if(!api||!state)return 0;const current=Number(state.stress||0),clear=Math.min(amount,current);if(clear>0){if(api.clearStress)api.clearStress(clear,'Clarity of Nature');else api.setResource?.('stress',current-clear,'Clarity of Nature');}return clear;}
+
   function openClarity(){
     const dialog=showDialog(`<div class="p7-dialog-head"><div><span>WARDEN OF RENEWAL · ONCE PER LONG REST</span><h2>Clarity of Nature</h2></div><button class="p7-dialog-close" type="button" data-p7-close>×</button></div><div class="p7-rule"><strong>No roll · clear 2 Stress total</strong><span>After a few minutes resting in Marek's natural space, distribute two points of Stress recovery between Marek and allies.</span></div><div class="p7-dialog-fields"><label>First Stress recovery<select data-clarity-one>${targetOptions()}</select></label><label>Second Stress recovery<select data-clarity-two>${targetOptions()}</select></label></div><button class="p7-dialog-action" type="button" data-clarity-apply>Apply Clarity of Nature</button><div data-clarity-result aria-live="polite"></div>`);
     dialog.querySelector('[data-clarity-apply]')?.addEventListener('click',e=>{const button=e.currentTarget;if(button.disabled)return;button.disabled=true;const names=[dialog.querySelector('[data-clarity-one]')?.value,dialog.querySelector('[data-clarity-two]')?.value].filter(Boolean);const counts={};names.forEach(n=>counts[n]=(counts[n]||0)+1);const lines=[];Object.entries(counts).forEach(([name,count])=>{if(name==='Marek'){const cleared=applyMarekStress(count);lines.push(`Marek clears ${cleared} Stress${cleared<count?' (only marked Stress can be cleared)':''}.`);}else lines.push(`${name} clears ${count} Stress on their sheet.`);});const host=dialog.querySelector('[data-clarity-result]');host.innerHTML=`<div class="p7-big-result"><strong>2 Stress distributed</strong><span>${esc(lines.join(' '))}</span></div>`;});
   }
+
   function openRegeneration(){
     const dialog=showDialog(`<div class="p7-dialog-head"><div><span>WARDEN OF RENEWAL</span><h2>Regeneration</h2></div><button class="p7-dialog-close" type="button" data-p7-close>×</button></div><div class="p7-rule"><strong>No Duality roll</strong><span>Choose who Marek touches. The 3 Hope cost is paid once, then the healing die is rolled.</span></div><span class="p7-cost">COST · 3 HOPE</span><div class="p7-dialog-fields"><label>Apply healing to<select data-regen-target>${targetOptions()}</select></label></div><button class="p7-dialog-action" type="button" data-regen-roll>Spend 3 Hope & roll 1d4</button><div data-regen-result aria-live="polite"></div>`);
     dialog.querySelector('[data-regen-roll]')?.addEventListener('click',e=>{const button=e.currentTarget;if(button.disabled)return;button.disabled=true;button.textContent='Resolving…';const result=dialog.querySelector('[data-regen-result]');const resources=window.GreywakeResources;const spend=resources?.spendHope?.(3,'Regeneration');if(spend?.ok===false){result.innerHTML=`<div class="p7-big-result"><strong>Not used</strong><span>${esc(spend.message||'Not enough Hope.')}</span></div>`;button.disabled=false;button.textContent='Spend 3 Hope & roll 1d4';return;}const roll=die(4),target=dialog.querySelector('[data-regen-target]')?.value||'Marek';let message;if(target==='Marek'&&resources?.getState&&resources?.setResource){const state=resources.getState(),marked=Number(state.hp||0),cleared=Math.min(roll,marked);resources.setResource('hp',Math.max(0,marked-cleared),`Regeneration · ${roll}`);message=`Marek clears ${cleared} marked HP.`;}else message=`${target} clears up to ${roll} marked HP on their sheet.`;button.textContent='Regeneration used';result.innerHTML=`<span class="p7-paid">✓ 3 Hope spent once</span><div class="p7-big-result"><strong>1d4 → ${roll}</strong><span>${esc(message)}</span></div>`;});
@@ -74,24 +73,12 @@
   function openFormPicker(mode){(document.getElementById('chooseBeastform')||document.getElementById('changeBeastform'))?.click();setTimeout(()=>{const radio=document.querySelector(`#beastformActivationChoice input[value="${mode}"]`);if(radio){radio.checked=true;radio.dispatchEvent(new Event('change',{bubbles:true}));}},40);}
   function handleActionClick(event){const button=event.target.closest?.('#activeActionsPanel .active-action-card');if(!button)return;const title=actionTitle(button);if(!['Beastform','Evolution','Regeneration','Clarity of Nature'].includes(title))return;event.preventDefault();event.stopImmediatePropagation();if(title==='Beastform'||title==='Evolution')openFormPicker(title==='Evolution'?'evolution':'stress');else if(title==='Regeneration')openRegeneration();else openClarity();}
 
-  function identityHeaders(){const character=characterKey();return{apikey:API_KEY,'Content-Type':'application/json','x-greywake-character':character,'x-greywake-code':String(window.GreywakePlayer?.code||CODES[character]).toUpperCase()};}
-  async function loadGoals(){const response=await fetch(GOALS_API,{headers:identityHeaders()});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Could not load interests.');return(data.goals||[]).filter(g=>g.entry_kind!=='question');}
-  function contextData(wrap){const host=wrap.closest('.thread-card,.personal-card,#article'),title=host?.querySelector('h3,h4,h1')?.textContent?.trim()||'',key=String(wrap.dataset.contextMind||'');let kind='record',route=location.hash||'#/my-greywake';if(host?.classList.contains('thread-card')){kind='possibility-card';route='#/campaign';}else if(host?.classList.contains('personal-card')){kind='personal-card';route='#/my-greywake';}return{host,title,key,kind,route};}
-  function findGoal(goals,context){return goals.find(g=>String(g.source_key||'')===context.key)||goals.find(g=>String(g.goal_text||'').trim().toLowerCase()===context.title.toLowerCase())||null;}
-  async function patchGoal(id,status){const response=await fetch(GOALS_API,{method:'PATCH',headers:identityHeaders(),body:JSON.stringify({id:Number(id),entry_kind:'interest',status})});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Could not update that interest.');return data;}
-  async function createGoal(context){const response=await fetch(GOALS_API,{method:'POST',headers:identityHeaders(),body:JSON.stringify({goal:context.title.slice(0,240),entry_kind:'interest',source_kind:context.kind,source_key:context.key,source_title:context.title,source_route:context.route})});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||'Could not save that interest.');return data.goal||data;}
-  function refreshEngagement(){window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));window.GreywakeCardPriorities?.refresh?.();window.GreywakePlayerMindView?.render?.();}
-  function enhancePriorityButtons(){if(isPreview())return;document.querySelectorAll('.context-mind-action').forEach(wrap=>{wrap.querySelectorAll('.context-mind-button,.context-pursue-button').forEach(button=>{button.disabled=false;button.dataset.p7Priority='true';});});}
-  async function handlePriorityClick(event){const button=event.target.closest?.('.context-mind-action .context-mind-button,.context-mind-action .context-pursue-button');if(!button||isPreview())return;event.preventDefault();event.stopImmediatePropagation();const wrap=button.closest('.context-mind-action'),context=contextData(wrap);if(!context.title)return;wrap.querySelectorAll('button').forEach(b=>b.disabled=true);const status=wrap.querySelector('.context-mind-status');try{let goals=await loadGoals(),goal=findGoal(goals,context);const active=goals.filter(g=>['open','pursuing'].includes(g.status)),pursuing=active.filter(g=>g.status==='pursuing');const wantsPursue=button.classList.contains('context-pursue-button');if(goal?.status==='pursuing'){await patchGoal(goal.id,wantsPursue?'open':'dormant');}else if(goal?.status==='open'){if(wantsPursue){if(pursuing.length>=MAX_PURSUING)throw new Error('You already have three things Pursuing. Stop pursuing one before promoting another.');await patchGoal(goal.id,'pursuing');}else await patchGoal(goal.id,'dormant');}else{if(active.length>=MAX_ACTIVE_INTERESTS)throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');goal=await createGoal(context);if(wantsPursue){if(pursuing.length>=MAX_PURSUING)throw new Error('Saved as Interested, but you already have three things Pursuing.');await patchGoal(goal.id,'pursuing');}}if(status)status.textContent='Saved.';refreshEngagement();}catch(error){if(status)status.textContent=error.message;setTimeout(enhancePriorityButtons,80);}}
+  function init(){clearTimeout(initTimer);ensureStyles();ensureQnaAccess();wrapEquipmentSync();if(!renderUtilities())initTimer=setTimeout(init,180);}
 
-  function schedulePriorityEnhance(){clearTimeout(priorityTimer);priorityTimer=setTimeout(enhancePriorityButtons,80);}
-  function init(){clearTimeout(initTimer);ensureStyles();ensureQnaAccess();wrapEquipmentSync();if(!renderUtilities())initTimer=setTimeout(init,180);schedulePriorityEnhance();}
-
+  window.GreywakeP7={renderUtilities,loadUtilityState};
   document.addEventListener('click',handleActionClick,true);
-  document.addEventListener('click',handlePriorityClick,true);
   window.addEventListener('greywake:player-ready',()=>setTimeout(init,120));
   window.addEventListener('greywake:sheet-enhanced',()=>setTimeout(init,100));
-  window.addEventListener('greywake:engagement-changed',schedulePriorityEnhance);
   window.addEventListener('hashchange',()=>setTimeout(init,80));
   document.addEventListener('DOMContentLoaded',()=>setTimeout(init,180));
 })();

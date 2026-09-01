@@ -2,7 +2,8 @@
   const API_URL = 'https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const API_KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const MAX_LENGTH = 240;
-  const MAX_MIND_SLOTS = 3;
+  const MAX_ACTIVE_INTERESTS = 12;
+  const MAX_PURSUING = 3;
   const LOAD_TIMEOUT_MS = 5000;
   const CHARACTER_CODES = { marek: 'MAREK', velmira: 'VELMIRA', odie: 'ODIE' };
   let observer;
@@ -11,17 +12,11 @@
   let goalCacheKey = null;
   let goalRequest = null;
 
-  function esc(text) {
-    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
-  }
-
   function slug(text) {
     return String(text || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 90);
   }
 
-  function currentUser() {
-    return window.GreywakePlayer || null;
-  }
+  function currentUser() { return window.GreywakePlayer || null; }
 
   function characterKey(user = currentUser()) {
     const bodyKey = (document.body.dataset.character || '').toLowerCase();
@@ -30,9 +25,7 @@
     return CHARACTER_CODES[userKey] ? userKey : null;
   }
 
-  function isPreview() {
-    return document.body.dataset.gmPreview === 'true';
-  }
+  function isPreview() { return document.body.dataset.gmPreview === 'true'; }
 
   function canRender() {
     const user = currentUser();
@@ -60,11 +53,8 @@
   async function fetchWithTimeout(url, options = {}) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), LOAD_TIMEOUT_MS);
-    try {
-      return await fetch(url, { ...options, signal: controller.signal });
-    } finally {
-      clearTimeout(timeout);
-    }
+    try { return await fetch(url, { ...options, signal: controller.signal }); }
+    finally { clearTimeout(timeout); }
   }
 
   async function loadGoals(force = false) {
@@ -93,8 +83,12 @@
     return goalRequest;
   }
 
-  function activeMindCount(goals) {
-    return goals.filter(goal => goal.entry_kind !== 'question' && ['open','pursuing'].includes(goal.status)).length;
+  function activeGoals(goals) {
+    return goals.filter(goal => goal.entry_kind !== 'question' && ['open', 'pursuing'].includes(goal.status));
+  }
+
+  function pursuingCount(goals) {
+    return activeGoals(goals).filter(goal => goal.status === 'pursuing').length;
   }
 
   function matchingGoal(goals, context) {
@@ -103,13 +97,13 @@
     return goals.find(goal => goal.entry_kind !== 'question' && String(goal.goal_text || '').trim().toLowerCase() === String(context.source_title || '').trim().toLowerCase());
   }
 
-  async function patchGoal(id, patch) {
+  async function patchGoal(id, status) {
     const user = currentUser();
     const character = characterKey(user);
     const response = await fetchWithTimeout(API_URL, {
       method: 'PATCH',
       headers: identityHeaders(user, character),
-      body: JSON.stringify({ id: Number(id), ...patch })
+      body: JSON.stringify({ id: Number(id), entry_kind: 'interest', status })
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || 'Greywake could not save that change.');
@@ -117,19 +111,13 @@
     return data;
   }
 
-  async function createPriority(context) {
+  async function createPriority(context, goals) {
     const user = currentUser();
     const character = characterKey(user);
     if (!character) throw new Error('Greywake player identity is unavailable.');
-    const goals = await loadGoals();
-    const existing = matchingGoal(goals, context);
-    if (existing) {
-      if (['open','pursuing'].includes(existing.status)) return existing;
-      await patchGoal(existing.id, { entry_kind: 'interest', status: 'open' });
-      const refreshed = await loadGoals(true);
-      return matchingGoal(refreshed, context) || existing;
+    if (activeGoals(goals).length >= MAX_ACTIVE_INTERESTS) {
+      throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');
     }
-    if (activeMindCount(goals) >= MAX_MIND_SLOTS) throw new Error('You already have three current interests. Set one aside or close it before adding another.');
     const response = await fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: identityHeaders(user, character),
@@ -148,17 +136,41 @@
     return data.goal || data;
   }
 
-  async function pursuePriority(context) {
+  async function setInterested(context) {
+    const goals = await loadGoals();
+    const goal = matchingGoal(goals, context);
+    if (goal?.status === 'pursuing' || goal?.status === 'open') {
+      await patchGoal(goal.id, 'dormant');
+      return;
+    }
+    if (activeGoals(goals).length >= MAX_ACTIVE_INTERESTS) {
+      throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');
+    }
+    if (goal) await patchGoal(goal.id, 'open');
+    else await createPriority(context, goals);
+  }
+
+  async function setPursuing(context) {
     let goals = await loadGoals();
     let goal = matchingGoal(goals, context);
-    if (!goal || !['open','pursuing'].includes(goal.status)) {
-      await createPriority(context);
+    if (goal?.status === 'pursuing') {
+      await patchGoal(goal.id, 'open');
+      return;
+    }
+    if (pursuingCount(goals) >= MAX_PURSUING) {
+      throw new Error('You already have three things Pursuing. Stop pursuing one before promoting another.');
+    }
+    if (!goal || !['open', 'pursuing'].includes(goal.status)) {
+      if (activeGoals(goals).length >= MAX_ACTIVE_INTERESTS) {
+        throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');
+      }
+      if (goal) await patchGoal(goal.id, 'open');
+      else await createPriority(context, goals);
       goals = await loadGoals(true);
       goal = matchingGoal(goals, context);
     }
     if (!goal) throw new Error('Greywake could not find that interest after adding it.');
-    if (goal.status !== 'pursuing') await patchGoal(goal.id, { entry_kind: 'interest', status: 'pursuing' });
-    return goal;
+    await patchGoal(goal.id, 'pursuing');
   }
 
   function personalContexts() {
@@ -217,26 +229,19 @@
       wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>☆ Interested</button><button type="button" class="context-pursue-button" disabled>◆ Pursue</button><span class="context-mind-status">Preview only — these are player controls.</span>`;
       return;
     }
-    if (goal?.status === 'pursuing') {
-      wrap.innerHTML = `<button type="button" class="context-mind-button is-active" disabled>✓ Interested</button><button type="button" class="context-pursue-button is-active" disabled>◆ Pursuing</button><span class="context-mind-status">You want this treated as an active choice.</span>`;
-      return;
-    }
-    if (goal && goal.status === 'open') {
-      wrap.innerHTML = `<button type="button" class="context-mind-button is-active" disabled>✓ Interested</button><button type="button" class="context-pursue-button" data-context-pursue>◆ Pursue</button><span class="context-mind-status">This matters to your character. Pursue it when you want it treated as an active choice.</span>`;
-      wrap.querySelector('[data-context-pursue]').addEventListener('click', () => actPursue(wrap, context));
-      return;
-    }
-    wrap.innerHTML = `<button type="button" class="context-mind-button" data-context-add>☆ Interested</button><button type="button" class="context-pursue-button" data-context-pursue>◆ Pursue</button><span class="context-mind-status">Interested saves this to My Greywake. Pursue marks it as something you want to actively follow.</span>`;
-    wrap.querySelector('[data-context-add]').addEventListener('click', () => actAdd(wrap, context));
-    wrap.querySelector('[data-context-pursue]').addEventListener('click', () => actPursue(wrap, context));
+    const interested = goal && ['open', 'pursuing'].includes(goal.status);
+    const pursuing = goal?.status === 'pursuing';
+    wrap.innerHTML = `
+      <button type="button" class="context-mind-button${interested ? ' is-active' : ''}" data-context-interest>${interested ? '✓ Interested' : '☆ Interested'}</button>
+      <button type="button" class="context-pursue-button${pursuing ? ' is-active' : ''}" data-context-pursue>${pursuing ? '◆ Pursuing' : '◆ Pursue'}</button>
+      <span class="context-mind-status">${pursuing ? 'Pursuing is your focused shortlist. Press Pursuing to demote it back to Interested.' : interested ? 'This matters to your character. Press Interested to set it aside, or Pursue to promote it.' : 'Interested saves this to My Greywake. Pursue marks it as an active choice.'}</span>`;
+    wrap.querySelector('[data-context-interest]')?.addEventListener('click', () => actInterested(wrap, context));
+    wrap.querySelector('[data-context-pursue]')?.addEventListener('click', () => actPursue(wrap, context));
   }
 
   async function hydrateControl(wrap, context) {
     if (!canRender()) return;
-    if (isPreview()) {
-      renderControl(wrap, context, null, true);
-      return;
-    }
+    if (isPreview()) { renderControl(wrap, context, null, true); return; }
     const status = wrap.querySelector('.context-mind-status');
     if (status) status.textContent = 'Checking your interests…';
     try {
@@ -255,17 +260,22 @@
     wrap.querySelectorAll('button').forEach(button => { button.disabled = true; });
   }
 
-  async function actAdd(wrap, context) {
+  async function finishAction(wrap, context) {
+    await loadGoals(true);
+    window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
+    window.GreywakePlayerMindView?.render?.();
+    await hydrateControl(wrap, context);
+  }
+
+  async function actInterested(wrap, context) {
     disableControls(wrap);
     const status = wrap.querySelector('.context-mind-status');
-    if (status) status.textContent = 'Saving interest…';
+    if (status) status.textContent = 'Saving…';
     try {
-      await createPriority(context);
-      await loadGoals(true);
-      window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
-      await hydrateControl(wrap, context);
+      await setInterested(context);
+      await finishAction(wrap, context);
     } catch (error) {
-      renderControl(wrap, context, null);
+      await hydrateControl(wrap, context);
       const nextStatus = wrap.querySelector('.context-mind-status');
       if (nextStatus) nextStatus.textContent = error.message;
     }
@@ -274,12 +284,10 @@
   async function actPursue(wrap, context) {
     disableControls(wrap);
     const status = wrap.querySelector('.context-mind-status');
-    if (status) status.textContent = 'Marking as pursuing…';
+    if (status) status.textContent = 'Saving…';
     try {
-      await pursuePriority(context);
-      await loadGoals(true);
-      window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
-      await hydrateControl(wrap, context);
+      await setPursuing(context);
+      await finishAction(wrap, context);
     } catch (error) {
       await hydrateControl(wrap, context);
       const nextStatus = wrap.querySelector('.context-mind-status');
@@ -291,9 +299,8 @@
     const wrap = document.createElement('div');
     wrap.className = 'context-mind-action';
     wrap.dataset.contextMind = context.source_key;
-    if (isPreview()) {
-      renderControl(wrap, context, null, true);
-    } else {
+    if (isPreview()) renderControl(wrap, context, null, true);
+    else {
       wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>Checking…</button><span class="context-mind-status" aria-live="polite"></span>`;
       requestAnimationFrame(() => hydrateControl(wrap, context));
     }
@@ -342,7 +349,11 @@
     if (article) observer.observe(article, { childList: true, subtree: true });
   }
 
-  window.GreywakeCardPriorities = { refresh: refreshControls };
+  window.GreywakeCardPriorities = {
+    refresh: refreshControls,
+    ownsPriorityActions: true,
+    limits: { interested: MAX_ACTIVE_INTERESTS, pursuing: MAX_PURSUING }
+  };
   window.addEventListener('greywake:player-ready', () => { clearGoalCache(); setupObserver(); schedule(); });
   window.addEventListener('greywake:engagement-changed', refreshControls);
   window.addEventListener('hashchange', schedule);

@@ -1,7 +1,7 @@
 (() => {
   if (!document.querySelector('script[data-p7-usability]')) {
     const script = document.createElement('script');
-    script.src = 'p7-usability.js?v=p7-2';
+    script.src = 'p7-usability.js?v=p8-1';
     script.defer = true;
     script.dataset.p7Usability = 'true';
     document.head.appendChild(script);
@@ -39,10 +39,21 @@
     return window.GreywakePlayer?.character || document.body.dataset.character || 'Your character';
   }
 
-  function activeMindCount() {
+  function activeMindCards() {
     return [...goals.querySelectorAll('.interest-thread[data-entry-kind="interest"]:not(.interest-thread-resolved)')].filter(card => {
       const status = (card.querySelector('.interest-status')?.textContent || '').toUpperCase();
       return !status.includes('DORMANT') && !status.includes('RESOLVED');
+    });
+  }
+
+  function activeMindCount() {
+    return activeMindCards().length;
+  }
+
+  function pursuingMindCount() {
+    return activeMindCards().filter(card => {
+      const status = (card.querySelector('.interest-status')?.textContent || '').toUpperCase();
+      return status.includes('PURSUING');
     }).length;
   }
 
@@ -101,7 +112,7 @@
     const heading = copy.querySelector('h2');
     const intro = copy.querySelector(':scope > p');
     if (heading) heading.textContent = 'The settlement survived another day. What matters to you now?';
-    if (intro) intro.textContent = 'Open your character, choose a possibility worth following, or check the few things currently at the front of your mind.';
+    if (intro) intro.textContent = 'Open your character, choose a possibility worth following, or check the interests and active pursuits currently shaping your character.';
 
     let actions = document.getElementById('arrivalActions');
     if (!actions) {
@@ -114,7 +125,8 @@
     }
 
     const name = characterName();
-    const mindCount = Math.min(activeMindCount(), 5);
+    const mindCount = Math.min(activeMindCount(), 12);
+    const pursuingCount = Math.min(pursuingMindCount(), 3);
     const possibilities = possibilityCount();
     const q = questionCount();
     const replies = gmReplyCount();
@@ -122,7 +134,7 @@
     const characterImage = findImage(document.getElementById('characterSheet'));
     const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
     const mindImage = findImage(goals.querySelector('.player-mind-view')) || worldImage;
-    const signature = JSON.stringify({name,mindCount,possibilities,q,replies,latest,characterImage,worldImage,mindImage});
+    const signature = JSON.stringify({name,mindCount,pursuingCount,possibilities,q,replies,latest,characterImage,worldImage,mindImage});
     const existingStatus = document.getElementById('arrivalStatus');
     if (lastSignature === signature && actions.isConnected && existingStatus?.isConnected) return;
     lastSignature = signature;
@@ -140,9 +152,9 @@
         <em>See possibilities →</em>
       </a>
       <a class="arrival-action arrival-action-mind" href="#/mind">
-        <small>MY PRIORITIES · ${mindCount}/5</small>
+        <small>MY PRIORITIES · ${pursuingCount}/3 PURSUING</small>
         <strong>On my mind</strong>
-        <span>The few things currently at the front of your character's attention.</span>
+        <span>${mindCount}/12 active interests. Pursuing is your focused shortlist.</span>
         <em>Review priorities →</em>
       </a>`;
 
@@ -161,7 +173,7 @@
       actions.insertAdjacentElement('afterend', status);
     }
     status.innerHTML = `
-      <a href="#/mind"><strong>${mindCount}/5</strong><span>on my mind</span></a>
+      <a href="#/mind"><strong>${mindCount}/12</strong><span>active interests · ${pursuingCount}/3 pursuing</span></a>
       <a href="#/inbox"><strong>${replies || q}</strong><span>${replies ? `GM ${replies === 1 ? 'reply' : 'replies'}` : q ? `open ${q === 1 ? 'question' : 'questions'}` : 'questions & replies'}</span></a>
       ${latest.title ? `<div class="arrival-latest"><small>LATEST DISCOVERY</small><span>${latest.title}</span></div>` : ''}
       <a class="arrival-explore-link" href="#/explore">Explore Greywake →</a>`;
