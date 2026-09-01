@@ -8,9 +8,7 @@
     });
     loadScript('p9-nomadic-pack.js?v=nomadic2','data-greywake-nomadic-pack',()=>setTimeout(()=>window.GreywakeNomadicPack?.getState?.(),40));
     loadScript('p9-consumable-feedback.js?v=consumables2','data-greywake-consumable-feedback');
-    loadScript('p10-live-play-usability.js?v=p10live5','data-greywake-live-play-usability-v5',()=>{
-      loadScript('p10-live-fixes.js?v=p10fix1','data-greywake-live-play-fixes');
-    });
+    loadScript('p10-live-play-usability.js?v=p10live6','data-greywake-live-play-usability-v6');
   }
 
   function hideDuplicateGearView(){
