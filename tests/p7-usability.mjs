@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = readFileSync(join(root, 'p7-usability.js'), 'utf8');
 const mind = readFileSync(join(root, 'player-mind-view.js'), 'utf8');
+const cardCss = readFileSync(join(root, 'greywake-item-cards.css'), 'utf8');
+const arrival = readFileSync(join(root, 'arrival-experience.js'), 'utf8');
 const failures = [];
 const requireSource = (text, label = text) => { if (!source.includes(text)) failures.push(`Missing P7 behaviour: ${label}`); };
 const requireMind = (text, label = text) => { if (!mind.includes(text)) failures.push(`Missing mind hierarchy: ${label}`); };
@@ -36,6 +38,16 @@ requireMind('This is a hierarchy', 'hierarchy explanation');
 requireMind('MAX_PURSUING=3', 'three-item Pursuing cap');
 requireMind('MAX_INTERESTS=12', 'larger Interested holding area');
 requireMind('Interested → Pursuing → Group Choice.', 'player-facing hierarchy path');
+requireMind('Open source card →', 'mind cards clearly return to their source card');
+requireMind("location.hash='#/campaign'", 'mind card fallback opens Campaign rather than Q&A');
+requireMind('greywake:mind-source-card', 'mind card fallback remembers which source card to focus');
+requireMind('player-mind-source-focus', 'source card gets a visible focus state');
+if (mind.includes('greywake:open-player-inbox')) failures.push('On my mind must never open Q&A/inbox as a fallback.');
+
+if (!cardCss.includes('#equipmentManager .equip-item')) failures.push('Equipment cards are not covered by the Greywake item-card theme.');
+if (!cardCss.includes('.p7-utility-card[data-p7-kind="items"] .p7-list-row')) failures.push('Player-added items are not covered by the Greywake item-card theme.');
+if (!cardCss.includes('aspect-ratio:5/7')) failures.push('Greywake item cards must retain a collectible-card proportion.');
+if (!arrival.includes('greywake-item-cards.css?v=p7-card1')) failures.push('Greywake item-card stylesheet is not loaded by the player site.');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));
