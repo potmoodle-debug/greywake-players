@@ -13,7 +13,7 @@
     if(document.querySelector('link[data-p10-live-polish]'))return;
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='p10-live-play-polish.css?v=p10polish1';
+    link.href='p10-live-play-polish.css?v=p10polish2';
     link.dataset.p10LivePolish='true';
     document.head.appendChild(link);
   }
