@@ -12,7 +12,7 @@ const html = read('index.html');
 for (const needle of ['Other / custom item','PERSONAL_GEAR','CANONICAL_ACTIONS','Powerful rolls','Small Dagger Paired +2','Startling · Mark 1 Stress','api.openWeaponUse=openDynamicWeapon']) {
   if (!mechanics.includes(needle)) throw new Error(`Missing P9 mechanics marker: ${needle}`);
 }
-for (const needle of ['function unequip(id)','TWO-HANDED','ONE-HANDED','activePrimary:null','Potion not consumed','d4 rolled','count-1','inventoryWeapons.length>=2']) {
+for (const needle of ['function unequip(id)','TWO-HANDED','ONE-HANDED','next.activePrimary=null','Potion not consumed','d4 rolled','count-1','inventoryWeapons.length>=2']) {
   if (!equipment.includes(needle)) throw new Error(`Missing equipment v4 marker: ${needle}`);
 }
 for (const needle of ['Once per session','spendHope','Nomadic Pack','data-nomadic-item','addCustomItem','Reset for next session']) {
