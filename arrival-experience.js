@@ -1,4 +1,28 @@
 (() => {
+  if (!document.querySelector('script[data-p7-usability]')) {
+    const script = document.createElement('script');
+    script.src = 'p7-usability.js?v=p7-2';
+    script.defer = true;
+    script.dataset.p7Usability = 'true';
+    document.head.appendChild(script);
+  }
+
+  if (!document.querySelector('script[data-p7-backpack]')) {
+    const script = document.createElement('script');
+    script.src = 'p7-backpack.js?v=pack1';
+    script.defer = true;
+    script.dataset.p7Backpack = 'true';
+    document.head.appendChild(script);
+  }
+
+  if (!document.querySelector('link[data-greywake-item-cards]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'greywake-item-cards.css?v=p7-card1';
+    link.dataset.greywakeItemCards = 'true';
+    document.head.appendChild(link);
+  }
+
   const home = document.getElementById('home');
   const hero = home?.querySelector('.hero');
   const goals = document.getElementById('playerGoals');
