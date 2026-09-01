@@ -6,6 +6,8 @@ const companion=fs.readFileSync('companion-play.js','utf8');
 const rest=fs.readFileSync('rest-system-v2.js','utf8');
 const layout=fs.readFileSync('character-layout-order.js','utf8');
 const index=fs.readFileSync('index.html','utf8');
+const nomadic=fs.readFileSync('p9-nomadic-pack.js','utf8');
+const consolidation=fs.readFileSync('p9-inventory-consolidation.js','utf8');
 
 for(const marker of ['velmira','odie','MAX_WATER=9','live-resource-water','live-resource-armor','data-p11-short-rest','data-p11-long-rest','data-p11-take-damage','data-p11-can-do','data-p11-backpack','GreywakeBackpack','openCanDo','setArmorMarked','EVASION']){
   if(!live.includes(marker))throw new Error(`Missing P11 live-play marker: ${marker}`);
@@ -28,8 +30,17 @@ for(const marker of ["effect:'rogueDodge'","cost:{resource:'hope',amount:3}","13
 }
 if(!rest.includes("setEffect?.('rogueDodge',false,'Rest ends Rogue’s Dodge')"))throw new Error('Odie Rogue’s Dodge must end on rest.');
 
+for(const marker of ['Adept · mark Stress, double Experience','Strange Patterns','data-pattern-number','data-exp-payment','Mending Touch','Not This Time','Nomadic Pack']){
+  if(!companion.includes(marker))throw new Error(`Missing Velmira mechanic marker: ${marker}`);
+}
+for(const marker of ["${PREFIX}velmira${preview()?':gmtest':''}",'Once per session','spendHope','addCustomItem','Reset for new session']){
+  if(!nomadic.includes(marker))throw new Error(`Missing Velmira Nomadic Pack marker: ${marker}`);
+}
+if(nomadic.includes('if(!isVelmira()||preview())return'))throw new Error('Nomadic Pack must be locally testable in GM preview using its :gmtest state.');
+if(!consolidation.includes('p9-nomadic-pack.js?v=nomadic3'))throw new Error('Nomadic Pack preview-test fix requires the current cache key.');
+
 if(!index.includes('character-layout-order.js?v=order7'))throw new Error('P11 requires the current stable layout cache key.');
 if(!index.includes('p11-companion-live-play.js?v=p11companion5'))throw new Error('P11 requires the current stable live-play JS cache key.');
 if(!index.includes('p11-companion-live-play.css?v=p11companion4'))throw new Error('P11 requires the current stable CSS cache key.');
 
-console.log('P11 Velmira/Odie parity, Odie mechanics, and no-glitch regression checks passed');
+console.log('P11 Velmira/Odie parity, character mechanics, and no-glitch regression checks passed');
