@@ -1,7 +1,8 @@
 (() => {
   const MAX_WATER=9;
   const SUPPORTED=['velmira','odie'];
-  let observer=null, observedRoot=null, timer=null, repairing=false;
+  let timer=null,boundRoot=null;
+
   const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));
   const key=()=>String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();
   const active=()=>SUPPORTED.includes(key());
@@ -14,7 +15,8 @@
 
   function onCharacterRoute(){return location.hash==='#/character'||Boolean(document.querySelector('#characterSheet .character-sheet-shell'));}
   function stat(label){return [...document.querySelectorAll('#characterSheet .character-stat')].find(n=>n.querySelector('span')?.textContent.trim().toLowerCase()===label.toLowerCase())?.querySelector('strong')?.textContent.trim()||'—';}
-  function currentEvasion(){const c=combat();return c?.evasion??stat('Evasion');}
+  function currentEvasion(){return combat()?.evasion??stat('Evasion');}
+
   function waterPips(current){return Array.from({length:MAX_WATER},(_,i)=>`<button type="button" class="live-resource-pip ${i<current?'filled':''}" data-p11-water-value="${i+1}" aria-label="Set Water to ${i+1}" aria-pressed="${i<current?'true':'false'}"></button>`).join('');}
   function armorPips(current,max){return Array.from({length:max},(_,i)=>`<button type="button" class="live-resource-pip ${i<current?'filled':''}" data-p11-armor-value="${i+1}" aria-label="Armor slot ${i+1}${i<current?' marked':''}" aria-pressed="${i<current?'true':'false'}"></button>`).join('');}
   function setWater(value){window.GreywakeRest?.setWater?.(Math.max(0,Math.min(MAX_WATER,Number(value)||0)));}
@@ -48,19 +50,26 @@
   }
 
   function ensureEvasionReadout(){
-    const mark=document.querySelector('#traitRollPanel .trait-roll-dice-mark');if(!mark)return;const value=String(currentEvasion());if(mark.classList.contains('p11-evasion-mark')&&mark.dataset.evasion===value)return;
+    const mark=document.querySelector('#traitRollPanel .trait-roll-dice-mark');if(!mark)return;
+    const value=String(currentEvasion());if(mark.classList.contains('p11-evasion-mark')&&mark.dataset.evasion===value)return;
     mark.classList.add('p11-evasion-mark');mark.dataset.evasion=value;mark.removeAttribute('aria-hidden');mark.setAttribute('aria-label',`Evasion ${value}`);mark.innerHTML=`<span>EVASION</span><strong>${esc(value)}</strong>`;
   }
 
-  function removeDuplicates(){document.querySelector('#characterSheet .character-sheet-subtitle')?.classList.add('p11-hidden-duplicate');document.querySelector('#characterSheet .pro-record-stamp')?.remove();const traits=[...document.querySelectorAll('#characterSheet .sheet-group')].find(g=>g.querySelector('.sheet-group-head h3')?.textContent.trim()==='Traits');traits?.classList.add('p11-hidden-duplicate');}
-  function positionQuickRolls(){const traits=document.getElementById('traitRollPanel'),board=document.querySelector('#characterSheet .live-resource-board');if(traits&&board&&traits.nextElementSibling!==board)board.insertAdjacentElement('beforebegin',traits);}
+  function removeDuplicates(){
+    document.querySelector('#characterSheet .character-sheet-subtitle')?.classList.add('p11-hidden-duplicate');
+    document.querySelector('#characterSheet .pro-record-stamp')?.remove();
+    const traits=[...document.querySelectorAll('#characterSheet .sheet-group')].find(g=>g.querySelector('.sheet-group-head h3')?.textContent.trim()==='Traits');traits?.classList.add('p11-hidden-duplicate');
+  }
+  function positionQuickRolls(){const traits=document.getElementById('traitRollPanel'),board=document.querySelector('#characterSheet .live-resource-board');if(traits&&board&&(traits.parentElement!==board.parentElement||traits.nextElementSibling!==board))board.insertAdjacentElement('beforebegin',traits);}
+
   function titleOf(card){return card.querySelector('.active-action-copy strong')?.textContent.trim()||card.querySelector('strong')?.textContent.trim()||'';}
   function available(card){return !card.disabled&&!card.classList.contains('equipment-action-disabled')&&!card.classList.contains('active-action-disabled')&&!card.classList.contains('p10-action-card-unavailable');}
   function ensureCanDoDialog(){let d=document.getElementById('p11CanDoDialog');if(!d){d=document.createElement('dialog');d.id='p11CanDoDialog';d.className='p11-can-do-dialog';document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});}return d;}
   function ensureActionDialog(){let d=document.getElementById('p11ActionUseDialog');if(!d){d=document.createElement('dialog');d.id='p11ActionUseDialog';d.className='p11-action-use-dialog';document.body.appendChild(d);}return d;}
   function closeActionUse(){const d=document.getElementById('p11ActionUseDialog'),detail=d?.querySelector('.active-action-detail'),panel=actionsPanel();if(detail&&panel)panel.appendChild(detail);d?.close();}
   function openActionUse(title){
-    const panel=actionsPanel(),target=[...(panel?.querySelectorAll('.active-action-card')||[])].find(card=>titleOf(card)===title);if(!panel||!target)return;target.click();let tries=0;
+    const panel=actionsPanel(),target=[...(panel?.querySelectorAll('.active-action-card')||[])].find(card=>titleOf(card)===title);if(!panel||!target)return;
+    target.click();let tries=0;
     const wait=()=>{const detail=panel.querySelector('.active-action-detail');if((!detail||!detail.querySelector('button,input,select,.action-roller'))&&tries++<12){setTimeout(wait,25);return;}if(!detail)return;const d=ensureActionDialog();d.innerHTML=`<div class="p11-dialog-shell"><div class="equip-dialog-head"><div><span>USE NOW</span><h2>${esc(title)}</h2></div><button type="button" data-close>×</button></div><div class="p11-action-use-body"></div></div>`;d.querySelector('.p11-action-use-body')?.appendChild(detail);d.querySelector('[data-close]')?.addEventListener('click',closeActionUse);d.addEventListener('cancel',e=>{e.preventDefault();closeActionUse();},{once:true});if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');};wait();
   }
   function openCanDo(){
@@ -71,6 +80,7 @@
 
   function makeBackpackTestable(){if(document.body.dataset.gmPreview!=='true')return;document.querySelectorAll('#p7BackpackDialog button,#p7BackpackDialog input,#p7BackpackDialog select').forEach(n=>{n.disabled=false;});}
   function prepareBackpack(){window.GreywakeEquipmentLibrary?.enhance?.();window.GreywakeInventoryConsolidation?.refresh?.();makeBackpackTestable();}
+
   function handleClick(e){
     if(!active()||!onCharacterRoute())return;const t=e.target.closest('button');if(!t||!document.getElementById('characterSheet')?.contains(t))return;
     if(t.matches('[data-p11-water-delta]')){e.preventDefault();setWater(water()+Number(t.dataset.p11WaterDelta||0));return;}
@@ -83,15 +93,26 @@
     if(t.matches('[data-p11-backpack]')){e.preventDefault();window.GreywakeBackpack?.open?.();setTimeout(prepareBackpack,0);setTimeout(prepareBackpack,40);}
   }
 
-  function ready(){const board=document.querySelector('#characterSheet .live-resource-board');return Boolean(board&&board.querySelector('.live-resource-water')&&board.querySelector('.live-resource-armor')&&board.querySelector('.p11-field-actions')&&board.querySelector('.p11-rest-utility')&&document.getElementById('traitRollPanel'));}
-  function needsRepair(){return !ready();}
-  function refresh(){if(!active()||!onCharacterRoute())return;ensureWaterRow();ensureArmorRow();ensureRestUtility();ensureFieldActions();ensureEvasionReadout();removeDuplicates();positionQuickRolls();if(ready())document.body.dataset.p11Companion='true';}
-  function repair(){if(repairing||!active()||!onCharacterRoute())return;repairing=true;try{refresh();}finally{setTimeout(()=>{repairing=false;},30);}}
-  function verify(){if(!active()||!onCharacterRoute())return;if(needsRepair())repair();else{ensureWaterRow();ensureArmorRow();ensureEvasionReadout();removeDuplicates();positionQuickRolls();}}
-  function watch(){if(!active()||!onCharacterRoute())return;const root=document.getElementById('characterSheet');if(!root){timer=setTimeout(watch,60);return;}if(root!==observedRoot){observer?.disconnect();observedRoot=root;root.addEventListener('click',handleClick);observer=new MutationObserver(()=>{clearTimeout(timer);timer=setTimeout(verify,30);});observer.observe(root,{childList:true,subtree:true});}verify();}
-  function schedule(){clearTimeout(timer);timer=setTimeout(watch,10);}
-  window.addEventListener('greywake:companion-resources-changed',()=>{if(active())refresh();});
-  for(const event of ['greywake:player-ready','greywake:sheet-enhanced','greywake:damage-changed','greywake:rest-state-changed','greywake:equipment-state-changed'])window.addEventListener(event,schedule);
-  window.addEventListener('hashchange',schedule);document.addEventListener('DOMContentLoaded',schedule);schedule();setTimeout(schedule,60);setTimeout(schedule,220);
-  window.GreywakeCompanionLivePlay={refresh};
+  function bindRoot(){const root=document.getElementById('characterSheet');if(!root||root===boundRoot)return;boundRoot?.removeEventListener('click',handleClick);boundRoot=root;boundRoot.addEventListener('click',handleClick);}
+  function ensureNoticeHost(){if(document.getElementById('companionNotice'))return;const view=document.getElementById('characterPageView');if(!view)return;const n=document.createElement('div');n.id='companionNotice';n.className='resource-notice';n.setAttribute('aria-live','polite');view.appendChild(n);}
+
+  function setup(attempt=0){
+    if(!active()||!onCharacterRoute())return;
+    const board=document.querySelector('#characterSheet .live-resource-board'),traits=document.getElementById('traitRollPanel');
+    if(!board||!traits){if(attempt<12)timer=setTimeout(()=>setup(attempt+1),40);return;}
+    bindRoot();ensureNoticeHost();ensureWaterRow();ensureArmorRow();ensureRestUtility();ensureFieldActions();ensureEvasionReadout();removeDuplicates();positionQuickRolls();
+  }
+  function schedule(){clearTimeout(timer);timer=setTimeout(()=>setup(0),20);}
+
+  window.addEventListener('greywake:companion-resources-changed',()=>{if(active())ensureEvasionReadout();});
+  window.addEventListener('greywake:damage-changed',()=>{if(active())ensureArmorRow();});
+  window.addEventListener('greywake:rest-state-changed',()=>{if(active())ensureWaterRow();});
+  window.addEventListener('greywake:equipment-state-changed',()=>{if(active()){ensureArmorRow();ensureEvasionReadout();}});
+  window.addEventListener('greywake:player-ready',schedule);
+  window.addEventListener('greywake:sheet-enhanced',schedule);
+  window.addEventListener('hashchange',schedule);
+  document.addEventListener('DOMContentLoaded',schedule);
+  schedule();
+
+  window.GreywakeCompanionLivePlay={refresh:schedule};
 })();
