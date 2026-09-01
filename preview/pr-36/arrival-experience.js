@@ -7,6 +7,14 @@
     document.head.appendChild(script);
   }
 
+  if (!document.querySelector('script[data-p7-backpack]')) {
+    const script = document.createElement('script');
+    script.src = 'p7-backpack.js?v=pack1';
+    script.defer = true;
+    script.dataset.p7Backpack = 'true';
+    document.head.appendChild(script);
+  }
+
   if (!document.querySelector('link[data-greywake-item-cards]')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
