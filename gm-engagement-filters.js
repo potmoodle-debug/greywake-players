@@ -130,7 +130,7 @@
   function ensureMindDashboardScript() {
     if (!isFullGM() || document.querySelector('script[data-gm-mind-dashboard]')) return;
     const script = document.createElement('script');
-    script.src = 'gm-mind-dashboard.js?v=mind4';
+    script.src = 'gm-mind-dashboard.js?v=mind5';
     script.defer = true;
     script.dataset.gmMindDashboard = 'true';
     document.head.appendChild(script);
