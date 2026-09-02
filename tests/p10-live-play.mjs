@@ -73,6 +73,10 @@ for(const forbidden of [
   if(velmira.includes(forbidden))throw new Error(`Retired Velmira-only layout creation returned: ${forbidden}`);
 }
 if(!velmira.includes('compatibility shim')||!velmira.includes('GreywakeCharacterLayout'))throw new Error('Velmira compatibility file must only clean up old artifacts and defer to the shared character layout.');
+for(const marker of ['hideDuplicateTraits','sharedDuplicateTraitStyle',"textContent.trim()==='Traits'","classList.add('p10-traits-duplicate')"]){
+  if(!velmira.includes(marker))throw new Error(`All PCs must hide the duplicate body Traits section while preserving its mechanics data: ${marker}`);
+}
+if(velmira.includes("traits?.remove()")||velmira.includes("traits.remove()"))throw new Error('Duplicate Traits must stay in the DOM because live roll mechanics read the trait cards.');
 if(/\.velmira-play-tab\s*\{|\.velmira-play-panel\s*\{|velmira-sidebar-collapsed/.test(velmiraCss))throw new Error('Velmira-only visual skin must remain retired.');
 
 if(guard.includes('localStorage.setItem')||guard.includes('greywake:resources:odie')||guard.includes('greywake:resources:velmira')){
