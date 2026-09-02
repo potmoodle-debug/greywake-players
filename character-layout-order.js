@@ -36,35 +36,31 @@
     const stats=identity.querySelector('.character-stat-strip');
     const resources=identity.querySelector('.pro-resource-board');
     const note=identity.querySelector('.character-sheet-note');
-    if(stats&&resources&&stats.nextElementSibling!==resources)stats.insertAdjacentElement('afterend',resources);
+    const traits=document.getElementById('traitRollPanel');
+
+    // Marek established the preferred live-session hierarchy. Every character
+    // now uses the same one: stats -> trait roller -> live resources -> note.
+    if(stats&&traits&&stats.nextElementSibling!==traits)stats.insertAdjacentElement('afterend',traits);
+    if(traits&&resources&&traits.nextElementSibling!==resources)traits.insertAdjacentElement('afterend',resources);
+    else if(stats&&resources&&!traits&&stats.nextElementSibling!==resources)stats.insertAdjacentElement('afterend',resources);
     if(resources&&note&&resources.nextElementSibling!==note)resources.insertAdjacentElement('afterend',note);
 
     const content=ensureDashboard(shell,hero);
     if(!content)return;
 
-    const traits=document.getElementById('traitRollPanel');
     const beast=key==='marek'?document.getElementById('beastformControl'):null;
     const actions=document.getElementById(key==='marek'?'activeActionsPanel':'companionActionsPanel');
     const readyGear=document.getElementById('readyGearPanel');
     const damage=document.getElementById('damageHealthPanel');
 
-    if(key==='marek'&&traits&&resources){
-      if(traits.parentElement!==identity || traits.nextElementSibling!==resources){
-        resources.insertAdjacentElement('beforebegin',traits);
-      }
-    }else if(traits){
-      content.appendChild(traits);
-    }
-
-    // Always append the remaining live-play panels in canonical order. appendChild
-    // moves existing nodes without recreating them, preserving their handlers/state.
+    // Character-specific panels can differ, but their placement cannot. Beastform
+    // is Marek-only; otherwise all PCs use actions -> ready gear -> damage.
     [beast,actions,readyGear,damage].filter(Boolean).forEach(node=>content.appendChild(node));
 
     const rest=document.getElementById('restPanel');
     if(rest&&body.nextElementSibling!==rest)body.insertAdjacentElement('afterend',rest);
 
-    const restButtons=document.querySelectorAll('#playDashboard [data-dashboard-rest]');
-    restButtons.forEach(button=>button.disabled=!window.GreywakeRest);
+    document.querySelectorAll('#playDashboard [data-dashboard-rest]').forEach(button=>button.disabled=!window.GreywakeRest);
   }
 
   function schedule(){
