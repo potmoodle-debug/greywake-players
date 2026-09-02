@@ -28,6 +28,20 @@
     d.querySelector('[data-reset-nomadic]')?.addEventListener('click',resetForNewSession);
     if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');
   }
+  function enhanceBackpack(){
+    if(!isVelmira())return;
+    const d=document.getElementById('p7BackpackDialog');if(!d)return;
+    const card=[...d.querySelectorAll('.p7-pack-card')].find(x=>x.querySelector('h3')?.textContent.trim()==='Nomadic Pack');if(!card)return;
+    let use=card.querySelector('[data-use-nomadic-backpack]');
+    if(!use){
+      use=document.createElement('button');use.type='button';use.dataset.useNomadicBackpack='true';use.className='p9-item-action';
+      const remove=card.querySelector('button[data-p9-remove],button[data-remove-item],button');
+      const host=remove?.parentElement||card.querySelector('.p7-pack-content')||card;
+      host.insertBefore(use,remove||null);
+      use.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();d.close?.();open();});
+    }
+    const state=load();use.textContent=state.used?'Used this session · Open':'Use Nomadic Pack';use.disabled=!carried();
+  }
   function refresh(){
     if(!isVelmira())return;const state=load(),has=carried(),card=document.querySelector('#companionActionsPanel [data-companion-action="nomadic"]');
     if(card){card.disabled=!has;card.classList.toggle('equipment-action-disabled',!has);card.title=!has?'Nomadic Pack is not currently carried.':state.used?'Nomadic Pack has been used this session. Open it to reset at the start of a new session.':'';}
@@ -38,12 +52,15 @@
       if(state.used&&has){if(!reset){reset=document.createElement('button');reset.type='button';reset.dataset.resetNomadicSession='true';reset.textContent='Reset for new session';reset.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();resetForNewSession();});(b?.parentElement||detail).appendChild(reset);}}
       else reset?.remove();
     }
+    enhanceBackpack();
   }
   document.addEventListener('click',e=>{
-    if(!isVelmira())return;const detail=e.target.closest?.('#companionActionsPanel .active-action-detail');if(e.target.closest?.('[data-use-action]')&&detail?.querySelector('h3')?.textContent.trim()==='Nomadic Pack'){e.preventDefault();e.stopImmediatePropagation();open();return;}
+    if(!isVelmira())return;
+    const detail=e.target.closest?.('#companionActionsPanel .active-action-detail');if(e.target.closest?.('[data-use-action]')&&detail?.querySelector('h3')?.textContent.trim()==='Nomadic Pack'){e.preventDefault();e.stopImmediatePropagation();open();return;}
     if(e.target.closest?.('[data-companion-action="nomadic"]'))setTimeout(refresh,20);
+    if(e.target.closest?.('#characterBackpackButton,#p7BackpackEntry .p7-backpack-button,[data-p11-backpack]'))setTimeout(enhanceBackpack,70);
   },true);
   window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(refresh,40));window.addEventListener('greywake:player-ready',()=>setTimeout(refresh,80));window.addEventListener('greywake:sheet-enhanced',()=>setTimeout(refresh,80));window.addEventListener('hashchange',()=>setTimeout(refresh,80));
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,100));else setTimeout(refresh,100);
-  window.GreywakeNomadicPack={open,reset:resetForNewSession,getState:load};
+  window.GreywakeNomadicPack={open,reset:resetForNewSession,getState:load,refresh};
 })();
