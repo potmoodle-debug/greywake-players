@@ -38,6 +38,16 @@
     document.head.appendChild(style);
   }
 
+  function repairCockpitRace() {
+    if (!isFullGM() || location.hash !== '#/gm-cockpit') return;
+    const ws = document.getElementById('gmRouteWorkspace');
+    if (!ws || !ws.classList.contains('is-open')) return;
+    if (ws.dataset.visualCockpit === 'true' && !ws.querySelector('.gm-vc')) {
+      delete ws.dataset.visualCockpit;
+      requestAnimationFrame(() => window.dispatchEvent(new HashChangeEvent('hashchange')));
+    }
+  }
+
   function enhancePressures(root) {
     root.querySelectorAll('.gm-vc-pressure').forEach(card => {
       const title = card.querySelector('h3')?.textContent?.trim();
@@ -97,6 +107,7 @@
   }
 
   function enhance() {
+    repairCockpitRace();
     if (!isFullGM() || location.hash !== '#/gm-cockpit') return;
     const root = document.querySelector('#gmRouteWorkspace .gm-vc');
     if (!root) return;
