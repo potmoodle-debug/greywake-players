@@ -145,6 +145,15 @@
     document.head.appendChild(script);
   }
 
+  function ensureVisualCockpitScript() {
+    if (!isFullGM() || document.querySelector('script[data-gm-visual-cockpit]')) return;
+    const script = document.createElement('script');
+    script.src = 'gm-visual-cockpit.js?v=visual1';
+    script.defer = true;
+    script.dataset.gmVisualCockpit = 'true';
+    document.head.appendChild(script);
+  }
+
   function ensureDevelopmentWorkspaceAssets() {
     if (!isFullGM()) return;
     if (!document.querySelector('link[data-gm-development-css]')) {
@@ -179,6 +188,7 @@
     if (!isFullGM()) return;
     ensureMindDashboardScript();
     ensureGMNavigationScript();
+    ensureVisualCockpitScript();
     ensureDevelopmentWorkspaceAssets();
     scheduleEnhance();
   }
