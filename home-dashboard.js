@@ -18,6 +18,15 @@
     location.hash = recordHref(name);
   }
 
+  function openInbox(goalId = '') {
+    if (goalId) {
+      window.dispatchEvent(new CustomEvent('greywake:open-player-inbox', { detail: { goalId } }));
+      return;
+    }
+    if (window.GreywakePlayerPortal?.navigate) window.GreywakePlayerPortal.navigate('#/inbox');
+    else location.hash = '#/inbox';
+  }
+
   function questionCount() {
     return goals.querySelectorAll('.interest-thread[data-entry-kind="question"]:not(.interest-thread-resolved)').length;
   }
@@ -35,6 +44,47 @@
 
   function playerName() {
     return window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
+  }
+
+  function enhanceQuestionConversations() {
+    goals.querySelectorAll('.interest-thread[data-entry-kind="question"]').forEach(card => {
+      const resolved = card.classList.contains('interest-thread-resolved');
+      const pill = card.querySelector('.interest-waiting-pill');
+      const banner = card.querySelector('.interest-waiting');
+      const playerForm = card.querySelector('.interest-reply-form');
+      const gmForm = card.querySelector('.gm-interest-reply');
+      const stateText = (pill?.textContent || '').toUpperCase();
+      const atTable = stateText.includes('PLAY AT TABLE');
+
+      if (!resolved && !atTable && pill) pill.textContent = 'OPEN CONVERSATION';
+
+      if (banner && !resolved && !atTable) {
+        const strong = banner.querySelector('strong');
+        const copy = banner.querySelector('span');
+        if (strong) strong.textContent = 'OPEN CONVERSATION';
+        if (copy) copy.textContent = 'Keep talking whenever you have something to add. Messages do not need to alternate, so nobody has to wait for the other person before continuing.';
+      }
+
+      if (playerForm && !resolved && !atTable) {
+        const label = playerForm.querySelector('label');
+        const textarea = playerForm.querySelector('textarea');
+        const submit = playerForm.querySelector('button[type="submit"]');
+        const helper = playerForm.querySelector('.interest-reply-actions span');
+        if (label) label.textContent = 'Add to conversation';
+        if (textarea) textarea.placeholder = 'Ask a follow-up, clarify something, add another thought, or say what you want to do next…';
+        if (submit) submit.textContent = 'Send message';
+        if (helper) helper.textContent = 'You can send another message at any time.';
+      }
+
+      if (gmForm && !resolved) {
+        const label = gmForm.querySelector('label');
+        const textarea = gmForm.querySelector('textarea');
+        const replyButton = gmForm.querySelector('[data-send-kind="reply"]');
+        if (label) label.textContent = 'Add to conversation';
+        if (textarea) textarea.placeholder = 'Reply, ask a follow-up, clarify something, or add another thought…';
+        if (replyButton) replyButton.textContent = 'Send message';
+      }
+    });
   }
 
   function ensureContinuePanel() {
@@ -57,7 +107,7 @@
       <div class="player-continue-head"><div><div class="eyebrow">START HERE</div><h2>Continue as ${name}</h2></div><p>Your quickest routes back into the game.</p></div>
       <div class="player-continue-grid">
         <a href="#/character" class="player-continue-card player-continue-primary"><small>Character</small><strong>Open ${name}</strong><span>Hope, Stress, abilities, attacks, gear and character details.</span><em>Open dossier →</em></a>
-        <button type="button" class="player-continue-card" data-home-action="inbox"><small>Between games</small><strong>Questions & replies</strong><span>${q ? `${q} open question${q === 1 ? '' : 's'}` : 'No open questions'}${replies ? ' · GM replies recorded' : ''}.</span><em>Open conversations ↓</em></button>
+        <button type="button" class="player-continue-card" data-home-action="inbox"><small>Between games</small><strong>Q&A conversations</strong><span>${q ? `${q} open conversation${q === 1 ? '' : 's'}` : 'No open conversations'}${replies ? ' · GM replies recorded' : ''}.</span><em>Open conversations →</em></button>
         <button type="button" class="player-continue-card" data-home-action="mind"><small>Your priorities</small><strong>${Math.min(minds,5)}/5 on my mind</strong><span>See what currently matters most to your character.</span><em>View priorities ↓</em></button>
       </div>`;
   }
@@ -110,24 +160,7 @@
     }
     const q = questionCount();
     const replies = replyCount();
-    const open = goals.classList.contains('player-inbox-open');
-    wrap.innerHTML = `<button type="button" class="player-inbox-toggle" aria-expanded="${open}"><span><strong>Questions & replies</strong><span>${q ? q + ' open question' + (q === 1 ? '' : 's') : 'No open questions'}${replies ? ' · GM replies recorded' : ''}</span></span><em>${open ? 'Close ↑' : 'Open ↓'}</em></button>`;
-  }
-
-  function toggleInbox(goalId = '') {
-    const next = !goals.classList.contains('player-inbox-open') || Boolean(goalId);
-    goals.classList.toggle('player-inbox-open', next);
-    ensureInboxToggle();
-    if (next) {
-      requestAnimationFrame(() => {
-        const target = goalId ? goals.querySelector(`.interest-thread[data-goal-id="${goalId}"]`) : goals.querySelector('.player-goals-head, .interest-thread');
-        (target || goals).scrollIntoView({behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
-        if (target?.classList.contains('interest-thread')) {
-          target.classList.add('engagement-flash');
-          setTimeout(() => target.classList.remove('engagement-flash'), 900);
-        }
-      });
-    }
+    wrap.innerHTML = `<button type="button" class="player-inbox-toggle" data-open-qa="true"><span><strong>Q&A conversations</strong><span>${q ? q + ' open conversation' + (q === 1 ? '' : 's') : 'No open conversations'}${replies ? ' · GM replies recorded' : ''}</span></span><em>Open →</em></button>`;
   }
 
   function mindSection() {
@@ -139,7 +172,7 @@
     if (!button || !home.contains(button)) return;
 
     const action = button.dataset.homeAction;
-    if (action === 'inbox') { event.preventDefault(); toggleInbox(); return; }
+    if (action === 'inbox') { event.preventDefault(); openInbox(); return; }
     if (action === 'mind') { event.preventDefault(); mindSection()?.scrollIntoView({behavior:'smooth',block:'start'}); return; }
     if (action === 'out-there') { event.preventDefault(); threads.scrollIntoView({behavior:'smooth',block:'start'}); return; }
 
@@ -155,7 +188,15 @@
     }
   }
 
+  function handleGlobalQAClick(event) {
+    const button = event.target.closest('[data-open-qa], .player-inbox-toggle');
+    if (!button) return;
+    event.preventDefault();
+    openInbox();
+  }
+
   function enhance() {
+    enhanceQuestionConversations();
     ensureNav();
     if (discoveries && document.getElementById('playerHomeNav') && discoveries.previousElementSibling !== document.getElementById('playerHomeNav')) {
       document.getElementById('playerHomeNav').insertAdjacentElement('afterend', discoveries);
@@ -170,7 +211,10 @@
   }
 
   home.addEventListener('click', handleHomeClick);
-  window.addEventListener('greywake:open-player-inbox', event => toggleInbox(event.detail?.goalId || ''));
+  document.addEventListener('click', handleGlobalQAClick);
+  window.addEventListener('greywake:open-player-inbox', event => {
+    if (isPlayerFacing()) openInbox(event.detail?.goalId || '');
+  });
   new MutationObserver(schedule).observe(goals,{childList:true,subtree:true});
   window.addEventListener('greywake:player-ready', schedule);
   window.addEventListener('greywake:engagement-changed', schedule);
