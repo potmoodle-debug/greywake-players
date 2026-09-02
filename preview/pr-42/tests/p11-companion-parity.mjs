@@ -33,11 +33,11 @@ if(!rest.includes("setEffect?.('rogueDodge',false,'Rest ends Rogue’s Dodge')")
 for(const marker of ['Adept · mark Stress, double Experience','Strange Patterns','data-pattern-number','data-exp-payment','Mending Touch','Not This Time','Nomadic Pack']){
   if(!companion.includes(marker))throw new Error(`Missing Velmira mechanic marker: ${marker}`);
 }
-for(const marker of ["${PREFIX}velmira${preview()?':gmtest':''}",'Once per session','spendHope','addCustomItem','Reset for new session']){
+for(const marker of ["${PREFIX}velmira${preview()?':gmtest':''}",'Once per session','spendHope','addCustomItem','Reset for new session','data-use-nomadic-backpack','Use Nomadic Pack']){
   if(!nomadic.includes(marker))throw new Error(`Missing Velmira Nomadic Pack marker: ${marker}`);
 }
 if(nomadic.includes('if(!isVelmira()||preview())return'))throw new Error('Nomadic Pack must be locally testable in GM preview using its :gmtest state.');
-if(!consolidation.includes('p9-nomadic-pack.js?v=nomadic3'))throw new Error('Nomadic Pack preview-test fix requires the current cache key.');
+if(!consolidation.includes('p9-nomadic-pack.js?v=nomadic4'))throw new Error('Nomadic Pack Backpack-use fix requires the current cache key.');
 
 if(!index.includes('character-layout-order.js?v=order7'))throw new Error('P11 requires the current stable layout cache key.');
 if(!index.includes('p11-companion-live-play.js?v=p11companion5'))throw new Error('P11 requires the current stable live-play JS cache key.');
