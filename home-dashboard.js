@@ -10,6 +10,11 @@
     return document.body.dataset.role !== 'gm' || document.body.dataset.gmPreview === 'true';
   }
 
+  function isHomeRoute() {
+    const hash = location.hash || '#/';
+    return hash === '#/' || hash === '';
+  }
+
   function recordHref(name) {
     return '#/record/' + encodeURIComponent(name);
   }
@@ -18,11 +23,7 @@
     location.hash = recordHref(name);
   }
 
-  function openInbox(goalId = '') {
-    if (goalId) {
-      window.dispatchEvent(new CustomEvent('greywake:open-player-inbox', { detail: { goalId } }));
-      return;
-    }
+  function openInbox() {
     if (window.GreywakePlayerPortal?.navigate) window.GreywakePlayerPortal.navigate('#/inbox');
     else location.hash = '#/inbox';
   }
@@ -89,7 +90,7 @@
 
   function ensureContinuePanel() {
     let panel = document.getElementById('playerContinuePanel');
-    if (!isPlayerFacing()) {
+    if (!isPlayerFacing() || !isHomeRoute()) {
       panel?.remove();
       return;
     }
@@ -113,7 +114,7 @@
   }
 
   function ensureNav() {
-    if (!isPlayerFacing()) {
+    if (!isPlayerFacing() || !isHomeRoute()) {
       document.body.classList.remove('player-home-dashboard');
       document.getElementById('playerHomeNav')?.remove();
       document.getElementById('playerContinuePanel')?.remove();
@@ -151,6 +152,7 @@
   }
 
   function ensureInboxToggle() {
+    if (!isHomeRoute()) return;
     let wrap = document.getElementById('playerInboxToggleWrap');
     if (!wrap) {
       wrap = document.createElement('div');
@@ -198,7 +200,7 @@
   function enhance() {
     enhanceQuestionConversations();
     ensureNav();
-    if (discoveries && document.getElementById('playerHomeNav') && discoveries.previousElementSibling !== document.getElementById('playerHomeNav')) {
+    if (isHomeRoute() && discoveries && document.getElementById('playerHomeNav') && discoveries.previousElementSibling !== document.getElementById('playerHomeNav')) {
       document.getElementById('playerHomeNav').insertAdjacentElement('afterend', discoveries);
     }
   }
@@ -212,9 +214,6 @@
 
   home.addEventListener('click', handleHomeClick);
   document.addEventListener('click', handleGlobalQAClick);
-  window.addEventListener('greywake:open-player-inbox', event => {
-    if (isPlayerFacing()) openInbox(event.detail?.goalId || '');
-  });
   new MutationObserver(schedule).observe(goals,{childList:true,subtree:true});
   window.addEventListener('greywake:player-ready', schedule);
   window.addEventListener('greywake:engagement-changed', schedule);
