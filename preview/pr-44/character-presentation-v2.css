@@ -1,0 +1,105 @@
+/* P2 character presentation pass: visual hierarchy only. No mechanics. */
+.character-page-view{max-width:1440px;padding-top:.65rem}
+.character-page-toolbar{position:sticky;top:58px;z-index:12;margin:0 -.35rem .55rem;padding:.72rem .8rem .78rem;background:linear-gradient(180deg,rgba(16,16,13,.97),rgba(16,16,13,.9));backdrop-filter:blur(14px);border-bottom-color:color-mix(in srgb,var(--dossier-accent) 28%,rgba(255,255,255,.07));box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.character-page-toolbar h1{font-size:clamp(1.3rem,2.3vw,2rem)}
+.character-page-toolbar p{font-size:.72rem;color:#8f8878}
+.character-page-close{min-height:38px;padding:.52rem .78rem;font-size:.72rem}
+.character-page-tabs{position:sticky;top:132px;z-index:11;margin:0 -.35rem .8rem;padding:.45rem .5rem;background:rgba(13,13,11,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.055);box-shadow:0 10px 24px rgba(0,0,0,.16)}
+.character-page-tabs button{min-height:40px;padding:.48rem .78rem;border-radius:2px;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+.character-page-tabs button.active,.character-page-tabs button[aria-selected="true"]{box-shadow:inset 0 -2px 0 var(--dossier-accent),0 6px 18px color-mix(in srgb,var(--dossier-accent) 8%,transparent)}
+
+.character-page-view .pro-dossier{border-color:color-mix(in srgb,var(--dossier-accent) 36%,#4c4331);box-shadow:0 28px 80px rgba(0,0,0,.42),0 0 0 1px rgba(0,0,0,.7)}
+.character-page-view .pro-dossier .character-sheet-hero{grid-template-columns:minmax(220px,300px) minmax(0,1fr);min-height:360px}
+.pro-portrait-frame{margin:1.15rem 0 1.15rem 1.15rem;padding:8px 8px 31px}
+.pro-portrait-frame .character-sheet-portrait,.pro-portrait-frame .character-sheet-monogram{min-height:270px}
+.character-page-view .pro-dossier .character-sheet-identity{padding:1.8rem 2rem 1.45rem}
+.character-page-view .pro-dossier .character-sheet-identity h2{font-size:clamp(3.2rem,6.4vw,5.6rem);letter-spacing:-.015em}
+.character-page-view .pro-dossier .character-sheet-subtitle{max-width:780px;font-size:.77rem;color:#cfc5af}
+.pro-identity-ribbon{margin:.7rem 0 .3rem}
+.pro-record-stamp{opacity:.82}
+
+/* Put actionable state above descriptive material. */
+.pro-resource-board{max-width:820px;margin:.85rem 0 .35rem;padding:.78rem .88rem;border-left-width:4px;background:linear-gradient(90deg,color-mix(in srgb,var(--dossier-accent) 18%,transparent),transparent 58%),rgba(0,0,0,.2)}
+.pro-board-title{margin-bottom:.45rem}.pro-board-title span{font-size:.61rem}.pro-board-title small{font-size:.48rem}
+.pro-resource{grid-template-columns:minmax(92px,138px) 1fr;padding:.34rem 0}
+.pro-pips{gap:.4rem}.pro-pip{width:17px;height:17px}
+.character-page-view .pro-dossier .character-stat-strip{max-width:820px;grid-template-columns:repeat(3,minmax(120px,1fr));gap:.65rem}
+.character-page-view .pro-dossier .character-stat{min-height:82px}
+.character-page-view .pro-dossier .character-stat strong{font-size:1.48rem}
+
+/* Cleaner content rhythm: headings read like dossier sections rather than utility boxes. */
+.character-page-view .pro-dossier .character-sheet-body{padding:1.5rem clamp(1rem,2.4vw,1.75rem) 2rem}
+.character-page-view .pro-dossier .sheet-group-head{margin:0 0 .9rem;padding:.55rem .75rem .55rem 3.4rem;background:linear-gradient(90deg,color-mix(in srgb,var(--dossier-accent) 12%,transparent),transparent 68%)}
+.character-page-view .pro-dossier .sheet-group h3{font-size:1.03rem;letter-spacing:.12em}
+.character-page-view .pro-dossier .sheet-grid{gap:.85rem}
+.character-page-view .sheet-grid.traits{grid-template-columns:repeat(6,minmax(0,1fr));gap:.55rem}
+.character-page-view .sheet-grid.traits .sheet-card.personal-card{min-height:110px;border-top-width:2px;background:linear-gradient(180deg,color-mix(in srgb,var(--dossier-accent) 13%,transparent),rgba(255,255,255,.012) 72%)}
+.character-page-view .sheet-grid.traits .sheet-card>summary{min-height:106px;padding:.85rem .75rem;display:flex;flex-direction:column;justify-content:space-between;gap:.45rem}
+.character-page-view .sheet-grid.traits .sheet-card h4{font-size:.72rem;letter-spacing:.11em}
+.character-page-view .sheet-grid.traits .sheet-value{font-size:1.8rem}
+.character-page-view .sheet-card.personal-card{border-radius:2px;background:linear-gradient(110deg,color-mix(in srgb,var(--dossier-accent) 9%,transparent),rgba(255,255,255,.012) 55%)}
+.character-page-view .sheet-card>summary{padding:.82rem .92rem}
+.character-page-view .sheet-card h4{font-size:.95rem}
+.character-page-view .sheet-card-body{padding:0 .92rem .92rem;font-size:.78rem;line-height:1.6;color:#b9b09e}
+
+/* Active play panels get stronger visual priority without changing their controls. */
+.character-page-view .active-actions-panel{margin:1.15rem 0;border-color:color-mix(in srgb,var(--dossier-accent) 44%,rgba(255,255,255,.08));box-shadow:0 18px 44px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035)}
+.character-page-view .active-actions-head{padding:.9rem 1rem}
+.character-page-view .active-actions-head strong{font-size:1.18rem}
+.character-page-view .active-actions-zone{grid-template-columns:minmax(250px,.78fr) minmax(0,1.45fr)}
+.character-page-view .active-action-card{min-height:70px;padding:.72rem .78rem}
+.character-page-view .active-action-card.selected{box-shadow:inset 4px 0 0 var(--dossier-accent),0 8px 20px rgba(0,0,0,.14)}
+.character-page-view .active-action-detail{padding:1rem}
+.character-page-view .active-action-detail-copy h3{font-size:1.15rem}
+.character-page-view .active-action-detail-tools button{min-height:40px;padding:.5rem .72rem}
+
+/* Make live controls visually consistent with the dossier instead of looking bolted on. */
+.character-page-view button:focus-visible,.character-page-view summary:focus-visible{outline:2px solid var(--dossier-accent);outline-offset:3px}
+.character-page-view .resource-tracker,.character-page-view .companion-resource-panel,.character-page-view .damage-panel,.character-page-view .rest-panel,.character-page-view .equipment-panel{border-color:color-mix(in srgb,var(--dossier-accent) 34%,rgba(255,255,255,.08));box-shadow:0 14px 32px rgba(0,0,0,.16)}
+
+/* Character-specific mood is subtle and structural, not a separate skin. */
+body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-hero{background:linear-gradient(90deg,rgba(10,15,10,.22),rgba(11,13,10,.78) 36%,rgba(10,11,9,.94)),radial-gradient(circle at 18% 12%,rgba(128,154,92,.19),transparent 28%),url('assets/tower-distant.jpg') center 38%/cover no-repeat}
+body[data-character="velmira"] .character-page-view .pro-dossier .character-sheet-hero{background:linear-gradient(90deg,rgba(15,11,18,.2),rgba(14,12,17,.78) 36%,rgba(11,10,13,.94)),radial-gradient(circle at 18% 12%,rgba(158,128,184,.18),transparent 28%),url('assets/tower-distant.jpg') center 38%/cover no-repeat}
+body[data-character="odie"] .character-page-view .pro-dossier .character-sheet-hero{background:linear-gradient(90deg,rgba(18,13,9,.22),rgba(15,12,9,.8) 36%,rgba(11,10,8,.94)),radial-gradient(circle at 18% 12%,rgba(181,126,76,.18),transparent 28%),url('assets/tower-distant.jpg') center 38%/cover no-repeat}
+
+@media(max-width:1100px){
+  .character-page-view .sheet-grid.traits{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .character-page-view .pro-dossier .character-sheet-hero{grid-template-columns:minmax(185px,245px) minmax(0,1fr)}
+  .character-page-view .active-actions-zone{grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr)}
+}
+@media(max-width:760px){
+  .character-page-toolbar{top:58px;grid-template-columns:1fr auto;align-items:center}
+  .character-page-toolbar p{display:none}
+  .character-page-tabs{top:116px}
+  .character-page-view .pro-dossier .character-sheet-hero{grid-template-columns:118px minmax(0,1fr);min-height:0}
+  .pro-portrait-frame{margin:.8rem 0 .8rem .8rem;padding:5px 5px 24px}
+  .pro-portrait-frame .character-sheet-portrait,.pro-portrait-frame .character-sheet-monogram{min-height:155px}
+  .character-page-view .pro-dossier .character-sheet-identity{padding:1rem .9rem 1rem .8rem}
+  .character-page-view .pro-dossier .character-sheet-identity h2{font-size:clamp(2rem,10vw,3.2rem)}
+  .pro-record-stamp{display:none}
+  .pro-identity-ribbon{font-size:.56rem;gap:.35rem}.pro-identity-ribbon b{font-size:.52rem}.pro-sigil{width:24px;height:24px}
+  .character-page-view .pro-dossier .character-stat-strip{grid-template-columns:repeat(3,1fr);gap:.4rem}
+  .character-page-view .pro-dossier .character-stat{min-height:64px;padding:.5rem}.character-page-view .pro-dossier .character-stat strong{font-size:1.16rem}
+  .pro-resource-board{padding:.65rem}.pro-resource{grid-template-columns:84px 1fr;gap:.55rem}.pro-pip{width:14px;height:14px}
+  .character-page-view .sheet-grid.traits{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .character-page-view .active-actions-zone{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .character-page-view{padding-left:.45rem;padding-right:.45rem}
+  .character-page-toolbar{margin-left:0;margin-right:0;padding-left:.35rem;padding-right:.35rem}
+  .character-page-close{font-size:.64rem;padding:.45rem .55rem}
+  .character-page-tabs{margin-left:0;margin-right:0;padding-left:.15rem;padding-right:.15rem}
+  .character-page-tabs button{font-size:.64rem;padding:.42rem .6rem}
+  .character-page-view .pro-dossier .character-sheet-hero{display:block}
+  .pro-portrait-frame{width:132px;float:left;margin:.75rem .75rem .45rem .75rem}
+  .pro-portrait-frame .character-sheet-portrait,.pro-portrait-frame .character-sheet-monogram{min-height:155px}
+  .character-page-view .pro-dossier .character-sheet-identity{min-height:190px;padding:.9rem .7rem .8rem}
+  .character-page-view .pro-dossier .character-sheet-identity h2{font-size:2.35rem}
+  .character-page-view .pro-dossier .character-sheet-subtitle{font-size:.64rem}
+  .pro-resource-board,.character-page-view .pro-dossier .character-stat-strip{clear:both;width:calc(100% + 1.45rem);margin-left:-.7rem;padding-left:.7rem;padding-right:.7rem}
+  .character-page-view .sheet-grid.traits{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .character-page-view .sheet-grid.traits .sheet-card.personal-card{min-height:92px}
+  .character-page-view .sheet-grid.traits .sheet-card>summary{min-height:88px}
+  .character-page-view .active-action-detail{grid-template-columns:34px minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:reduce){.character-page-view *{scroll-behavior:auto!important}}
