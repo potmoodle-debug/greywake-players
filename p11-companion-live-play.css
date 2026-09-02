@@ -1,0 +1,57 @@
+/* P11 companion live-play parity for Velmira and Odie.
+   Progressive enhancement only: never hide the base sheet. */
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .character-sheet-shell{visibility:visible!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .character-sheet-subtitle,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-hidden-duplicate{display:none!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .character-sheet-identity{padding:1.35rem 1.5rem 1.05rem 1.35rem!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .character-sheet-identity h2{margin:.05rem 0 .22rem!important;font-size:clamp(2.7rem,5vw,4.6rem)!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .pro-identity-ribbon{margin:.45rem 0 .05rem!important}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel{margin-top:.65rem!important;padding:.75rem!important}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel .trait-roll-buttons{margin-top:.55rem!important;gap:.38rem!important}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel .trait-roll-buttons button{min-height:48px!important;padding:.42rem .35rem!important}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel .trait-roll-options{margin-top:.48rem!important;padding-top:.4rem!important}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel .trait-roll-dice-mark.p11-evasion-mark{min-width:92px;display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 11px;border:1px solid rgba(190,170,111,.28);background:rgba(255,255,255,.02);color:#d9d0b8}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel .trait-roll-dice-mark.p11-evasion-mark span{font-size:.58rem;letter-spacing:.14em;color:#948c78;font-weight:800}
+body:is([data-character="velmira"],[data-character="odie"]) #traitRollPanel .trait-roll-dice-mark.p11-evasion-mark strong{font:700 1.15rem/1 Georgia,serif;color:#f0e6c8}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-board{margin-top:.6rem!important;padding:10px!important;gap:8px!important;display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-board .pro-board-title{grid-column:1/-1;display:flex!important;align-items:center!important;gap:10px!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-row{padding:8px 9px!important;gap:6px!important;min-width:0}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hope,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-stress,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hp{grid-column:span 4}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-armor{grid-column:span 5}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water{grid-column:span 7}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-foot{grid-column:1/-1}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hope .live-resource-pips,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-stress .live-resource-pips,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hp .live-resource-pips,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water .live-resource-pips{display:flex!important;align-items:center;justify-content:center;gap:6px!important;grid-auto-flow:unset!important;grid-auto-columns:unset!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hope .live-resource-pip,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-stress .live-resource-pip,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hp .live-resource-pip,
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water .live-resource-pip{width:22px!important;min-width:22px!important;max-width:22px!important;height:22px!important;min-height:22px!important;flex:0 0 22px!important;aspect-ratio:1/1!important;border-radius:2px!important;transform:none!important;padding:0!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water .live-resource-pip{border-color:#3e6f8c!important;background:rgba(24,55,76,.34)!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water .live-resource-pip.filled{background:#4d9bc7!important;border-color:#8bd4fa!important;box-shadow:0 0 0 1px rgba(168,225,255,.35) inset,0 0 8px rgba(65,159,211,.28)!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-armor .live-resource-pips{display:flex!important;justify-content:center;gap:8px!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-armor .live-resource-pip{width:24px!important;min-width:24px!important;max-width:24px!important;height:28px!important;min-height:28px!important;flex:0 0 24px!important;border:1px solid #7b684c!important;background:#171710!important;clip-path:polygon(50% 0,92% 17%,82% 72%,50% 100%,18% 72%,8% 17%);border-radius:0!important;transform:none!important;padding:0!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-armor .live-resource-pip.filled{background:#9b6a50!important;border-color:#d0a080!important;box-shadow:inset 0 0 0 2px rgba(255,225,190,.15)!important}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-rest-utility{margin-left:auto;display:flex;align-items:center;gap:6px}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-rest-utility button{appearance:none;min-height:30px;padding:5px 9px;border:1px solid rgba(100,125,139,.38);background:linear-gradient(180deg,#242d32,#171d21);color:#ccd9df;font-size:.64rem;font-weight:800;letter-spacing:.035em;cursor:pointer;border-radius:0}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-rest-utility button:hover{border-color:rgba(139,167,181,.7);background:linear-gradient(180deg,#2d3a40,#1c262b)}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-rest-utility button span{display:inline-block;margin-right:5px;font-size:.82rem}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-field-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding-top:8px}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-field-action{appearance:none;width:100%;min-height:44px;padding:8px 9px;font-weight:900;letter-spacing:.03em;cursor:pointer;border:1px solid #5d5339;background:#1f1c14;color:#eadcae;border-radius:0}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-damage-button{border-color:#985e48;background:#3a2119;color:#ffd8c5}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-can-do-button{border-color:#648453;background:#20351c;color:#dff4cf}
+body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-backpack-button{border-color:#8b6e35;background:#342815;color:#f0d89c}
+body:is([data-character="velmira"],[data-character="odie"]) #damageHealthPanel,
+body:is([data-character="velmira"],[data-character="odie"]) #readyGearPanel,
+body:is([data-character="velmira"],[data-character="odie"]) #restPanel,
+body:is([data-character="velmira"],[data-character="odie"]) #characterBackpackButton,
+body:is([data-character="velmira"],[data-character="odie"]) #playDashboard .play-dashboard-rest{display:none!important}
+body:is([data-character="velmira"],[data-character="odie"]) #companionNotice{position:fixed!important;left:50%;bottom:1rem;margin:0!important;transform:translate(-50%,8px);z-index:80;pointer-events:none}
+body:is([data-character="velmira"],[data-character="odie"]) #companionNotice.visible{transform:translate(-50%,0)}
+.p11-can-do-dialog,.p11-action-use-dialog{max-width:760px;width:min(94vw,760px);border:1px solid #79683c;background:#11110d;color:#e8dec2;padding:0}
+.p11-dialog-shell{padding:18px}.p11-can-do-list{display:grid;gap:8px;margin-top:14px}.p11-can-do-item{display:block;width:100%;text-align:left;border:1px solid #4f4935;background:#1b1912;padding:10px;color:inherit;cursor:pointer}.p11-can-do-item:hover,.p11-can-do-item:focus-visible{border-color:#9f874e;background:#272218}.p11-can-do-item span{font-size:8px;letter-spacing:.1em;color:#aa9d79}.p11-can-do-item strong{display:block;color:#f2dfaa;margin:3px 0}.p11-can-do-item small{display:block;color:#aaa18b}.p11-action-use-body{margin-top:14px}.p11-action-use-body>.active-action-detail{display:grid!important}
+@media(max-width:950px){body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hope,body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-stress,body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hp{grid-column:span 6}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-armor,body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water{grid-column:span 6}}
+@media(max-width:700px){body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-board{display:block!important}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-row{margin-bottom:8px}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-board .pro-board-title{align-items:flex-start!important;flex-wrap:wrap}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-rest-utility{width:100%;margin-left:0}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-rest-utility button{flex:1}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .p11-field-actions{grid-template-columns:1fr;margin-top:8px}body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hope .live-resource-pip,body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-stress .live-resource-pip,body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-hp .live-resource-pip,body:is([data-character="velmira"],[data-character="odie"]) #characterSheet .live-resource-water .live-resource-pip{width:20px!important;min-width:20px!important;max-width:20px!important;height:20px!important;min-height:20px!important;flex-basis:20px!important}}

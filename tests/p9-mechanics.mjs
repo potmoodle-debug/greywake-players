@@ -16,13 +16,13 @@ for (const needle of ['Other / custom item','PERSONAL_GEAR','CANONICAL_ACTIONS',
 for (const needle of ['function unequip(id)','TWO-HANDED','ONE-HANDED','next.activePrimary=null','Potion not consumed','d4 rolled','count-1','inventoryWeapons.length>=2']) {
   if (!equipment.includes(needle)) throw new Error(`Missing equipment v4 marker: ${needle}`);
 }
-for (const needle of ['Once per session','spendHope','Nomadic Pack','data-nomadic-item','addCustomItem','Reset for new session','does not reset on a rest']) {
+for (const needle of ['Once per session','spendHope','Nomadic Pack','data-nomadic-item','addCustomItem','Reset for new session','does not reset on a rest','data-use-nomadic-backpack','Use Nomadic Pack','enhanceBackpack']) {
   if (!nomadic.includes(needle)) throw new Error(`Missing Nomadic Pack marker: ${needle}`);
 }
 for (const needle of ['Minor Health Potion','Minor Stamina Potion','cleared ${cleared}','potion','data-p9-consumable-result']) {
   if (!consumableFeedback.includes(needle)) throw new Error(`Missing Backpack consumable feedback marker: ${needle}`);
 }
-for (const needle of ['equipment-system-v4.js?v=equipment4','p9-nomadic-pack.js?v=nomadic2','p9-consumable-feedback.js?v=consumables2']) {
+for (const needle of ['equipment-system-v4.js?v=equipment4','p9-nomadic-pack.js?v=nomadic4','p9-consumable-feedback.js?v=consumables2']) {
   if (!consolidation.includes(needle)) throw new Error(`Missing P9 bootstrap marker: ${needle}`);
 }
 for (const needle of ['removedItems:clean(r)','api.importState=remote','remote.removedItems','api.restoreGear']) {
@@ -36,4 +36,4 @@ for (const needle of ['p9-damage-undo.js?v=p9damage2','p9-mechanics-completion.j
 }
 if (fs.existsSync('p9-stored-armor-view.js')) throw new Error('Obsolete stored armor helper should not remain in P9.');
 if (/MutationObserver/.test(mechanics+equipment+nomadic+consumableFeedback)) throw new Error('P9 mechanics must remain event-driven; no broad mutation observer.');
-console.log('P9 hand slots, Nomadic Pack session reset, consumable feedback and mechanics checks passed');
+console.log('P9 hand slots, Nomadic Pack session reset, Backpack use bridge, consumable feedback and mechanics checks passed');

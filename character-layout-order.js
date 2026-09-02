@@ -48,12 +48,13 @@
     const readyGear=document.getElementById('readyGearPanel');
     const damage=document.getElementById('damageHealthPanel');
 
-    if(key==='marek'&&traits&&resources){
+    // Quick Action Rolls is part of the identity/live-condition block for every
+    // active Greywake character. Keeping one owner for this final position avoids
+    // companion pages moving it into the dashboard and then moving it back again.
+    if(traits&&resources){
       if(traits.parentElement!==identity || traits.nextElementSibling!==resources){
         resources.insertAdjacentElement('beforebegin',traits);
       }
-    }else if(traits){
-      content.appendChild(traits);
     }
 
     // Always append the remaining live-play panels in canonical order. appendChild
@@ -76,7 +77,6 @@
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('greywake:sheet-enhanced',schedule);
   window.addEventListener('greywake:resources-changed',()=>setTimeout(normalize,0));
-  window.addEventListener('greywake:companion-resources-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:damage-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:rest-state-changed',()=>setTimeout(normalize,0));
   window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(normalize,0));
