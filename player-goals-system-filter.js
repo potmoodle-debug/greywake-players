@@ -22,6 +22,68 @@
     }
   };
 
+  function isFullGM() {
+    return document.body.dataset.role === 'gm' && document.body.dataset.gmPreview !== 'true';
+  }
+
+  function openQandA() {
+    const host = document.getElementById('playerGoals');
+    if (isFullGM()) {
+      location.hash = '#/';
+      const focusQuestions = () => {
+        host?.scrollIntoView({ behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        const questionFilter = [...(host?.querySelectorAll('.gm-engagement-filter') || [])].find(button => button.textContent.trim().toUpperCase() === 'QUESTION');
+        if (questionFilter && questionFilter.getAttribute('aria-pressed') !== 'true') questionFilter.click();
+      };
+      requestAnimationFrame(() => requestAnimationFrame(focusQuestions));
+      setTimeout(focusQuestions, 180);
+      return;
+    }
+    if (window.GreywakePlayerPortal?.navigate) window.GreywakePlayerPortal.navigate('#/inbox');
+    else location.hash = '#/inbox';
+  }
+
+  function makeQuestionsConversational() {
+    const host = document.getElementById('playerGoals');
+    if (!host) return;
+    host.querySelectorAll('.interest-thread[data-entry-kind="question"]').forEach(card => {
+      const resolved = card.classList.contains('interest-thread-resolved');
+      const pill = card.querySelector('.interest-waiting-pill');
+      const atTable = (pill?.textContent || '').toUpperCase().includes('PLAY AT TABLE');
+      if (!resolved && !atTable && pill) pill.textContent = 'OPEN CONVERSATION';
+
+      const banner = card.querySelector('.interest-waiting');
+      if (banner && !resolved && !atTable) {
+        const title = banner.querySelector('strong');
+        const copy = banner.querySelector('span');
+        if (title) title.textContent = 'OPEN CONVERSATION';
+        if (copy) copy.textContent = 'Keep talking whenever you have something to add. Messages do not need to alternate, so nobody has to wait for the other person before continuing.';
+      }
+
+      const playerForm = card.querySelector('.interest-reply-form');
+      if (playerForm && !resolved && !atTable) {
+        const label = playerForm.querySelector('label');
+        const textarea = playerForm.querySelector('textarea');
+        const submit = playerForm.querySelector('button[type="submit"]');
+        const helper = playerForm.querySelector('.interest-reply-actions span');
+        if (label) label.textContent = 'Add to conversation';
+        if (textarea) textarea.placeholder = 'Ask a follow-up, clarify something, add another thought, or say what you want to do next…';
+        if (submit) submit.textContent = 'Send message';
+        if (helper) helper.textContent = 'You can send another message at any time.';
+      }
+
+      const gmForm = card.querySelector('.gm-interest-reply');
+      if (gmForm && !resolved) {
+        const label = gmForm.querySelector('label');
+        const textarea = gmForm.querySelector('textarea');
+        const reply = gmForm.querySelector('[data-send-kind="reply"]');
+        if (label) label.textContent = 'Add to conversation';
+        if (textarea) textarea.placeholder = 'Reply, ask a follow-up, clarify something, or add another thought…';
+        if (reply) reply.textContent = 'Send message';
+      }
+    });
+  }
+
   function ensureInformationFlow() {
     if (document.querySelector('script[data-player-information-flow]')) return;
     const script = document.createElement('script');
@@ -31,6 +93,23 @@
     document.head.appendChild(script);
   }
 
-  document.addEventListener('DOMContentLoaded', ensureInformationFlow);
+  document.addEventListener('click', event => {
+    const button = event.target.closest('#p7FixedQna, #qnaQuickBtn, [data-open-qa]');
+    if (!button) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openQandA();
+  }, true);
+
+  const host = document.getElementById('playerGoals');
+  if (host) new MutationObserver(() => requestAnimationFrame(makeQuestionsConversational)).observe(host, { childList: true, subtree: true });
+
+  window.addEventListener('greywake:engagement-changed', makeQuestionsConversational);
+  window.addEventListener('greywake:player-ready', makeQuestionsConversational);
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureInformationFlow();
+    makeQuestionsConversational();
+  });
   ensureInformationFlow();
+  makeQuestionsConversational();
 })();
