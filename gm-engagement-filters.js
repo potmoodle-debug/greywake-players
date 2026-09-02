@@ -130,9 +130,18 @@
   function ensureMindDashboardScript() {
     if (!isFullGM() || document.querySelector('script[data-gm-mind-dashboard]')) return;
     const script = document.createElement('script');
-    script.src = 'gm-mind-dashboard.js?v=mind5';
+    script.src = 'gm-mind-dashboard.js?v=mind4';
     script.defer = true;
     script.dataset.gmMindDashboard = 'true';
+    document.head.appendChild(script);
+  }
+
+  function ensureGMNavigationScript() {
+    if (!isFullGM() || document.querySelector('script[data-gm-navigation-fix]')) return;
+    const script = document.createElement('script');
+    script.src = 'gm-navigation-fix.js?v=navfix1';
+    script.defer = true;
+    script.dataset.gmNavigationFix = 'true';
     document.head.appendChild(script);
   }
 
@@ -169,6 +178,7 @@
   function refresh() {
     if (!isFullGM()) return;
     ensureMindDashboardScript();
+    ensureGMNavigationScript();
     ensureDevelopmentWorkspaceAssets();
     scheduleEnhance();
   }
