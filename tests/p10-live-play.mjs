@@ -64,10 +64,15 @@ for(const marker of [
 }
 if(layout.includes("if(key==='marek'&&traits&&resources)"))throw new Error('Trait roller placement must not special-case Marek anymore.');
 
-for(const forbidden of ['velmira-play-tabs','velmira-play-launch','VELMIRA · DURING PLAY','body.classList.add(\'velmira-play-open\')']){
-  if(velmira.includes(forbidden))throw new Error(`Retired Velmira-only layout returned: ${forbidden}`);
+for(const forbidden of [
+  'function makeTabs(',
+  "button.className = 'velmira-play-launch'",
+  "root.classList.add('velmira-play-view')",
+  "document.body.classList.add('velmira-play-open')"
+]){
+  if(velmira.includes(forbidden))throw new Error(`Retired Velmira-only layout creation returned: ${forbidden}`);
 }
-if(!velmira.includes('compatibility shim')||!velmira.includes('GreywakeCharacterLayout'))throw new Error('Velmira compatibility file must defer to the shared character layout.');
+if(!velmira.includes('compatibility shim')||!velmira.includes('GreywakeCharacterLayout'))throw new Error('Velmira compatibility file must only clean up old artifacts and defer to the shared character layout.');
 if(/\.velmira-play-tab\s*\{|\.velmira-play-panel\s*\{|velmira-sidebar-collapsed/.test(velmiraCss))throw new Error('Velmira-only visual skin must remain retired.');
 
 if(guard.includes('localStorage.setItem')||guard.includes('greywake:resources:odie')||guard.includes('greywake:resources:velmira')){
