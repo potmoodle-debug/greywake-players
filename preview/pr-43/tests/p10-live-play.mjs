@@ -2,6 +2,9 @@ import fs from 'node:fs';
 const live=fs.readFileSync('p10-live-play-usability.js','utf8');
 const guard=fs.readFileSync('p10-live-board-guard.js','utf8');
 const companion=fs.readFileSync('companion-play.js','utf8');
+const layout=fs.readFileSync('character-layout-order.js','utf8');
+const velmira=fs.readFileSync('velmira-play-view.js','utf8');
+const velmiraCss=fs.readFileSync('velmira-play-view.css','utf8');
 const boot=fs.readFileSync('p9-inventory-consolidation.js','utf8');
 const index=fs.readFileSync('index.html','utf8');
 
@@ -48,13 +51,39 @@ for(const marker of [
   if(!companion.includes(marker))throw new Error(`Companion-specific mechanics must remain in the character engine: ${marker}`);
 }
 
+// Visual/structural parity: Marek is the canonical layout, not a separate sheet.
+for(const marker of [
+  "VALID=['marek','velmira','odie']",'normalizeHero(identity,key)',
+  "desired=['Level','Evasion','Armor','HP','Stress','Hope']",'character-proficiency',
+  'stats -> trait roller -> live resources -> note',
+  "const beast=key==='marek'?document.getElementById('beastformControl'):null",
+  "document.getElementById(key==='marek'?'activeActionsPanel':'companionActionsPanel')",
+  'Greywake is the live play sheet for rolls, Hope, Stress, Hit Points, Armor, Water, abilities and equipment.'
+]){
+  if(!layout.includes(marker))throw new Error(`Missing Marek-style shared character layout marker: ${marker}`);
+}
+if(layout.includes("if(key==='marek'&&traits&&resources)"))throw new Error('Trait roller placement must not special-case Marek anymore.');
+
+for(const forbidden of [
+  'function makeTabs(',
+  "button.className = 'velmira-play-launch'",
+  "root.classList.add('velmira-play-view')",
+  "document.body.classList.add('velmira-play-open')"
+]){
+  if(velmira.includes(forbidden))throw new Error(`Retired Velmira-only layout creation returned: ${forbidden}`);
+}
+if(!velmira.includes('compatibility shim')||!velmira.includes('GreywakeCharacterLayout'))throw new Error('Velmira compatibility file must only clean up old artifacts and defer to the shared character layout.');
+if(/\.velmira-play-tab\s*\{|\.velmira-play-panel\s*\{|velmira-sidebar-collapsed/.test(velmiraCss))throw new Error('Velmira-only visual skin must remain retired.');
+
 if(guard.includes('localStorage.setItem')||guard.includes('greywake:resources:odie')||guard.includes('greywake:resources:velmira')){
   throw new Error('Parity guard must not become a second owner of character resource state.');
 }
 if(/beastform\.js/.test(live)||/beastform\.js/.test(guard))throw new Error('P10 must not replace or load Beastform owner.');
 if(boot.includes('p10-live-play-usability.js')||boot.includes('p10-live-fixes.js'))throw new Error('P10 must not be bootstrapped through the shared inventory loader.');
 if(!index.includes('p9-inventory-consolidation.js?v=p9inventory1'))throw new Error('Shared inventory loader must retain the normal-site cache key.');
+if(!index.includes('velmira-play-view.css?v=velmira3')||!index.includes('velmira-play-view.js?v=velmira3'))throw new Error('Retired Velmira-only skin/shim cache keys must be bumped.');
+if(!index.includes('character-layout-order.js?v=order6'))throw new Error('Shared character layout must load with the new cache key.');
 if(!index.includes('p10-live-play-usability.js?v=p10live7'))throw new Error('P10 must be loaded directly with its own cache key.');
-if(!index.includes('p10-live-board-guard.js?v=p10guard2'))throw new Error('P10 live board guard must load after the usability layer with the current cache key.');
+if(!index.includes('p10-live-board-guard.js?v=p10guard3'))throw new Error('All-PC live board guard must load after the usability layer with the new cache key.');
 
-console.log('P10 live-play parity checks passed for Marek, Velmira and Odie');
+console.log('P10 live-play and Marek-style sheet parity checks passed for Marek, Velmira and Odie');
