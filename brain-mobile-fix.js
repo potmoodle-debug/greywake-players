@@ -64,3 +64,11 @@
   if(host)obs.observe(host,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   enhance();
 })();
+
+(()=>{
+  if(document.querySelector('script[data-potion-targeting]'))return;
+  const s=document.createElement('script');
+  s.src='potion-targeting.js?v=potion1';
+  s.dataset.potionTargeting='1';
+  document.head.appendChild(s);
+})();
