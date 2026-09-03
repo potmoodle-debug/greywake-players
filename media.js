@@ -54,7 +54,7 @@ window.GREYWAKE_MEDIA = {
     {"src":"assets/npcs/hq-v3/hessa-vey.webp","caption":"Hessa Vey — senior Digger and salvage-claim organiser."}
   ],
   "Spencer Digger": [
-    {"src":"assets/npcs/hq-v3/spencer-digger.webp","caption":"Spencer Digger — Digger and salvage worker."}
+    {"src":"assets/npcs/hq-v3/spencer-digger.webp?v=spencer2","caption":"Spencer Digger — Digger and salvage worker."}
   ],
   "Greywake": [
     {"src":"assets/tower-distant.jpg","caption":"Greywake and the White Tower across the wastes."},
