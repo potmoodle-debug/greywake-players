@@ -143,3 +143,133 @@
   window.addEventListener('hashchange',schedule);
   document.addEventListener('DOMContentLoaded',schedule);
 })();
+
+/* Contextual character-sheet help. Kept separate from all live sheet actions: the ? links only navigate to the player guide. */
+(() => {
+  const GUIDE = 'character-guide.html';
+  const EXACT = new Map([
+    ['level','level'],['evasion','evasion'],['armor','armor'],['armor score','armor'],['armor slots','armor'],
+    ['hp','hit-points'],['hp max','hit-points'],['hit points','hit-points'],['stress','stress'],['stress max','stress'],['hope','hope'],
+    ['proficiency','proficiency'],['damage thresholds','damage-thresholds'],['thresholds','damage-thresholds'],
+    ['agility','agility'],['strength','strength'],['finesse','finesse'],['instinct','instinct'],['presence','presence'],['knowledge','knowledge'],
+    ['traits','traits'],['experiences','experiences'],['features','features'],['domain cards','domain-cards'],
+    ['weapons, armor & inventory','equipment'],['weapons, armour & inventory','equipment'],['weapons','weapons'],['inventory','inventory'],
+    ['action rolls','action-rolls'],['advantage','advantage'],['disadvantage','advantage'],['conditions','conditions'],
+    ['short rest','short-rest'],['long rest','long-rest'],['water','water'],['beastform','beastform']
+  ]);
+
+  function clean(text){
+    return String(text || '').replace(/\?/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+  }
+
+  function injectStyles(){
+    if (document.getElementById('greywakeSheetHelpStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'greywakeSheetHelpStyles';
+    style.textContent = `
+      .sheet-help-host{display:inline-flex!important;align-items:center;gap:2px;min-width:0}
+      .sheet-help-link{display:inline-grid!important;place-items:center;flex:0 0 26px;width:26px!important;height:26px!important;margin:-6px -5px -6px 1px!important;padding:0!important;border:0!important;border-radius:50%!important;background:transparent!important;color:inherit!important;text-decoration:none!important;vertical-align:middle;opacity:.72;cursor:help;box-shadow:none!important;transform:none!important}
+      .sheet-help-link::before{content:'?';display:grid;place-items:center;width:14px;height:14px;border:1px solid currentColor;border-radius:50%;font:800 9px/1 ui-sans-serif,system-ui,sans-serif;letter-spacing:0;opacity:.72}
+      .sheet-help-link:hover,.sheet-help-link:focus-visible{opacity:1!important;color:#ead28c!important;outline:none!important;background:rgba(225,199,125,.05)!important}
+      .sheet-help-link:focus-visible::before{box-shadow:0 0 0 2px rgba(225,199,125,.22)}
+      #characterSheet summary .sheet-help-link{position:relative;z-index:4}
+      #characterSheet .character-stat>span.sheet-help-host{justify-content:center}
+      #characterSheet .pro-resource-head>span.sheet-help-host{gap:0}
+      @media(pointer:coarse){.sheet-help-link{flex-basis:30px;width:30px!important;height:30px!important;margin:-8px -7px -8px 1px!important}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  function topicForText(text){
+    const value = clean(text);
+    if (EXACT.has(value)) return EXACT.get(value);
+    if (value.includes('damage threshold')) return 'damage-thresholds';
+    if (value.includes('armor slot') || value.includes('armour slot')) return 'armor';
+    if (value.includes('hit point')) return 'hit-points';
+    if (value.includes('domain')) return 'domain-cards';
+    if (value.includes('weapon')) return 'weapons';
+    if (value.includes('recall')) return 'recall';
+    return null;
+  }
+
+  function topicForCard(card, groupName){
+    const title = clean(card.querySelector('h4')?.textContent);
+    const value = clean(card.querySelector('.sheet-value')?.textContent);
+    if (EXACT.has(title)) return EXACT.get(title);
+    if (title.includes('beastform')) return 'beastform';
+    if (value.includes('hope feature')) return 'hope-feature';
+    if (value.includes('class feature')) return 'class-feature';
+    if (value.includes('ancestry')) return 'ancestry';
+    if (value.includes('community')) return 'community';
+    if (value.includes('school of') || value.includes('nightwalker') || value.includes('warden of')) return 'subclass';
+    if (value.includes('armor') || value.includes('armour')) return 'armor';
+    if (value.includes('weapon')) return 'weapons';
+    if (value.includes('inventory')) return 'inventory';
+    if (value.includes('recall') || groupName.includes('domain')) return 'domain-cards';
+    if (groupName.includes('trait')) return topicForText(title) || 'traits';
+    if (groupName.includes('experience')) return 'experiences';
+    if (groupName.includes('feature')) return 'features';
+    if (groupName.includes('weapon') || groupName.includes('armor') || groupName.includes('inventory')) return 'equipment';
+    return null;
+  }
+
+  function addHelp(host, topic, label){
+    if (!host || !topic || host.dataset.sheetHelp === 'true') return;
+    host.dataset.sheetHelp = 'true';
+    host.classList.add('sheet-help-host');
+    const link = document.createElement('a');
+    link.className = 'sheet-help-link';
+    link.href = `${GUIDE}#${topic}`;
+    link.setAttribute('aria-label', `Explain ${label}`);
+    link.title = `What is ${label}?`;
+    link.addEventListener('click', event => event.stopPropagation());
+    link.addEventListener('pointerdown', event => event.stopPropagation());
+    link.addEventListener('keydown', event => event.stopPropagation());
+    host.appendChild(link);
+  }
+
+  function decorate(){
+    injectStyles();
+    const root = document.querySelector('#characterSheet .character-sheet-shell');
+    if (!root) return;
+
+    root.querySelectorAll('.character-stat > span').forEach(host => {
+      const label = host.childNodes[0]?.textContent?.trim() || host.textContent.trim();
+      addHelp(host, topicForText(label), label);
+    });
+
+    root.querySelectorAll('.pro-resource-head > span').forEach(host => {
+      const label = host.childNodes[0]?.textContent?.trim() || host.textContent.trim();
+      addHelp(host, topicForText(label), label);
+    });
+
+    root.querySelectorAll('.sheet-group').forEach(group => {
+      const heading = group.querySelector('.sheet-group-head h3');
+      const groupName = clean(heading?.childNodes[0]?.textContent || heading?.textContent);
+      if (heading) addHelp(heading, topicForText(groupName), heading.childNodes[0]?.textContent?.trim() || heading.textContent.trim());
+      group.querySelectorAll('.sheet-card').forEach(card => {
+        const title = card.querySelector('h4');
+        if (!title) return;
+        const label = title.childNodes[0]?.textContent?.trim() || title.textContent.trim();
+        addHelp(title, topicForCard(card, groupName), label);
+      });
+    });
+
+    root.querySelectorAll('h2,h3,h4,label,.resource-label,.stat-label').forEach(host => {
+      if (host.dataset.sheetHelp === 'true' || host.closest('.sheet-card h4')) return;
+      const label = host.childNodes[0]?.textContent?.trim() || host.textContent.trim();
+      const topic = topicForText(label);
+      if (topic) addHelp(host, topic, label);
+    });
+  }
+
+  let timer;
+  const schedule = () => { clearTimeout(timer); timer = setTimeout(decorate, 55); };
+  const observer = new MutationObserver(schedule);
+  observer.observe(document.documentElement, { childList:true, subtree:true });
+  window.addEventListener('greywake:player-ready', schedule);
+  window.addEventListener('greywake:sheet-enhanced', schedule);
+  window.addEventListener('hashchange', schedule);
+  document.addEventListener('DOMContentLoaded', schedule);
+  schedule();
+})();
