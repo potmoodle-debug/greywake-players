@@ -3,6 +3,7 @@
   const dialog=()=>document.getElementById('p7BackpackDialog');
   const equipment=()=>window.GreywakeEquipment||null;
   const preview=()=>document.body.dataset.gmPreview==='true';
+  let timer=null,observer=null;
 
   function ensureStyles(){
     if(document.getElementById('p10-backpack-use-styles'))return;
@@ -10,6 +11,7 @@
       .p10-backpack-use-note{margin:0 0 12px;padding:10px 12px;border:1px solid rgba(205,187,121,.24);background:#17150f;color:#9f9782;font-size:10px;line-height:1.45}
       .p10-backpack-use-note strong{color:#e6d39a}.p10-backpack-use-status{margin:0 0 14px;padding:12px 14px;border:1px solid rgba(121,185,105,.66);background:linear-gradient(180deg,#1b321c,#122414);color:#ddf5d5;box-shadow:inset 3px 0 0 #79b969;font-size:11px;line-height:1.45}
       .p10-backpack-use-status strong{display:block;margin-bottom:2px;font-size:9px;letter-spacing:.13em;text-transform:uppercase}.p10-gear-use{border:1px solid #8e7640;background:#322716;color:#ffe29b;padding:8px 10px;font-weight:800;cursor:pointer;width:100%}
+      .p9-card-actions{margin-top:10px;display:flex;gap:8px;align-items:center}.p9-item-action{border:1px solid #8e7640;background:#322716;color:#ffe29b;padding:8px 10px;font-weight:800;cursor:pointer;width:100%}.p9-item-action:disabled{opacity:.55;cursor:default}
     `;document.head.appendChild(s);
   }
 
@@ -22,7 +24,7 @@
   function addNote(){
     const d=dialog(),body=d?.querySelector('.p7-backpack-body');if(!body||body.querySelector('[data-p10-backpack-use-note]'))return;
     const note=document.createElement('div');note.className='p10-backpack-use-note';note.dataset.p10BackpackUseNote='true';note.innerHTML='<strong>Use items here.</strong> Weapons, armor, consumables and special gear use their live rules. Ordinary gear can be declared in use here and then resolved normally if a roll is needed.';
-    const filters=body.querySelector('.p7-backpack-filters');(filters||body.firstElementChild)?.insertAdjacentElement(filters?'afterend':'afterend',note);
+    const filters=body.querySelector('.p7-backpack-filters');(filters||body.firstElementChild)?.insertAdjacentElement('afterend',note);
   }
 
   function findWeapon(title){return (equipment()?.catalog?.()||[]).find(x=>x?.name===title)||null;}
@@ -66,7 +68,7 @@
   }
 
   function enhance(){
-    ensureStyles();const d=dialog();if(!d)return;
+    ensureStyles();const d=dialog();if(!d)return false;
     window.GreywakeEquipmentLibrary?.enhance?.();addNote();
     d.querySelectorAll('.p7-pack-card').forEach(card=>{
       const title=card.querySelector('h3')?.textContent?.trim();if(!title)return;
@@ -75,14 +77,34 @@
       const type=(card.querySelector('.p7-pack-type')?.textContent||'').toLowerCase();
       if(kind==='gear'||kind==='custom'||type.includes('gear')||type.includes('backpack item'))bindGear(card,title);
     });
+    window.GreywakeBackpack?.applyFilter?.();
+    return true;
   }
 
-  const schedule=(delay=70)=>setTimeout(enhance,delay);
-  document.addEventListener('click',e=>{if(e.target.closest?.('#characterBackpackButton,#p7BackpackEntry .p7-backpack-button,[data-open-gear]'))schedule(90);},true);
-  window.addEventListener('greywake:equipment-state-changed',()=>schedule(60));
-  window.addEventListener('greywake:player-ready',()=>schedule(100));
-  window.addEventListener('greywake:sheet-enhanced',()=>schedule(100));
-  window.addEventListener('hashchange',()=>schedule(100));
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>schedule(120));else schedule(120);
-  window.GreywakeBackpackUse={enhance};
+  function schedule(delay=40){
+    clearTimeout(timer);timer=setTimeout(()=>{
+      const ok=enhance();
+      if(!ok)setTimeout(enhance,180);
+    },delay);
+  }
+
+  function watchBackpack(){
+    if(observer||!document.body)return;
+    observer=new MutationObserver(mutations=>{
+      if(!dialog())return;
+      if(mutations.some(m=>m.type==='childList'&&(m.addedNodes.length||m.removedNodes.length)))schedule(0);
+    });
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
+
+  document.addEventListener('click',e=>{
+    if(e.target.closest?.('#characterBackpackButton,#p7BackpackEntry .p7-backpack-button,[data-open-gear]'))schedule(20);
+  },true);
+  window.addEventListener('greywake:equipment-state-changed',()=>schedule(20));
+  window.addEventListener('greywake:player-ready',()=>schedule(40));
+  window.addEventListener('greywake:sheet-enhanced',()=>schedule(40));
+  window.addEventListener('hashchange',()=>schedule(40));
+  const boot=()=>{watchBackpack();schedule(60);};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.GreywakeBackpackUse={enhance,schedule};
 })();
