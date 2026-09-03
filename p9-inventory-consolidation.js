@@ -4,12 +4,8 @@
   function loadScript(src,marker,onload){if(document.querySelector(`script[${marker}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(marker,'true');if(onload)s.addEventListener('load',onload);document.head.appendChild(s);}
   function bootP9Owners(){
     loadScript('p7-backpack.js?v=backpack2','data-greywake-backpack');
-    loadScript('equipment-system-v4.js?v=equipment4','data-greywake-equipment-v4',()=>{
-      window.dispatchEvent(new CustomEvent('greywake:sheet-enhanced',{detail:{reason:'Equipment v4 ready'}}));setTimeout(refresh,100);
-    });
     loadScript('p9-nomadic-pack.js?v=nomadic2','data-greywake-nomadic-pack',()=>setTimeout(()=>window.GreywakeNomadicPack?.getState?.(),40));
     loadScript('p9-consumable-feedback.js?v=consumables3','data-greywake-consumable-feedback');
-    loadScript('p10-backpack-use.js?v=backpackuse1','data-greywake-backpack-use',()=>setTimeout(()=>window.GreywakeBackpackUse?.enhance?.(),80));
   }
 
   function hideDuplicateGearView(){
