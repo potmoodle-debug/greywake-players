@@ -89,3 +89,12 @@
   ensureStyles();
   resetTimer();
 })();
+
+(() => {
+  if (document.querySelector('script[data-gm-player-feed]')) return;
+  const script = document.createElement('script');
+  script.src = 'player-feed.js?v=feed1';
+  script.defer = true;
+  script.dataset.gmPlayerFeed = 'true';
+  document.head.appendChild(script);
+})();
