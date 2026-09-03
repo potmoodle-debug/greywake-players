@@ -161,7 +161,7 @@
       known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie knows one of the recently sealed entrances well enough to take the others there. Nobody yet knows who is exposing the routes, who is closing them, whether every closure is connected, or why it is happening now.',
       relevance: {
         marek: 'If the group follows Odie’s lead, this is a town-side mystery about hidden movement, changing access and who knows what.',
-        velmira: 'The problem touches secrecy, trust and competing interests inside Greywake; people may have very different reasons for wanting those routes gone.',
+        velmira: 'You have heard that at least one person directly affected by the closures is angry enough to talk about it. If you want a human angle on what is changing, that gives you somewhere to start.',
         odie: 'You know one of the sealed entrances yourself. Someone somewhere knows something they should not, and you want to work out who is exposing the hidden routes before more are lost.'
       }
     },
