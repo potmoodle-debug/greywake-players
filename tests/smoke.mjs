@@ -108,17 +108,37 @@ const scriptSources = [...index.matchAll(/<script\b[^>]*\bsrc="([^"?#]+)(?:[?#][
 const duplicateScripts = scriptSources.filter((src, index, all) => all.indexOf(src) !== index);
 for (const src of [...new Set(duplicateScripts)]) fail(`index.html loads script more than once: ${src}`);
 
-// Equipment has one live owner. v4 is authoritative; older generations may remain in
-// repository history during cleanup, but the page must never boot them into the live app.
+// Equipment has one live owner. v4 is authoritative.
 if (!scriptSources.includes('equipment-system-v4.js')) {
   fail('index.html must load equipment-system-v4.js as the authoritative equipment owner.');
 }
 if (scriptSources.includes('equipment-system-v2.js') || scriptSources.includes('equipment-system.js')) {
   fail('index.html must not load superseded equipment-system.js or equipment-system-v2.js.');
 }
-const inventoryConsolidationSource = readFileSync(join(root, 'p9-inventory-consolidation.js'), 'utf8');
-if (/loadScript\(['"]equipment-system-v4\.js/.test(inventoryConsolidationSource)) {
-  fail('p9-inventory-consolidation.js must not dynamically replace the authoritative Equipment v4 owner.');
+
+// Backpack has one live UI owner. Rendering, filtering, adding, using, equipping,
+// consuming and removing backpack items belong to backpack-system.js.
+if (!scriptSources.includes('backpack-system.js')) {
+  fail('index.html must load backpack-system.js as the authoritative backpack owner.');
+}
+if (!scriptSources.includes('p9-nomadic-pack.js')) {
+  fail('index.html must load p9-nomadic-pack.js directly for Velmira’s Nomadic Pack feature.');
+}
+const obsoleteBackpackFiles = [
+  'p7-backpack.js',
+  'p9-equipment-library.js',
+  'p9-remove-ui.js',
+  'p9-inventory-consolidation.js',
+  'p9-consumable-feedback.js',
+  'p10-backpack-use.js'
+];
+for (const file of obsoleteBackpackFiles) {
+  if (scriptSources.includes(file)) fail(`index.html must not load superseded backpack layer: ${file}`);
+  if (existsSync(join(root, file))) fail(`${file} must remain deleted after Backpack consolidation.`);
+}
+const backpackSource = readFileSync(join(root, 'backpack-system.js'), 'utf8');
+for (const token of ['window.GreywakeBackpack', 'data-backpack-use-weapon', 'data-backpack-use-consumable', 'data-backpack-remove-gear', 'p9-library']) {
+  if (!backpackSource.includes(token)) fail(`backpack-system.js is missing consolidated backpack capability: ${token}`);
 }
 
 // Damage and rest each have one authoritative live owner. The v1 JavaScript files are
