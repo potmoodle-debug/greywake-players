@@ -108,6 +108,19 @@ const scriptSources = [...index.matchAll(/<script\b[^>]*\bsrc="([^"?#]+)(?:[?#][
 const duplicateScripts = scriptSources.filter((src, index, all) => all.indexOf(src) !== index);
 for (const src of [...new Set(duplicateScripts)]) fail(`index.html loads script more than once: ${src}`);
 
+// Equipment has one live owner. v4 is authoritative; older generations may remain in
+// repository history during cleanup, but the page must never boot them into the live app.
+if (!scriptSources.includes('equipment-system-v4.js')) {
+  fail('index.html must load equipment-system-v4.js as the authoritative equipment owner.');
+}
+if (scriptSources.includes('equipment-system-v2.js') || scriptSources.includes('equipment-system.js')) {
+  fail('index.html must not load superseded equipment-system.js or equipment-system-v2.js.');
+}
+const inventoryConsolidationSource = readFileSync(join(root, 'p9-inventory-consolidation.js'), 'utf8');
+if (/loadScript\(['"]equipment-system-v4\.js/.test(inventoryConsolidationSource)) {
+  fail('p9-inventory-consolidation.js must not dynamically replace the authoritative Equipment v4 owner.');
+}
+
 // Presentation shims must not intercept functional controls. The old interaction-polish
 // script used capture-phase stopImmediatePropagation around Close buttons and is deleted.
 if (index.includes('interaction-polish.js')) {
