@@ -84,9 +84,10 @@
     bar?.querySelectorAll('button').forEach(b => b.disabled = true);
     if (state) state.textContent = `Publishing to ${audience === 'party' ? 'the party' : audience}…`;
     try {
-      await request('POST', { kind, audience:[audience], body:text });
+      const result = await request('POST', { kind, audience:[audience], body:text });
       if (input) { input.value=''; input.focus(); }
       if (state) state.textContent = `Revealed to ${audience === 'party' ? 'Party' : audience[0].toUpperCase()+audience.slice(1)}.`;
+      window.dispatchEvent(new CustomEvent('greywake:live-reveal-published', { detail: result.reveal || null }));
       setTimeout(()=>{ if(state) state.textContent='Type one player-safe sentence, then tap who sees it.'; },1800);
     } catch (error) {
       if (state) state.textContent = error.message;
@@ -157,4 +158,13 @@
   window.addEventListener('greywake:player-ready',()=>setTimeout(refreshMode,0));
   document.addEventListener('DOMContentLoaded',refreshMode);
   refreshMode();
+})();
+
+(() => {
+  if (document.querySelector('script[data-gm-recent-reveals]')) return;
+  const script = document.createElement('script');
+  script.src = 'gm-recent-reveals.js?v=recent1';
+  script.defer = true;
+  script.dataset.gmRecentReveals = 'true';
+  document.head.appendChild(script);
 })();
