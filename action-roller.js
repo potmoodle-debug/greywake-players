@@ -11,7 +11,7 @@
   function resources(){ return window.GreywakeResources || null; }
 
   function esc(value){
-    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));
   }
 
   function die(sides){
@@ -46,6 +46,17 @@
 
   function actionDetail(){
     return document.querySelector('#activeActionsPanel .active-action-detail');
+  }
+
+  function activeBeastform(){
+    const panel = document.querySelector('#beastformControl .beastform-active-panel');
+    if (!panel) return null;
+    const name = panel.querySelector('.beastform-active-head strong')?.textContent.trim() || '';
+    const features = [...panel.querySelectorAll('.beastform-features > div')].map(node => ({
+      name:node.querySelector('b')?.textContent.trim() || '',
+      text:node.querySelector('span')?.textContent.trim() || ''
+    }));
+    return { name, features };
   }
 
   function inferSpec(detail){
@@ -117,13 +128,47 @@
     result?.querySelector('[data-close-roll-result]')?.addEventListener('click',()=>result.replaceChildren());
   }
 
-  function rollDamage(spec, critical, host){
+  function beastformFollowupMarkup(success){
+    const form = activeBeastform();
+    if (!form || success === false) return '';
+    const names = new Set(form.features.map(feature => feature.name.toLowerCase()));
+    const uncertain = success == null ? '<small class="attack-followup-rule">Use these only if the GM confirms the attack succeeded.</small>' : '';
+    const rows = [];
+
+    if (names.has('hobbling strike')){
+      const state = resources()?.getState?.();
+      const canPay = state ? state.stress < state.maxStress : true;
+      rows.push(`<div class="attack-followup-row" data-followup-row="hobbling">
+        <div><b>Hobbling Strike</b><span>After this successful Melee attack, mark 1 Stress to make the target temporarily Vulnerable.</span></div>
+        <button type="button" data-use-hobbling ${canPay?'':'disabled'}>${canPay?'Use · Mark 1 Stress':'No free Stress slot'}</button>
+      </div>`);
+    }
+
+    if (names.has('pack hunting')){
+      rows.push(`<label class="attack-followup-row attack-followup-toggle">
+        <div><b>Pack Hunting</b><span>If an ally attacked this same target immediately before you, add a d8 to this damage roll.</span></div>
+        <input type="checkbox" data-pack-hunting><strong>+1d8</strong>
+      </label>`);
+    }
+
+    if (names.has('venomous bite')){
+      rows.push(`<div class="attack-followup-row attack-followup-info">
+        <div><b>Venomous Bite</b><span>On a successful Melee attack, remember to resolve the form's temporary Poison effect on the target.</span></div>
+      </div>`);
+    }
+
+    if (!rows.length) return '';
+    return `<section class="attack-followups" data-attack-followups><div class="attack-followups-head"><span>AFTER THE HIT</span><strong>Available follow-ups</strong>${uncertain}</div>${rows.join('')}</section>`;
+  }
+
+  function rollDamage(spec, critical, host, options={}){
     if (!spec.damage) return;
     const rolls = Array.from({length:spec.damage.count}, () => die(spec.damage.sides));
-    const normal = rolls.reduce((a,b)=>a+b,0) + spec.damage.mod;
+    const baseRoll = rolls.reduce((a,b)=>a+b,0) + spec.damage.mod;
     const criticalBonus = critical ? spec.damage.count * spec.damage.sides : 0;
-    const total = normal + criticalBonus;
-    host.innerHTML = `<div class="damage-roll-result ${critical?'critical':''}"><div><span>${critical?'CRITICAL DAMAGE':'DAMAGE'}</span><strong>${total}</strong><small>${esc(spec.damage.type || 'damage')}</small></div><p>${rolls.map(r=>`d${spec.damage.sides}: <b>${r}</b>`).join(' · ')}${spec.damage.mod ? ` · modifier <b>${spec.damage.mod>0?'+':''}${spec.damage.mod}</b>` : ''}${critical ? ` · critical maximum <b>+${criticalBonus}</b>` : ''}</p></div>`;
+    const packRoll = options.packHunting ? die(8) : 0;
+    const total = baseRoll + criticalBonus + packRoll;
+    host.innerHTML = `<div class="damage-roll-result ${critical?'critical':''}"><div><span>${critical?'CRITICAL DAMAGE':'DAMAGE'}</span><strong>${total}</strong><small>${esc(spec.damage.type || 'damage')}</small></div><p>${rolls.map(r=>`d${spec.damage.sides}: <b>${r}</b>`).join(' · ')}${spec.damage.mod ? ` · modifier <b>${spec.damage.mod>0?'+':''}${spec.damage.mod}</b>` : ''}${packRoll ? ` · Pack Hunting d8: <b>${packRoll}</b>` : ''}${critical ? ` · critical maximum <b>+${criticalBonus}</b>` : ''}</p></div>`;
   }
 
   function resourceError(detail, message){
@@ -131,6 +176,23 @@
     if (!result) return;
     result.innerHTML = `<div class="duality-result resource-error"><button type="button" class="action-roll-result-close" data-close-roll-result>Close result ×</button><div class="duality-outcome"><span>RESOURCE REQUIRED</span><strong>ROLL NOT MADE</strong><small>${esc(message)}</small></div></div>`;
     bindResultClose(result);
+  }
+
+  function bindAttackFollowups(result){
+    result.querySelector('[data-use-hobbling]')?.addEventListener('click', event => {
+      const button = event.currentTarget;
+      const resourceAPI = resources();
+      if (!resourceAPI?.markStress) return;
+      const spend = resourceAPI.markStress(1,{reason:'Hobbling Strike',cost:true});
+      if (!spend.ok) return;
+      const row = button.closest('[data-followup-row="hobbling"]');
+      if (row){
+        row.classList.add('used');
+        row.querySelector('span').textContent = '1 Stress marked. The target is temporarily Vulnerable.';
+      }
+      button.textContent = 'Applied';
+      button.disabled = true;
+    });
   }
 
   function performRoll(detail, spec){
@@ -193,13 +255,15 @@
       ${expCost ? `<p class="duality-cost"><b>${expCost} Hope</b> spent automatically before the roll for the selected Experience${expCost>1?'s':''}.</p>` : ''}
       ${resourceLine}
       ${difficulty == null && !critical ? '<p class="duality-cost">No Difficulty entered: tell the GM the total and whether it rolled with Hope or Fear.</p>' : ''}
+      ${spec.isAttack ? beastformFollowupMarkup(success) : ''}
       ${spec.isAttack && spec.damage ? `<div class="damage-roll-controls"><button type="button" data-roll-damage ${success === false ? 'disabled' : ''}>${critical?'Roll Critical Damage':'Roll Damage'}</button><span>${success === false ? 'Attack failed against the entered Difficulty.' : `${spec.damage.count}d${spec.damage.sides}${spec.damage.mod ? (spec.damage.mod>0?'+':'')+spec.damage.mod : ''} ${esc(spec.damage.type)}`}</span></div><div data-damage-result></div>` : ''}
     </div>`;
 
     bindResultClose(result);
+    bindAttackFollowups(result);
     result.querySelector('[data-roll-damage]')?.addEventListener('click', () => {
       const host = result.querySelector('[data-damage-result]');
-      if (host) rollDamage(spec, critical, host);
+      if (host) rollDamage(spec, critical, host, {packHunting:Boolean(result.querySelector('[data-pack-hunting]')?.checked)});
     });
   }
 
