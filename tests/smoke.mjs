@@ -121,6 +121,27 @@ if (/loadScript\(['"]equipment-system-v4\.js/.test(inventoryConsolidationSource)
   fail('p9-inventory-consolidation.js must not dynamically replace the authoritative Equipment v4 owner.');
 }
 
+// Damage and rest each have one authoritative live owner. The v1 JavaScript files are
+// removed rather than left as dormant duplicates that can accidentally be reintroduced.
+if (!scriptSources.includes('damage-system-v2.js')) {
+  fail('index.html must load damage-system-v2.js as the authoritative damage owner.');
+}
+if (scriptSources.includes('damage-system.js')) {
+  fail('index.html must not load superseded damage-system.js.');
+}
+if (existsSync(join(root, 'damage-system.js'))) {
+  fail('damage-system.js must remain deleted after the v2 damage system became authoritative.');
+}
+if (!scriptSources.includes('rest-system-v2.js')) {
+  fail('index.html must load rest-system-v2.js as the authoritative rest owner.');
+}
+if (scriptSources.includes('rest-system.js')) {
+  fail('index.html must not load superseded rest-system.js.');
+}
+if (existsSync(join(root, 'rest-system.js'))) {
+  fail('rest-system.js must remain deleted after the v2 rest system became authoritative.');
+}
+
 // Presentation shims must not intercept functional controls. The old interaction-polish
 // script used capture-phase stopImmediatePropagation around Close buttons and is deleted.
 if (index.includes('interaction-polish.js')) {
