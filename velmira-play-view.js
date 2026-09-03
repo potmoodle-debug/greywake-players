@@ -51,9 +51,20 @@
     window.GreywakePlayerPortal?.syncPrimaryNav?.('character');
   }
 
+  function ensureGuidedActions(){
+    if(document.getElementById('velmiraGuidedActionsScript'))return;
+    const script=document.createElement('script');
+    script.id='velmiraGuidedActionsScript';
+    script.src='velmira-guided-actions.js?v=guided1';
+    script.defer=true;
+    document.head.appendChild(script);
+  }
+
   window.addEventListener('greywake:player-ready',cleanup);
   window.addEventListener('greywake:sheet-enhanced',cleanup);
   window.addEventListener('hashchange',cleanup);
   document.addEventListener('DOMContentLoaded',cleanup);
+  document.addEventListener('DOMContentLoaded',ensureGuidedActions);
+  ensureGuidedActions();
   setTimeout(cleanup,180);
 })();
