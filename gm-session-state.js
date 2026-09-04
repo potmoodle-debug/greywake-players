@@ -3,7 +3,7 @@
   window.__GreywakeGMSessionState=true;
 
   const KEY='greywake-gm-live-session-state-v1';
-  const DEFAULTS={session:'Session Four',phase:'Prep / play',location:'Greywake',party:'Marek · Velmira · Odie',scene:'Greywake',fear:'',timeWeather:'',danger:''};
+  const DEFAULTS={session:'Session Four',phase:'Prep / play',location:'Greywake',party:'Marek · Velmira · Odie',scene:'Greywake',fear:'',timeWeather:'',danger:'',activeNPCs:''};
   let queued=false;
   let timer=null;
 
@@ -14,7 +14,7 @@
   function read(){
     try{return {...DEFAULTS,...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return {...DEFAULTS}}
   }
-  function write(state){localStorage.setItem(KEY,JSON.stringify({...state,updatedAt:new Date().toISOString()}))}
+  function write(state){localStorage.setItem(KEY,JSON.stringify({...state,updatedAt:new Date().toISOString()}));window.dispatchEvent(new CustomEvent('greywake:gm-session-state-changed',{detail:state}))}
 
   function ensureStyles(){
     if(document.getElementById('gm-session-state-styles'))return;
@@ -43,7 +43,7 @@
 
   function syncScene(root,state){
     const panel=[...root.querySelectorAll('.gm-panel')].find(x=>/CURRENT SCENE/i.test(x.querySelector('small')?.textContent||''));if(!panel)return;
-    const sig=JSON.stringify([state.scene,state.location,state.fear,state.timeWeather,state.danger]);
+    const sig=JSON.stringify([state.scene,state.location,state.fear,state.timeWeather,state.danger,state.activeNPCs]);
     if(panel.dataset.sessionSignature===sig)return;
     panel.dataset.sessionSignature=sig;
     const small=panel.querySelector('small'),h2=panel.querySelector('h2'),p=panel.querySelector('p');
@@ -51,7 +51,7 @@
     if(h2)h2.textContent=state.scene||state.location||'Not set';
     if(p)p.textContent=state.danger?`Immediate danger: ${state.danger}`:'No immediate danger has been set in the live session state.';
     let meta=panel.querySelector('.gm-session-scene-meta');if(!meta){meta=document.createElement('div');meta.className='gm-session-scene-meta';p?.insertAdjacentElement('afterend',meta)}
-    meta.innerHTML=`<span><b>Location</b> ${esc(state.location||'—')}</span><span><b>Fear</b> ${esc(state.fear||'—')}</span><span><b>Time / weather</b> ${esc(state.timeWeather||'—')}</span>`;
+    meta.innerHTML=`<span><b>Location</b> ${esc(state.location||'—')}</span><span><b>Fear</b> ${esc(state.fear||'—')}</span><span><b>Time / weather</b> ${esc(state.timeWeather||'—')}</span><span><b>NPCs</b> ${esc(state.activeNPCs||'—')}</span>`;
   }
 
   function ensureEditor(root,state){
@@ -61,10 +61,10 @@
     const wasOpen=editor.open;editor.dataset.renderedFor=sig;
     editor.innerHTML=`<summary>Live session state <span>Browser operational state · not canon authority</span></summary><form class="gm-session-state-form">
       <label>Session<input name="session" maxlength="60" value="${esc(state.session)}"></label><label>Phase<input name="phase" maxlength="80" value="${esc(state.phase)}"></label><label>Party location<input name="location" maxlength="100" value="${esc(state.location)}"></label><label>Fear<input name="fear" maxlength="30" value="${esc(state.fear)}" placeholder="e.g. 4"></label>
-      <label class="wide">Current scene<input name="scene" maxlength="140" value="${esc(state.scene)}" placeholder="Where the immediate scene is happening"></label><label class="wide">Time / weather<input name="timeWeather" maxlength="140" value="${esc(state.timeWeather)}" placeholder="Only set this when established"></label><label class="wide">Active party<input name="party" maxlength="140" value="${esc(state.party)}"></label><label class="wide">Immediate danger<input name="danger" maxlength="180" value="${esc(state.danger)}" placeholder="Leave blank if none is established"></label>
+      <label class="wide">Current scene<input name="scene" maxlength="140" value="${esc(state.scene)}" placeholder="Where the immediate scene is happening"></label><label class="wide">Time / weather<input name="timeWeather" maxlength="140" value="${esc(state.timeWeather)}" placeholder="Only set this when established"></label><label class="wide">Active party<input name="party" maxlength="140" value="${esc(state.party)}"></label><label class="wide">Active NPCs<input name="activeNPCs" maxlength="240" value="${esc(state.activeNPCs)}" placeholder="Comma separated, e.g. Mara Vell, Sarn Pell"></label><label class="wide">Immediate danger<input name="danger" maxlength="180" value="${esc(state.danger)}" placeholder="Leave blank if none is established"></label>
       <div class="gm-session-state-actions"><button type="submit">Save live state</button><button type="button" class="secondary" data-session-reset>Reset manual fields</button><span>${state.updatedAt?`Last changed ${esc(new Date(state.updatedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}))}`:'Uses established campaign defaults until you change it.'}</span></div></form>`;
     editor.open=wasOpen;
-    editor.querySelector('form')?.addEventListener('submit',event=>{event.preventDefault();const form=new FormData(event.currentTarget);const next={...state};['session','phase','location','fear','scene','timeWeather','party','danger'].forEach(key=>next[key]=String(form.get(key)||'').trim());write(next);schedule()});
+    editor.querySelector('form')?.addEventListener('submit',event=>{event.preventDefault();const form=new FormData(event.currentTarget);const next={...state};['session','phase','location','fear','scene','timeWeather','party','activeNPCs','danger'].forEach(key=>next[key]=String(form.get(key)||'').trim());write(next);schedule()});
     editor.querySelector('[data-session-reset]')?.addEventListener('click',()=>{write({...DEFAULTS});schedule()});
   }
 
