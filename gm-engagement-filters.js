@@ -188,6 +188,15 @@
     }
   }
 
+  function ensureLiveGMDataScript() {
+    if (!isFullGM() || document.querySelector('script[data-gm-live-data]')) return;
+    const script = document.createElement('script');
+    script.src = 'gm-live-data.js?v=livegm1';
+    script.defer = true;
+    script.dataset.gmLiveData = 'true';
+    document.head.appendChild(script);
+  }
+
   const observer = new MutationObserver(() => {
     if (isFullGM()) scheduleEnhance();
   });
@@ -200,6 +209,7 @@
     ensureVisualCockpitScript();
     ensureCockpitMediaScript();
     ensureDevelopmentWorkspaceAssets();
+    ensureLiveGMDataScript();
     scheduleEnhance();
   }
 
