@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge
 // @namespace    greywake
-// @version      0.2.1
+// @version      0.2.2
 // @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat. Live chat is transcript-source only.
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
@@ -89,8 +89,8 @@
 
   function setRole(role,key){
     const roles=readObject(ROLES_KEY,{liveKey:'',updaterKey:''});
-    if(role==='live')roles.liveKey=key||'';
-    if(role==='updater')roles.updaterKey=key||'';
+    if(role==='live')roles.liveKey=roles.liveKey===key?'':(key||'');
+    if(role==='updater')roles.updaterKey=roles.updaterKey===key?'':(key||'');
     GM_setValue(ROLES_KEY,roles);
   }
 
@@ -174,7 +174,7 @@
       if(!document.querySelector('script[data-greywake-live-bridge-test]')){const script=document.createElement('script');script.src='https://potmoodle-debug.github.io/greywake-players/gm-live-bridge-test.js?v=bridge3';script.defer=true;script.dataset.greywakeLiveBridgeTest='true';document.head.appendChild(script)}
       window.addEventListener('greywake:live-bridge-request',event=>{const requestId=event.detail?.requestId||'',chats=Object.values(readObject(REGISTRY_KEY,{})).sort((a,b)=>new Date(b.changedAt)-new Date(a.changedAt));window.dispatchEvent(new CustomEvent('greywake:live-bridge-response',{detail:{requestId,ok:true,chats,roles:rolesWithChats(),status:GM_getValue(STATUS_KEY,{})}}))});
       window.addEventListener('greywake:live-bridge-set-role',event=>{setRole(event.detail?.role,event.detail?.key);window.dispatchEvent(new CustomEvent('greywake:live-bridge-role-set',{detail:{roles:rolesWithChats()}}))});
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.2.1',roles:rolesWithChats()}}));
+      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.2.2',roles:rolesWithChats()}}));
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSite,{once:true});else startSite();
   }
