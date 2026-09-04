@@ -79,9 +79,15 @@
   }
 
   function syncHeroImage(next){
-    const image=document.querySelector('#gmOperationsView .gm-run-hero img');
-    const mapped=DIRECTION_IMAGES[normalise(next.title)];
-    if(image&&mapped&&image.getAttribute('src')!==mapped)image.src=mapped;
+    const heroShell=document.querySelector('#gmOperationsView .gm-run-hero');
+    if(!heroShell)return;
+    const mapped=DIRECTION_IMAGES[normalise(next.title)]||'';
+    if(heroShell.dataset.priorityImage===mapped)return;
+    if(!heroShell.dataset.baseBackgroundImage)heroShell.dataset.baseBackgroundImage=heroShell.style.backgroundImage||'';
+    heroShell.style.backgroundImage=mapped
+      ? `linear-gradient(90deg,rgba(8,8,6,.94) 0%,rgba(8,8,6,.78) 43%,rgba(8,8,6,.18) 76%),url("${mapped}")`
+      : heroShell.dataset.baseBackgroundImage;
+    heroShell.dataset.priorityImage=mapped;
   }
 
   function syncPressureLabels(next){
