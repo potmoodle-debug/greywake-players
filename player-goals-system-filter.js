@@ -1,6 +1,7 @@
 (() => {
   const originalFetch = window.fetch.bind(window);
   const PLAYER_GOALS_PATH = '/functions/v1/player-goals';
+  const gmPromptIds = new Set();
 
   window.fetch = async (input, init = {}) => {
     const response = await originalFetch(input, init);
@@ -10,6 +11,12 @@
       if (method !== 'GET' || !url.pathname.includes(PLAYER_GOALS_PATH) || url.searchParams.get('include_system') === '1') return response;
       const data = await response.clone().json();
       if (!data || !Array.isArray(data.goals)) return response;
+
+      gmPromptIds.clear();
+      data.goals
+        .filter(goal => goal?.source_kind === 'gm-prompt')
+        .forEach(goal => gmPromptIds.add(Number(goal.id)));
+
       const hiddenIds = new Set(data.goals.filter(goal => String(goal?.source_kind || '').startsWith('system_')).map(goal => Number(goal.id)));
       if (!hiddenIds.size) return response;
       data.goals = data.goals.filter(goal => !hiddenIds.has(Number(goal.id)));
@@ -47,10 +54,40 @@
     else location.hash = '#/inbox';
   }
 
+  function correctGMPromptQuestion(card) {
+    const goalId = Number(card.dataset.goalId);
+    if (!gmPromptIds.has(goalId)) return;
+
+    // player-goals.js treats goal_text as if every question was opened by the player.
+    // For GM prompts, goal_text is only the thread title; the first stored GM message is the real question.
+    card.querySelector('.interest-message-opening.interest-message-player')?.remove();
+
+    const firstGM = card.querySelector('.interest-conversation .interest-message-gm');
+    if (firstGM) {
+      setText(firstGM.querySelector('span'), 'GM · QUESTION');
+      firstGM.classList.add('interest-message-opening');
+    }
+
+    const sourceLabel = card.querySelector('.interest-source > span');
+    if (sourceLabel) setText(sourceLabel, 'Started by GM');
+
+    const status = card.querySelector('.interest-status');
+    if (status) {
+      if (card.classList.contains('gm-interest-thread')) {
+        const prefix = (status.textContent || '').split('·')[0].trim();
+        setText(status, `${prefix} · GM QUESTION`);
+      } else {
+        setText(status, 'GM QUESTION');
+      }
+    }
+  }
+
   function makeQuestionsConversational() {
     const host = document.getElementById('playerGoals');
     if (!host) return;
     host.querySelectorAll('.interest-thread[data-entry-kind="question"]').forEach(card => {
+      correctGMPromptQuestion(card);
+
       const resolved = card.classList.contains('interest-thread-resolved');
       const pill = card.querySelector('.interest-waiting-pill');
       const atTable = (pill?.textContent || '').toUpperCase().includes('PLAY AT TABLE');
