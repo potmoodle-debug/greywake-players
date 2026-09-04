@@ -1,5 +1,8 @@
 (() => {
   const NAMES=['Marek','Velmira','Odie'];
+  const DIRECTION_IMAGES={
+    'the closing ways':'assets/generated-scenes/digger-yards.webp'
+  };
   let queued=false;
 
   function isGM(){return document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true'}
@@ -48,6 +51,12 @@
     `;document.head.appendChild(s);
   }
 
+  function syncHeroImage(next){
+    const image=document.querySelector('#gmOperationsView .gm-run-hero img');
+    const mapped=DIRECTION_IMAGES[normalise(next.title)];
+    if(image&&mapped&&image.getAttribute('src')!==mapped)image.src=mapped;
+  }
+
   function syncPressureLabels(next){
     document.querySelectorAll('#gmOperationsView .gm-live-pressure').forEach(card=>{
       const title=card.querySelector('strong')?.textContent?.trim()||'';
@@ -74,6 +83,7 @@
       const badge=next.kind==='direction'?'INDIVIDUAL PURSUITS':next.kind==='tie'?'AWAITING GROUP CHOICE':'NO PARTY COMMITMENT';
       box.innerHTML=`<small class="gm-player-priority-kicker">${kicker} <span>${badge}</span></small><h2 class="gm-player-priority-title">${esc(next.title)}</h2><p class="gm-player-priority-detail">${esc(next.detail)}</p>`;
     }
+    syncHeroImage(next);
     syncPressureLabels(next);
   }
 
