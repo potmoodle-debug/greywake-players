@@ -48,6 +48,17 @@
     `;document.head.appendChild(s);
   }
 
+  function syncPressureLabels(next){
+    document.querySelectorAll('#gmOperationsView .gm-live-pressure').forEach(card=>{
+      const title=card.querySelector('strong')?.textContent?.trim()||'';
+      const label=card.querySelector('small');
+      if(!label)return;
+      const isCurrent=next.kind==='priority'&&normalise(title)===normalise(next.title);
+      if(isCurrent)label.textContent='CURRENT PLAYER PRIORITY';
+      else if(/PLAYER PRIORITY/i.test(label.textContent||''))label.textContent='ACTIVE THREAD';
+    });
+  }
+
   function render(){
     if(!isGM()||!onRun())return;
     ensureStyles();
@@ -56,8 +67,12 @@
     const next=state();
     let box=hero.querySelector('.gm-player-priority');
     if(!box){box=document.createElement('div');box.className='gm-player-priority';const actions=hero.querySelector('.gm-run-actions');actions?hero.insertBefore(box,actions):hero.appendChild(box)}
-    const sig=JSON.stringify(next);if(box.dataset.signature===sig)return;box.dataset.signature=sig;box.dataset.kind=next.kind;
-    box.innerHTML=`<small class="gm-player-priority-kicker">CURRENT PRIORITY <span>${next.kind==='priority'?'PLAYER MOTIVATION':next.kind==='tie'?'AWAITING GROUP DIRECTION':'NO PARTY COMMITMENT'}</span></small><h2 class="gm-player-priority-title">${esc(next.title)}</h2><p class="gm-player-priority-detail">${esc(next.detail)}</p>`;
+    const sig=JSON.stringify(next);
+    if(box.dataset.signature!==sig){
+      box.dataset.signature=sig;box.dataset.kind=next.kind;
+      box.innerHTML=`<small class="gm-player-priority-kicker">CURRENT PRIORITY <span>${next.kind==='priority'?'PLAYER MOTIVATION':next.kind==='tie'?'AWAITING GROUP DIRECTION':'NO PARTY COMMITMENT'}</span></small><h2 class="gm-player-priority-title">${esc(next.title)}</h2><p class="gm-player-priority-detail">${esc(next.detail)}</p>`;
+    }
+    syncPressureLabels(next);
   }
 
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;render()})}
