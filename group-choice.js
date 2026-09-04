@@ -25,17 +25,27 @@
       'x-greywake-code': String(user?.code || CHARACTER_CODES[character] || '').toUpperCase()
     };
   }
+  function gmHeaders() {
+    return {
+      apikey: API_KEY,
+      'Content-Type': 'application/json',
+      'x-greywake-character': 'gm',
+      'x-greywake-code': 'GREYWAKE'
+    };
+  }
   function esc(text) {
-    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    return String(text ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[ch]));
   }
   function optionKey(row) { return `${row.source_kind || ''}::${row.source_key || ''}`; }
 
-  async function loadState() {
-    const response = await fetch(API_URL, { headers: headers() });
+  async function requestState(requestHeaders) {
+    const response = await fetch(API_URL, { headers: requestHeaders });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.error || 'Could not load the group choice.');
     return data;
   }
+  async function loadState() { return requestState(headers()); }
+  async function getStateForGM() { return requestState(gmHeaders()); }
 
   function aggregate(state) {
     const map = new Map();
@@ -182,7 +192,7 @@
 
   function schedule() { clearTimeout(timer); timer = setTimeout(refresh, 80); }
 
-  window.GreywakeGroupChoice = { refresh };
+  window.GreywakeGroupChoice = { refresh, getStateForGM, aggregate };
   window.addEventListener('greywake:player-ready', schedule);
   window.addEventListener('greywake:portal-live-mounted', event => { if (event.detail?.kind === 'threads') schedule(); });
   window.addEventListener('greywake:engagement-changed', schedule);
