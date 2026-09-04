@@ -27,11 +27,19 @@
     const events=[];
     const goals=goalsData.goals||[], messages=goalsData.messages||[];
     const goalMap=new Map(goals.map(g=>[Number(g.id),g]));
+    const messagesByGoal=new Map();
+    for(const message of messages){
+      const id=Number(message.goal_id);
+      if(!messagesByGoal.has(id))messagesByGoal.set(id,[]);
+      messagesByGoal.get(id).push(message);
+    }
     for(const g of goals){
       if(g.status==='done')continue;
       const name=NAMES[g.character_slug]||g.character_slug;
       const isQ=g.entry_kind==='question';
-      events.push({kind:isQ?'question':'interest',who:name,title:isQ?'Asked a question':g.status==='pursuing'?'Marked as Pursuing':'Player interest',text:g.goal_text,ts:g.updated_at||g.created_at,needs:g.thread_state==='waiting_gm',route:'#/gm-players'});
+      const gmPrompt=g.source_kind==='gm-prompt';
+      const firstGM=(messagesByGoal.get(Number(g.id))||[]).find(message=>message.author_role==='gm');
+      events.push({kind:isQ?'question':'interest',who:name,title:gmPrompt?'GM asked a question':isQ?'Asked a question':g.status==='pursuing'?'Marked as Pursuing':'Player interest',text:gmPrompt&&firstGM?.message_text?firstGM.message_text:g.goal_text,ts:g.updated_at||g.created_at,needs:g.thread_state==='waiting_gm',route:'#/gm-players'});
     }
     for(const m of messages){
       if(m.author_role!=='player')continue;
