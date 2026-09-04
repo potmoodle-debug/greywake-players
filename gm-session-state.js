@@ -79,3 +79,12 @@
   window.GreywakeGMSessionState={read,save:next=>{write({...read(),...next});schedule()}};
   window.addEventListener('hashchange',resetTimer);window.addEventListener('greywake:player-ready',resetTimer);document.addEventListener('DOMContentLoaded',resetTimer);setTimeout(resetTimer,600);
 })();
+
+(() => {
+  if(document.querySelector('script[data-gm-active-npcs]'))return;
+  const script=document.createElement('script');
+  script.src='gm-active-npcs.js?v=npcs1';
+  script.defer=true;
+  script.dataset.gmActiveNpcs='true';
+  document.head.appendChild(script);
+})();
