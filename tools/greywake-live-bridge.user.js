@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge
 // @namespace    greywake
-// @version      0.3.0
-// @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat. Live chat is transcript-source only.
+// @version      0.4.0
+// @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat, then reports the updater result back to Greywake.
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
 // @grant        GM_getValue
@@ -19,6 +19,7 @@
   const ROLES_KEY='greywake-live-bridge-roles-v1';
   const QUEUE_KEY='greywake-live-bridge-update-queue-v1';
   const STATUS_KEY='greywake-live-bridge-status-v1';
+  const RESULT_KEY='greywake-live-bridge-last-result-v1';
   const MAX_CHATS=8;
   const isChatGPT=location.hostname==='chatgpt.com';
   const isGreywake=location.hostname==='potmoodle-debug.github.io'&&location.pathname.startsWith('/greywake-players');
@@ -61,8 +62,10 @@
       'Use the current Greywake project files, connected Greywake tools, and the live-session transcript below as your source material.',
       'Treat the current Greywake Canon Status Quo Register as the highest Greywake setting authority.','',
       'This request came from the separate live-play chat. Do not write anything back into that live-play chat.','',
+      'Chris does NOT need to label or categorise session facts. You must classify them yourself from the transcript, established canon and player knowledge boundaries.','Classify each justified change as appropriate: immediate player-safe reveal, persistent player knowledge, DM/world/canon state, NPC/faction consequence, unresolved consequence, or a decision genuinely requiring Chris.','Do not ask Chris to choose a category. Only queue something for Chris when the underlying truth, motive, contradiction or creative canon decision is genuinely unresolved.','',
       'Review only what has changed since the last justified Greywake update and APPLY available writes directly.',
       'Update relevant available destinations including Obsidian through the existing Greywake workflow, DM-facing site/repository, player-facing content with strict knowledge boundaries, connected campaign state where appropriate, canon/world state, NPC/faction state, unresolved consequences, access, rumours, promises, debts, evidence and player knowledge.','',
+      'For player-facing information: if the transcript clearly establishes that a character or the party learned/witnessed something, update the appropriate persistent player knowledge automatically. Use the live Recent Reveals feed only when the information is an immediate at-the-table reveal that belongs in that activity feed; durable knowledge/world updates do not need a Recent Reveals entry.','',
       'Rules:',
       '- Preserve established canon and unresolved mysteries.',
       '- Do not invent events, motives, witnesses or knowledge.',
@@ -79,7 +82,7 @@
       `TRANSCRIPT CHANGE TIME: ${source?.changedAt||'Unknown'}`,
       `MESSAGES CAPTURED: ${source?.messageCount||0}`,'',
       'LIVE SESSION TRANSCRIPT:',transcript(source)||'[No transcript captured]','',
-      'At the end give only:','1. What was updated','2. What could not be updated','3. Decisions queued for Chris later'
+      'At the end give exactly these three headings with concise bullet lists and no extra headings:','WHAT WAS UPDATED','WHAT COULD NOT BE UPDATED','DECISIONS QUEUED FOR CHRIS LATER'
     ].join('\n');
   }
 
@@ -97,24 +100,15 @@
 
   function setStatus(status){
     GM_setValue(STATUS_KEY,status);
-    if(isGreywake){
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:status}));
-      updateButton(status);
-    }
+    if(isGreywake){window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:status}));updateButton(status)}
   }
 
   function queueUpdate(){
     const r=rolesWithChats();
-    if(!r.live||!r.updater||!r.liveKey||!r.updaterKey||r.liveKey===r.updaterKey){
-      setStatus({state:'blocked',at:now(),message:'Set two different chats: LIVE SESSION and UPDATER.'});
-      return false;
-    }
+    if(!r.live||!r.updater||!r.liveKey||!r.updaterKey||r.liveKey===r.updaterKey){setStatus({state:'blocked',at:now(),message:'Set two different chats: LIVE SESSION and UPDATER.'});return false}
     const queue=readArray(QUEUE_KEY);
-    const duplicate=queue.slice().reverse().find(x=>x.targetKey===r.updaterKey&&x.sourceKey===r.liveKey&&x.sourceSignature===r.live.signature&&['pending','processing','sent','accepted'].includes(x.state));
-    if(duplicate){
-      setStatus({state:'duplicate',at:now(),id:duplicate.id,sourceTitle:r.live.title,targetTitle:r.updater.title,message:'Already sent this exact live transcript. No duplicate queued.'});
-      return false;
-    }
+    const duplicate=queue.slice().reverse().find(x=>x.targetKey===r.updaterKey&&x.sourceKey===r.liveKey&&x.sourceSignature===r.live.signature&&['pending','processing','sent','accepted','completed'].includes(x.state));
+    if(duplicate){setStatus({state:'duplicate',at:now(),id:duplicate.id,sourceTitle:r.live.title,targetTitle:r.updater.title,message:'Already sent this exact live transcript. No duplicate queued.'});return false}
     const id=`gwupd-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
     queue.push({id,targetKey:r.updaterKey,sourceKey:r.liveKey,sourceSignature:r.live.signature,createdAt:now(),state:'pending',prompt:updaterPrompt(r.live)});
     GM_setValue(QUEUE_KEY,queue.slice(-10));
@@ -126,98 +120,69 @@
 
   function composer(){return document.querySelector('#prompt-textarea,[contenteditable="true"][data-virtualkeyboard],main [contenteditable="true"]')}
   function sendButton(){return document.querySelector('button[data-testid="send-button"],button[aria-label="Send prompt"],button[aria-label="Send"]')}
-  function fillComposer(el,text){
-    el.focus();
-    if(el.tagName==='TEXTAREA'){el.value=text;el.dispatchEvent(new Event('input',{bubbles:true}));return true}
-    try{document.execCommand('selectAll',false,null);document.execCommand('insertText',false,text)}catch{}
-    if(!clean(el.innerText||el.textContent||'')){el.textContent=text;el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:text}))}
-    return clean(el.innerText||el.textContent||'').length>0;
-  }
+  function fillComposer(el,text){el.focus();if(el.tagName==='TEXTAREA'){el.value=text;el.dispatchEvent(new Event('input',{bubbles:true}));return true}try{document.execCommand('selectAll',false,null);document.execCommand('insertText',false,text)}catch{}if(!clean(el.innerText||el.textContent||'')){el.textContent=text;el.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText',data:text}))}return clean(el.innerText||el.textContent||'').length>0}
 
   async function processQueue(){
     if(!isChatGPT)return;
-    const key=conversationKey(),roles=rolesWithChats();
-    if(key!==roles.updaterKey)return;
-    const queue=readArray(QUEUE_KEY),item=queue.find(x=>x.targetKey===key&&x.state==='pending');
-    if(!item)return;
+    const key=conversationKey(),roles=rolesWithChats();if(key!==roles.updaterKey)return;
+    const queue=readArray(QUEUE_KEY),item=queue.find(x=>x.targetKey===key&&x.state==='pending');if(!item)return;
     const el=composer();if(!el)return;
     item.state='processing';item.processingAt=now();GM_setValue(QUEUE_KEY,queue);
     setStatus({state:'processing',at:now(),id:item.id,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',message:'Sending update to designated updater chat…'});
     if(!fillComposer(el,item.prompt)){item.state='pending';GM_setValue(QUEUE_KEY,queue);return}
-    await new Promise(r=>setTimeout(r,250));
-    const btn=sendButton();
-    if(!btn||btn.disabled){item.state='pending';GM_setValue(QUEUE_KEY,queue);return}
+    await new Promise(r=>setTimeout(r,250));const btn=sendButton();if(!btn||btn.disabled){item.state='pending';GM_setValue(QUEUE_KEY,queue);return}
     btn.click();item.state='sent';item.sentAt=now();GM_setValue(QUEUE_KEY,queue);
     setStatus({state:'sent',at:now(),id:item.id,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',message:'Prompt sent to designated updater chat.'});
-    await new Promise(r=>setTimeout(r,900));
-    const accepted=collectMessages().some(m=>m.role==='user'&&m.text.startsWith('UPDATE GREYWAKE — LIVE SESSION HANDOFF'));
-    if(accepted){
-      const latest=readArray(QUEUE_KEY),same=latest.find(x=>x.id===item.id);if(same){same.state='accepted';same.acceptedAt=now();GM_setValue(QUEUE_KEY,latest)}
-      setStatus({state:'accepted',at:now(),id:item.id,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',message:'Updater chat accepted the prompt.'});
-    }
   }
 
-  function updateControls(){
-    return [...document.querySelectorAll('button,a,[role="button"]')].filter(el=>{
-      const original=el.dataset?.greywakeUpdateOriginal;
-      const label=clean(el.textContent).toUpperCase();
-      return original==='1'||label==='UPDATE GREYWAKE'||['QUEUED…','SENDING…','SENT ✓','ALREADY SENT ✓'].includes(label);
-    });
+  function captureUpdaterResult(){
+    if(!isChatGPT)return;
+    const key=conversationKey(),roles=rolesWithChats();if(key!==roles.updaterKey)return;
+    const messages=collectMessages(),queue=readArray(QUEUE_KEY);
+    const item=queue.slice().reverse().find(x=>x.targetKey===key&&['sent','accepted'].includes(x.state));if(!item)return;
+    const handoff=messages.slice().reverse().find(m=>m.role==='user'&&m.text.startsWith('UPDATE GREYWAKE — LIVE SESSION HANDOFF'));
+    if(!handoff)return;
+    if(item.state==='sent'){item.state='accepted';item.acceptedAt=now();item.handoffIndex=handoff.index;GM_setValue(QUEUE_KEY,queue);setStatus({state:'accepted',at:now(),id:item.id,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',message:'Updater chat accepted the prompt.'})}
+    const assistant=messages.find(m=>m.role==='assistant'&&m.index>handoff.index);if(!assistant)return;
+    const sig=hash(assistant.text),t=Date.now();
+    if(item.resultCandidateSignature!==sig){item.resultCandidateSignature=sig;item.resultCandidateAt=t;GM_setValue(QUEUE_KEY,queue);return}
+    if(t-Number(item.resultCandidateAt||t)<2500)return;
+    item.state='completed';item.completedAt=now();item.resultText=assistant.text;GM_setValue(QUEUE_KEY,queue);
+    const result={id:item.id,at:item.completedAt,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',text:assistant.text};
+    GM_setValue(RESULT_KEY,result);
+    setStatus({state:'completed',at:now(),id:item.id,sourceTitle:result.sourceTitle,targetTitle:result.targetTitle,message:'Updater finished. Result available on Greywake UPDATE.'});
   }
+
+  function updateControls(){return [...document.querySelectorAll('button,a,[role="button"]')].filter(el=>{const original=el.dataset?.greywakeUpdateOriginal,label=clean(el.textContent).toUpperCase();return original==='1'||label==='UPDATE GREYWAKE'||['QUEUED…','SENDING…','SENT ✓','ALREADY SENT ✓','DONE ✓'].includes(label)})}
   function updateButton(status=GM_getValue(STATUS_KEY,{})){
-    if(!isGreywake)return;
-    if(restoreTimer){clearTimeout(restoreTimer);restoreTimer=null}
-    const controls=updateControls();
-    controls.forEach(el=>{if(el.dataset)el.dataset.greywakeUpdateOriginal='1'});
-    const state=status?.state||'';
-    let text='UPDATE GREYWAKE',disabled=false,restore=0;
-    if(state==='queued'){text='QUEUED…';disabled=true}
-    else if(state==='processing'){text='SENDING…';disabled=true}
-    else if(state==='sent'||state==='accepted'){text='SENT ✓';disabled=true;restore=4500}
-    else if(state==='duplicate'){text='ALREADY SENT ✓';disabled=true;restore=3000}
+    if(!isGreywake)return;if(restoreTimer){clearTimeout(restoreTimer);restoreTimer=null}
+    const controls=updateControls();controls.forEach(el=>{if(el.dataset)el.dataset.greywakeUpdateOriginal='1'});
+    const state=status?.state||'';let text='UPDATE GREYWAKE',disabled=false,restore=0;
+    if(state==='queued'){text='QUEUED…';disabled=true}else if(state==='processing'){text='SENDING…';disabled=true}else if(state==='sent'||state==='accepted'){text='SENT ✓';disabled=true;restore=4500}else if(state==='completed'){text='DONE ✓';disabled=true;restore=5000}else if(state==='duplicate'){text='ALREADY SENT ✓';disabled=true;restore=3000}
     controls.forEach(el=>{el.textContent=text;if('disabled'in el)el.disabled=disabled;el.setAttribute('aria-disabled',disabled?'true':'false')});
-    if(restore)restoreTimer=setTimeout(()=>{updateControls().forEach(el=>{el.textContent='UPDATE GREYWAKE';if('disabled'in el)el.disabled=false;el.setAttribute('aria-disabled','false')})},restore);
+    if(restore)restoreTimer=setTimeout(()=>{updateControls().forEach(el=>{el.textContent='UPDATE GREYWAKE';if('disabled'in el)el.disabled=false;el.setAttribute('aria-disabled','false')})},restore)
   }
 
   if(isChatGPT){
-    let snapTimer=null;
-    const scheduleSnapshot=()=>{clearTimeout(snapTimer);snapTimer=setTimeout(snapshot,350)};
-    const start=()=>{new MutationObserver(scheduleSnapshot).observe(document.documentElement,{subtree:true,childList:true,characterData:true});setInterval(snapshot,4000);setInterval(processQueue,1200);setTimeout(snapshot,900);setTimeout(processQueue,1500)};
+    let snapTimer=null;const scheduleSnapshot=()=>{clearTimeout(snapTimer);snapTimer=setTimeout(snapshot,350)};
+    const start=()=>{new MutationObserver(scheduleSnapshot).observe(document.documentElement,{subtree:true,childList:true,characterData:true});setInterval(snapshot,4000);setInterval(processQueue,1200);setInterval(captureUpdaterResult,1200);setTimeout(snapshot,900);setTimeout(processQueue,1500)};
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
   }
 
   if(isGreywake){
-    const isUpdateControl=target=>{
-      const el=target?.closest?.('button,a,[role="button"]');
-      if(!el)return null;
-      const original=el.dataset?.greywakeUpdateOriginal;
-      const label=clean(el.textContent).toUpperCase();
-      return original==='1'||label==='UPDATE GREYWAKE'?el:null;
-    };
+    const isUpdateControl=target=>{const el=target?.closest?.('button,a,[role="button"]');if(!el)return null;const original=el.dataset?.greywakeUpdateOriginal,label=clean(el.textContent).toUpperCase();return original==='1'||label==='UPDATE GREYWAKE'?el:null};
     const swallow=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()};
-    const routePress=e=>{
-      if(!isUpdateControl(e.target))return;
-      swallow(e);
-      if(routedPress)return;
-      routedPress=true;
-      queueUpdate();
-      setTimeout(()=>{routedPress=false},700);
-    };
-    ['pointerdown','mousedown','touchstart','click'].forEach(type=>{
-      window.addEventListener(type,routePress,true);
-      document.addEventListener(type,routePress,true);
-    });
-    window.addEventListener('keydown',e=>{
-      if((e.key==='Enter'||e.key===' ')&&isUpdateControl(document.activeElement))routePress(e);
-    },true);
+    const routePress=e=>{if(!isUpdateControl(e.target))return;swallow(e);if(routedPress)return;routedPress=true;queueUpdate();setTimeout(()=>{routedPress=false},700)};
+    ['pointerdown','mousedown','touchstart','click'].forEach(type=>{window.addEventListener(type,routePress,true);document.addEventListener(type,routePress,true)});
+    window.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&isUpdateControl(document.activeElement))routePress(e)},true);
 
     const startSite=()=>{
-      if(!document.querySelector('script[data-greywake-live-bridge-test]')){const script=document.createElement('script');script.src='https://potmoodle-debug.github.io/greywake-players/gm-live-bridge-test.js?v=bridge5';script.defer=true;script.dataset.greywakeLiveBridgeTest='true';document.head.appendChild(script)}
-      window.addEventListener('greywake:live-bridge-request',event=>{const requestId=event.detail?.requestId||'',chats=Object.values(readObject(REGISTRY_KEY,{})).sort((a,b)=>new Date(b.changedAt)-new Date(a.changedAt));window.dispatchEvent(new CustomEvent('greywake:live-bridge-response',{detail:{requestId,ok:true,chats,roles:rolesWithChats(),status:GM_getValue(STATUS_KEY,{})}}))});
+      if(!document.querySelector('script[data-greywake-live-bridge-test]')){const script=document.createElement('script');script.src='https://potmoodle-debug.github.io/greywake-players/gm-live-bridge-test.js?v=bridge6';script.defer=true;script.dataset.greywakeLiveBridgeTest='true';document.head.appendChild(script)}
+      window.addEventListener('greywake:live-bridge-request',event=>{const requestId=event.detail?.requestId||'',chats=Object.values(readObject(REGISTRY_KEY,{})).sort((a,b)=>new Date(b.changedAt)-new Date(a.changedAt));window.dispatchEvent(new CustomEvent('greywake:live-bridge-response',{detail:{requestId,ok:true,chats,roles:rolesWithChats(),status:GM_getValue(STATUS_KEY,{}),result:GM_getValue(RESULT_KEY,{})}}))});
       window.addEventListener('greywake:live-bridge-set-role',event=>{setRole(event.detail?.role,event.detail?.key);window.dispatchEvent(new CustomEvent('greywake:live-bridge-role-set',{detail:{roles:rolesWithChats()}}))});
       GM_addValueChangeListener?.(STATUS_KEY,(_key,_old,value)=>{if(value){window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:value}));updateButton(value)}});
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.3.0',roles:rolesWithChats()}}));
-      setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
+      GM_addValueChangeListener?.(RESULT_KEY,(_key,_old,value)=>{if(value)window.dispatchEvent(new CustomEvent('greywake:live-bridge-result',{detail:value}))});
+      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.0',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSite,{once:true});else startSite();
   }
