@@ -47,7 +47,7 @@
 
 (() => {
   const helpers = [
-    ['gm-player-priority.js?v=priority4','gmPlayerPriority'],
+    ['gm-player-priority.js?v=priority5','gmPlayerPriority'],
     ['gm-session-state.js?v=session1','gmSessionState']
   ];
   helpers.forEach(([src,key]) => {
