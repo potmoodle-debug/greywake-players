@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge
 // @namespace    greywake
-// @version      0.2.0
+// @version      0.2.1
 // @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat. Live chat is transcript-source only.
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
@@ -21,6 +21,7 @@
   const MAX_CHATS=8;
   const isChatGPT=location.hostname==='chatgpt.com';
   const isGreywake=location.hostname==='potmoodle-debug.github.io'&&location.pathname.startsWith('/greywake-players');
+  let routedPress=false;
 
   const now=()=>new Date().toISOString();
   const clean=v=>String(v||'').replace(/\s+$/g,'').trim();
@@ -55,16 +56,12 @@
   function transcript(chat){return(chat?.messages||[]).map(m=>`${String(m.role||'unknown').toUpperCase()}: ${m.text}`).join('\n\n')}
   function updaterPrompt(source){
     return [
-      'UPDATE GREYWAKE — LIVE SESSION HANDOFF',
-      '',
+      'UPDATE GREYWAKE — LIVE SESSION HANDOFF','',
       'Use the current Greywake project files, connected Greywake tools, and the live-session transcript below as your source material.',
-      'Treat the current Greywake Canon Status Quo Register as the highest Greywake setting authority.',
-      '',
-      'This request came from the separate live-play chat. Do not write anything back into that live-play chat.',
-      '',
+      'Treat the current Greywake Canon Status Quo Register as the highest Greywake setting authority.','',
+      'This request came from the separate live-play chat. Do not write anything back into that live-play chat.','',
       'Review only what has changed since the last justified Greywake update and APPLY available writes directly.',
-      'Update relevant available destinations including Obsidian through the existing Greywake workflow, DM-facing site/repository, player-facing content with strict knowledge boundaries, connected campaign state where appropriate, canon/world state, NPC/faction state, unresolved consequences, access, rumours, promises, debts, evidence and player knowledge.',
-      '',
+      'Update relevant available destinations including Obsidian through the existing Greywake workflow, DM-facing site/repository, player-facing content with strict knowledge boundaries, connected campaign state where appropriate, canon/world state, NPC/faction state, unresolved consequences, access, rumours, promises, debts, evidence and player knowledge.','',
       'Rules:',
       '- Preserve established canon and unresolved mysteries.',
       '- Do not invent events, motives, witnesses or knowledge.',
@@ -75,20 +72,13 @@
       '- Only update a character knowledge state when the transcript supports that they learned or witnessed it.',
       '- If something requires Chris to choose an unresolved truth, motive, contradiction or major canon question, leave it unresolved and queue it.',
       '- Do not stop for approval unless a required write cannot be completed safely without clarification.',
-      '- If one destination fails, continue with the others and report the failure.',
-      '',
+      '- If one destination fails, continue with the others and report the failure.','',
       `LIVE SOURCE CHAT: ${source?.title||'Unknown'}`,
       `SOURCE URL: ${source?.url||'Unknown'}`,
       `TRANSCRIPT CHANGE TIME: ${source?.changedAt||'Unknown'}`,
-      `MESSAGES CAPTURED: ${source?.messageCount||0}`,
-      '',
-      'LIVE SESSION TRANSCRIPT:',
-      transcript(source)||'[No transcript captured]',
-      '',
-      'At the end give only:',
-      '1. What was updated',
-      '2. What could not be updated',
-      '3. Decisions queued for Chris later'
+      `MESSAGES CAPTURED: ${source?.messageCount||0}`,'',
+      'LIVE SESSION TRANSCRIPT:',transcript(source)||'[No transcript captured]','',
+      'At the end give only:','1. What was updated','2. What could not be updated','3. Decisions queued for Chris later'
     ].join('\n');
   }
 
@@ -105,11 +95,11 @@
   }
 
   function queueUpdate(){
-    snapshot();
     const r=rolesWithChats();
     if(!r.live||!r.updater||!r.liveKey||!r.updaterKey||r.liveKey===r.updaterKey){
-      GM_setValue(STATUS_KEY,{state:'blocked',at:now(),message:'Set two different chats: LIVE SESSION and UPDATER.'});
-      if(isGreywake)window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:GM_getValue(STATUS_KEY,{})}));
+      const status={state:'blocked',at:now(),message:'Set two different chats: LIVE SESSION and UPDATER.'};
+      GM_setValue(STATUS_KEY,status);
+      if(isGreywake)window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:status}));
       return false;
     }
     const queue=readArray(QUEUE_KEY),id=`gwupd-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
@@ -157,21 +147,34 @@
   }
 
   if(isGreywake){
-    const blockLegacy=e=>{
-      const el=e.target?.closest?.('button,a');if(!el)return;
+    const isUpdateControl=target=>{
+      const el=target?.closest?.('button,a,[role="button"]');
+      if(!el)return null;
       const label=clean(el.textContent).toUpperCase();
-      if(label!=='UPDATE GREYWAKE')return;
-      e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-      queueUpdate();
+      return label==='UPDATE GREYWAKE'?el:null;
     };
-    window.addEventListener('click',blockLegacy,true);
-    document.addEventListener('click',blockLegacy,true);
+    const swallow=e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()};
+    const routePress=e=>{
+      if(!isUpdateControl(e.target))return;
+      swallow(e);
+      if(routedPress)return;
+      routedPress=true;
+      queueUpdate();
+      setTimeout(()=>{routedPress=false},700);
+    };
+    ['pointerdown','mousedown','touchstart','click'].forEach(type=>{
+      window.addEventListener(type,routePress,true);
+      document.addEventListener(type,routePress,true);
+    });
+    window.addEventListener('keydown',e=>{
+      if((e.key==='Enter'||e.key===' ')&&isUpdateControl(document.activeElement))routePress(e);
+    },true);
 
     const startSite=()=>{
-      if(!document.querySelector('script[data-greywake-live-bridge-test]')){const script=document.createElement('script');script.src='https://potmoodle-debug.github.io/greywake-players/gm-live-bridge-test.js?v=bridge2';script.defer=true;script.dataset.greywakeLiveBridgeTest='true';document.head.appendChild(script)}
+      if(!document.querySelector('script[data-greywake-live-bridge-test]')){const script=document.createElement('script');script.src='https://potmoodle-debug.github.io/greywake-players/gm-live-bridge-test.js?v=bridge3';script.defer=true;script.dataset.greywakeLiveBridgeTest='true';document.head.appendChild(script)}
       window.addEventListener('greywake:live-bridge-request',event=>{const requestId=event.detail?.requestId||'',chats=Object.values(readObject(REGISTRY_KEY,{})).sort((a,b)=>new Date(b.changedAt)-new Date(a.changedAt));window.dispatchEvent(new CustomEvent('greywake:live-bridge-response',{detail:{requestId,ok:true,chats,roles:rolesWithChats(),status:GM_getValue(STATUS_KEY,{})}}))});
       window.addEventListener('greywake:live-bridge-set-role',event=>{setRole(event.detail?.role,event.detail?.key);window.dispatchEvent(new CustomEvent('greywake:live-bridge-role-set',{detail:{roles:rolesWithChats()}}))});
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.2.0',roles:rolesWithChats()}}));
+      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.2.1',roles:rolesWithChats()}}));
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSite,{once:true});else startSite();
   }
