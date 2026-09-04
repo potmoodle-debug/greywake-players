@@ -48,7 +48,8 @@
 (() => {
   const helpers = [
     ['gm-player-priority.js?v=priority5','gmPlayerPriority'],
-    ['gm-session-state.js?v=session1','gmSessionState']
+    ['gm-session-state.js?v=session1','gmSessionState'],
+    ['gm-prep-live.js?v=prep1','gmPrepLive']
   ];
   helpers.forEach(([src,key]) => {
     if (document.querySelector(`script[data-${key}]`)) return;
