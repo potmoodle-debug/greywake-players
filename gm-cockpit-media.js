@@ -48,6 +48,47 @@
     }
   }
 
+  function closingWaysSummary() {
+    const html = window.GREYWAKE_DATA?.['Jobs & Open Threads']?.html || '';
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const heading = [...temp.querySelectorAll('h3')].find(h => /closing ways/i.test(h.textContent || ''));
+    if (!heading) return '';
+    let node = heading.nextElementSibling;
+    while (node && node.tagName !== 'H2' && node.tagName !== 'H3') {
+      if (node.tagName === 'P') {
+        const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+        if (text && !/^status:/i.test(text) && !/^possible benefit:/i.test(text)) return text;
+      }
+      node = node.nextElementSibling;
+    }
+    return '';
+  }
+
+  function repairRunPriority() {
+    if (!isFullGM() || location.hash !== '#/gm-session') return;
+    const root = document.getElementById('gmRouteWorkspace');
+    const hero = root?.querySelector('.gm-run-hero');
+    const summary = closingWaysSummary();
+    if (!hero || !summary) return;
+
+    const title = hero.querySelector('h2');
+    const copy = hero.querySelector('p');
+    const image = hero.querySelector('img');
+    if (title && title.textContent.trim() !== 'The Closing Ways') title.textContent = 'The Closing Ways';
+    if (copy && copy.textContent.trim() !== summary) copy.textContent = summary;
+    if (image && !/caravan-gate\.webp/.test(image.getAttribute('src') || '')) image.src = 'assets/canon/locations/caravan-gate.webp';
+
+    const pressureGrid = root.querySelector('.gm-live-pressure-grid');
+    if (pressureGrid && ![...pressureGrid.querySelectorAll('.gm-live-pressure strong')].some(el => el.textContent.trim() === 'The Closing Ways')) {
+      const card = document.createElement('article');
+      card.className = 'gm-live-pressure has-image';
+      card.dataset.level = 'critical';
+      card.innerHTML = `<img src="assets/canon/locations/caravan-gate.webp" alt="" loading="lazy"><small>PLAYER PRIORITY</small><strong>The Closing Ways</strong><p>${summary.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}</p>`;
+      pressureGrid.prepend(card);
+    }
+  }
+
   function enhancePressures(root) {
     root.querySelectorAll('.gm-vc-pressure').forEach(card => {
       const title = card.querySelector('h3')?.textContent?.trim();
@@ -108,6 +149,7 @@
 
   function enhance() {
     repairCockpitRace();
+    repairRunPriority();
     if (!isFullGM() || location.hash !== '#/gm-cockpit') return;
     const root = document.querySelector('#gmRouteWorkspace .gm-vc');
     if (!root) return;
