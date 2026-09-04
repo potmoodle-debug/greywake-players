@@ -23,7 +23,7 @@
 
   function state(){
     const items=pursuing();
-    if(!items.length)return{kind:'none',title:'No shared priority yet',detail:'No player has currently marked an interest as Pursuing. World pressures remain active, but they do not decide what the party does next.'};
+    if(!items.length)return{kind:'none',title:'No current direction',detail:'No player has currently marked an interest as Pursuing. World pressures remain active, but they do not decide what the party does next.'};
     const groups=new Map();
     items.forEach(item=>{
       if(!groups.has(item.key))groups.set(item.key,{title:item.title,players:new Set(),goals:[]});
@@ -33,11 +33,11 @@
     const top=ranked[0];
     const tied=ranked.filter(x=>x.players.size===top.players.size);
     if(tied.length>1){
-      return{kind:'tie',title:'Priority undecided',detail:`The party currently has more than one equally-backed pursuit: ${tied.map(x=>`${x.title} (${[...x.players].join(', ')})`).join(' · ')}. RUN will not choose between them.`};
+      return{kind:'tie',title:'Direction undecided',detail:`The party currently has more than one equally-backed pursuit: ${tied.map(x=>`${x.title} (${[...x.players].join(', ')})`).join(' · ')}. RUN will not choose between them.`};
     }
     const players=[...top.players];
     const motivation=top.goals.find(g=>normalise(g)!==normalise(top.title));
-    return{kind:'priority',title:top.title,detail:`Currently pursued by ${players.join(', ')}${motivation?` · ${motivation}`:''}.`,players};
+    return{kind:'direction',title:top.title,detail:`Currently pursued by ${players.join(', ')}${motivation?` · ${motivation}`:''}. This is player direction, not a settled group choice.`,players};
   }
 
   function ensureStyles(){
@@ -53,9 +53,9 @@
       const title=card.querySelector('strong')?.textContent?.trim()||'';
       const label=card.querySelector('small');
       if(!label)return;
-      const isCurrent=next.kind==='priority'&&normalise(title)===normalise(next.title);
-      if(isCurrent)label.textContent='CURRENT PLAYER PRIORITY';
-      else if(/PLAYER PRIORITY/i.test(label.textContent||''))label.textContent='ACTIVE THREAD';
+      const isCurrent=next.kind==='direction'&&normalise(title)===normalise(next.title);
+      if(isCurrent)label.textContent='CURRENT PLAYER DIRECTION';
+      else if(/CURRENT PLAYER (PRIORITY|DIRECTION)|PLAYER PRIORITY/i.test(label.textContent||''))label.textContent='ACTIVE THREAD';
     });
   }
 
@@ -70,7 +70,9 @@
     const sig=JSON.stringify(next);
     if(box.dataset.signature!==sig){
       box.dataset.signature=sig;box.dataset.kind=next.kind;
-      box.innerHTML=`<small class="gm-player-priority-kicker">CURRENT PRIORITY <span>${next.kind==='priority'?'PLAYER MOTIVATION':next.kind==='tie'?'AWAITING GROUP DIRECTION':'NO PARTY COMMITMENT'}</span></small><h2 class="gm-player-priority-title">${esc(next.title)}</h2><p class="gm-player-priority-detail">${esc(next.detail)}</p>`;
+      const kicker=next.kind==='direction'?'PLAYER DIRECTION':next.kind==='tie'?'PRIORITY UNDECIDED':'NO CURRENT DIRECTION';
+      const badge=next.kind==='direction'?'INDIVIDUAL PURSUITS':next.kind==='tie'?'AWAITING GROUP CHOICE':'NO PARTY COMMITMENT';
+      box.innerHTML=`<small class="gm-player-priority-kicker">${kicker} <span>${badge}</span></small><h2 class="gm-player-priority-title">${esc(next.title)}</h2><p class="gm-player-priority-detail">${esc(next.detail)}</p>`;
     }
     syncPressureLabels(next);
   }
