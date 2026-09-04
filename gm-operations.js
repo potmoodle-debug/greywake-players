@@ -80,8 +80,9 @@
     workspace.querySelector('#gmRunUpdate')?.addEventListener('click',copyUpdatePacket);workspace.querySelector('#gmCopyObsidian')?.addEventListener('click',copyObsidian);
   }
   function render(){
-    ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}configureNav();const r=route();
-    ['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+    ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}
+    if(!location.hash||location.hash==='#/'){location.hash=ROUTES.run;return}
+    configureNav();const r=route();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
     workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():renderRun();
     workspace.classList.remove('hidden');wire(workspace);syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
   }
