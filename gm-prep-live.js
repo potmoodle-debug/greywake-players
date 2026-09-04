@@ -121,10 +121,16 @@
 })();
 
 (() => {
-  if(document.querySelector('script[data-gm-foundry-prep]'))return;
-  const script=document.createElement('script');
-  script.src='gm-foundry-prep.js?v=foundry1';
-  script.defer=true;
-  script.dataset.gmFoundryPrep='true';
-  document.head.appendChild(script);
+  const helpers=[
+    ['gm-foundry-prep.js?v=foundry1','gmFoundryPrep'],
+    ['gm-update-live.js?v=update1','gmUpdateLive']
+  ];
+  helpers.forEach(([src,key])=>{
+    if(document.querySelector(`script[data-${key}]`))return;
+    const script=document.createElement('script');
+    script.src=src;
+    script.defer=true;
+    script.dataset[key]='true';
+    document.head.appendChild(script);
+  });
 })();
