@@ -119,3 +119,12 @@
 
   window.addEventListener('hashchange',reset);window.addEventListener('greywake:player-ready',reset);window.addEventListener('greywake:engagement-changed',schedule);window.addEventListener('greywake:group-choice-changed',refreshGroup);document.addEventListener('DOMContentLoaded',reset);setTimeout(reset,700);
 })();
+
+(() => {
+  if(document.querySelector('script[data-gm-foundry-prep]'))return;
+  const script=document.createElement('script');
+  script.src='gm-foundry-prep.js?v=foundry1';
+  script.defer=true;
+  script.dataset.gmFoundryPrep='true';
+  document.head.appendChild(script);
+})();
