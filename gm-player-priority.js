@@ -10,10 +10,11 @@
   let queued=false;
   let groupState=null;
   let groupTimer=null;
+  let heroObserver=null;
 
   function isGM(){return document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true'}
   function onRun(){return location.hash==='#/gm-session'}
-  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]))}
   function normalise(v){return String(v||'').toLowerCase().replace(/[’']/g,"'").replace(/[^a-z0-9]+/g,' ').trim()}
 
   function pursuing(){
@@ -39,12 +40,7 @@
     const tied=options.filter(option=>(option.voters?.size||0)===topVotes);
     if(topVotes<2||tied.length!==1)return null;
     const voters=[...(top.voters||[])].map(slug=>LABELS[slug]||slug);
-    return{
-      kind:'priority',
-      title:top.source_title,
-      detail:`Settled by group choice · ${topVotes} votes${voters.length?` (${voters.join(', ')})`:''}.`,
-      voters
-    };
+    return{kind:'priority',title:top.source_title,detail:`Settled by group choice · ${topVotes} votes${voters.length?` (${voters.join(', ')})`:''}.`,voters};
   }
 
   function state(){
@@ -60,9 +56,7 @@
     const ranked=[...groups.values()].sort((a,b)=>b.players.size-a.players.size||a.title.localeCompare(b.title));
     const top=ranked[0];
     const tied=ranked.filter(x=>x.players.size===top.players.size);
-    if(tied.length>1){
-      return{kind:'tie',title:'Direction undecided',detail:`The party currently has more than one equally-backed pursuit: ${tied.map(x=>`${x.title} (${[...x.players].join(', ')})`).join(' · ')}. RUN will not choose between them.`};
-    }
+    if(tied.length>1)return{kind:'tie',title:'Direction undecided',detail:`The party currently has more than one equally-backed pursuit: ${tied.map(x=>`${x.title} (${[...x.players].join(', ')})`).join(' · ')}. RUN will not choose between them.`};
     const players=[...top.players];
     const motivation=top.goals.find(g=>normalise(g)!==normalise(top.title));
     const voteCount=(groupState?.votes||[]).length;
@@ -82,12 +76,28 @@
     const heroShell=document.querySelector('#gmOperationsView .gm-run-hero');
     if(!heroShell)return;
     const mapped=DIRECTION_IMAGES[normalise(next.title)]||'';
-    if(heroShell.dataset.priorityImage===mapped)return;
-    if(!heroShell.dataset.baseBackgroundImage)heroShell.dataset.baseBackgroundImage=heroShell.style.backgroundImage||'';
-    heroShell.style.backgroundImage=mapped
-      ? `linear-gradient(90deg,rgba(8,8,6,.94) 0%,rgba(8,8,6,.78) 43%,rgba(8,8,6,.18) 76%),url("${mapped}")`
-      : heroShell.dataset.baseBackgroundImage;
-    heroShell.dataset.priorityImage=mapped;
+    const img=heroShell.querySelector('img');
+    if(mapped){
+      if(img&&img.getAttribute('src')!==mapped)img.setAttribute('src',mapped);
+      heroShell.style.backgroundImage=`linear-gradient(90deg,rgba(8,8,6,.94) 0%,rgba(8,8,6,.78) 43%,rgba(8,8,6,.18) 76%),url("${mapped}")`;
+      heroShell.dataset.priorityImage=mapped;
+    }else{
+      if(!heroShell.dataset.baseBackgroundImage)heroShell.dataset.baseBackgroundImage=heroShell.style.backgroundImage||'';
+      heroShell.style.backgroundImage=heroShell.dataset.baseBackgroundImage;
+      heroShell.dataset.priorityImage='';
+    }
+  }
+
+  function watchHero(next){
+    const heroShell=document.querySelector('#gmOperationsView .gm-run-hero');
+    if(!heroShell)return;
+    if(heroObserver)heroObserver.disconnect();
+    heroObserver=new MutationObserver(()=>{
+      const mapped=DIRECTION_IMAGES[normalise(next.title)]||'';
+      const img=heroShell.querySelector('img');
+      if(mapped&&img&&img.getAttribute('src')!==mapped)img.setAttribute('src',mapped);
+    });
+    heroObserver.observe(heroShell,{subtree:true,attributes:true,attributeFilter:['src']});
   }
 
   function syncPressureLabels(next){
@@ -118,21 +128,13 @@
       box.innerHTML=`<small class="gm-player-priority-kicker">${kicker} <span>${badge}</span></small><h2 class="gm-player-priority-title">${esc(next.title)}</h2><p class="gm-player-priority-detail">${esc(next.detail)}</p>`;
     }
     syncHeroImage(next);
+    watchHero(next);
     syncPressureLabels(next);
   }
 
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;render()})}
-  async function refreshGroupChoice(){
-    if(!isGM()||!onRun()||!window.GreywakeGroupChoice?.getStateForGM)return;
-    try{groupState=await window.GreywakeGroupChoice.getStateForGM();schedule()}catch(_){/* keep RUN usable; pursuit state remains the fallback */}
-  }
-  function resetGroupTimer(){
-    if(groupTimer)clearInterval(groupTimer);groupTimer=null;
-    if(isGM()&&onRun()){
-      setTimeout(refreshGroupChoice,80);
-      groupTimer=setInterval(refreshGroupChoice,15000);
-    }
-  }
+  async function refreshGroupChoice(){if(!isGM()||!onRun()||!window.GreywakeGroupChoice?.getStateForGM)return;try{groupState=await window.GreywakeGroupChoice.getStateForGM();schedule()}catch(_){}}
+  function resetGroupTimer(){if(groupTimer)clearInterval(groupTimer);groupTimer=null;if(isGM()&&onRun()){setTimeout(refreshGroupChoice,80);groupTimer=setInterval(refreshGroupChoice,15000)}}
 
   const goals=document.getElementById('playerGoals');if(goals)new MutationObserver(schedule).observe(goals,{childList:true,subtree:true,characterData:true});
   window.addEventListener('hashchange',()=>{setTimeout(schedule,80);resetGroupTimer()});
