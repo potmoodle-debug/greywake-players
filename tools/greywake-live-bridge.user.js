@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge (TEST)
 // @namespace    greywake
-// @version      0.1.0
+// @version      0.1.1
 // @description  TEST ONLY: snapshots ChatGPT conversations for the Greywake dry-run updater bridge. Does not send messages or update canon/player state.
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
@@ -73,11 +73,18 @@
   }
 
   if(isGreywake){
+    if(!document.querySelector('script[data-greywake-live-bridge-test]')){
+      const script=document.createElement('script');
+      script.src='https://potmoodle-debug.github.io/greywake-players/gm-live-bridge-test.js?v=bridge1';
+      script.defer=true;
+      script.dataset.greywakeLiveBridgeTest='true';
+      document.head.appendChild(script);
+    }
     window.addEventListener('greywake:live-bridge-request',event=>{
       const requestId=event.detail?.requestId||'';
       const chats=Object.values(readRegistry()).sort((a,b)=>new Date(b.changedAt)-new Date(a.changedAt));
       window.dispatchEvent(new CustomEvent('greywake:live-bridge-response',{detail:{requestId,ok:true,chats}}));
     });
-    window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.1.0'}}));
+    window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.1.1'}}));
   }
 })();
