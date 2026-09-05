@@ -27,6 +27,31 @@
           ]
         },
         {
+          title: 'The Pale Thread',
+          cards: [
+            {
+              title: 'The Trail South of Greywake',
+              tag: 'Firsthand · current discovery',
+              body: 'Returning from an unsuccessful retrieval trip for Meren, Marek followed an unfamiliar creature trail from south of Greywake into a concealed Digger way. He does not yet know what made the trail.'
+            },
+            {
+              title: 'Pale Membrane',
+              tag: 'Collected evidence',
+              body: 'Marek collected a pale translucent membrane fragment from the trail. From the physical evidence he established that the creature can compress itself through unusually tight spaces.'
+            },
+            {
+              title: 'The Blocked Way',
+              tag: 'Firsthand · unresolved',
+              body: 'The trail reached a deliberately and recently blocked Digger way. Marek could not establish where the creature went from there. Even his smallest Agile Scout form could not pass through the intact seal.'
+            },
+            {
+              title: 'Voices Beyond the Stone',
+              tag: 'Firsthand · identity unknown',
+              body: 'Marek tried to loosen only enough of the blockage to make a controlled gap. The attempt failed and disturbed the packed stone and timber without creating a safe opening. Through the blockage he then heard close, muffled voices. At least one sounded familiar, but he does not yet know who is on the other side.'
+            }
+          ]
+        },
+        {
           title: 'The Unknown Beastform',
           cards: [
             {
