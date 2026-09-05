@@ -3,7 +3,7 @@
   window.__GreywakeGMSessionState=true;
 
   const KEY='greywake-gm-live-session-state-v1';
-  const DEFAULTS={session:'Session Four',phase:'Prep / play',location:'Greywake',party:'Marek · Velmira · Odie',scene:'Greywake',fear:'',timeWeather:'',danger:'',activeNPCs:''};
+  const DEFAULTS={session:'Session Four',phase:'Opening',location:'Blocked Digger way · party split',party:'Marek · Velmira · Odie',scene:'Blocked Digger Way',fear:'',timeWeather:'',danger:'',activeNPCs:''};
   let queued=false;
   let timer=null;
 
@@ -49,8 +49,12 @@
     const small=panel.querySelector('small'),h2=panel.querySelector('h2'),p=panel.querySelector('p');
     if(small)small.textContent='CURRENT SCENE · LIVE SESSION STATE';
     if(h2)h2.textContent=state.scene||state.location||'Not set';
-    if(p)p.textContent=state.danger?`Immediate danger: ${state.danger}`:'No immediate danger has been set in the live session state.';
-    let meta=panel.querySelector('.gm-session-scene-meta');if(!meta){meta=document.createElement('div');meta.className='gm-session-scene-meta';p?.insertAdjacentElement('afterend',meta)}
+    if(p&&state.danger){
+      let dangerLine=panel.querySelector('.gm-session-danger');
+      if(!dangerLine){dangerLine=document.createElement('p');dangerLine.className='gm-session-danger';p.insertAdjacentElement('afterend',dangerLine)}
+      dangerLine.textContent=`Immediate danger: ${state.danger}`;
+    }else panel.querySelector('.gm-session-danger')?.remove();
+    let meta=panel.querySelector('.gm-session-scene-meta');if(!meta){meta=document.createElement('div');meta.className='gm-session-scene-meta';(p||h2)?.insertAdjacentElement('afterend',meta)}
     meta.innerHTML=`<span><b>Location</b> ${esc(state.location||'—')}</span><span><b>Fear</b> ${esc(state.fear||'—')}</span><span><b>Time / weather</b> ${esc(state.timeWeather||'—')}</span><span><b>NPCs</b> ${esc(state.activeNPCs||'—')}</span>`;
   }
 
