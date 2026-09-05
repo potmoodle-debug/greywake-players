@@ -9,7 +9,6 @@
   const CAPTURE_KEY = 'greywake-gm-captures-v1';
 
   const fullGM = () => document.body.dataset.role === 'gm' && document.body.dataset.gmPreview !== 'true';
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
 
   function activeCaptureCount() {
     try {
@@ -38,12 +37,6 @@
       .gm-control-actions button,.gm-control-card{appearance:none;border:1px solid #665839;background:#1a1811;color:#e7d8ad;cursor:pointer;text-align:left}
       .gm-control-actions button{padding:11px 14px;font:900 9px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}
       .gm-control-actions .gm-control-run{background:#c9a957;border-color:#e0c475;color:#17130b}
-      .gm-control-actions button:hover,.gm-control-card:hover{border-color:#aa8d4d}
-      .gm-control-job-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-      .gm-control-job{border:1px solid #403c2f;background:#14150f;padding:15px 16px}
-      .gm-control-job b{display:block;color:#eadfbe;font:700 20px/1.1 Georgia,serif;margin-bottom:5px}
-      .gm-control-job span{display:block;color:#98907d;font-size:10px;line-height:1.5}
-      .gm-control-job.live{border-color:#76633b;background:#1c1911}
       .gm-control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
       .gm-control-card{padding:16px;min-height:142px}
       .gm-control-card strong{display:block;margin:6px 0;color:#e8dec4;font:700 21px/1.1 Georgia,serif}
@@ -57,7 +50,7 @@
       .gm-control-readiness strong{display:block;color:#d9cfb5;font-size:11px;line-height:1.35}
       body[data-role="gm"][data-gm-preview="false"] #primaryNav button[data-gm-cockpit="true"]{border-color:#75633b}
       @media(max-width:900px){.gm-control-grid{grid-template-columns:1fr 1fr}.gm-control-readiness{grid-template-columns:1fr 1fr}}
-      @media(max-width:650px){.gm-control-cockpit{padding:18px 14px 60px}.gm-control-hero{min-height:360px}.gm-control-hero-copy{padding:26px}.gm-control-job-strip,.gm-control-grid,.gm-control-readiness{grid-template-columns:1fr}}
+      @media(max-width:650px){.gm-control-cockpit{padding:18px 14px 60px}.gm-control-hero{min-height:360px}.gm-control-hero-copy{padding:26px}.gm-control-grid,.gm-control-readiness{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
   }
@@ -95,19 +88,16 @@
     const prepButton = document.querySelector('#primaryNav [data-gm-route="#/gm-prep"]') || document.getElementById('characterSheetBtn');
     if (!nav || !runButton || !prepButton) return;
 
-    prepButton.textContent = 'COCKPIT';
-    prepButton.dataset.gmRoute = COCKPIT_ROUTE;
-    prepButton.dataset.gmCockpit = 'true';
-    prepButton.removeAttribute('onclick');
-    prepButton.removeAttribute('data-primary-section');
-
+    if (prepButton.textContent !== 'COCKPIT') prepButton.textContent = 'COCKPIT';
+    if (prepButton.dataset.gmRoute !== COCKPIT_ROUTE) prepButton.dataset.gmRoute = COCKPIT_ROUTE;
+    if (prepButton.dataset.gmCockpit !== 'true') prepButton.dataset.gmCockpit = 'true';
+    if (prepButton.hasAttribute('onclick')) prepButton.removeAttribute('onclick');
+    if (prepButton.hasAttribute('data-primary-section')) prepButton.removeAttribute('data-primary-section');
     if (prepButton !== nav.firstElementChild) nav.insertBefore(prepButton, runButton);
   }
 
   function syncNav() {
-    if (!fullGM()) return;
-    configureNav();
-    if (location.hash !== COCKPIT_ROUTE) return;
+    if (!fullGM() || location.hash !== COCKPIT_ROUTE) return;
     document.querySelectorAll('#primaryNav [data-gm-route]').forEach(button => {
       const selected = button.dataset.gmCockpit === 'true';
       button.classList.toggle('active', selected);
@@ -129,53 +119,14 @@
     const waiting = activeCaptureCount();
     workspace.innerHTML = `
       <div class="gm-authority"><div><small>GM CONTROL CENTRE</small><strong>Cockpit plans. Run plays.</strong><span>Campaign control stays here; table-time detail stays in Run.</span></div><span class="gm-status-badge">GM ONLY</span></div>
-
-      <section class="gm-control-hero">
-        <img src="assets/tower-distant.jpg" alt="">
-        <div class="gm-control-hero-copy">
-          <small>CAMPAIGN CONTROL</small>
-          <h1>GM Cockpit</h1>
-          <p>Use this before and between sessions to decide what needs attention, inspect the campaign, prepare likely material and process consequences. When play begins, launch Run and leave this overview behind.</p>
-          <div class="gm-control-actions">
-            <button type="button" class="gm-control-run" data-gm-split-go="${RUN_ROUTE}">Run Session →</button>
-            <button type="button" data-gm-split-go="${PREP_ROUTE}">Open Prep</button>
-            <button type="button" data-gm-split-go="${UPDATE_ROUTE}">Review ${waiting} capture${waiting === 1 ? '' : 's'}</button>
-          </div>
-        </div>
-      </section>
-
-      <div class="gm-control-job-strip" aria-label="GM workspace responsibilities">
-        <div class="gm-control-job"><b>GM Cockpit</b><span>Campaign overview, prep, player priorities, world state, unresolved consequences and deciding what needs attention next.</span></div>
-        <div class="gm-control-job live"><b>Run</b><span>Current scene, immediate pressures, live references, quick capture and the controls needed while the players are actually acting.</span></div>
-      </div>
-
-      <section class="gm-control-section">
-        <small>SESSION READINESS</small>
-        <h2>What needs to be ready before Run</h2>
-        <div class="gm-control-readiness">
-          <div><small>OPENING</small><strong>Marek / Odie / Velmira meet at the blocked Digger way</strong></div>
-          <div><small>MAIN THREAD</small><strong>The Closing Ways remains the party-selected pressure</strong></div>
-          <div><small>LIVE NAVIGATION</small><strong>Adventure routes belong in Prep; only the active route belongs in Run</strong></div>
-          <div><small>CAPTURE QUEUE</small><strong>${waiting} item${waiting === 1 ? '' : 's'} waiting for review</strong></div>
-        </div>
-      </section>
-
-      <div class="gm-control-grid">
-        <button type="button" class="gm-control-card" data-gm-split-go="${PREP_ROUTE}"><small>BEFORE PLAY</small><strong>Prep</strong><span>Adventure nodes, likely locations, NPC decisions, player interests and material that may become relevant.</span><em>Open Prep →</em></button>
-        <button type="button" class="gm-control-card" data-gm-split-go="${PLAYERS_ROUTE}"><small>PLAYER SIGNALS</small><strong>Players</strong><span>Review character priorities and what each player currently knows or is pursuing without turning those interests into assignments.</span><em>Open Players →</em></button>
-        <button type="button" class="gm-control-card" data-gm-split-go="${WORLD_ROUTE}"><small>CAMPAIGN REFERENCE</small><strong>World</strong><span>Inspect Greywake records, places, people and established campaign material when preparing or checking consequences.</span><em>Open World →</em></button>
-        <button type="button" class="gm-control-card" data-gm-split-go="${INBOX_ROUTE}"><small>NEEDS ATTENTION</small><strong>Inbox</strong><span>Questions, player messages and unresolved items that need a GM decision rather than live-session handling.</span><em>Open Inbox →</em></button>
-        <button type="button" class="gm-control-card" data-gm-split-go="${UPDATE_ROUTE}"><small>AFTER PLAY</small><strong>Update</strong><span>Process captured changes, consequences and player-safe knowledge after the session instead of interrupting Run.</span><em>Open Update →</em></button>
-        <button type="button" class="gm-control-card" data-gm-split-go="${RUN_ROUTE}"><small>AT THE TABLE</small><strong>Run Session</strong><span>Switch to the deliberately stripped-down live workspace once play starts.</span><em>Launch Run →</em></button>
-      </div>
-    `;
+      <section class="gm-control-hero"><img src="assets/tower-distant.jpg" alt=""><div class="gm-control-hero-copy"><small>CAMPAIGN CONTROL</small><h1>GM Cockpit</h1><p>Use this before and between sessions to prepare, inspect the campaign and process consequences. When play begins, launch Run and leave the overview behind.</p><div class="gm-control-actions"><button type="button" class="gm-control-run" data-gm-split-go="${RUN_ROUTE}">Run Session →</button><button type="button" data-gm-split-go="${PREP_ROUTE}">Open Prep</button><button type="button" data-gm-split-go="${UPDATE_ROUTE}">Review ${waiting} capture${waiting === 1 ? '' : 's'}</button></div></div></section>
+      <section class="gm-control-section"><small>SESSION READINESS</small><h2>What needs to be ready before Run</h2><div class="gm-control-readiness"><div><small>OPENING</small><strong>Marek / Odie / Velmira meet at the blocked Digger way</strong></div><div><small>MAIN THREAD</small><strong>The Closing Ways remains the party-selected pressure</strong></div><div><small>LIVE NAVIGATION</small><strong>Adventure routes belong in Prep; only the active route belongs in Run</strong></div><div><small>CAPTURE QUEUE</small><strong>${waiting} item${waiting === 1 ? '' : 's'} waiting for review</strong></div></div></section>
+      <div class="gm-control-grid"><button type="button" class="gm-control-card" data-gm-split-go="${PREP_ROUTE}"><small>BEFORE PLAY</small><strong>Prep</strong><span>Adventure nodes, likely locations, NPC decisions and player interests.</span><em>Open Prep →</em></button><button type="button" class="gm-control-card" data-gm-split-go="${PLAYERS_ROUTE}"><small>PLAYER SIGNALS</small><strong>Players</strong><span>Review priorities and character knowledge.</span><em>Open Players →</em></button><button type="button" class="gm-control-card" data-gm-split-go="${WORLD_ROUTE}"><small>CAMPAIGN REFERENCE</small><strong>World</strong><span>Inspect Greywake records, places and people.</span><em>Open World →</em></button><button type="button" class="gm-control-card" data-gm-split-go="${INBOX_ROUTE}"><small>NEEDS ATTENTION</small><strong>Inbox</strong><span>Questions and unresolved items needing a GM decision.</span><em>Open Inbox →</em></button><button type="button" class="gm-control-card" data-gm-split-go="${UPDATE_ROUTE}"><small>AFTER PLAY</small><strong>Update</strong><span>Process captured changes and player-safe knowledge.</span><em>Open Update →</em></button><button type="button" class="gm-control-card" data-gm-split-go="${RUN_ROUTE}"><small>AT THE TABLE</small><strong>Run Session</strong><span>Switch to the stripped-down live workspace.</span><em>Launch Run →</em></button></div>`;
     workspace.classList.remove('hidden');
-
     const crumb = document.getElementById('crumb');
     if (crumb) crumb.textContent = 'Greywake / GM Cockpit';
     document.title = 'GM Cockpit — Greywake';
     syncNav();
-    window.scrollTo({top: 0, behavior: 'auto'});
   }
 
   document.addEventListener('click', event => {
@@ -202,17 +153,19 @@
     renderCockpit();
   }
 
+  let navRepairQueued = false;
   const observer = new MutationObserver(() => {
-    if (!fullGM()) return;
+    if (!fullGM() || navRepairQueued) return;
+    const current = document.querySelector('#primaryNav [data-gm-cockpit="true"]');
+    if (current && current.textContent === 'COCKPIT' && current.dataset.gmRoute === COCKPIT_ROUTE) return;
+    navRepairQueued = true;
     requestAnimationFrame(() => {
+      navRepairQueued = false;
       configureNav();
-      if (location.hash === COCKPIT_ROUTE) {
-        hideCompetingViews();
-        syncNav();
-      }
+      syncNav();
     });
   });
-  observer.observe(document.documentElement, {childList:true, subtree:true});
+  observer.observe(document.documentElement, { childList: true, subtree: true });
 
   window.addEventListener('hashchange', () => setTimeout(refresh, 0));
   window.addEventListener('greywake:player-ready', () => setTimeout(refresh, 0));
