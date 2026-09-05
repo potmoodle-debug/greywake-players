@@ -46,7 +46,7 @@
     const source=goal.source_title||'';
     const image=sourceImage(goal);
     const visual=image?`<img class="player-mind-card-bg" src="${esc(image)}" alt="" loading="lazy">`:'<span class="player-mind-card-fallback" aria-hidden="true"></span>';
-    return `<button type="button" class="player-mind-card" data-preview-source="${esc(goal.source_route||'#/campaign')}" disabled>${visual}<span class="player-mind-card-content"><span class="player-mind-topline"><span class="player-mind-state">${tier==='pursuing'?'PURSUING':'INTERESTED'}</span><span class="player-mind-rank">${tier==='pursuing'?`${index+1}/3`:'KEPT IN VIEW'}</span></span><h3>${esc(title)}</h3>${source?`<span class="player-mind-source">${esc(source)}</span>`:''}<span class="player-mind-open">GM preview · read only</span></span></button>`;
+    return `<button type="button" class="player-mind-card" disabled>${visual}<span class="player-mind-card-content"><span class="player-mind-topline"><span class="player-mind-state">${tier==='pursuing'?'PURSUING':'INTERESTED'}</span><span class="player-mind-rank">${tier==='pursuing'?`${index+1}/3`:'KEPT IN VIEW'}</span></span><h3>${esc(title)}</h3>${source?`<span class="player-mind-source">${esc(source)}</span>`:''}<span class="player-mind-open">GM preview · read only</span></span></button>`;
   }
 
   function tierMarkup(title,kicker,copy,items,tier){
@@ -55,8 +55,8 @@
   }
 
   async function load(){
-    if(!isPreview()||!isMind())return;
     ensureStyles();
+    if(!isPreview()||!isMind())return;
     const my=++token;
     const host=document.getElementById('playerGoals');
     if(!host)return;
@@ -77,10 +77,11 @@
     }
   }
 
-  function schedule(){setTimeout(load,30);setTimeout(load,250);}
+  function schedule(){ensureStyles();setTimeout(load,30);setTimeout(load,250);}
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('hashchange',schedule);
   window.addEventListener('greywake:portal-live-mounted',e=>{if(e.detail?.kind==='goals')schedule();});
   document.addEventListener('DOMContentLoaded',schedule);
+  ensureStyles();
   schedule();
 })();
