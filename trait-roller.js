@@ -11,7 +11,20 @@
 
   function readModifier(text){const m=String(text||'').match(/[+−-]?\d+/);return m?Number(m[0].replace('−','-')):0;}
   function traitCard(name){return[...document.querySelectorAll('#characterSheet .sheet-grid.traits .sheet-card')].find(card=>card.querySelector('h4')?.textContent.trim()===name)||null;}
-  function traitModifier(name){return readModifier(traitCard(name)?.querySelector('.sheet-value')?.textContent);}
+  function activeBeastformTrait(name){
+    if(activeKey!=='marek')return null;
+    const panel=document.querySelector('#beastformControl .beastform-active-panel');
+    if(!panel)return null;
+    const attackTrait=[...panel.querySelectorAll('.beastform-combat-line > div')].find(node=>node.querySelector('span')?.textContent.trim()==='ATTACK TRAIT');
+    const text=attackTrait?.querySelector('b')?.textContent.trim()||'';
+    if(!text.toLowerCase().startsWith(`${String(name).toLowerCase()} `))return null;
+    return readModifier(text.slice(String(name).length));
+  }
+  function traitModifier(name){
+    const beastformValue=activeBeastformTrait(name);
+    if(Number.isFinite(beastformValue))return beastformValue;
+    return readModifier(traitCard(name)?.querySelector('.sheet-value')?.textContent);
+  }
   function experiences(){
     const group=[...document.querySelectorAll('#characterSheet .sheet-group')].find(g=>g.querySelector('.sheet-group-head h3')?.textContent.trim()==='Experiences');
     if(!group)return[];
