@@ -3,12 +3,16 @@
     return document.body.dataset.role === 'gm' && document.body.dataset.gmPreview !== 'true';
   }
 
+  function modernGMNavOwnsTopbar() {
+    return isFullGM() && !!document.querySelector('#primaryNav [data-gm-route]');
+  }
+
   function route() {
     return location.hash || '#/';
   }
 
   function navigate(hash) {
-    if (!isFullGM()) return;
+    if (!isFullGM() || modernGMNavOwnsTopbar()) return;
     if (location.hash === hash) {
       window.dispatchEvent(new HashChangeEvent('hashchange'));
       return;
@@ -24,7 +28,7 @@
   }
 
   function syncActiveState() {
-    if (!isFullGM()) return;
+    if (!isFullGM() || modernGMNavOwnsTopbar()) return;
     const h = route();
 
     setSelected(document.getElementById('homeBtn'), h === '#/' || h === '');
@@ -40,6 +44,7 @@
   }
 
   function targetRoute(target) {
+    if (modernGMNavOwnsTopbar()) return '';
     if (target.closest('#gmCockpitShortcut')) return '#/gm-cockpit';
     if (target.closest('#gmMindShortcut')) return '#/gm-players';
     if (target.closest('#homeBtn')) return '#/';
@@ -50,7 +55,7 @@
   }
 
   document.addEventListener('click', event => {
-    if (!isFullGM()) return;
+    if (!isFullGM() || modernGMNavOwnsTopbar()) return;
     const hash = targetRoute(event.target);
     if (!hash) return;
     event.preventDefault();
@@ -59,7 +64,7 @@
   }, true);
 
   document.addEventListener('keydown', event => {
-    if (!isFullGM() || !['Enter', ' '].includes(event.key)) return;
+    if (!isFullGM() || modernGMNavOwnsTopbar() || !['Enter', ' '].includes(event.key)) return;
     const hash = targetRoute(event.target);
     if (!hash) return;
     event.preventDefault();
@@ -68,7 +73,7 @@
   }, true);
 
   const observer = new MutationObserver(() => {
-    if (isFullGM()) requestAnimationFrame(syncActiveState);
+    if (isFullGM() && !modernGMNavOwnsTopbar()) requestAnimationFrame(syncActiveState);
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 
