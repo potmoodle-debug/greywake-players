@@ -117,6 +117,34 @@
     });
   }
 
+  function normalizePreviewRoute() {
+    if (!(ownerIsGM() && gmPreviewKey)) return false;
+    const routeMap = {
+      '#/gm-players': '#/mind',
+      '#/gm-greywake': '#/greywake',
+      '#/gm-campaign': '#/campaign',
+      '#/gm-cockpit': '#/'
+    };
+    const target = routeMap[location.hash || ''];
+    if (!target) return false;
+    if (location.hash !== target) location.hash = target;
+    return true;
+  }
+
+  function syncPreviewUI(user) {
+    if (!(ownerIsGM() && gmPreviewKey)) return;
+    requestAnimationFrame(() => {
+      window.GreywakePlayerPortal?.render?.();
+      window.GreywakePlayerMindView?.render?.();
+      window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
+    });
+    setTimeout(() => {
+      window.GreywakePlayerPortal?.render?.();
+      window.GreywakePlayerMindView?.render?.();
+      window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: user }));
+    }, 120);
+  }
+
   function applyView(user) {
     const effectiveUser = user;
     const isPreview = ownerIsGM() && gmPreviewKey;
@@ -139,6 +167,11 @@
       : effectiveUser.role === 'gm'
         ? 'GM view can include shared, personal and GM-only material.'
         : `Shared party knowledge plus material intended for ${effectiveUser.character}.`;
+
+    ['gmCockpitShortcut','gmMindShortcut'].forEach(id => {
+      const node = document.getElementById(id);
+      if (node) node.hidden = Boolean(isPreview);
+    });
 
     renderIdentity(effectiveUser);
     renderGMPreviewBar();
@@ -165,7 +198,9 @@
     });
 
     window.GreywakePlayer = effectiveUser;
+    normalizePreviewRoute();
     window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: effectiveUser }));
+    syncPreviewUI(effectiveUser);
   }
 
   function showGate() {
