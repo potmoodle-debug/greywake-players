@@ -43,9 +43,24 @@ if(window.GREYWAKE_DATA.Odie){
   <ul><li>Spotting weak points and unsafe structures.</li><li>Making temporary repairs under pressure.</li><li>Using scrap creatively.</li><li>Knowing what can still be saved.</li><li>Taking awkward jobs other repairers may not want.</li></ul>`;
 }
 
+window.GREYWAKE_DATA.Marek={
+  title:'Marek',
+  category:'Player Characters',
+  html:`
+  <p>Marek is a Greywake Druid who specialises in fauna, anatomy and biological adaptation.</p>
+  <p>He works as an <strong>animal assessor and field gatherer</strong> for Greywake's Druids and other specialists. He evaluates unfamiliar creatures for behaviour, threat and potential usefulness, then retrieves specific biological materials when commissioned: bones, glands, membranes, venom, organs or other samples.</p>
+  <h2>What Marek is known for</h2>
+  <ul><li>Finding and understanding the right creature for a commission.</li><li>Reading creature behaviour and signs of danger.</li><li>Identifying the requested biological material.</li><li>Recovering samples safely and in a condition useful to the specialist who requested them.</li></ul>
+  <p>Marek is not automatically the person who turns those materials into medicines or other products. Processing, formulation and final application may belong to specialists such as Meren.</p>`
+};
+publicCategory('Marek','Player Characters');
+
 // Public relationship history between the PCs.
 publicLink('Clay','Velmira','Longstanding trust mixed with a running ledger of petty grudges, favours and harmless arguments.');
 publicLink('Velmira','Odie','Velmira helped keep Odie alive after the injury that cost him his arm; Odie survived and later rebuilt for himself.');
+publicLink('Marek','Player Brain','Marek is an active Greywake PC whose public record includes his fauna work and field-gathering occupation.');
+publicLink('Marek','Velmira','Velmira helps Marek interpret social intent and subtext; he is better at reading bodies than what people mean.');
+publicLink('Marek','Odie','Marek finds Odie unusually difficult to read because the prosthetic changes his weight distribution and movement patterns.');
 
 // Clay's everyday place in Greywake.
 publicLink('Clay','Caravan Syndicate','Clay works around Syndicate routes, crews, contracts and Great-Shell logistics without being part of its inner leadership.');
