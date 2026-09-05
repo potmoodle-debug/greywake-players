@@ -15,8 +15,9 @@
   let state={goals:[],messages:[],downtime:null,loaded:false,error:null};
   let refreshPromise=null;
 
-  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));
   const clean=v=>String(v??'').trim().replace(/\s+/g,' ');
+  const norm=v=>clean(v).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   const isGM=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
   const onInbox=()=>location.hash==='#/gm-inbox';
   const host=()=>document.getElementById('gmInboxHost');
@@ -85,37 +86,72 @@
     document.head.appendChild(s);
   }
 
-  function messagesFor(goal){return state.messages.filter(m=>Number(m.goal_id)===Number(goal.id));}
+  function goalRows(goal){return Array.isArray(goal._mergedGoals)?goal._mergedGoals:[goal];}
+  function goalIds(goal){return goalRows(goal).map(g=>Number(g.id));}
+  function messagesFor(goal){
+    const ids=new Set(goalIds(goal));
+    return state.messages
+      .filter(m=>ids.has(Number(m.goal_id)))
+      .sort((a,b)=>new Date(a.created_at||a.updated_at||0)-new Date(b.created_at||b.updated_at||0));
+  }
   function latestAt(goal){
     const rows=messagesFor(goal);
-    const last=rows[rows.length-1];
-    return last?.created_at||last?.updated_at||goal.updated_at||goal.created_at||'';
+    const goalDates=goalRows(goal).flatMap(g=>[g.updated_at,g.created_at]).filter(Boolean);
+    const messageDates=rows.flatMap(m=>[m.updated_at,m.created_at]).filter(Boolean);
+    return [...goalDates,...messageDates].sort((a,b)=>new Date(b)-new Date(a))[0]||'';
+  }
+  function topicKey(goal){
+    const haystack=norm(`${goal.goal_text||''} ${goal.source_title||''}`);
+    if(goal.character_slug==='marek'&&goal.entry_kind==='interest'&&haystack.includes('flickerfly'))return'marek:interest:flickerfly';
+    return`goal:${goal.id}`;
+  }
+  function displayedGoals(){
+    const groups=new Map();
+    state.goals.forEach(goal=>{
+      const key=topicKey(goal);
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(goal);
+    });
+    return [...groups.entries()].map(([key,rows])=>{
+      if(rows.length===1)return rows[0];
+      const primary=[...rows].sort((a,b)=>{
+        const rank=g=>g.thread_state==='waiting_gm'?4:g.thread_state==='play_at_table'?3:g.thread_state==='waiting_player'?2:g.status==='pursuing'?1:0;
+        const diff=rank(b)-rank(a);
+        if(diff)return diff;
+        return new Date(b.updated_at||b.created_at||0)-new Date(a.updated_at||a.created_at||0);
+      })[0];
+      return {...primary,_mergedGoals:rows,_displayTitle:key==='marek:interest:flickerfly'?'Find a Flickerfly':primary.goal_text};
+    });
   }
   function bucket(goal){
-    if(goal.status==='done'||goal.thread_state==='resolved')return'resolved';
-    if(goal.thread_state==='play_at_table')return'session';
+    const rows=goalRows(goal);
+    if(rows.every(g=>g.status==='done'||g.thread_state==='resolved'))return'resolved';
+    if(rows.some(g=>g.thread_state==='play_at_table'))return'session';
     return'needs';
   }
   function stateLabel(goal){
+    const rows=goalRows(goal);
     if(bucket(goal)==='resolved')return'Resolved';
-    if(goal.thread_state==='play_at_table')return'Session Queue';
-    if(goal.thread_state==='waiting_player')return'Waiting on Player';
-    if(goal.thread_state==='waiting_gm')return'Needs You';
-    if(goal.status==='pursuing')return'Pursuing';
-    if(goal.status==='dormant')return'Dormant';
+    if(rows.some(g=>g.thread_state==='play_at_table'))return'Session Queue';
+    if(rows.some(g=>g.thread_state==='waiting_gm'))return'Needs You';
+    if(rows.some(g=>g.thread_state==='waiting_player'))return'Waiting on Player';
+    if(rows.some(g=>g.status==='pursuing'))return'Pursuing';
+    if(rows.some(g=>g.status==='dormant'))return'Dormant';
     return'Needs You';
   }
+  function displayTitle(goal){return goal._displayTitle||goal.goal_text||'Greywake thread';}
   function searchable(goal){
-    const meta=itemMeta(goal.id);
+    const goals=goalRows(goal);
+    const metas=goals.map(g=>itemMeta(g.id));
     return [
-      goal.goal_text,goal.character_slug,NAMES[goal.character_slug],PLAYERS[goal.character_slug],
-      goal.entry_kind,goal.source_title,meta.note,meta.linkTitle,meta.linkRoute,
+      displayTitle(goal),goal.character_slug,NAMES[goal.character_slug],PLAYERS[goal.character_slug],
+      ...goals.flatMap((g,i)=>[g.goal_text,g.entry_kind,g.source_title,metas[i].note,metas[i].linkTitle,metas[i].linkRoute]),
       ...messagesFor(goal).map(m=>m.message_text)
     ].filter(Boolean).join(' ').toLowerCase();
   }
-  function counts(){
+  function counts(goals=displayedGoals()){
     const c={needs:0,session:0,resolved:0};
-    state.goals.forEach(g=>c[bucket(g)]++);
+    goals.forEach(g=>c[bucket(g)]++);
     const w=state.downtime?.window;
     if(w){
       if(w.status==='paused')c.session++;
@@ -125,32 +161,52 @@
   }
 
   function sourceMarkup(goal,meta){
+    const title=norm(displayTitle(goal));
     const links=[];
-    if(goal.source_title){
-      const route=String(goal.source_route||'');
-      links.push(route?`<button type="button" data-gmi-route="${esc(route)}">${esc(goal.source_title)}</button>`:`<strong>${esc(goal.source_title)}</strong>`);
-    }
+    const seen=new Set();
+    goalRows(goal).forEach(g=>{
+      const label=clean(g.source_title||'');
+      if(!label||norm(label)===title)return;
+      const route=String(g.source_route||'');
+      const key=`${norm(label)}|${route}`;
+      if(seen.has(key))return;
+      seen.add(key);
+      links.push(route?`<button type="button" data-gmi-route="${esc(route)}">${esc(label)}</button>`:`<strong>${esc(label)}</strong>`);
+    });
     if(meta.linkRoute||meta.linkTitle){
-      links.push(`<button type="button" data-gmi-route="${esc(meta.linkRoute||'')}">${esc(meta.linkTitle||meta.linkRoute)}</button>`);
+      const label=clean(meta.linkTitle||meta.linkRoute||'');
+      if(label&&norm(label)!==title)links.push(`<button type="button" data-gmi-route="${esc(meta.linkRoute||'')}">${esc(label)}</button>`);
     }
     return links.length?`<div class="gmi-source"><span>Linked to</span>${links.join('<span>·</span>')}</div>`:'';
   }
 
   function threadMarkup(goal){
     const char=NAMES[goal.character_slug]||goal.character_slug;
-    const rows=[`<div class="gmi-message player"><small>${esc(char)} · ${goal.entry_kind==='question'?'Question':'Interest'}</small><p>${esc(goal.goal_text)}</p>${goal.created_at?`<time>${esc(dateLabel(goal.created_at))}</time>`:''}</div>`];
+    const goals=goalRows(goal).slice().sort((a,b)=>new Date(a.created_at||0)-new Date(b.created_at||0));
+    const merged=goals.length>1;
+    const title=norm(displayTitle(goal));
+    const rows=[];
+    goals.forEach(g=>{
+      const text=clean(g.goal_text);
+      const duplicateOnly=!merged&&norm(text)===title&&norm(g.source_title||'')===title;
+      if(duplicateOnly)return;
+      rows.push(`<div class="gmi-message player"><small>${esc(char)} · ${g.entry_kind==='question'?'Question':'Interest'}</small><p>${esc(text)}</p>${g.created_at?`<time>${esc(dateLabel(g.created_at))}</time>`:''}</div>`);
+    });
     messagesFor(goal).forEach(m=>{
       const gm=m.author_role==='gm';
       const type=m.message_kind==='lead'?'Lead':m.message_kind==='table'?'Held for session':'Reply';
       rows.push(`<div class="gmi-message ${gm?'gm':'player'} ${m.message_kind==='table'?'table':''}"><small>${gm?'GM':esc(char)} · ${esc(type)}</small><p>${esc(m.message_text)}</p>${m.created_at?`<time>${esc(dateLabel(m.created_at))}</time>`:''}</div>`);
     });
-    return `<div class="gmi-thread">${rows.join('')}</div>`;
+    return rows.length?`<div class="gmi-thread">${rows.join('')}</div>`:'';
   }
 
   function cardMarkup(goal){
     const meta=itemMeta(goal.id),b=bucket(goal),char=NAMES[goal.character_slug]||goal.character_slug,player=PLAYERS[goal.character_slug]||'Player';
-    return `<details class="gmi-card" data-gmi-id="${goal.id}">
-      <summary><div><div class="gmi-kicker"><span class="gmi-pill ${b}">${esc(stateLabel(goal))}</span><span class="gmi-pill">${goal.entry_kind==='question'?'Question':'Interest'}</span><span class="gmi-pill">${esc(player)} · ${esc(char)}</span></div><h3>${esc(goal.goal_text)}</h3><div class="gmi-sub">${latestAt(goal)?`Last activity ${esc(dateLabel(latestAt(goal)))}`:'Saved Greywake thread'}${goal.source_title?` · ${esc(goal.source_title)}`:''}</div></div><span class="gmi-chevron">⌄</span></summary>
+    const title=displayTitle(goal);
+    const sourceTitles=[...new Set(goalRows(goal).map(g=>clean(g.source_title||'')).filter(Boolean))].filter(t=>norm(t)!==norm(title));
+    const sourceSuffix=sourceTitles.length?` · ${esc(sourceTitles.join(' · '))}`:'';
+    return `<details class="gmi-card" data-gmi-id="${goal.id}" data-gmi-ids="${goalIds(goal).join(',')}">
+      <summary><div><div class="gmi-kicker"><span class="gmi-pill ${b}">${esc(stateLabel(goal))}</span><span class="gmi-pill">${goal.entry_kind==='question'?'Question':'Interest'}</span><span class="gmi-pill">${esc(player)} · ${esc(char)}</span></div><h3>${esc(title)}</h3><div class="gmi-sub">${latestAt(goal)?`Last activity ${esc(dateLabel(latestAt(goal)))}`:'Saved Greywake thread'}${sourceSuffix}</div></div><span class="gmi-chevron">⌄</span></summary>
       <div class="gmi-body">${sourceMarkup(goal,meta)}${threadMarkup(goal)}
       ${b==='resolved'
         ? `<div class="gmi-buttons"><button type="button" data-gmi-reopen>Reopen thread</button></div>`
@@ -179,8 +235,9 @@
     if(!isGM()||!onInbox())return;
     ensureStyles();
     const h=host(); if(!h)return;
-    const c=counts(),q=searchText.toLowerCase();
-    const visible=state.goals
+    const displayed=displayedGoals();
+    const c=counts(displayed),q=searchText.toLowerCase();
+    const visible=displayed
       .filter(g=>bucket(g)===activeTab&&(!q||searchable(g).includes(q)))
       .sort((a,b)=>new Date(latestAt(b)||0)-new Date(latestAt(a)||0));
     h.className='gm-panel full gmi-host';
@@ -196,7 +253,7 @@
       </div>
       <div class="gmi-tools"><input class="gmi-search" value="${esc(searchText)}" placeholder="Search player, character, question, reply, source or GM note…"><button type="button" class="gmi-refresh">Refresh</button></div>
       <div class="gmi-rule"><strong>Inbox state is not canon state.</strong> Replying, holding for session or resolving never canonises Greywake. Resolved threads remain here.</div>
-      <div class="gmi-status ${state.error?'error':''}">${state.error?esc(state.error):`Loaded ${state.goals.length} threads.`}</div>
+      <div class="gmi-status ${state.error?'error':''}">${state.error?esc(state.error):`Loaded ${displayed.length} threads.`}</div>
       ${downtimeMarkup()}
       <div class="gmi-list">${visible.length?visible.map(cardMarkup).join(''):`<div class="gmi-empty">${q?'No threads match this search.':activeTab==='resolved'?'Nothing has been resolved yet.':activeTab==='session'?'Nothing is currently held for live play.':'Nothing currently needs GM attention.'}</div>`}</div>
     </div>`;
@@ -251,6 +308,7 @@
     const card=event.target.closest('[data-gmi-id]');
     if(!card)return;
     const id=Number(card.dataset.gmiId);
+    const ids=String(card.dataset.gmiIds||id).split(',').map(Number).filter(Number.isFinite);
     const send=event.target.closest('[data-gmi-send]');
     if(send){
       const kind=send.dataset.gmiSend;
@@ -260,8 +318,8 @@
       mutate(card,()=>request(GOALS_API,'POST',{goal_id:id,message:message.slice(0,MAX_REPLY),kind}),kind==='table'?'session':activeTab);
       return;
     }
-    if(event.target.closest('[data-gmi-resolve]')){mutate(card,()=>request(GOALS_API,'PATCH',{id,status:'done'}),'resolved');return;}
-    if(event.target.closest('[data-gmi-reopen]')){mutate(card,()=>request(GOALS_API,'PATCH',{id,status:'open'}),'needs');return;}
+    if(event.target.closest('[data-gmi-resolve]')){mutate(card,()=>Promise.all(ids.map(goalId=>request(GOALS_API,'PATCH',{id:goalId,status:'done'}))),'resolved');return;}
+    if(event.target.closest('[data-gmi-reopen]')){mutate(card,()=>Promise.all(ids.map(goalId=>request(GOALS_API,'PATCH',{id:goalId,status:'open'}))),'needs');return;}
     if(event.target.closest('[data-gmi-save-meta]')){
       patchMeta(id,{
         note:card.querySelector('[data-gmi-note]')?.value||'',
@@ -290,7 +348,7 @@
   setTimeout(()=>{if(onInbox())refresh();},220);
 
   window.GreywakeInboxDebug={
-    getState:()=>({activeTab,searchText,loaded:state.loaded,error:state.error,goals:state.goals.length,messages:state.messages.length}),
+    getState:()=>({activeTab,searchText,loaded:state.loaded,error:state.error,goals:state.goals.length,displayedGoals:displayedGoals().length,messages:state.messages.length}),
     refresh
   };
 })();
