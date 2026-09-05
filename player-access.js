@@ -1,5 +1,6 @@
 (() => {
   const STORAGE_KEY = 'greywake-player-view-v1';
+  const PREVIEW_KEY = 'greywake-gm-preview-v1';
   const USERS = {
     martin: { label: 'Martin', character: 'Marek', code: 'MAREK', role: 'player' },
     carla: { label: 'Carla', character: 'Velmira', code: 'VELMIRA', role: 'player' },
@@ -33,33 +34,74 @@
 
   installPreviewStorageIsolation();
 
-  let gmPreviewKey = null;
+  function storedOwnerKey() {
+    const key = localStorage.getItem(STORAGE_KEY);
+    return key && USERS[key] ? key : null;
+  }
 
   function current() {
-    const key = localStorage.getItem(STORAGE_KEY);
-    return key && USERS[key] ? { key, ...USERS[key] } : null;
+    const key = storedOwnerKey();
+    return key ? { key, ...USERS[key] } : null;
   }
+
+  function storedPreviewKey() {
+    if (storedOwnerKey() !== 'gm') return null;
+    const key = sessionStorage.getItem(PREVIEW_KEY);
+    return key && key !== 'gm' && USERS[key]?.role === 'player' ? key : null;
+  }
+
+  let gmPreviewKey = storedPreviewKey();
 
   function setCurrent(key) {
     if (!USERS[key]) return;
     localStorage.setItem(STORAGE_KEY, key);
+    sessionStorage.removeItem(PREVIEW_KEY);
     gmPreviewKey = null;
     applyView({ key, ...USERS[key] });
   }
 
   function clearCurrent() {
+    sessionStorage.removeItem(PREVIEW_KEY);
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
   }
 
   function ownerIsGM() {
-    return localStorage.getItem(STORAGE_KEY) === 'gm';
+    return storedOwnerKey() === 'gm';
+  }
+
+  function playerRouteFromGM(hash = location.hash || '') {
+    const routeMap = {
+      '#/gm-players': '#/mind',
+      '#/gm-greywake': '#/greywake',
+      '#/gm-campaign': '#/campaign',
+      '#/gm-cockpit': '#/'
+    };
+    return routeMap[hash] || hash || '#/';
+  }
+
+  function gmRouteFromPlayer(hash = location.hash || '') {
+    if (['#/mind', '#/my-greywake', '#/inbox'].includes(hash)) return '#/gm-players';
+    if (['#/campaign', '#/possibilities'].includes(hash)) return '#/gm-campaign';
+    if (hash === '#/greywake') return '#/gm-greywake';
+    return hash || '#/';
+  }
+
+  function reloadAt(hash) {
+    if (hash && location.hash !== hash) history.replaceState(null, '', hash);
+    location.reload();
+  }
+
+  function enterGMPreview(key) {
+    if (!ownerIsGM() || !USERS[key] || USERS[key].role !== 'player') return;
+    sessionStorage.setItem(PREVIEW_KEY, key);
+    reloadAt(playerRouteFromGM());
   }
 
   function returnToGM() {
     if (!ownerIsGM()) return;
-    gmPreviewKey = null;
-    applyView({ key: 'gm', ...USERS.gm });
+    sessionStorage.removeItem(PREVIEW_KEY);
+    reloadAt(gmRouteFromPlayer());
   }
 
   function renderIdentity(user) {
@@ -111,38 +153,16 @@
     bar.querySelectorAll('[data-preview]').forEach(btn => {
       btn.addEventListener('click', () => {
         const key = btn.dataset.preview;
-        gmPreviewKey = key === 'gm' ? null : key;
-        applyView({ key, ...USERS[key] });
+        if (key === 'gm') returnToGM();
+        else enterGMPreview(key);
       });
     });
   }
 
   function normalizePreviewRoute() {
-    if (!(ownerIsGM() && gmPreviewKey)) return false;
-    const routeMap = {
-      '#/gm-players': '#/mind',
-      '#/gm-greywake': '#/greywake',
-      '#/gm-campaign': '#/campaign',
-      '#/gm-cockpit': '#/'
-    };
-    const target = routeMap[location.hash || ''];
-    if (!target) return false;
-    if (location.hash !== target) location.hash = target;
-    return true;
-  }
-
-  function syncPreviewUI(user) {
     if (!(ownerIsGM() && gmPreviewKey)) return;
-    requestAnimationFrame(() => {
-      window.GreywakePlayerPortal?.render?.();
-      window.GreywakePlayerMindView?.render?.();
-      window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
-    });
-    setTimeout(() => {
-      window.GreywakePlayerPortal?.render?.();
-      window.GreywakePlayerMindView?.render?.();
-      window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: user }));
-    }, 120);
+    const target = playerRouteFromGM();
+    if (target !== location.hash) history.replaceState(null, '', target);
   }
 
   function applyView(user) {
@@ -184,7 +204,7 @@
       panel.id = 'personalWelcome';
       panel.className = 'personal-welcome';
       panel.innerHTML = isPreview
-        ? `<div class="eyebrow">GM PREVIEW</div><strong>You are seeing ${effectiveUser.character}’s site.</strong><p>This hides information that ${effectiveUser.character} should not see. Use the preview bar to move between player perspectives.</p>`
+        ? `<div class="eyebrow">GM PREVIEW</div><strong>You are seeing ${effectiveUser.character}’s site.</strong><p>This page was initialized in the same player mode as ${effectiveUser.character}'s real site. Use the preview bar to move between player perspectives.</p>`
         : effectiveUser.role === 'gm'
           ? `<div class="eyebrow">GM VIEW</div><strong>All player perspectives available.</strong><p>Use the preview bar to see the site exactly as Marek, Velmira or Odie sees it.</p>`
           : `<div class="eyebrow">YOUR GREYWAKE</div><strong>Welcome back, ${effectiveUser.character}.</strong><p>This view can contain details known to ${effectiveUser.character} that are not shown to the rest of the party.</p>`;
@@ -200,7 +220,6 @@
     window.GreywakePlayer = effectiveUser;
     normalizePreviewRoute();
     window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: effectiveUser }));
-    syncPreviewUI(effectiveUser);
   }
 
   function showGate() {
@@ -269,9 +288,18 @@
     gate.querySelector('[data-user]')?.focus();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const user = current();
-    if (user) applyView(user);
-    else showGate();
-  });
+  function boot() {
+    const owner = current();
+    if (!owner) {
+      showGate();
+      return;
+    }
+    gmPreviewKey = storedPreviewKey();
+    if (owner.key === 'gm' && gmPreviewKey) applyView({ key: gmPreviewKey, ...USERS[gmPreviewKey] });
+    else applyView(owner);
+  }
+
+  // This script is deferred and loaded after the page markup, so initialize now.
+  // Later player scripts then see the correct role from their first execution.
+  boot();
 })();
