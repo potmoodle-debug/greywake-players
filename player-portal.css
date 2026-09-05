@@ -23,7 +23,8 @@
 .player-portal-mind #playerGoals{display:block!important;padding:0 clamp(24px,6vw,90px) 64px;background:transparent}
 .player-portal-mind #playerGoals>*:not(.player-mind-view){display:none!important}
 .player-portal-mind .player-mind-view{display:block!important;margin:0!important;padding:0!important}
-.player-portal-mind .player-mind-head{display:none!important}
+.player-portal-mind .player-mind-view>.section-head,
+.player-portal-mind .player-mind-view>.player-mind-summary{display:none!important}
 .player-portal-mind .player-mind-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
 .player-portal-mind .player-mind-card{min-height:210px}
 
