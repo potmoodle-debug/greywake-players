@@ -1,4 +1,7 @@
 (() => {
+  if (window.__GreywakeGMInboxV3) return;
+  window.__GreywakeGMInboxV3 = true;
+
   const GOALS_API='https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const DOWNTIME_API='https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/downtime';
   const API_KEY='sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
@@ -6,76 +9,288 @@
   const NAMES={marek:'Marek',velmira:'Velmira',odie:'Odie'};
   const PLAYERS={marek:'Martin',velmira:'Carla',odie:'Ritchie'};
   const MAX_REPLY=1200;
+
   let activeTab='needs';
   let searchText='';
-  let rendering=false;
-  let lastHost=null;
+  let state={goals:[],messages:[],downtime:null,loaded:false,error:null};
+  let refreshPromise=null;
 
-  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[c]));
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   const clean=v=>String(v??'').trim().replace(/\s+/g,' ');
-  const isFullGM=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
-  const dateLabel=value=>{if(!value)return'';const d=new Date(value);return Number.isNaN(d.getTime())?'':d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});};
+  const isGM=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
+  const onInbox=()=>location.hash==='#/gm-inbox';
+  const host=()=>document.getElementById('gmInboxHost');
+  const dateLabel=value=>{
+    if(!value)return'';
+    const d=new Date(value);
+    return Number.isNaN(d.getTime())?'':d.toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  };
 
-  function readMeta(){try{const value=JSON.parse(localStorage.getItem(META_KEY)||'{}');return value&&typeof value==='object'?value:{}}catch{return{}}}
-  function writeMeta(meta){localStorage.setItem(META_KEY,JSON.stringify(meta));}
+  function readMeta(){
+    try{
+      const value=JSON.parse(localStorage.getItem(META_KEY)||'{}');
+      return value&&typeof value==='object'?value:{};
+    }catch{return{}}
+  }
+  function patchMeta(id,patch){
+    const all=readMeta(),key=String(id);
+    all[key]={...(all[key]||{}),...patch,updatedAt:new Date().toISOString()};
+    localStorage.setItem(META_KEY,JSON.stringify(all));
+  }
   function itemMeta(id){return readMeta()[String(id)]||{};}
-  function patchMeta(id,patch){const all=readMeta(),key=String(id);all[key]={...(all[key]||{}),...patch,updatedAt:new Date().toISOString()};writeMeta(all);}
 
   async function request(url,method='GET',body=null){
-    const response=await fetch(url,{method,headers:{apikey:API_KEY,'Content-Type':'application/json','x-greywake-character':'gm','x-greywake-code':'GREYWAKE'},body:body?JSON.stringify(body):undefined});
+    const response=await fetch(url,{
+      method,
+      headers:{
+        apikey:API_KEY,
+        'Content-Type':'application/json',
+        'x-greywake-character':'gm',
+        'x-greywake-code':'GREYWAKE'
+      },
+      body:body?JSON.stringify(body):undefined
+    });
     const data=await response.json().catch(()=>({}));
-    if(!response.ok)throw new Error(data.error||'Greywake could not save that Inbox change.');
+    if(!response.ok)throw new Error(data.error||`Greywake request failed (${response.status}).`);
     return data;
   }
 
   function ensureStyles(){
-    if(document.getElementById('gm-inbox-rebuild-styles'))return;
-    const style=document.createElement('style');style.id='gm-inbox-rebuild-styles';style.textContent=`
-      #gmInboxHost.gm-inbox-rebuilt{padding:0;background:transparent;border:0}
-      .gmi-shell{display:grid;gap:16px}
-      .gmi-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-      .gmi-summary button{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;min-height:82px;padding:15px 16px;border:1px solid #45402f;background:#171611;color:#d7ceb6;text-align:left;cursor:pointer}
-      .gmi-summary button:hover{border-color:#85764d;background:#1e1c15}.gmi-summary button.active{border-color:#ad995e;background:#282316;box-shadow:inset 0 -2px 0 #b49c5d}
-      .gmi-summary small{display:block;margin-bottom:5px;color:#918870;font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.gmi-summary strong{font:500 18px/1.1 Georgia,serif;color:#eee5cb}.gmi-summary b{font:600 27px/1 Georgia,serif;color:#d8c98f}
-      .gmi-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.gmi-search{flex:1;min-width:220px;background:#11110e;border:1px solid #484331;color:#e8dfc8;padding:11px 12px;font:inherit}.gmi-refresh{border:1px solid #5d553d;background:#1a1913;color:#d8cfb8;padding:10px 13px;cursor:pointer}
-      .gmi-rule{padding:11px 13px;border-left:2px solid #ad995e;background:rgba(173,153,94,.07);color:#aaa18b;font-size:12px;line-height:1.5}.gmi-rule strong{color:#dfd3b1}
-      .gmi-list{display:grid;gap:12px}.gmi-empty{padding:28px 18px;border:1px dashed #45402f;background:#151510;color:#8f8875;text-align:center}
+    if(document.getElementById('gm-inbox-v3-styles'))return;
+    const s=document.createElement('style');
+    s.id='gm-inbox-v3-styles';
+    s.textContent=`
+      #gmInboxHost.gmi-host{padding:0;background:transparent;border:0}
+      .gmi-shell{display:grid;gap:14px}
+      .gmi-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+      .gmi-summary button{display:flex;justify-content:space-between;align-items:end;gap:12px;min-height:78px;padding:14px 15px;border:1px solid #45402f;background:#171611;color:#d8cfb8;cursor:pointer;text-align:left}
+      .gmi-summary button:hover{border-color:#7a6b46}.gmi-summary button.active{border-color:#ad995e;background:#282316;box-shadow:inset 0 -2px 0 #b49c5d}
+      .gmi-summary small{display:block;color:#8f866f;font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}.gmi-summary strong{font:500 18px/1.1 Georgia,serif;color:#eee5cb}.gmi-summary b{font:600 26px/1 Georgia,serif;color:#d8c98f}
+      .gmi-tools{display:flex;gap:8px;align-items:center}.gmi-search{flex:1;min-width:0;background:#11110e;border:1px solid #484331;color:#e8dfc8;padding:10px 11px;font:inherit}.gmi-refresh{border:1px solid #5d553d;background:#1a1913;color:#d8cfb8;padding:10px 12px;cursor:pointer}
+      .gmi-rule{padding:10px 12px;border-left:2px solid #ad995e;background:rgba(173,153,94,.07);color:#aaa18b;font-size:11px;line-height:1.5}.gmi-rule strong{color:#dfd3b1}
+      .gmi-status{font-size:9px;color:#7f7868}.gmi-status.error{color:#d59b86}
+      .gmi-list{display:grid;gap:10px}.gmi-empty{padding:24px 16px;border:1px dashed #45402f;background:#151510;color:#8f8875;text-align:center}
       .gmi-card{border:1px solid #413d2f;background:linear-gradient(145deg,#181712,#12120f);overflow:hidden}.gmi-card[open]{border-color:#655d43}
-      .gmi-card>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:16px;cursor:pointer}.gmi-card>summary::-webkit-details-marker{display:none}
-      .gmi-card-head{min-width:0}.gmi-kicker{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.gmi-pill{display:inline-flex;padding:4px 7px;border:1px solid #4e4937;color:#a89f89;font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.gmi-pill.needs{border-color:#8c7043;color:#dec18b}.gmi-pill.session{border-color:#765a50;color:#dfb3a5}.gmi-pill.resolved{border-color:#465344;color:#aabca4}.gmi-pill.waiting{border-color:#455367;color:#a9b7cc}
-      .gmi-card h3{margin:0;color:#eee5cb;font:500 17px/1.3 Georgia,serif}.gmi-sub{margin-top:7px;color:#8f8876;font-size:11px}.gmi-chevron{align-self:center;color:#9c9279;font-size:18px}
-      .gmi-body{border-top:1px solid #343126;padding:16px;display:grid;gap:14px}.gmi-source{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:#8f8876;font-size:11px}.gmi-source button{border:0;background:none;color:#cfbd82;text-decoration:underline;cursor:pointer;padding:0}
-      .gmi-thread{display:grid;gap:8px}.gmi-message{padding:11px 12px;border-left:2px solid #56503c;background:#14130f}.gmi-message.gm{border-left-color:#9d8750;background:#1b1912}.gmi-message.table{border-left-color:#865c4c}.gmi-message small{display:block;margin-bottom:5px;color:#8e866f;font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.gmi-message p{margin:0;color:#d4cbb4;line-height:1.5;white-space:pre-wrap}.gmi-message time{display:block;margin-top:6px;color:#6f695a;font-size:9px}
-      .gmi-action-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}.gmi-action-grid textarea{grid-column:1/-1;width:100%;box-sizing:border-box;resize:vertical;min-height:74px;background:#10100d;border:1px solid #4a4534;color:#ece3cb;padding:11px;font:inherit}.gmi-buttons{display:flex;gap:7px;flex-wrap:wrap;grid-column:1/-1}.gmi-buttons button,.gmi-meta-actions button{border:1px solid #655c42;background:#201e16;color:#ddd3b9;padding:9px 11px;cursor:pointer}.gmi-buttons button.primary{border-color:#a38d53;background:#2a2517;color:#f0e3bd}.gmi-buttons button.session{border-color:#77594d}.gmi-buttons button.resolve{margin-left:auto;border-color:#53634f}.gmi-buttons button:disabled,.gmi-meta-actions button:disabled{opacity:.5;cursor:wait}
-      .gmi-private{padding:13px;border:1px solid #3a382f;background:#10110f}.gmi-private-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:9px}.gmi-private-head strong{color:#b9af96;font-size:10px;letter-spacing:.1em;text-transform:uppercase}.gmi-private-head span{color:#6f6a5b;font-size:9px}.gmi-private textarea,.gmi-private input{width:100%;box-sizing:border-box;margin:0 0 8px;background:#0d0e0c;border:1px solid #3f3d34;color:#d8d1bf;padding:9px 10px;font:inherit}.gmi-meta-actions{display:flex;gap:7px;flex-wrap:wrap}
-      .gmi-downtime{border:1px solid #47402f;background:#17150f;padding:15px}.gmi-downtime h3{margin:3px 0 7px;color:#eee4c8;font:500 18px/1.2 Georgia,serif}.gmi-downtime p{margin:0;color:#aaa18b;line-height:1.5}.gmi-dt-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.gmi-dt-grid div{padding:10px;border:1px solid #39362a;background:#12110e}.gmi-dt-grid small{display:block;color:#857d69;font-size:8px;letter-spacing:.11em;text-transform:uppercase}.gmi-dt-grid strong{display:block;margin-top:4px;color:#d8cfb7;font-size:12px}.gmi-error{padding:14px;border:1px solid #694b40;background:#241713;color:#e1b8aa}
-      @media(max-width:720px){.gmi-summary{grid-template-columns:1fr}.gmi-card>summary{grid-template-columns:1fr auto}.gmi-dt-grid{grid-template-columns:1fr}.gmi-buttons button.resolve{margin-left:0}.gmi-action-grid{grid-template-columns:1fr}}
-    `;document.head.appendChild(style);
+      .gmi-card>summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:14px 15px;cursor:pointer}.gmi-card>summary::-webkit-details-marker{display:none}
+      .gmi-kicker{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}.gmi-pill{display:inline-flex;padding:4px 6px;border:1px solid #4e4937;color:#a89f89;font-size:7px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+      .gmi-pill.needs{border-color:#8c7043;color:#dec18b}.gmi-pill.session{border-color:#765a50;color:#dfb3a5}.gmi-pill.resolved{border-color:#465344;color:#aabca4}.gmi-pill.waiting{border-color:#455367;color:#a9b7cc}
+      .gmi-card h3{margin:0;color:#eee5cb;font:500 16px/1.3 Georgia,serif}.gmi-sub{margin-top:6px;color:#8f8876;font-size:10px}.gmi-chevron{align-self:center;color:#9c9279;font-size:17px}
+      .gmi-body{border-top:1px solid #343126;padding:14px 15px;display:grid;gap:12px}.gmi-source{display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:#8f8876;font-size:10px}.gmi-source button{border:0;background:none;color:#cfbd82;text-decoration:underline;cursor:pointer;padding:0}
+      .gmi-thread{display:grid;gap:7px}.gmi-message{padding:10px 11px;border-left:2px solid #56503c;background:#14130f}.gmi-message.gm{border-left-color:#9d8750;background:#1b1912}.gmi-message.table{border-left-color:#865c4c}.gmi-message small{display:block;margin-bottom:4px;color:#8e866f;font-size:7px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.gmi-message p{margin:0;color:#d4cbb4;line-height:1.5;white-space:pre-wrap}.gmi-message time{display:block;margin-top:5px;color:#6f695a;font-size:8px}
+      .gmi-actions textarea{width:100%;box-sizing:border-box;min-height:72px;resize:vertical;background:#10100d;border:1px solid #4a4534;color:#ece3cb;padding:10px;font:inherit}.gmi-buttons{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.gmi-buttons button,.gmi-private button{border:1px solid #655c42;background:#201e16;color:#ddd3b9;padding:8px 10px;cursor:pointer}.gmi-buttons .primary{border-color:#a38d53;background:#2a2517;color:#f0e3bd}.gmi-buttons .resolve{margin-left:auto;border-color:#53634f}.gmi-buttons button:disabled,.gmi-private button:disabled{opacity:.5;cursor:wait}
+      .gmi-private{padding:12px;border:1px solid #3a382f;background:#10110f}.gmi-private-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}.gmi-private-head strong{color:#b9af96;font-size:9px;letter-spacing:.1em;text-transform:uppercase}.gmi-private-head span{color:#6f6a5b;font-size:8px}.gmi-private textarea,.gmi-private input{width:100%;box-sizing:border-box;margin:0 0 7px;background:#0d0e0c;border:1px solid #3f3d34;color:#d8d1bf;padding:8px 9px;font:inherit}
+      .gmi-downtime{border:1px solid #47402f;background:#17150f;padding:14px}.gmi-downtime h3{margin:3px 0 7px;color:#eee4c8;font:500 17px/1.2 Georgia,serif}.gmi-downtime p{margin:0;color:#aaa18b;line-height:1.5}.gmi-dt-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}.gmi-dt-grid div{padding:9px;border:1px solid #39362a;background:#12110e}.gmi-dt-grid small{display:block;color:#857d69;font-size:7px;letter-spacing:.11em;text-transform:uppercase}.gmi-dt-grid strong{display:block;margin-top:4px;color:#d8cfb7;font-size:11px}
+      @media(max-width:720px){.gmi-summary{grid-template-columns:1fr}.gmi-dt-grid{grid-template-columns:1fr}.gmi-buttons .resolve{margin-left:0}}
+    `;
+    document.head.appendChild(s);
   }
 
-  function stateOf(goal){if(goal.status==='done'||goal.thread_state==='resolved')return'resolved';if(goal.thread_state==='play_at_table')return'session';return'needs';}
-  function stateLabel(goal){if(stateOf(goal)==='resolved')return'Resolved';if(goal.thread_state==='play_at_table')return'Session Queue';if(goal.thread_state==='waiting_player')return'Waiting on Player';if(goal.thread_state==='waiting_gm')return'Needs You';if(goal.status==='pursuing')return'Pursuing';if(goal.status==='dormant')return'Dormant';return'Needs You';}
-  function kindLabel(goal){return goal.entry_kind==='question'?'Question':'Interest';}
-  function messagesFor(goal,messages){return messages.filter(m=>Number(m.goal_id)===Number(goal.id));}
-  function latestAt(goal,messages){const own=messagesFor(goal,messages);return own.length?(own[own.length-1].created_at||own[own.length-1].updated_at||goal.updated_at||goal.created_at):(goal.updated_at||goal.created_at);}
-  function searchable(goal,messages){const meta=itemMeta(goal.id),parts=[goal.goal_text,goal.character_slug,PLAYERS[goal.character_slug],NAMES[goal.character_slug],goal.entry_kind,goal.source_title,meta.note,meta.linkTitle,meta.linkRoute,...messagesFor(goal,messages).map(m=>m.message_text)];return parts.filter(Boolean).join(' ').toLowerCase();}
+  function messagesFor(goal){return state.messages.filter(m=>Number(m.goal_id)===Number(goal.id));}
+  function latestAt(goal){
+    const rows=messagesFor(goal);
+    const last=rows[rows.length-1];
+    return last?.created_at||last?.updated_at||goal.updated_at||goal.created_at||'';
+  }
+  function bucket(goal){
+    if(goal.status==='done'||goal.thread_state==='resolved')return'resolved';
+    if(goal.thread_state==='play_at_table')return'session';
+    return'needs';
+  }
+  function stateLabel(goal){
+    if(bucket(goal)==='resolved')return'Resolved';
+    if(goal.thread_state==='play_at_table')return'Session Queue';
+    if(goal.thread_state==='waiting_player')return'Waiting on Player';
+    if(goal.thread_state==='waiting_gm')return'Needs You';
+    if(goal.status==='pursuing')return'Pursuing';
+    if(goal.status==='dormant')return'Dormant';
+    return'Needs You';
+  }
+  function searchable(goal){
+    const meta=itemMeta(goal.id);
+    return [
+      goal.goal_text,goal.character_slug,NAMES[goal.character_slug],PLAYERS[goal.character_slug],
+      goal.entry_kind,goal.source_title,meta.note,meta.linkTitle,meta.linkRoute,
+      ...messagesFor(goal).map(m=>m.message_text)
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+  function counts(){
+    const c={needs:0,session:0,resolved:0};
+    state.goals.forEach(g=>c[bucket(g)]++);
+    const w=state.downtime?.window;
+    if(w){
+      if(w.status==='paused')c.session++;
+      else if(state.downtime?.readiness?.all_ready)c.needs++;
+    }
+    return c;
+  }
 
-  function sourceMarkup(goal,meta){const links=[];if(goal.source_title){const route=String(goal.source_route||'');links.push(route?`<button type="button" data-gmi-route="${esc(route)}">${esc(goal.source_title)}</button>`:`<strong>${esc(goal.source_title)}</strong>`);}if(meta.linkRoute||meta.linkTitle){const label=meta.linkTitle||meta.linkRoute;links.push(`<button type="button" data-gmi-route="${esc(meta.linkRoute||'')}">${esc(label)}</button>`);}return links.length?`<div class="gmi-source"><span>Linked to</span>${links.join('<span>·</span>')}</div>`:'';}
+  function sourceMarkup(goal,meta){
+    const links=[];
+    if(goal.source_title){
+      const route=String(goal.source_route||'');
+      links.push(route?`<button type="button" data-gmi-route="${esc(route)}">${esc(goal.source_title)}</button>`:`<strong>${esc(goal.source_title)}</strong>`);
+    }
+    if(meta.linkRoute||meta.linkTitle){
+      links.push(`<button type="button" data-gmi-route="${esc(meta.linkRoute||'')}">${esc(meta.linkTitle||meta.linkRoute)}</button>`);
+    }
+    return links.length?`<div class="gmi-source"><span>Linked to</span>${links.join('<span>·</span>')}</div>`:'';
+  }
 
-  function threadMarkup(goal,messages){const character=NAMES[goal.character_slug]||goal.character_slug;const rows=[`<div class="gmi-message player"><small>${esc(character)} · ${esc(kindLabel(goal))}</small><p>${esc(goal.goal_text)}</p>${goal.created_at?`<time>${esc(dateLabel(goal.created_at))}</time>`:''}</div>`];messagesFor(goal,messages).forEach(m=>{const gm=m.author_role==='gm';const cls=`gmi-message ${gm?'gm':'player'} ${m.message_kind==='table'?'table':''}`;const who=gm?'GM':character;const type=m.message_kind==='lead'?'Lead':m.message_kind==='table'?'Held for session':'Reply';rows.push(`<div class="${cls}"><small>${esc(who)} · ${esc(type)}</small><p>${esc(m.message_text)}</p>${m.created_at?`<time>${esc(dateLabel(m.created_at))}</time>`:''}</div>`);});return `<div class="gmi-thread">${rows.join('')}</div>`;}
+  function threadMarkup(goal){
+    const char=NAMES[goal.character_slug]||goal.character_slug;
+    const rows=[`<div class="gmi-message player"><small>${esc(char)} · ${goal.entry_kind==='question'?'Question':'Interest'}</small><p>${esc(goal.goal_text)}</p>${goal.created_at?`<time>${esc(dateLabel(goal.created_at))}</time>`:''}</div>`];
+    messagesFor(goal).forEach(m=>{
+      const gm=m.author_role==='gm';
+      const type=m.message_kind==='lead'?'Lead':m.message_kind==='table'?'Held for session':'Reply';
+      rows.push(`<div class="gmi-message ${gm?'gm':'player'} ${m.message_kind==='table'?'table':''}"><small>${gm?'GM':esc(char)} · ${esc(type)}</small><p>${esc(m.message_text)}</p>${m.created_at?`<time>${esc(dateLabel(m.created_at))}</time>`:''}</div>`);
+    });
+    return `<div class="gmi-thread">${rows.join('')}</div>`;
+  }
 
-  function cardMarkup(goal,messages){const meta=itemMeta(goal.id),state=stateOf(goal),label=stateLabel(goal),character=NAMES[goal.character_slug]||goal.character_slug,player=PLAYERS[goal.character_slug]||'Player',resolved=state==='resolved';return `<details class="gmi-card" data-gmi-id="${goal.id}"><summary><div class="gmi-card-head"><div class="gmi-kicker"><span class="gmi-pill ${state}">${esc(label)}</span><span class="gmi-pill">${esc(kindLabel(goal))}</span><span class="gmi-pill">${esc(player)} · ${esc(character)}</span></div><h3>${esc(goal.goal_text)}</h3><div class="gmi-sub">${latestAt(goal,messages)?`Last activity ${esc(dateLabel(latestAt(goal,messages)))}`:'Saved Greywake thread'}${goal.source_title?` · ${esc(goal.source_title)}`:''}</div></div><span class="gmi-chevron">⌄</span></summary><div class="gmi-body">${sourceMarkup(goal,meta)}${threadMarkup(goal,messages)}${resolved?`<div class="gmi-buttons"><button type="button" data-gmi-reopen="${goal.id}">Reopen thread</button></div>`:`<div class="gmi-action-grid"><textarea maxlength="${MAX_REPLY}" data-gmi-reply-text placeholder="Reply to ${esc(character)}…"></textarea><div class="gmi-buttons"><button type="button" class="primary" data-gmi-send="reply">Reply</button><button type="button" data-gmi-send="lead">Give Lead</button>${state!=='session'?'<button type="button" class="session" data-gmi-send="table">Hold for Session</button>':''}<button type="button" class="resolve" data-gmi-resolve="${goal.id}">Resolve</button></div></div>`}<div class="gmi-private"><div class="gmi-private-head"><strong>Private GM material</strong><span>Stored only in this browser; never sent to players.</span></div><textarea rows="3" data-gmi-note placeholder="Private GM note / spoiler…">${esc(meta.note||'')}</textarea><input data-gmi-link-title placeholder="Greywake link label (optional)" value="${esc(meta.linkTitle||'')}"><input data-gmi-link-route placeholder="Greywake route, e.g. #/record/The%20Closing%20Ways" value="${esc(meta.linkRoute||'')}"><div class="gmi-meta-actions"><button type="button" data-gmi-save-meta="${goal.id}">Save GM note & link</button></div></div></div></details>`;}
+  function cardMarkup(goal){
+    const meta=itemMeta(goal.id),b=bucket(goal),char=NAMES[goal.character_slug]||goal.character_slug,player=PLAYERS[goal.character_slug]||'Player';
+    return `<details class="gmi-card" data-gmi-id="${goal.id}">
+      <summary><div><div class="gmi-kicker"><span class="gmi-pill ${b}">${esc(stateLabel(goal))}</span><span class="gmi-pill">${goal.entry_kind==='question'?'Question':'Interest'}</span><span class="gmi-pill">${esc(player)} · ${esc(char)}</span></div><h3>${esc(goal.goal_text)}</h3><div class="gmi-sub">${latestAt(goal)?`Last activity ${esc(dateLabel(latestAt(goal)))}`:'Saved Greywake thread'}${goal.source_title?` · ${esc(goal.source_title)}`:''}</div></div><span class="gmi-chevron">⌄</span></summary>
+      <div class="gmi-body">${sourceMarkup(goal,meta)}${threadMarkup(goal)}
+      ${b==='resolved'
+        ? `<div class="gmi-buttons"><button type="button" data-gmi-reopen>Reopen thread</button></div>`
+        : `<div class="gmi-actions"><textarea maxlength="${MAX_REPLY}" data-gmi-reply placeholder="Reply to ${esc(char)}…"></textarea><div class="gmi-buttons"><button type="button" class="primary" data-gmi-send="reply">Reply</button><button type="button" data-gmi-send="lead">Give Lead</button>${b!=='session'?'<button type="button" data-gmi-send="table">Hold for Session</button>':''}<button type="button" class="resolve" data-gmi-resolve>Resolve</button></div></div>`
+      }
+      <div class="gmi-private"><div class="gmi-private-head"><strong>Private GM material</strong><span>Browser-only; never sent to players.</span></div><textarea rows="3" data-gmi-note placeholder="Private GM note / spoiler…">${esc(meta.note||'')}</textarea><input data-gmi-link-title placeholder="Greywake link label (optional)" value="${esc(meta.linkTitle||'')}"><input data-gmi-link-route placeholder="Greywake route, e.g. #/record/The%20Closing%20Ways" value="${esc(meta.linkRoute||'')}"><button type="button" data-gmi-save-meta>Save GM note & link</button></div>
+      </div></details>`;
+  }
 
-  function downtimeMarkup(data){const w=data?.window,actions=Array.isArray(data?.actions)?data.actions:[],readiness=data?.readiness||{};if(!w)return'';const today=actions.filter(a=>Number(a.day_number)===Number(w.current_day));const ready=Number.isFinite(Number(readiness.ready))?Number(readiness.ready):today.length;const allReady=typeof readiness.all_ready==='boolean'?readiness.all_ready:ready>=3;const session=w.status==='paused';const cards=['marek','velmira','odie'].map(slug=>{const a=today.find(x=>x.character_slug===slug);const label=!a?'No focus yet':a.state==='waiting_gm'?(allReady?'Ready for GM':'Focus received'):a.state==='waiting_player'?'Waiting on player':a.state==='live_scene'?'Live scene':a.state||'Received';return `<div><small>${esc(NAMES[slug])} · ${esc(label)}</small><strong>${a?esc(a.focus_text):'Waiting for player input'}</strong></div>`;}).join('');return `<section class="gmi-downtime"><div class="gmi-kicker"><span class="gmi-pill ${session?'session':allReady?'needs':'waiting'}">${session?'Session Queue':allReady?'Needs You':'Collecting choices'}</span><span class="gmi-pill">Downtime</span></div><h3>Day ${esc(w.current_day)} of ${esc(w.total_days)}</h3><p>${esc(w.reason||'Greywake downtime window')}${session&&w.pause_reason?` · ${esc(w.pause_reason)}`:''}</p><div class="gmi-dt-grid">${cards}</div><p style="margin-top:10px">Downtime adjudication remains in ChatGPT; this Inbox only surfaces whether it needs you or live play.</p></section>`;}
+  function downtimeMarkup(){
+    const d=state.downtime,w=d?.window;
+    if(!w)return'';
+    const today=(d.actions||[]).filter(a=>Number(a.day_number)===Number(w.current_day));
+    const allReady=Boolean(d.readiness?.all_ready);
+    const cards=['marek','velmira','odie'].map(slug=>{
+      const a=today.find(x=>x.character_slug===slug);
+      const label=!a?'No focus yet':a.state==='waiting_gm'?(allReady?'Ready for GM':'Focus received'):a.state==='waiting_player'?'Waiting on player':a.state==='live_scene'?'Live scene':a.state||'Received';
+      return `<div><small>${esc(NAMES[slug])}</small><strong>${esc(label)}</strong>${a?.focus_text?`<span>${esc(a.focus_text)}</span>`:''}</div>`;
+    }).join('');
+    const show=(w.status==='paused'&&activeTab==='session')||(w.status!=='paused'&&allReady&&activeTab==='needs');
+    if(!show||searchText)return'';
+    return `<section class="gmi-downtime"><small>DOWNTIME</small><h3>${w.status==='paused'?'Live scene required':'All downtime choices are in'}</h3><p>${esc(w.pause_reason||w.reason||'Shared Greywake downtime needs GM attention.')}</p><div class="gmi-dt-grid">${cards}</div></section>`;
+  }
 
-  function tabCounts(goals,downtime){const c={needs:0,session:0,resolved:0};goals.forEach(g=>c[stateOf(g)]++);if(downtime?.window){const ready=Boolean(downtime.readiness?.all_ready);if(downtime.window.status==='paused')c.session++;else if(ready)c.needs++;}return c;}
-  function renderShell(host,goals,messages,downtime){const counts=tabCounts(goals,downtime),q=searchText.toLowerCase();const filtered=goals.filter(g=>stateOf(g)===activeTab&&(!q||searchable(g,messages).includes(q))).sort((a,b)=>new Date(latestAt(b,messages)||0)-new Date(latestAt(a,messages)||0));const dtState=downtime?.window?(downtime.window.status==='paused'?'session':downtime.readiness?.all_ready?'needs':null):null;const dtVisible=dtState===activeTab&&!q;host.className='gm-panel full gm-inbox-rebuilt';host.innerHTML=`<div class="gmi-shell"><div class="gmi-summary"><button data-gmi-tab="needs" class="${activeTab==='needs'?'active':''}"><span><small>TRIAGE</small><strong>Needs You</strong></span><b>${counts.needs}</b></button><button data-gmi-tab="session" class="${activeTab==='session'?'active':''}"><span><small>LIVE PLAY</small><strong>Session Queue</strong></span><b>${counts.session}</b></button><button data-gmi-tab="resolved" class="${activeTab==='resolved'?'active':''}"><span><small>PERMANENT HISTORY</small><strong>Resolved</strong></span><b>${counts.resolved}</b></button></div><div class="gmi-tools"><input class="gmi-search" value="${esc(searchText)}" placeholder="Search player, character, question, reply, source or GM note…"><button class="gmi-refresh" type="button">Refresh</button></div><div class="gmi-rule"><strong>Inbox state is not canon state.</strong> Replying, holding for session or resolving a thread never canonises Greywake. Closed threads remain searchable here.</div>${dtVisible?downtimeMarkup(downtime):''}<div class="gmi-list">${filtered.length?filtered.map(g=>cardMarkup(g,messages)).join(''):`<div class="gmi-empty">${q?'No threads match this search.':activeTab==='resolved'?'Nothing has been resolved yet. Closed threads will remain here permanently.':activeTab==='session'?'Nothing is currently held for live play.':'Nothing currently needs GM attention.'}</div>`}</div></div>`;wire(host);}
+  function renderLocal(){
+    if(!isGM()||!onInbox())return;
+    ensureStyles();
+    const h=host(); if(!h)return;
+    const c=counts(),q=searchText.toLowerCase();
+    const visible=state.goals
+      .filter(g=>bucket(g)===activeTab&&(!q||searchable(g).includes(q)))
+      .sort((a,b)=>new Date(latestAt(b)||0)-new Date(latestAt(a)||0));
+    h.className='gm-panel full gmi-host';
+    if(!state.loaded&&!state.error){
+      h.innerHTML='<div class="gmi-empty">Loading Greywake Inbox…</div>';
+      return;
+    }
+    h.innerHTML=`<div class="gmi-shell">
+      <div class="gmi-summary">
+        <button type="button" data-gmi-tab="needs" class="${activeTab==='needs'?'active':''}"><span><small>TRIAGE</small><strong>Needs You</strong></span><b>${c.needs}</b></button>
+        <button type="button" data-gmi-tab="session" class="${activeTab==='session'?'active':''}"><span><small>LIVE PLAY</small><strong>Session Queue</strong></span><b>${c.session}</b></button>
+        <button type="button" data-gmi-tab="resolved" class="${activeTab==='resolved'?'active':''}"><span><small>PERMANENT HISTORY</small><strong>Resolved</strong></span><b>${c.resolved}</b></button>
+      </div>
+      <div class="gmi-tools"><input class="gmi-search" value="${esc(searchText)}" placeholder="Search player, character, question, reply, source or GM note…"><button type="button" class="gmi-refresh">Refresh</button></div>
+      <div class="gmi-rule"><strong>Inbox state is not canon state.</strong> Replying, holding for session or resolving never canonises Greywake. Resolved threads remain here.</div>
+      <div class="gmi-status ${state.error?'error':''}">${state.error?esc(state.error):`Loaded ${state.goals.length} threads.`}</div>
+      ${downtimeMarkup()}
+      <div class="gmi-list">${visible.length?visible.map(cardMarkup).join(''):`<div class="gmi-empty">${q?'No threads match this search.':activeTab==='resolved'?'Nothing has been resolved yet.':activeTab==='session'?'Nothing is currently held for live play.':'Nothing currently needs GM attention.'}</div>`}</div>
+    </div>`;
+  }
 
-  async function sendMessage(id,kind,text){let message=clean(text);if(kind==='table'&&!message)message='This has reached a point that should be played at the table. We will pick it up during a game session.';if(!message)throw new Error('Write a reply first.');await request(GOALS_API,'POST',{goal_id:Number(id),message:message.slice(0,MAX_REPLY),kind});}
-  async function setStatus(id,status){await request(GOALS_API,'PATCH',{id:Number(id),status});}
-  function wire(host){host.querySelectorAll('[data-gmi-tab]').forEach(b=>b.onclick=()=>{activeTab=b.dataset.gmiTab;render();});const search=host.querySelector('.gmi-search');if(search)search.oninput=()=>{searchText=search.value;clearTimeout(search._t);search._t=setTimeout(render,120);};host.querySelector('.gmi-refresh')?.addEventListener('click',render);host.querySelectorAll('[data-gmi-route]').forEach(b=>b.onclick=()=>{if(b.dataset.gmiRoute)location.hash=b.dataset.gmiRoute;});host.querySelectorAll('[data-gmi-send]').forEach(b=>b.onclick=async()=>{const card=b.closest('[data-gmi-id]'),id=card.dataset.gmiId,text=card.querySelector('[data-gmi-reply-text]')?.value||'';card.querySelectorAll('button').forEach(x=>x.disabled=true);try{await sendMessage(id,b.dataset.gmiSend,text);if(b.dataset.gmiSend==='table')activeTab='session';await render();}catch(e){alert(e.message);card.querySelectorAll('button').forEach(x=>x.disabled=false);}});host.querySelectorAll('[data-gmi-resolve]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await setStatus(b.dataset.gmiResolve,'done');activeTab='resolved';await render();}catch(e){alert(e.message);b.disabled=false;}});host.querySelectorAll('[data-gmi-reopen]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await setStatus(b.dataset.gmiReopen,'open');activeTab='needs';await render();}catch(e){alert(e.message);b.disabled=false;}});host.querySelectorAll('[data-gmi-save-meta]').forEach(b=>b.onclick=()=>{const card=b.closest('[data-gmi-id]');patchMeta(b.dataset.gmiSaveMeta,{note:card.querySelector('[data-gmi-note]')?.value||'',linkTitle:clean(card.querySelector('[data-gmi-link-title]')?.value||''),linkRoute:clean(card.querySelector('[data-gmi-link-route]')?.value||'')});const old=b.textContent;b.textContent='Saved';setTimeout(()=>{b.textContent=old;},800);});}
+  async function refresh(){
+    if(!isGM()||!onInbox())return;
+    if(refreshPromise)return refreshPromise;
+    state.error=null;
+    renderLocal();
+    refreshPromise=(async()=>{
+      try{
+        const [g,d]=await Promise.allSettled([request(GOALS_API),request(DOWNTIME_API)]);
+        if(g.status!=='fulfilled')throw g.reason;
+        state.goals=Array.isArray(g.value.goals)?g.value.goals:[];
+        state.messages=Array.isArray(g.value.messages)?g.value.messages:[];
+        state.downtime=d.status==='fulfilled'?d.value:null;
+        state.loaded=true;
+      }catch(e){
+        state.error=e instanceof Error?e.message:String(e);
+        state.loaded=true;
+      }finally{
+        refreshPromise=null;
+        renderLocal();
+      }
+    })();
+    return refreshPromise;
+  }
 
-  async function render(){if(rendering||!isFullGM()||location.hash!=='#/gm-inbox')return;const host=document.getElementById('gmInboxHost');if(!host)return;rendering=true;lastHost=host;ensureStyles();host.className='gm-panel full gm-inbox-rebuilt';host.innerHTML='<div class="gmi-empty">Loading Greywake Inbox…</div>';try{const [goalResult,dtResult]=await Promise.allSettled([request(GOALS_API),request(DOWNTIME_API)]);if(goalResult.status!=='fulfilled')throw goalResult.reason;const goals=Array.isArray(goalResult.value.goals)?goalResult.value.goals:[],messages=Array.isArray(goalResult.value.messages)?goalResult.value.messages:[],downtime=dtResult.status==='fulfilled'?dtResult.value:null;renderShell(host,goals,messages,downtime);}catch(e){host.innerHTML=`<div class="gmi-error"><strong>Inbox unavailable.</strong> ${esc(e.message)} <button class="gmi-refresh" type="button">Try again</button></div>`;host.querySelector('.gmi-refresh')?.addEventListener('click',render);}finally{rendering=false;}}
+  async function mutate(card,work,nextTab=null){
+    const buttons=card.querySelectorAll('button');
+    buttons.forEach(b=>b.disabled=true);
+    try{
+      await work();
+      if(nextTab)activeTab=nextTab;
+      await refresh();
+      window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
+    }catch(e){
+      alert(e instanceof Error?e.message:String(e));
+      buttons.forEach(b=>b.disabled=false);
+    }
+  }
 
-  const observer=new MutationObserver(()=>{if(location.hash==='#/gm-inbox'&&isFullGM()){const host=document.getElementById('gmInboxHost');if(host&&host!==lastHost)setTimeout(render,0);}});observer.observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('hashchange',()=>setTimeout(render,0));window.addEventListener('greywake:player-ready',()=>setTimeout(render,0));window.addEventListener('greywake:engagement-changed',()=>setTimeout(render,0));document.addEventListener('DOMContentLoaded',()=>setTimeout(render,120));setTimeout(render,220);
+  document.addEventListener('click',event=>{
+    if(!isGM()||!onInbox())return;
+    const h=host(); if(!h||!h.contains(event.target))return;
+    const tab=event.target.closest('[data-gmi-tab]');
+    if(tab){activeTab=tab.dataset.gmiTab;renderLocal();return;}
+    if(event.target.closest('.gmi-refresh')){refresh();return;}
+    const route=event.target.closest('[data-gmi-route]');
+    if(route){const r=route.dataset.gmiRoute;if(r)location.hash=r;return;}
+    const card=event.target.closest('[data-gmi-id]');
+    if(!card)return;
+    const id=Number(card.dataset.gmiId);
+    const send=event.target.closest('[data-gmi-send]');
+    if(send){
+      const kind=send.dataset.gmiSend;
+      let message=clean(card.querySelector('[data-gmi-reply]')?.value||'');
+      if(kind==='table'&&!message)message='This has reached a point that should be played at the table. We will pick it up during a game session.';
+      if(!message){card.querySelector('[data-gmi-reply]')?.focus();return;}
+      mutate(card,()=>request(GOALS_API,'POST',{goal_id:id,message:message.slice(0,MAX_REPLY),kind}),kind==='table'?'session':activeTab);
+      return;
+    }
+    if(event.target.closest('[data-gmi-resolve]')){mutate(card,()=>request(GOALS_API,'PATCH',{id,status:'done'}),'resolved');return;}
+    if(event.target.closest('[data-gmi-reopen]')){mutate(card,()=>request(GOALS_API,'PATCH',{id,status:'open'}),'needs');return;}
+    if(event.target.closest('[data-gmi-save-meta]')){
+      patchMeta(id,{
+        note:card.querySelector('[data-gmi-note]')?.value||'',
+        linkTitle:clean(card.querySelector('[data-gmi-link-title]')?.value||''),
+        linkRoute:clean(card.querySelector('[data-gmi-link-route]')?.value||'')
+      });
+      const b=event.target.closest('[data-gmi-save-meta]'),old=b.textContent;b.textContent='Saved';setTimeout(()=>b.textContent=old,700);
+      return;
+    }
+  });
+
+  document.addEventListener('input',event=>{
+    if(!isGM()||!onInbox())return;
+    if(!event.target.matches('#gmInboxHost .gmi-search'))return;
+    searchText=event.target.value;
+    const pos=event.target.selectionStart;
+    renderLocal();
+    const next=host()?.querySelector('.gmi-search');
+    if(next){next.focus();try{next.setSelectionRange(pos,pos)}catch{}}
+  });
+
+  window.addEventListener('hashchange',()=>{if(onInbox())setTimeout(()=>{renderLocal();refresh();},0);});
+  window.addEventListener('greywake:player-ready',()=>{if(onInbox())setTimeout(refresh,0);});
+  window.addEventListener('greywake:engagement-changed',()=>{if(onInbox())setTimeout(refresh,80);});
+  document.addEventListener('DOMContentLoaded',()=>{if(onInbox())setTimeout(refresh,100);});
+  setTimeout(()=>{if(onInbox())refresh();},220);
+
+  window.GreywakeInboxDebug={
+    getState:()=>({activeTab,searchText,loaded:state.loaded,error:state.error,goals:state.goals.length,messages:state.messages.length}),
+    refresh
+  };
 })();
