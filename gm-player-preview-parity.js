@@ -16,25 +16,28 @@
     if (!isPreview() || !window.GreywakePlayer) return;
     const token = ++repairToken;
     const delays = [0, 120, 350, 800, 1500];
-    delays.forEach((delay, index) => setTimeout(() => {
+    delays.forEach(delay => setTimeout(() => {
       if (token !== repairToken || !isPreview() || !window.GreywakePlayer) return;
       window.GreywakePlayerPortal?.render?.();
       if (needsGoalRepair()) {
-        window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: window.GreywakePlayer }));
+        // player-goals.js listens to engagement-changed and renders from window.GreywakePlayer.
+        // Do not fire player-ready here: this script also listens to player-ready and the
+        // previous implementation could continuously restart its own repair cycle.
+        window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
       }
       window.GreywakePlayerMindView?.render?.();
-      if (index === delays.length - 1) window.dispatchEvent(new CustomEvent('greywake:engagement-changed'));
+      window.GreywakeCardPriorities?.refresh?.();
     }, delay));
   }
 
-  window.addEventListener('greywake:player-ready', event => {
-    if (event.detail && isPreview()) setTimeout(repairPreview, 0);
+  window.addEventListener('greywake:player-ready', () => {
+    if (isPreview()) setTimeout(repairPreview, 0);
   });
   window.addEventListener('hashchange', () => {
-    if ((location.hash || '') === '#/mind') setTimeout(repairPreview, 0);
+    if ((location.hash || '') === '#/mind' && isPreview()) setTimeout(repairPreview, 0);
   });
   window.addEventListener('greywake:portal-live-mounted', event => {
-    if (event.detail?.kind === 'goals') setTimeout(repairPreview, 0);
+    if (event.detail?.kind === 'goals' && isPreview()) setTimeout(repairPreview, 0);
   });
   document.addEventListener('DOMContentLoaded', () => setTimeout(repairPreview, 250));
 })();
