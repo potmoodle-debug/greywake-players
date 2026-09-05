@@ -41,6 +41,9 @@
       const n = grid.querySelectorAll('.thread-card').length;
       count.textContent = `${n} known possibilit${n === 1 ? 'y' : 'ies'}`;
     }
+    // This card is inserted after the normal possibility render, so explicitly ask the
+    // shared priority controller to add Interested / Pursue controls to it.
+    setTimeout(() => window.GreywakeCardPriorities?.refresh?.(), 0);
   }
 
   let scheduled = false;
