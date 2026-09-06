@@ -31,7 +31,7 @@
       odie: 'Latest for Odie: Repairs and shortages remain ordinary Greywake pressure. When the needed part does not exist inside the settlement, practical work can still create reasons to go outward.'
     },
     'flickerfly-study': {
-      marek: 'Latest for Marek: You still want to find and study a Flickerfly. No confirmed sighting, specimen, witness, route or direction has yet turned that interest into an actionable expedition.',
+      marek: 'Latest for Marek: Old Jerek identified the possible Flickerfly wing fragment as coming from Glass Wind, south-east of Greywake. His crew found it beneath the edge of a collapsed slab in a shallow ruin after wind stripped away sand. They saw no creature, nest or carcass, so the identification remains uncertain. Jerek can mark the exact cut on a route sketch if you decide to investigate.',
       velmira: 'Latest for Velmira: Marek’s interest remains real, but the group still needs a credible in-world lead before treating a Flickerfly location as established.',
       odie: 'Latest for Odie: Marek wants to study a Flickerfly. A reliable witness or recovered evidence would be enough to turn that interest into a practical lead.'
     },
@@ -51,6 +51,18 @@
     'white-tunnel': {
       velmira: 'Latest for Velmira: Odie trusted you with the existence of the pale tunnel and sealed white door. You know what he described, but not who built it, what lies beyond it or whether his Oldwork finger is connected.',
       odie: 'Latest for Odie: The pale tunnel and sealed white door remain your private discovery. No handle, bar, hinge, Digger marks or obvious previous attempts were recognised, and no connection to the Oldwork finger has been established.'
+    }
+  };
+
+  const CARD_OVERRIDES = {
+    'flickerfly-study': {
+      marek: {
+        status: 'MAREK LEAD · ACTIONABLE',
+        direction: 'SOUTH-EAST ↘',
+        summary: 'A possible Flickerfly wing fragment was found at Glass Wind, south-east of Greywake. Old Jerek can mark the exact place where his crew recovered it.',
+        known: 'Jerek’s crew found the translucent fragment caught beneath the edge of a collapsed stone slab in a shallow ruin after wind stripped away sand. They saw no creature, nest or carcass, so nobody has confirmed that Flickerflies are actually there. The next practical step is to get Jerek’s route sketch and decide whether to investigate Glass Wind.',
+        imageNote: 'No Flickerfly was seen. The lead is based on a possible wing fragment recovered at Glass Wind.'
+      }
     }
   };
 
@@ -81,8 +93,24 @@
     document.head.appendChild(style);
   }
 
+  function applyCardOverride(card, key) {
+    const override = CARD_OVERRIDES[card.dataset.thread]?.[key];
+    if (!override) return;
+    const status = card.querySelector('.thread-status');
+    const direction = card.querySelector('.thread-direction');
+    const summary = card.querySelector('.thread-summary');
+    const known = card.querySelector('.thread-known');
+    const imageNote = card.querySelector('.thread-image-note');
+    if (status && override.status) status.textContent = override.status;
+    if (direction && override.direction) direction.textContent = override.direction;
+    if (summary && override.summary) summary.textContent = override.summary;
+    if (known && override.known) known.textContent = override.known;
+    if (imageNote && override.imageNote) imageNote.textContent = override.imageNote;
+  }
+
   function enhanceCard(card, key) {
     const id = card.dataset.thread;
+    applyCardOverride(card, key);
     const update = UPDATES[id]?.[key];
     if (!update || card.dataset.latestEnhanced === key) return;
     card.dataset.latestEnhanced = key;
