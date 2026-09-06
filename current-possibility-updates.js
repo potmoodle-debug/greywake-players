@@ -31,7 +31,7 @@
       odie: 'Latest for Odie: Repairs and shortages remain ordinary Greywake pressure. When the needed part does not exist inside the settlement, practical work can still create reasons to go outward.'
     },
     'flickerfly-study': {
-      marek: 'Latest for Marek: Old Jerek identified the possible Flickerfly wing fragment as coming from Glass Wind, south-east of Greywake. His crew found it beneath the edge of a collapsed slab in a shallow ruin after wind stripped away sand. They saw no creature, nest or carcass, so the identification remains uncertain. Jerek can mark the exact cut on a route sketch if you decide to investigate.',
+      marek: 'Latest for Marek: Old Jerek recovered a translucent fragment at Glass Wind, south-east of Greywake, and can mark the exact spot on a route sketch. Nobody saw a Flickerfly, nest or carcass, so the identification remains uncertain.',
       velmira: 'Latest for Velmira: Marek’s interest remains real, but the group still needs a credible in-world lead before treating a Flickerfly location as established.',
       odie: 'Latest for Odie: Marek wants to study a Flickerfly. A reliable witness or recovered evidence would be enough to turn that interest into a practical lead.'
     },
@@ -61,7 +61,8 @@
         direction: 'SOUTH-EAST ↘',
         summary: 'A possible Flickerfly wing fragment was found at Glass Wind, south-east of Greywake. Old Jerek can mark the exact place where his crew recovered it.',
         known: 'Jerek’s crew found the translucent fragment caught beneath the edge of a collapsed stone slab in a shallow ruin after wind stripped away sand. They saw no creature, nest or carcass, so nobody has confirmed that Flickerflies are actually there. The next practical step is to get Jerek’s route sketch and decide whether to investigate Glass Wind.',
-        imageNote: 'No Flickerfly was seen. The lead is based on a possible wing fragment recovered at Glass Wind.'
+        imageNote: 'No Flickerfly was seen. The lead is based on a possible wing fragment recovered at Glass Wind.',
+        next: 'Ask Old Jerek for his route sketch to Glass Wind, decide what you need for the south-east journey, then investigate the shallow ruin where the possible wing fragment was found.'
       }
     }
   };
@@ -106,6 +107,7 @@
     if (summary && override.summary) summary.textContent = override.summary;
     if (known && override.known) known.textContent = override.known;
     if (imageNote && override.imageNote) imageNote.textContent = override.imageNote;
+    if (override.next) card.dataset.nextStep = override.next;
   }
 
   function enhanceCard(card, key) {
