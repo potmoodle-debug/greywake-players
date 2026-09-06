@@ -10,6 +10,20 @@
     'tavi-faithful': 'Tavi',
     'closing-ways': 'Diggers'
   };
+  const DEFAULT_NEXT_STEPS = {
+    'something-moved-in': 'Ask a Digger what changed at the ruin, pursue the southern lead, or leave it alone until it matters to you.',
+    'groundfall-freight': 'Ask who wants the freight back, return east to the Groundfall, or find out whether anyone else has gone after it.',
+    'route-markers': 'Compare known markers, inspect the physical cuts and repairs, or question people who regularly use the eastern routes.',
+    'cistern-plate': 'Find out who currently has custody of the Plate, what examination is happening, or let Greywake deal with it without you.',
+    'ash-plate-recovery': 'Check on Ash-Plate, speak to the handlers about her recovery, or inspect whether harness and load damage contributed.',
+    'greywake-work': 'Talk to someone your character already knows and ask what currently needs doing. No formal quest is required.',
+    'flickerfly-study': 'Find a credible in-world source for a Flickerfly location before choosing an expedition.',
+    'nemi-stilling': 'Review previous cases, ask what treatments have already been tried, speak to people around Nemi, or leave the question for play.',
+    'earlier-stilling-case': 'Follow the strongest established lead on the earlier case, establish where the place lies, or leave the question unresolved until more is learned.',
+    'tavi-faithful': 'Speak to Tavi, watch how the Faithful approach them, ask someone you trust what they have noticed, or leave the relationship alone.',
+    'closing-ways': 'Inspect a closure, compare who knew each entrance, or quietly speak to Digger crews before deciding who you trust.',
+    'white-tunnel': 'Return to the door, inspect its construction, compare it with the Oldwork finger, tell someone else, or leave it untouched.'
+  };
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[ch]));
@@ -31,7 +45,7 @@
       .thread-detail-hero img{width:100%;height:100%;object-fit:cover;display:block}
       .thread-detail-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,6,.12),rgba(8,8,6,.88))}
       .thread-detail-body{padding:24px clamp(20px,4vw,38px) 30px}
-      .thread-detail-top{display:flex;gap:12px;justify-content:space-between;gap:12px;align-items:flex-start}
+      .thread-detail-top{display:flex;gap:12px;justify-content:space-between;align-items:flex-start}
       .thread-detail-label{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#cdb676}
       .thread-detail-scope{font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#827b67}
       .thread-detail h2{font:clamp(30px,5vw,48px) Georgia,serif;color:#eee4c8;margin:8px 0 12px}
@@ -113,9 +127,8 @@
   function derivedNextStep(card) {
     const explicit = String(card.dataset.nextStep || '').trim();
     if (explicit) return explicit;
-    const known = card.querySelector('.thread-known')?.textContent?.trim() || '';
-    if (known) return `Act on the latest information above, ask about anything still unclear, or leave this possibility alone until it matters.`;
-    return 'Ask about this, make it one of your interests, or leave it alone until it matters.';
+    const id = card.dataset.thread || '';
+    return DEFAULT_NEXT_STEPS[id] || 'Ask about this, make it one of your interests, or leave it alone until it matters.';
   }
 
   function openDetail(card) {
