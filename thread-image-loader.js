@@ -17,15 +17,27 @@
     'cistern-plate': 'Find out who currently has custody of the Plate, what examination is happening, or let Greywake deal with it without you.',
     'ash-plate-recovery': 'Check on Ash-Plate, speak to the handlers about her recovery, or inspect whether harness and load damage contributed.',
     'greywake-work': 'Talk to someone your character already knows and ask what currently needs doing. No formal quest is required.',
-    'flickerfly-study': 'Identify the Digger linked to the translucent wing fragment and learn exactly where it was found before choosing an expedition.',
+    'flickerfly-study': 'Find a credible in-world source for a Flickerfly location before choosing an expedition.',
     'nemi-stilling': 'Review previous cases, ask what treatments have already been tried, speak to people around Nemi, or leave the question for play.',
     'tavi-faithful': 'Speak to Tavi, watch how the Faithful approach them, ask someone you trust what they have noticed, or leave the relationship alone.',
     'closing-ways': 'Inspect a closure, compare who knew each entrance, or quietly speak to Digger crews before deciding who you trust.',
     'white-tunnel': 'Return to the door, inspect its construction, compare it with the Oldwork finger, tell someone else, or leave it untouched.'
   };
+  const CHARACTER_NEXT_STEPS = {
+    'flickerfly-study': {
+      marek: 'Ask Old Jerek for his route sketch to Glass Wind, decide what you need for the south-east journey, then investigate the shallow ruin where the possible wing fragment was found.'
+    }
+  };
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[ch]));
+  }
+
+  function characterKey(user = window.GreywakePlayer || null) {
+    const bodyKey = String(document.body.dataset.character || '').toLowerCase();
+    if (['marek', 'velmira', 'odie'].includes(bodyKey)) return bodyKey;
+    const userKey = String(user?.character || '').toLowerCase();
+    return ['marek', 'velmira', 'odie'].includes(userKey) ? userKey : null;
   }
 
   function ensureStyles() {
@@ -139,7 +151,8 @@
     const canAct = user?.role === 'player' && document.body.dataset.gmPreview !== 'true';
     const related = RELATED_RECORDS[id];
     const hasRelated = Boolean(related && window.GREYWAKE_DATA?.[related]);
-    const next = NEXT_STEPS[id] || 'Ask about this, make it one of your interests, or leave it alone until it matters.';
+    const key = characterKey(user);
+    const next = CHARACTER_NEXT_STEPS[id]?.[key] || NEXT_STEPS[id] || 'Ask about this, make it one of your interests, or leave it alone until it matters.';
 
     const backdrop = document.createElement('div');
     backdrop.className = 'thread-detail-backdrop';
