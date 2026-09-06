@@ -26,7 +26,7 @@
       .gm-vc-node{position:absolute;width:180px;min-height:76px;padding:10px 11px;border:1px solid #504a36;background:#1a1b14;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:2}.gm-vc-node small{display:block;color:#9e8a57;font-size:7px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;margin-bottom:5px}.gm-vc-node strong{display:block;color:#e5dbc0;font:17px/1.08 Georgia,serif;margin-bottom:4px}.gm-vc-node span{display:block;color:#8d8673;font-size:9px;line-height:1.4}.gm-vc-node.confirmed{border-color:#6f6444}.gm-vc-node.hypothesis{border-style:dashed}.gm-vc-node.unknown{border-style:dotted;color:#857b60}.gm-vc-node.center{left:50%;top:50%;transform:translate(-50%,-50%);width:220px;min-height:100px;border-color:#8a7140;background:#211c11}.gm-vc-node.n1{left:5%;top:12%}.gm-vc-node.n2{right:5%;top:12%}.gm-vc-node.n3{left:5%;bottom:10%}.gm-vc-node.n4{right:5%;bottom:10%}
       .gm-vc-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}.gm-vc-legend span{color:#817966;font-size:8px}.gm-vc-legend b{display:inline-block;width:18px;border-top:1px solid #766b49;margin-right:5px;vertical-align:middle}.gm-vc-legend .dashed b{border-top-style:dashed}.gm-vc-legend .dotted b{border-top-style:dotted}
 
-      .gm-vc-radar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.gm-vc-radar-card{border:1px solid #38362a;background:#151610;padding:12px}.gm-vc-radar-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid #655a3d;background:#211e14;color:#d7c486;font:17px/1 Georgia,serif;margin-bottom:8px}.gm-vc-radar-card h3{margin:0 0 8px;color:#e3d9bf;font:18px/1.05 Georgia,serif}.gm-vc-radar-fields{display:grid;gap:5px}.gm-vc-radar-fields div{display:grid;grid-template-columns:54px 1fr;gap:7px;color:#918a75;font-size:8px;line-height:1.35}.gm-vc-radar-fields b{color:#aa9862;font-size:7px;letter-spacing:.1em;text-transform:uppercase}
+      .gm-vc-radar{display:grid;grid-template-columns:1fr 1fr;gap:10px}.gm-vc-radar-card{border:1px solid #38362a;background:#151610;padding:12px}.gm-vc-radar-card[data-priority="current"]{border-color:#77643a;background:#19170f}.gm-vc-radar-card[data-priority="conditional"]{border-style:dashed}.gm-vc-radar-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid #655a3d;background:#211e14;color:#d7c486;font:17px/1 Georgia,serif;margin-bottom:8px}.gm-vc-radar-card h3{margin:0 0 8px;color:#e3d9bf;font:18px/1.05 Georgia,serif}.gm-vc-radar-fields{display:grid;gap:5px}.gm-vc-radar-fields div{display:grid;grid-template-columns:54px 1fr;gap:7px;color:#918a75;font-size:8px;line-height:1.35}.gm-vc-radar-fields b{color:#aa9862;font-size:7px;letter-spacing:.1em;text-transform:uppercase}
 
       .gm-vc-factions{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.gm-vc-faction{border:1px solid #38362b;background:#151610;padding:11px 10px;text-align:center}.gm-vc-faction-symbol{width:42px;height:42px;margin:0 auto 8px;display:grid;place-items:center;border:1px solid #5e563d;transform:rotate(45deg);background:#1c1c14}.gm-vc-faction-symbol span{transform:rotate(-45deg);font:16px/1 Georgia,serif;color:#d4c17d}.gm-vc-faction strong{display:block;color:#ded4b9;font-size:10px;margin-bottom:4px}.gm-vc-faction em{display:block;color:#8c8471;font-size:8px;line-height:1.35;font-style:normal}.gm-vc-faction .arrow{margin:7px 0;color:#b19b60;font-size:15px}
 
@@ -38,6 +38,64 @@
       @media(max-width:720px){.gm-vc-top{grid-template-columns:1fr 1fr}.gm-vc-priority{grid-column:span 2}.gm-vc-pressure-board{grid-template-columns:1fr}.gm-vc-pressure[data-level="critical"]{grid-column:auto}.gm-vc-radar,.gm-vc-seeds,.gm-vc-lane{grid-template-columns:1fr}.gm-vc-factions{grid-template-columns:1fr 1fr}.gm-vc-investigation{min-height:680px}.gm-vc-node{width:150px}.gm-vc-node.center{width:190px}.gm-vc-node.n1{left:3%;top:10%}.gm-vc-node.n2{right:3%;top:28%}.gm-vc-node.n3{left:3%;bottom:28%}.gm-vc-node.n4{right:3%;bottom:8%}}
     `;
     document.head.appendChild(style);
+  }
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+  const norm = value => String(value || '').toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9]+/g, ' ').trim();
+
+  function liveSessionState() {
+    try { return window.GreywakeGMSessionState?.read?.() || {}; }
+    catch { return {}; }
+  }
+
+  function activeNPCNames() {
+    return String(liveSessionState().activeNPCs || '').split(',').map(name => name.trim()).filter(Boolean).filter((name,index,all) => all.findIndex(other => norm(other) === norm(name)) === index);
+  }
+
+  function initials(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    return (parts.slice(0,2).map(part => part[0]).join('') || '—').toUpperCase();
+  }
+
+  function radarCard(name, priority, fields) {
+    return `<article class="gm-vc-radar-card" data-priority="${esc(priority)}"><div class="gm-vc-radar-avatar">${esc(initials(name))}</div><h3>${esc(name)}</h3><div class="gm-vc-radar-fields">${fields.map(([label,value]) => `<div><b>${esc(label)}</b><span>${esc(value)}</span></div>`).join('')}</div></article>`;
+  }
+
+  function sessionPeopleRadarHTML() {
+    const active = activeNPCNames();
+    const cards = [];
+
+    if (active.length) {
+      active.forEach(name => cards.push(radarCard(name, 'current', [
+        ['Now', 'Active in the live session state.'],
+        ['Use', 'Keep their wants, knowledge and pressure consistent with the live NPC notes.']
+      ])));
+    } else {
+      cards.push(radarCard('No NPC in the opening scene', 'current', [
+        ['Now', 'Marek is inside the blocked Digger way; Odie and Velmira are on the other side.'],
+        ['GM cue', 'Resolve the obstruction and reconnection before bringing an NPC into play.']
+      ]));
+    }
+
+    if (!active.some(name => norm(name) === 'spencer digger')) {
+      cards.push(radarCard('Spencer Digger', 'likely', [
+        ['Trigger', 'The party seeks Digger expertise about the closure, fill or disturbed ground.'],
+        ['Useful', 'He can read underground work and distinguish older passage from recent alteration.'],
+        ['Boundary', 'Likely contact, not automatically present and not presumed to know who caused this closure.']
+      ]));
+    }
+
+    cards.push(radarCard('Affected Digger route-user', 'conditional', [
+      ['Trigger', 'The party asks who actually used this way or another closed route.'],
+      ['Status', 'Identity not yet established. Do not invent a named regular until play or prep establishes one.']
+    ]));
+
+    cards.push(radarCard('Relevant institutional contact', 'conditional', [
+      ['Trigger', 'The party deliberately takes evidence toward the Syndicate, Keepers, Watch or another authority.'],
+      ['Boundary', 'Choose the contact from the route the players take; do not imply a faction is involved merely by surfacing them here.']
+    ]));
+
+    return cards.join('');
   }
 
   function visualCockpitHTML() {
@@ -78,13 +136,8 @@
           </section>
 
           <section class="gm-vc-section">
-            <div class="gm-vc-section-head"><div><small>NPC RADAR</small><h2>People likely to matter</h2></div></div>
-            <div class="gm-vc-radar">
-              <article class="gm-vc-radar-card"><div class="gm-vc-radar-avatar">MV</div><h3>Mara Vell</h3><div class="gm-vc-radar-fields"><div><b>Wants</b><span>Practical truths to remain useful.</span></div><div><b>Friction</b><span>Information held too tightly.</span></div><div><b>Status</b><span>Brannic tension is a working model.</span></div></div></article>
-              <article class="gm-vc-radar-card"><div class="gm-vc-radar-avatar">BH</div><h3>Brannic Hale</h3><div class="gm-vc-radar-fields"><div><b>Wants</b><span>Claims proportionate to evidence.</span></div><div><b>Friction</b><span>Rumour hardening into certainty.</span></div><div><b>Status</b><span>Working model; adjust through play.</span></div></div></article>
-              <article class="gm-vc-radar-card"><div class="gm-vc-radar-avatar">SM</div><h3>Selka Marr</h3><div class="gm-vc-radar-fields"><div><b>Wants</b><span>Reliable movement and loss accounting.</span></div><div><b>Watching</b><span>Route reliability and caravan losses.</span></div></div></article>
-              <article class="gm-vc-radar-card"><div class="gm-vc-radar-avatar">MR</div><h3>Maela Rusk</h3><div class="gm-vc-radar-fields"><div><b>Matters</b><span>Her account shapes understanding of the failed return.</span></div><div><b>Keep open</b><span>Do not pre-write blame or final report.</span></div></div></article>
-            </div>
+            <div class="gm-vc-section-head"><div><small>SESSION CONTACT RADAR</small><h2>People you may need at the table</h2></div><p>Current scene first; likely and conditional contacts only when play points toward them.</p></div>
+            <div class="gm-vc-radar">${sessionPeopleRadarHTML()}</div>
           </section>
         </div>
 
@@ -136,6 +189,12 @@
     if (ws && location.hash !== '#/gm-cockpit') delete ws.dataset.visualCockpit;
   }
 
+  function refreshSessionContext() {
+    const ws = document.getElementById('gmRouteWorkspace');
+    if (ws && location.hash === '#/gm-cockpit') delete ws.dataset.visualCockpit;
+    schedule();
+  }
+
   function schedule() {
     if (scheduled) return;
     scheduled = true;
@@ -146,6 +205,7 @@
   observer.observe(document.documentElement, { childList:true, subtree:true });
   window.addEventListener('hashchange', schedule);
   window.addEventListener('greywake:player-ready', schedule);
+  window.addEventListener('greywake:gm-session-state-changed', refreshSessionContext);
   document.addEventListener('DOMContentLoaded', schedule);
   schedule();
 })();
