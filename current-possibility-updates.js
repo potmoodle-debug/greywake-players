@@ -1,73 +1,7 @@
 (() => {
-  const UPDATES = {
-    'something-moved-in': {
-      marek: 'Latest for Marek: You know the Diggers’ work south of Greywake has stopped because something dangerous is believed to have occupied an old ruin. You still have no confirmed identification, route or explanation for why it is there.',
-      velmira: 'Latest for Velmira: The useful lead remains the people behind the story — who actually saw something, who is repeating it, and what the Diggers need before they will return.',
-      odie: 'Latest for Odie: The stopped dig means practical salvage and access are still unavailable. No reliable identification of the creature or its reason for being there has been established.'
-    },
-    'groundfall-freight': {
-      marek: 'Latest for Marek: The abandoned freight may still be recoverable, but time, scavengers and animals may have changed the site. Its broad direction is still not established as a selectable expedition lead.',
-      velmira: 'Latest for Velmira: The freight still has owners, value and consequences. Who wants it back may matter as much as what remains at the Groundfall.',
-      odie: 'Latest for Odie: The Groundfall still represents possible salvage, evidence and useful parts, but returning is not yet an established directional expedition choice.'
-    },
-    'route-markers': {
-      marek: 'Latest for Marek: At least two route markers were deliberately altered. You do not yet know who did it or why; the change may have affected where travellers and animals now concentrate.',
-      velmira: 'Latest for Velmira: The surviving witnesses and physical evidence are back in Greywake. People who use, maintain or profit from routes remain the clearest human leads.',
-      odie: 'Latest for Odie: The altered cuts are still physical evidence. Tool marks, repair habits and route craft may help distinguish rumour from what actually happened.'
-    },
-    'cistern-plate': {
-      marek: 'Latest for Marek: The Cistern Plate reached Greywake intact. Its practical effect on the settlement is unresolved, including what it may eventually change for water, animals and ordinary work.',
-      velmira: 'Latest for Velmira: The Plate is back in Greywake, but custody, competing claims and who is trusted to examine it remain unresolved.',
-      odie: 'Latest for Odie: The Plate is precisely made and relevant to Greywake’s waterworks, but its exact fit, function and compatibility are still not established.'
-    },
-    'ash-plate-recovery': {
-      marek: 'Latest for Marek: Ash-Plate returned under her own strength but could not carry a load. Her injury, recent exertion and readiness to work again still need proper assessment.',
-      velmira: 'Latest for Velmira: Ash-Plate’s recovery affects the people, labour and obligations built around her as well as the animal herself.',
-      odie: 'Latest for Odie: Ash-Plate is recovering. Harnessing, load balance and damaged equipment remain practical things worth checking alongside the injury.'
-    },
-    'greywake-work': {
-      marek: 'Latest for Marek: Meren is now personally relevant: you have just returned from an unsuccessful retrieval trip for Meren. What that failure means between you has not yet been established in play.',
-      velmira: 'Latest for Velmira: Your existing relationships, favours and conversations remain the main way town-side problems reach you. No formal job is required for something to become important.',
-      odie: 'Latest for Odie: Repairs and shortages remain ordinary Greywake pressure. When the needed part does not exist inside the settlement, practical work can still create reasons to go outward.'
-    },
-    'flickerfly-study': {
-      marek: 'Latest for Marek: Old Jerek recovered a translucent fragment at Glass Wind, south-east of Greywake, and can mark the exact spot on a route sketch. Nobody saw a Flickerfly, nest or carcass, so the identification remains uncertain.',
-      velmira: 'Latest for Velmira: Marek’s interest remains real, but the group still needs a credible in-world lead before treating a Flickerfly location as established.',
-      odie: 'Latest for Odie: Marek wants to study a Flickerfly. A reliable witness or recovered evidence would be enough to turn that interest into a practical lead.'
-    },
-    'earlier-stilling-case': {
-      marek: 'Latest for Marek: Velmira’s lead still points toward an identifiable place visited by an earlier Stilling case. Whether that place mattered biologically, environmentally or not at all remains unknown.',
-      velmira: 'Latest for Velmira: The earlier case apparently stabilised for a time after travelling outside Greywake. The place remains identifiable, but its direction and any causal link to the Stilling are still unproven.',
-      odie: 'Latest for Odie: The historical place can become a practical expedition once its route and broad direction are established. No connection to a cure has been proven.'
-    },
-    'tavi-faithful': {
-      velmira: 'Latest for Velmira: Tavi remains reachable and is being drawn toward the Faithful without being fully committed. You know Tavi wants meaning and responds to being listened to; what Velmira does about that remains your choice.'
-    },
-    'closing-ways': {
-      marek: 'Latest for Marek: While returning from an unsuccessful retrieval trip for Meren, you followed an unfamiliar creature trail into a concealed Digger way south of Greywake. You collected a pale translucent membrane fragment and established that the creature could compress through unusually tight spaces. The trail reached a recently and deliberately blocked way. You could not establish where the creature went. Your smallest Beastform could not squeeze through the intact seal, and when you tried to create a gap the blockage shifted noisily. You heard familiar voices on the far side, but have not yet established who they are. TEST ONLY: You notice a fresh red chalk mark on the blocked Digger way. This is visible only to Marek and is not canon.',
-      velmira: 'Latest for Velmira: Several concealed Digger routes are being deliberately closed. At least one affected person is angry enough to talk. You do not yet know who is exposing the routes, who is sealing them, whether every closure is connected or why it is happening now.',
-      odie: 'Latest for Odie: Several concealed Digger routes are being deliberately closed, including one you know well enough to take the others to. At least one closure required exact knowledge of an undocumented entrance. You still do not know who is exposing the routes, who is sealing them, whether the closures are coordinated or why.'
-    },
-    'white-tunnel': {
-      velmira: 'Latest for Velmira: Odie trusted you with the existence of the pale tunnel and sealed white door. You know what he described, but not who built it, what lies beyond it or whether his Oldwork finger is connected.',
-      odie: 'Latest for Odie: The pale tunnel and sealed white door remain your private discovery. No handle, bar, hinge, Digger marks or obvious previous attempts were recognised, and no connection to the Oldwork finger has been established.'
-    }
-  };
-
-  const CARD_OVERRIDES = {
-    'flickerfly-study': {
-      marek: {
-        status: 'MAREK LEAD · ACTIONABLE',
-        direction: 'SOUTH-EAST ↘',
-        summary: 'A possible Flickerfly wing fragment was found at Glass Wind, south-east of Greywake. Old Jerek can mark the exact place where his crew recovered it.',
-        known: 'Jerek’s crew found the translucent fragment caught beneath the edge of a collapsed stone slab in a shallow ruin after wind stripped away sand. They saw no creature, nest or carcass, so nobody has confirmed that Flickerflies are actually there. The next practical step is to get Jerek’s route sketch and decide whether to investigate Glass Wind.',
-        imageNote: 'No Flickerfly was seen. The lead is based on a possible wing fragment recovered at Glass Wind.',
-        next: 'Ask Old Jerek for his route sketch to Glass Wind, decide what you need for the south-east journey, then investigate the shallow ruin where the possible wing fragment was found.'
-      }
-    }
-  };
-
   const ACTIVE = ['marek', 'velmira', 'odie'];
+  let liveData = window.GREYWAKE_LIVE_POSSIBILITIES || { updates: {}, cardOverrides: {} };
+  let loadPromise = null;
 
   function characterKey() {
     const body = String(document.body.dataset.character || '').toLowerCase();
@@ -94,8 +28,29 @@
     document.head.appendChild(style);
   }
 
+  function loadLiveData() {
+    if (loadPromise) return loadPromise;
+    loadPromise = new Promise(resolve => {
+      const previous = document.getElementById('greywakeLivePossibilityData');
+      previous?.remove();
+      const script = document.createElement('script');
+      script.id = 'greywakeLivePossibilityData';
+      script.src = `current-possibility-live-data.js?live=${Date.now()}`;
+      script.async = true;
+      script.onload = () => {
+        liveData = window.GREYWAKE_LIVE_POSSIBILITIES || liveData;
+        resolve(liveData);
+      };
+      script.onerror = () => resolve(liveData);
+      document.head.appendChild(script);
+    }).finally(() => {
+      loadPromise = null;
+    });
+    return loadPromise;
+  }
+
   function applyCardOverride(card, key) {
-    const override = CARD_OVERRIDES[card.dataset.thread]?.[key];
+    const override = liveData.cardOverrides?.[card.dataset.thread]?.[key];
     if (!override) return;
     const status = card.querySelector('.thread-status');
     const direction = card.querySelector('.thread-direction');
@@ -113,7 +68,7 @@
   function enhanceCard(card, key) {
     const id = card.dataset.thread;
     applyCardOverride(card, key);
-    const update = UPDATES[id]?.[key];
+    const update = liveData.updates?.[id]?.[key];
     if (!update) return;
 
     const existing = card.querySelector('.thread-latest');
@@ -139,7 +94,6 @@
     latest.hidden = true;
     latest.innerHTML = `<span>LATEST FOR ${key.toUpperCase()}</span><p></p>`;
     latest.querySelector('p').textContent = update;
-
     content.append(toggle, latest);
 
     const setOpen = open => {
@@ -149,42 +103,53 @@
       toggle.querySelector('span').textContent = `${open ? 'Close' : 'Open'} latest for ${key}`;
     };
 
-    const toggleOpen = event => {
+    card.addEventListener('click', event => {
       if (event?.target?.closest('button,a,input,select,textarea,[role="button"]') && event.target.closest('[role="button"]') !== card) return;
       setOpen(latest.hidden);
-    };
+    });
 
-    card.addEventListener('click', toggleOpen);
     card.addEventListener('keydown', event => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-      if (event.target !== card) return;
+      if ((event.key !== 'Enter' && event.key !== ' ') || event.target !== card) return;
       event.preventDefault();
       setOpen(latest.hidden);
     });
   }
 
-  function enhance() {
+  function enhanceNow() {
     ensureStyles();
     const key = characterKey();
     if (!key) return;
     document.querySelectorAll('#currentThreadsGrid .thread-card').forEach(card => enhanceCard(card, key));
   }
 
+  async function refresh() {
+    await loadLiveData();
+    enhanceNow();
+  }
+
   let timer = null;
   const schedule = () => {
     clearTimeout(timer);
-    timer = setTimeout(enhance, 40);
+    timer = setTimeout(refresh, 40);
   };
 
-  const observer = new MutationObserver(schedule);
-  document.addEventListener('DOMContentLoaded', () => {
+  function watchGrid() {
     const grid = document.getElementById('currentThreadsGrid');
-    if (grid) observer.observe(grid, {childList:true, subtree:true});
-    enhance();
-  });
-  window.addEventListener('greywake:player-ready', schedule);
+    if (!grid || grid.dataset.liveKnowledgeObserver === 'true') return;
+    grid.dataset.liveKnowledgeObserver = 'true';
+    new MutationObserver(schedule).observe(grid, { childList: true, subtree: true });
+  }
+
+  window.GreywakePossibilityUpdates = { refresh };
+  window.addEventListener('greywake:player-ready', () => { watchGrid(); schedule(); });
   window.addEventListener('greywake:portal-live-mounted', event => {
-    if (event.detail?.kind === 'threads') schedule();
+    if (event.detail?.kind === 'threads') { watchGrid(); schedule(); }
   });
   window.addEventListener('greywake:engagement-changed', schedule);
+  window.addEventListener('focus', schedule);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) schedule();
+  });
+  document.addEventListener('DOMContentLoaded', () => { watchGrid(); schedule(); });
+  setTimeout(() => { watchGrid(); refresh(); }, 220);
 })();
