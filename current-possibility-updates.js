@@ -44,7 +44,7 @@
       velmira: 'Latest for Velmira: Tavi remains reachable and is being drawn toward the Faithful without being fully committed. You know Tavi wants meaning and responds to being listened to; what Velmira does about that remains your choice.'
     },
     'closing-ways': {
-      marek: 'Latest for Marek: While returning from an unsuccessful retrieval trip for Meren, you followed an unfamiliar creature trail into a concealed Digger way south of Greywake. You collected a pale translucent membrane fragment and established that the creature could compress through unusually tight spaces. The trail reached a recently and deliberately blocked way. You could not establish where the creature went. Your smallest Beastform could not squeeze through the intact seal, and when you tried to create a gap the blockage shifted noisily. You heard familiar voices on the far side, but have not yet established who they are.',
+      marek: 'Latest for Marek: While returning from an unsuccessful retrieval trip for Meren, you followed an unfamiliar creature trail into a concealed Digger way south of Greywake. You collected a pale translucent membrane fragment and established that the creature could compress through unusually tight spaces. The trail reached a recently and deliberately blocked way. You could not establish where the creature went. Your smallest Beastform could not squeeze through the intact seal, and when you tried to create a gap the blockage shifted noisily. You heard familiar voices on the far side, but have not yet established who they are. TEST ONLY: You notice a fresh red chalk mark on the blocked Digger way. This is visible only to Marek and is not canon.',
       velmira: 'Latest for Velmira: Several concealed Digger routes are being deliberately closed. At least one affected person is angry enough to talk. You do not yet know who is exposing the routes, who is sealing them, whether every closure is connected or why it is happening now.',
       odie: 'Latest for Odie: Several concealed Digger routes are being deliberately closed, including one you know well enough to take the others to. At least one closure required exact knowledge of an undocumented entrance. You still do not know who is exposing the routes, who is sealing them, whether the closures are coordinated or why.'
     },
@@ -114,7 +114,15 @@
     const id = card.dataset.thread;
     applyCardOverride(card, key);
     const update = UPDATES[id]?.[key];
-    if (!update || card.dataset.latestEnhanced === key) return;
+    if (!update) return;
+
+    const existing = card.querySelector('.thread-latest');
+    if (existing && card.dataset.latestEnhanced === key) {
+      const p = existing.querySelector('p');
+      if (p) p.textContent = update;
+      return;
+    }
+
     card.dataset.latestEnhanced = key;
     card.dataset.latestEnabled = 'true';
     card.tabIndex = 0;
