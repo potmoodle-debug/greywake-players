@@ -86,5 +86,5 @@ body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait.beast
 
 /* Cacklemaw portrait crop is authored for the narrow Marek frame. */
 body[data-character="marek"] .character-sheet-portrait[data-beastform-portrait="pack-predator:cacklemaw"]{
-  object-position:52% 48%;
+  object-position:58% 42%;
 }
