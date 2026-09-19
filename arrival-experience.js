@@ -69,6 +69,12 @@
     return threads.querySelectorAll('.thread-card').length;
   }
 
+  function engagementSnapshot() {
+    const currentCharacter = String(window.GreywakePlayer?.character || document.body.dataset.character || '').toLowerCase();
+    const snapshot = window.GreywakeGoalSnapshot;
+    return snapshot && snapshot.character === currentCharacter ? snapshot : null;
+  }
+
   function findImage(root) {
     const img = root?.querySelector('img[src]');
     if (img?.getAttribute('src')) return img.getAttribute('src');
@@ -161,11 +167,12 @@
     }
 
     const name = characterName();
-    const mindCount = Math.min(activeMindCount(), 12);
-    const pursuingCount = Math.min(pursuingMindCount(), 3);
+    const engagement = engagementSnapshot();
+    const mindCount = Math.min(engagement?.activeInterests ?? activeMindCount(), 12);
+    const pursuingCount = Math.min(engagement?.pursuing ?? pursuingMindCount(), 3);
     const possibilities = possibilityCount();
-    const q = questionCount();
-    const replies = gmReplyCount();
+    const q = engagement?.questions ?? questionCount();
+    const replies = engagement?.replies ?? gmReplyCount();
     const latest = latestDiscovery();
     const characterImage = findImage(document.getElementById('characterSheet'));
     const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
@@ -178,7 +185,7 @@
       <a class="arrival-action arrival-action-character" href="#/character">
         <small>PLAY MY CHARACTER</small>
         <strong>${name}</strong>
-        <span>Your live sheet: Hope, Stress, HP, Armor, abilities, attacks, gear and character-specific tools.</span>
+        <span>Your live Daggerheart sheet. Everything you need to play ${name}.</span>
         <em>Play ${name} →</em>
       </a>
       <a class="arrival-action arrival-action-world" href="#/possibilities">
@@ -209,7 +216,6 @@
       actions.insertAdjacentElement('afterend', status);
     }
     status.innerHTML = `
-      <a href="#/mind"><strong>${mindCount}/12</strong><span>active interests · ${pursuingCount}/3 pursuing</span></a>
       <a href="#/inbox"><strong>${replies || q}</strong><span>${replies ? `GM ${replies === 1 ? 'reply' : 'replies'}` : q ? `open ${q === 1 ? 'question' : 'questions'}` : 'questions & replies'}</span></a>
       ${latest.title ? `<div class="arrival-latest"><small>LATEST DISCOVERY</small><span>${latest.title}</span></div>` : ''}
       <a class="arrival-explore-link" href="#/explore">Explore Greywake →</a>`;
@@ -218,6 +224,7 @@
   document.addEventListener('DOMContentLoaded', build);
   window.addEventListener('greywake:player-ready', build);
   window.addEventListener('greywake:engagement-changed', build);
+  window.addEventListener('greywake:goals-rendered', build);
   window.addEventListener('hashchange', () => {
     if ((location.hash || '#/') === '#/' || !(location.hash || '')) setTimeout(build, 0);
   });

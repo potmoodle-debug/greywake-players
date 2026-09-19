@@ -75,7 +75,9 @@
       '#/gm-players': '#/mind',
       '#/gm-greywake': '#/greywake',
       '#/gm-campaign': '#/campaign',
-      '#/gm-cockpit': '#/'
+      '#/gm-cockpit': '#/',
+      '#/gm-session': '#/',
+      '#/gm_session': '#/'
     };
     return routeMap[hash] || hash || '#/';
   }
@@ -159,10 +161,15 @@
     });
   }
 
-  function normalizePreviewRoute() {
-    if (!(ownerIsGM() && gmPreviewKey)) return;
+  function normalizePlayerRoute() {
+    if (document.body.dataset.role !== 'player') return;
     const target = playerRouteFromGM();
     if (target !== location.hash) history.replaceState(null, '', target);
+  }
+
+  function normalizePreviewRoute() {
+    if (!(ownerIsGM() && gmPreviewKey)) return;
+    normalizePlayerRoute();
   }
 
   function applyView(user) {
@@ -218,6 +225,7 @@
     });
 
     window.GreywakePlayer = effectiveUser;
+    normalizePlayerRoute();
     normalizePreviewRoute();
     window.dispatchEvent(new CustomEvent('greywake:player-ready', { detail: effectiveUser }));
   }
