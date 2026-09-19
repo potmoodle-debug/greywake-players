@@ -252,6 +252,19 @@
     return { questions: active.filter(isQuestion).length, interests: active.filter(g => !isQuestion(g) && g.status !== 'pursuing').length, pursuing: active.filter(g => g.status === 'pursuing').length };
   }
 
+  function publishPlayerSnapshot(character, current, messages, counts) {
+    const activeIds = new Set(current.map(goal => Number(goal.id)));
+    const replies = messages.filter(message => message.author_role === 'gm' && activeIds.has(Number(message.goal_id))).length;
+    window.GreywakeGoalSnapshot = {
+      character,
+      activeInterests: current.filter(goal => !isQuestion(goal)).length,
+      pursuing: counts.pursuing,
+      questions: counts.questions,
+      replies
+    };
+    window.dispatchEvent(new CustomEvent('greywake:goals-rendered', { detail: window.GreywakeGoalSnapshot }));
+  }
+
   async function render(user) {
     const host = document.getElementById('playerGoals');
     if (!host) return;
@@ -276,6 +289,7 @@
       const key = characterKey(user);
       goals = goals.filter(g => g.character_slug === key);
       const current = activeGoals(goals), resolved = resolvedGoals(goals), counts = splitCounts(goals), isPreview = document.body.dataset.gmPreview === 'true';
+      publishPlayerSnapshot(key, current, messages, counts);
       const list = current.length ? `<div class="interest-thread-list">${current.map(goal => playerThreadCard(goal, messages, user, false, isPreview)).join('')}</div>` : `<div class="goals-empty">Nothing current yet. Questions you ask from cards and records will appear here automatically, without becoming a quest unless you choose to pursue them.</div>`;
       const resolvedSection = resolved.length ? `<details class="resolved-goals"><summary>Resolved / closed (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => playerThreadCard(goal, messages, user, true, isPreview)).join('')}</div></details>` : '';
       host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">YOUR DIRECTION</div><h2>Questions & Interests</h2></div><p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved questions and interests.` : `Ask directly from things you are reading. A question stays a question until you decide it matters enough to become one of the three things currently on your mind.`}</p></div><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${list}${resolvedSection}${isPreview ? `<div class="goal-hint">GM preview · replies and changes are disabled in preview mode</div>` : `<form id="goalForm" class="goal-form"><label for="goalInput">Start a new interest or direction</label><div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. I'd love to study a flickerfly."><button type="submit" ${activeInterestCount(current) >= MAX_INTERESTS ? 'disabled' : ''}>Add interest</button></div><div class="goal-hint">${activeInterestCount(current)}/${MAX_INTERESTS} things on your mind · questions do not use a slot</div></form>`}`;
