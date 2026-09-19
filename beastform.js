@@ -60,7 +60,7 @@
 
   const VARIANT_PORTRAITS = {
     'pack-predator:cacklemaw': {
-      src:'assets/canon/beastforms/marek-cacklemaw.webp',
+      src:'assets/canon/beastforms/marek-cacklemaw-v2.jpg',
       alt:'Marek transformed into a cacklemaw',
       credit:'Greywake canon cacklemaw',
       href:''
