@@ -134,7 +134,7 @@
       <div class="character-sheet-hero">
         ${portrait}
         <div class="character-sheet-identity">
-          <div class="character-sheet-eyebrow">CLICKABLE CHARACTER REFERENCE</div>
+          <div class="character-sheet-eyebrow">LIVE CHARACTER</div>
           <h2>${esc(sheet.name)}</h2>
           <p class="character-sheet-subtitle">${esc(sheet.subtitle)}</p>
           ${statStrip(sheet.stats)}
