@@ -147,10 +147,11 @@
     if(!bar){bar=document.createElement('div');bar.id='p10StickyVitals';bar.className='p10-sticky';sheet.insertAdjacentElement('beforebegin',bar);}
     const r=resources(),c=combat(),d=damage();
     if(!r)return;
-    const signature=JSON.stringify([characterKey(),c?.evasion??stat('Evasion'),c?.armorScore??stat('Armor'),r.hp,r.maxHP,r.stress,r.maxStress,r.hope,r.maxHope,Number(d?.armorMarked||0),water()]);
+    const form=isMarek()?(document.querySelector('#beastformControl .beastform-active-head strong')?.textContent.trim()||'Humanoid'):'';
+    const signature=JSON.stringify([characterKey(),form,c?.evasion??stat('Evasion'),c?.armorScore??stat('Armor'),r.hp,r.maxHP,r.stress,r.maxStress,r.hope,r.maxHope,Number(d?.armorMarked||0),water()]);
     if(bar.dataset.signature===signature)return;
     bar.dataset.signature=signature;
-    bar.innerHTML=`<strong>${esc(NAMES[characterKey()]||'Character')} · L1</strong><div class="p10-sticky-data"><span>Evasion <b>${esc(c?.evasion??stat('Evasion'))}</b></span><span>Armor <b>${esc(c?.armorScore??stat('Armor'))}</b></span><span>HP <b>${r.hp}/${r.maxHP}</b></span><span>Stress <b>${r.stress}/${r.maxStress}</b></span><span>Hope <b>${r.hope}/${r.maxHope}</b></span><span>Armor Slots <b>${Number(d?.armorMarked||0)}/${esc(c?.armorScore??stat('Armor'))}</b></span><span>Water <b>${water()}/${MAX_WATER}</b></span></div>`;
+    bar.innerHTML=`<strong>${esc(NAMES[characterKey()]||'Character')} · L1</strong><div class="p10-sticky-data">${isMarek()?`<span>Form <b>${esc(form)}</b></span>`:''}<span>Evasion <b>${esc(c?.evasion??stat('Evasion'))}</b></span><span>Armor <b>${esc(c?.armorScore??stat('Armor'))}</b></span><span>HP <b>${r.hp}/${r.maxHP}</b></span><span>Stress <b>${r.stress}/${r.maxStress}</b></span><span>Hope <b>${r.hope}/${r.maxHope}</b></span><span>Armor Slots <b>${Number(d?.armorMarked||0)}/${esc(c?.armorScore??stat('Armor'))}</b></span><span>Water <b>${water()}/${MAX_WATER}</b></span></div>`;
   }
 
   function setWater(value){window.GreywakeRest?.setWater?.(Math.max(0,Math.min(MAX_WATER,Number(value)||0)));}

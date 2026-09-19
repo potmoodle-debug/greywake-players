@@ -61,9 +61,9 @@
       view.innerHTML = `
         <div class="character-page-toolbar">
           <div class="character-page-toolbar-copy">
-            <div class="eyebrow">GREYWAKE · PERSONAL DOSSIER</div>
+            <div class="eyebrow">GREYWAKE · LIVE CHARACTER</div>
             <h1 id="characterPageHeading" tabindex="-1">Character sheet</h1>
-            <p id="characterPageSubheading">Field reference · rules · equipment · personal record</p>
+            <p id="characterPageSubheading">Live Daggerheart sheet · actions · resources · equipment · story</p>
           </div>
           <div class="character-page-toolbar-actions">
             <button id="characterBackpackButton" class="character-page-backpack" type="button" aria-label="Open backpack">
@@ -115,7 +115,7 @@
     if (sheet.parentElement !== view) view.appendChild(sheet);
     const character = window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
     const heading = document.getElementById('characterPageHeading');
-    if (heading) heading.textContent = `${character} · Character Dossier`;
+    if (heading) heading.textContent = `${character} · Character Sheet`;
     sheet.dataset.dossier = 'true';
     buildTabs();
     moveTabsNearContent();
@@ -244,8 +244,8 @@
       button?.setAttribute('aria-label', 'Close character sheet');
       const crumb = document.getElementById('crumb');
       const character = window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
-      if (crumb) crumb.textContent = `Greywake / ${character} / Dossier`;
-      document.title = `${character} — Character Dossier — Greywake`;
+      if (crumb) crumb.textContent = `Greywake / ${character} / Character`;
+      document.title = `${character} — Character Sheet — Greywake`;
       buildTabs();
       moveTabsNearContent();
       applyTab();

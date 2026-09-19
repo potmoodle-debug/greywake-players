@@ -146,7 +146,7 @@
         ${group('Experiences', sheet.experiences, { hint: 'Tap to see when it matters' })}
         ${group('Features', sheet.features, { hint: 'Class, subclass, ancestry and community' })}
         ${group('Domain cards', sheet.domains, { hint: 'Rules reference' })}
-        ${group('Weapons, armor & inventory', sheet.gear, { hint: 'Reference, not live marks' })}
+        ${group('Weapons, armor & inventory', sheet.gear, { hint: 'Carried gear · use Backpack for live changes' })}
       </div>
     </div>`;
   }

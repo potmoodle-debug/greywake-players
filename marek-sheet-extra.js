@@ -7,7 +7,7 @@
   ];
 
   const EXTRA_GEAR = [
-    ['Gambeson Armor','Armor','Carried armor on Marek’s current Demiplane equipment list. His current overall sheet shows Armor 4 and damage thresholds 6 / 12 with the Round Shield active.'],
+    ['Gambeson Armor','Armor','Carried armor on Marek’s current Greywake sheet. With the Round Shield active, his current Armor Score is 4 and his visible damage thresholds are 6 / 12.'],
     ['Torch','Equipment','A standard torch carried in Marek’s equipment.'],
     ['50 ft of Rope','Equipment','Fifty feet of rope carried in Marek’s equipment.'],
     ['Basic Supplies','Equipment','General adventuring and field supplies carried by Marek.'],
@@ -31,9 +31,9 @@
   ];
 
   const CONNECTIONS = [
-    ['What did you confide in me that makes me leap into danger for you every time?','Unanswered','This connection prompt is still blank on Marek’s Demiplane sheet.'],
-    ['What animal do I say you remind me of?','Unanswered','This connection prompt is still blank on Marek’s Demiplane sheet.'],
-    ['What affectionate nickname have you given me?','Unanswered','This connection prompt is still blank on Marek’s Demiplane sheet.']
+    ['What did you confide in me that makes me leap into danger for you every time?','Unanswered','This connection is still unanswered on Marek’s Greywake sheet.'],
+    ['What animal do I say you remind me of?','Unanswered','This connection is still unanswered on Marek’s Greywake sheet.'],
+    ['What affectionate nickname have you given me?','Unanswered','This connection is still unanswered on Marek’s Greywake sheet.']
   ];
 
   function esc(value) {
@@ -77,7 +77,7 @@
     let changed = false;
     changed = addCardsToGroup('Features', EXTRA_FEATURES) || changed;
     changed = addCardsToGroup('Weapons, armor & inventory', EXTRA_GEAR) || changed;
-    changed = addGroup('Character details', 'From Marek’s Demiplane details tab', DETAILS) || changed;
+    changed = addGroup('Character details', 'Current character details', DETAILS) || changed;
     changed = addGroup('Background', 'Answers already written on the sheet', BACKGROUND) || changed;
     changed = addGroup('Connections', 'Not yet answered', CONNECTIONS) || changed;
 
