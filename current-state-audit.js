@@ -72,11 +72,39 @@
   link('Ash-Plate Groundfall','Session 01 — Player Recap');
   link('Ash-Plate Groundfall','Session 03 — Player Recap');
 
-  // Player Home orientation: one small, explicit snapshot of where play currently stands.
+  // Player Home is character-perspective state, not a single shared campaign camera.
+  // Shared history may be known without being presented as something this character personally lived through.
   window.GREYWAKE_HOME_STATE = {
-    location: 'Greywake',
-    locationDetail: 'The party is back inside the hold after the Kestrel Return rescue.',
-    unresolved: 'The Cistern Plate, the altered route markers and Ash-Plate’s recovery are still unresolved.'
+    marek: {
+      heading: 'Marek, what matters now?',
+      location: 'Blocked Digger Way',
+      locationDetail: 'You are on the tunnel/wastes side of a recently disturbed blockage. Voices are close beyond it, but you have not identified them.',
+      chapterTitle: 'The Pale Thread',
+      chapterDetail: 'An unsuccessful retrieval trip for Meren led you south onto an unfamiliar creature trail, into a concealed Digger way and finally to this blocked route.',
+      chapterRoute: '#/my-greywake',
+      currentTitle: 'The Closing Ways',
+      currentDetail: 'You have a pale translucent membrane sample, evidence that the creature can compress through unusually tight spaces, and a blockage that shifted but did not open.'
+    },
+    odie: {
+      heading: 'Odie, what matters now?',
+      location: 'Blocked Digger Way',
+      locationDetail: 'You are on the Greywake side of a concealed Digger route with Velmira. Someone is on the other side of the blockage.',
+      chapterTitle: 'Kestrel Return',
+      chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake, leaving valuable freight behind rather than risk more lives.',
+      chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
+      currentTitle: 'The Closing Ways',
+      currentDetail: 'Concealed Digger entrances are being deliberately closed or filled. At least one closure required precise knowledge of an undocumented entrance.'
+    },
+    velmira: {
+      heading: 'Velmira, what matters now?',
+      location: 'Blocked Digger Way',
+      locationDetail: 'You are on the Greywake side of a concealed Digger route with Odie. Someone is on the other side of the blockage.',
+      chapterTitle: 'Kestrel Return',
+      chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake after the cacklemaw attack and the longer return route.',
+      chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
+      currentTitle: 'The Closing Ways',
+      currentDetail: 'The route closure is deliberate, but who is exposing the concealed ways, who is closing them and why remain unresolved.'
+    }
   };
 
   // Current state after Session Three.
