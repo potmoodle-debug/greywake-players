@@ -94,7 +94,15 @@
     };
   }
 
+  function latestRecap() {
+    const discoveries = window.GREYWAKE_DISCOVERIES || [];
+    const recap = discoveries.find(item => String(item.when || '').toLowerCase() === 'latest recap')
+      || discoveries.find(item => String(item.note || '').includes('Session 03'));
+    return recap || null;
+  }
+
   function cleanGMView() {
+    document.getElementById('arrivalOrientation')?.remove();
     document.getElementById('arrivalActions')?.remove();
     document.getElementById('arrivalStatus')?.remove();
     lastSignature = '';
@@ -111,8 +119,36 @@
 
     const heading = copy.querySelector('h2');
     const intro = copy.querySelector(':scope > p');
-    if (heading) heading.textContent = 'The settlement survived another day. What matters to you now?';
-    if (intro) intro.textContent = 'Open your character, choose a possibility worth following, or check the interests and active pursuits currently shaping your character.';
+    if (heading) heading.textContent = 'Back in Greywake. What matters now?';
+    if (intro) intro.textContent = 'Start with your live character sheet, catch up on where the campaign stands, or follow whatever has caught your character’s attention.';
+
+    const homeState = window.GREYWAKE_HOME_STATE || {};
+    const recap = latestRecap();
+    let orientation = document.getElementById('arrivalOrientation');
+    if (!orientation) {
+      orientation = document.createElement('div');
+      orientation.id = 'arrivalOrientation';
+      orientation.className = 'arrival-orientation';
+      const heroButtons = copy.querySelector('.hero-buttons');
+      if (heroButtons) heroButtons.insertAdjacentElement('afterend', orientation);
+      else copy.appendChild(orientation);
+    }
+    orientation.innerHTML = `
+      <div class="arrival-orientation-item">
+        <small>WHERE YOU ARE</small>
+        <strong>${homeState.location || 'Greywake'}</strong>
+        <span>${homeState.locationDetail || 'Your current shared position in the campaign.'}</span>
+      </div>
+      <a class="arrival-orientation-item" href="${recap?.note ? '#/record/' + encodeURIComponent(recap.note) : '#/campaign'}">
+        <small>LAST SHARED RECAP</small>
+        <strong>${recap?.title || 'Campaign recap'}</strong>
+        <span>${recap?.text || 'Review what happened in the latest shared session record.'}</span>
+      </a>
+      <a class="arrival-orientation-item" href="#/possibilities">
+        <small>STILL IN MOTION</small>
+        <strong>Unresolved</strong>
+        <span>${homeState.unresolved || 'Known situations are still moving even when the party does not pursue them.'}</span>
+      </a>`;
 
     let actions = document.getElementById('arrivalActions');
     if (!actions) {
@@ -134,16 +170,16 @@
     const characterImage = findImage(document.getElementById('characterSheet'));
     const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
     const mindImage = findImage(goals.querySelector('.player-mind-view')) || worldImage;
-    const signature = JSON.stringify({name,mindCount,pursuingCount,possibilities,q,replies,latest,characterImage,worldImage,mindImage});
+    const signature = JSON.stringify({name,mindCount,pursuingCount,possibilities,q,replies,latest,homeState,recap,characterImage,worldImage,mindImage});
     const existingStatus = document.getElementById('arrivalStatus');
     if (lastSignature === signature && actions.isConnected && existingStatus?.isConnected) return;
     lastSignature = signature;
     actions.innerHTML = `
       <a class="arrival-action arrival-action-character" href="#/character">
-        <small>MY CHARACTER</small>
+        <small>PLAY MY CHARACTER</small>
         <strong>${name}</strong>
-        <span>Hope, Stress, abilities, attacks, gear and story.</span>
-        <em>Open character →</em>
+        <span>Your live sheet: Hope, Stress, HP, Armor, abilities, attacks, gear and character-specific tools.</span>
+        <em>Play ${name} →</em>
       </a>
       <a class="arrival-action arrival-action-world" href="#/possibilities">
         <small>THE WORLD IS MOVING</small>
