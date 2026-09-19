@@ -62,24 +62,27 @@
     setText(node,message);
   }
 
-  function currentFormId(){
-    return document.querySelector('#beastformOptions .beastform-option.selected')?.dataset.beastform || null;
+  function currentSelectionKey(){
+    const selected=document.querySelector('#beastformOptions .beastform-variant.selected');
+    if(!selected)return null;
+    return `${selected.dataset.beastform}:${selected.dataset.beastformVariant||''}`;
   }
 
-  function payForTransformation(formId){
+  function payForTransformation(formId,variantId){
     const resource=api();
     if (!resource) return {ok:true};
     const mode=selectedMode();
-    const current=currentFormId();
-    if (current && current===formId) return {ok:true,same:true};
+    const current=currentSelectionKey();
+    const next=`${formId}:${variantId||''}`;
+    if (current && current===next) return {ok:true,same:true};
     activationError('');
     if (mode==='evolution'){
-      const result=resource.spendHope(3,`Evolution · ${formId}`);
+      const result=resource.spendHope(3,`Evolution · ${formId} · ${variantId||'creature'}`);
       if (!result.ok){ activationError(result.message || 'Not enough Hope.'); return result; }
       pending={mode:'evolution',trait:document.getElementById('beastformPreTrait')?.value || 'Agility'};
       return result;
     }
-    const result=resource.markStress(1,{reason:`Beastform · ${formId}`,cost:true});
+    const result=resource.markStress(1,{reason:`Beastform · ${formId} · ${variantId||'creature'}`,cost:true});
     if (!result.ok){ activationError(result.message || 'No free Stress slot.'); return result; }
     pending={mode:'stress',trait:null};
     return result;
@@ -143,7 +146,7 @@
     if (!isMarek()) return;
     const button=event.target.closest('#beastformOptions [data-beastform]');
     if (!button) return;
-    const result=payForTransformation(button.dataset.beastform);
+    const result=payForTransformation(button.dataset.beastform,button.dataset.beastformVariant);
     if (!result.ok){
       event.preventDefault();
       event.stopImmediatePropagation();
