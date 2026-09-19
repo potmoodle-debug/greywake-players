@@ -141,19 +141,46 @@
   }
 
   function ensureSticky(){
-    const view=document.getElementById('characterPageView'),sheet=document.getElementById('characterSheet');
-    if(!view||!sheet||!supported())return;
-    let bar=document.getElementById('p10StickyVitals');
-    if(!bar){bar=document.createElement('div');bar.id='p10StickyVitals';bar.className='p10-sticky';sheet.insertAdjacentElement('beforebegin',bar);}
-    const r=resources(),c=combat(),d=damage();
+    const sheet=document.getElementById('characterSheet');
+    const shell=sheet?.querySelector('.character-sheet-shell');
+    const tabs=document.getElementById('characterPageTabs');
+    if(!sheet||!shell||!supported())return;
+
+    const key=characterKey();
+    if(key==='velmira'){
+      document.getElementById('p10CurrentStateStrip')?.remove();
+      return;
+    }
+
+    const r=resources();
     if(!r)return;
-    const form=isMarek()?(document.querySelector('#beastformControl .beastform-active-head strong')?.textContent.trim()||'Humanoid'):'';
-    const effects=characterKey()==='odie'?(r.effects||{}):{};
-    const effectLabel=characterKey()==='odie'?[effects.cloaked?'Cloaked':'',effects.rogueDodge?'Dodge +2 Evasion':''].filter(Boolean).join(' · '):'';
-    const signature=JSON.stringify([characterKey(),form,effectLabel,c?.evasion??stat('Evasion'),c?.armorScore??stat('Armor'),r.hp,r.maxHP,r.stress,r.maxStress,r.hope,r.maxHope,Number(d?.armorMarked||0),water()]);
-    if(bar.dataset.signature===signature)return;
-    bar.dataset.signature=signature;
-    bar.innerHTML=`<strong>${esc(NAMES[characterKey()]||'Character')} · L1</strong><div class="p10-sticky-data">${isMarek()?`<span>Form <b>${esc(form)}</b></span>`:''}${effectLabel?`<span>State <b>${esc(effectLabel)}</b></span>`:''}<span>Evasion <b>${esc(c?.evasion??stat('Evasion'))}</b></span><span>Armor <b>${esc(c?.armorScore??stat('Armor'))}</b></span><span>HP <b>${r.hp}/${r.maxHP}</b></span><span>Stress <b>${r.stress}/${r.maxStress}</b></span><span>Hope <b>${r.hope}/${r.maxHope}</b></span><span>Armor Slots <b>${Number(d?.armorMarked||0)}/${esc(c?.armorScore??stat('Armor'))}</b></span><span>Water <b>${water()}/${MAX_WATER}</b></span></div>`;
+
+    let label='';
+    if(key==='marek'){
+      const form=document.querySelector('#beastformControl .beastform-active-head strong')?.textContent.trim()||'Humanoid';
+      label=`Form · ${form}`;
+    }else if(key==='odie'){
+      const effects=r.effects||{};
+      const active=[effects.cloaked?'Cloaked':'',effects.rogueDodge?'Rogue’s Dodge · +2 Evasion':''].filter(Boolean);
+      label=active.length?active.join(' · '):'No active Rogue state';
+    }
+
+    let bar=document.getElementById('p10CurrentStateStrip');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='p10CurrentStateStrip';
+      bar.className='p10-current-state-strip';
+      bar.setAttribute('aria-live','polite');
+    }
+
+    const signature=`${key}|${label}`;
+    if(bar.dataset.signature!==signature){
+      bar.dataset.signature=signature;
+      bar.innerHTML=`<span>CURRENT STATE</span><strong>${esc(NAMES[key]||'Character')}</strong><b>${esc(label)}</b>`;
+    }
+
+    const anchor=tabs?.parentElement===shell?tabs:shell.querySelector('.character-sheet-hero');
+    if(anchor&&bar.previousElementSibling!==anchor)anchor.insertAdjacentElement('afterend',bar);
   }
 
   function setWater(value){window.GreywakeRest?.setWater?.(Math.max(0,Math.min(MAX_WATER,Number(value)||0)));}
