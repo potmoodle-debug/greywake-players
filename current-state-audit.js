@@ -72,6 +72,13 @@
   link('Ash-Plate Groundfall','Session 01 — Player Recap');
   link('Ash-Plate Groundfall','Session 03 — Player Recap');
 
+  // Player Home orientation: one small, explicit snapshot of where play currently stands.
+  window.GREYWAKE_HOME_STATE = {
+    location: 'Greywake',
+    locationDetail: 'The party is back inside the hold after the Kestrel Return rescue.',
+    unresolved: 'The Cistern Plate, the altered route markers and Ash-Plate’s recovery are still unresolved.'
+  };
+
   // Current state after Session Three.
   if (D['Stone-Lip Hollow']) D['Stone-Lip Hollow'].html = `<p>A shallow side basin beneath a curved stone overhang where the Kestrel Return survivors sheltered.</p><p>The cacklemaw assault here was broken during Session Three. The survivors, the Cistern Plate, Ash-Plate and Lowbell subsequently returned to Greywake.</p><p>Stone-Lip Hollow remains part of the known route history, but the party is no longer trapped there.</p>`;
   if (D['Cacklemaw Pack']) D['Cacklemaw Pack'].html = `<p>Cacklemaws are lean pursuit predators that use broken, breathy calls to coordinate. The party has seen them circle, test defences, exploit separation and change tactics rather than simply rush the nearest target.</p><p>The pack pursued the Kestrel Return survivors from the broken runnels to Stone-Lip Hollow. During Session Three the party broke the attack; surviving scavengers fled rather than regrouping nearby.</p><p>A useful lesson from direct experience: the animal you can see may not be the only one choosing where your attention goes.</p>`;
