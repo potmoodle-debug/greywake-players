@@ -101,10 +101,11 @@
 
   function moveTabsNearContent() {
     const nav = ensureTabs();
-    const body = document.querySelector('#characterSheet .character-sheet-body');
-    if (!nav || !body) return;
-    if (nav.parentElement !== body.parentElement || nav.nextElementSibling !== body) {
-      body.insertAdjacentElement('beforebegin', nav);
+    const shell = document.querySelector('#characterSheet .character-sheet-shell');
+    const hero = shell?.querySelector('.character-sheet-hero');
+    if (!nav || !shell || !hero) return;
+    if (nav.parentElement !== shell || hero.nextElementSibling !== nav) {
+      hero.insertAdjacentElement('afterend', nav);
     }
   }
 
@@ -115,7 +116,7 @@
     if (sheet.parentElement !== view) view.appendChild(sheet);
     const character = window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
     const heading = document.getElementById('characterPageHeading');
-    if (heading) heading.textContent = `${character} · Character Sheet`;
+    if (heading) heading.textContent = 'Character Sheet';
     sheet.dataset.dossier = 'true';
     buildTabs();
     moveTabsNearContent();

@@ -103,3 +103,41 @@ body[data-character="odie"] .character-page-view .pro-dossier .character-sheet-h
   .character-page-view .active-action-detail{grid-template-columns:34px minmax(0,1fr)}
 }
 @media(prefers-reduced-motion:reduce){.character-page-view *{scroll-behavior:auto!important}}
+
+
+/* P11 Marek live-play hierarchy cleanup */
+body[data-character="marek"] .character-page-toolbar{margin-bottom:.35rem}
+body[data-character="marek"] .character-page-toolbar h1{font-size:1.45rem;letter-spacing:.06em;text-transform:uppercase}
+body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-hero{grid-template-columns:minmax(190px,245px) minmax(0,1fr);min-height:0}
+body[data-character="marek"] .pro-portrait-frame{margin:.8rem 0 .8rem .8rem;padding:6px 6px 24px}
+body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait{min-height:230px}
+body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-identity{padding:1rem 1.25rem .95rem}
+body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-identity h2{font-size:clamp(2.4rem,4.8vw,4rem);margin:.12rem 0 .22rem}
+body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-subtitle{font-size:.7rem}
+body[data-character="marek"] .pro-identity-ribbon{margin:.4rem 0 .15rem}
+body[data-character="marek"] .character-page-tabs{position:sticky;top:116px;z-index:11;margin:0;padding:.35rem .55rem;background:rgba(13,13,11,.96);border-top:1px solid rgba(255,255,255,.045);border-bottom:1px solid rgba(255,255,255,.065)}
+body[data-character="marek"] #playDashboard{margin-top:0}
+body[data-character="marek"] #playDashboard .beastform-control{margin:.55rem 0 .5rem}
+body[data-character="marek"] #playDashboard .beastform-idle{padding:.55rem .75rem}
+body[data-character="marek"] #playDashboard .beastform-idle small{display:none}
+body[data-character="marek"] #playDashboard .beastform-idle strong{font-size:1rem}
+body[data-character="marek"] #playDashboard .beastform-idle button{min-height:36px;padding:.42rem .7rem}
+body[data-character="marek"] .active-actions-zone{display:block;background:transparent}
+body[data-character="marek"] .active-actions-column{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:.45rem;padding:.7rem;border-top:1px solid rgba(255,255,255,.055)}
+body[data-character="marek"] .active-actions-column+.active-actions-column{border-left:0}
+body[data-character="marek"] .active-actions-label{grid-column:1/-1;margin:0 0 .1rem}
+body[data-character="marek"] .active-action-card{margin:0;min-height:62px}
+body[data-character="marek"] .active-actions-panel{margin:.7rem 0}
+body[data-character="marek"] .active-actions-head{padding:.7rem .85rem}
+body[data-character="marek"] .active-actions-head strong{font-size:1.03rem}
+body[data-character="marek"] .active-actions-head small{font-size:.66rem}
+body[data-character="marek"] .character-sheet-body{padding-top:.9rem!important}
+
+@media(max-width:760px){
+  body[data-character="marek"] .character-page-tabs{top:116px}
+  body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-hero{grid-template-columns:110px minmax(0,1fr)}
+  body[data-character="marek"] .pro-portrait-frame{margin:.65rem 0 .65rem .65rem}
+  body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait{min-height:150px}
+  body[data-character="marek"] .character-page-view .pro-dossier .character-sheet-identity{padding:.8rem}
+  body[data-character="marek"] .active-actions-column{grid-template-columns:1fr}
+}
