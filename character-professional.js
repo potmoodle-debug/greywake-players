@@ -87,7 +87,7 @@
     if (resources.length){
       const board = document.createElement('div');
       board.className = 'pro-resource-board';
-      board.innerHTML = `<div class="pro-board-title"><span>FIELD CONDITION</span><small>reference state</small></div>${resources.join('')}`;
+      board.innerHTML = `<div class="pro-board-title"><span>FIELD CONDITION</span><small>live state</small></div>${resources.join('')}`;
       const note = identity.querySelector('.character-sheet-note');
       if (note) note.insertAdjacentElement('beforebegin', board);
       else identity.appendChild(board);
