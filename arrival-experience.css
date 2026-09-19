@@ -61,7 +61,7 @@ body.player-portal-enabled[data-player-route="home"] #home>.field-note{display:n
   .arrival-action-character{grid-column:auto}
   .arrival-action{min-height:142px;padding:17px 18px}
   .arrival-action strong{font-size:25px}.arrival-action span{font-size:9px}.arrival-action em{margin-top:11px}
-  .arrival-status{grid-template-columns:1fr 1fr}.arrival-latest{grid-column:1/-1;border-top:1px solid rgba(204,181,111,.14);border-right:0}.arrival-status .arrival-explore-link{grid-column:1/-1}
+  .arrival-status{grid-template-columns:1fr}.arrival-latest{grid-column:1/-1;border-top:1px solid rgba(204,181,111,.14);border-right:0}.arrival-status .arrival-explore-link{grid-column:1/-1}
 }
 @media(max-width:430px){#home .hero-copy h2{font-size:39px}.arrival-status>a{padding-left:10px;padding-right:10px}.arrival-status strong{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.arrival-action{transition:none}.arrival-action:hover{transform:none}}
