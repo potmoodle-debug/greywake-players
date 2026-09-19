@@ -37,3 +37,13 @@ body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait.beast
   color:#d7ddbc;
   opacity:1;
 }
+
+
+/* Specific creature choice inside each mechanical Beastform. */
+.beastform-option{cursor:default}
+.beastform-variants{display:grid;gap:.4rem;margin-top:.55rem;padding-top:.55rem;border-top:1px solid rgba(255,255,255,.07)}
+.beastform-variants>span{font-size:.54rem;font-weight:900;letter-spacing:.15em;color:#888271}
+.beastform-variants>div{display:flex;flex-wrap:wrap;gap:.35rem}
+.beastform-variant{display:flex;align-items:center;gap:.38rem;min-height:34px;padding:.35rem .55rem;border:1px solid rgba(168,183,126,.28);background:rgba(168,183,126,.055);color:#d8d1bd;cursor:pointer}
+.beastform-variant:hover,.beastform-variant.selected{border-color:rgba(168,183,126,.72);background:rgba(168,183,126,.16);color:#f1ead7}
+.beastform-variant small{padding:.12rem .28rem;border:1px solid rgba(196,170,96,.35);color:#cbb878;font-size:.46rem;font-weight:900;letter-spacing:.08em}
