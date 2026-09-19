@@ -4,7 +4,7 @@
       name: 'Velmira',
       subtitle: 'Wizard · School of Knowledge · Wanderborne Human',
       portrait: 'assets/canon/characters/velmira-poster.webp',
-      note: 'Reference view only for this first version. Live HP, Hope, Stress and Armor marks should still be tracked on the main play sheet until Greywake becomes the agreed source of truth.',
+      note: 'Greywake is the live character sheet. Track current Hope, Stress, Hit Points, Armor and other changing character state here during play.',
       stats: [
         ['Level','1'],['Evasion','11'],['Armor','3'],['HP max','5'],['Stress max','7'],['Proficiency','1']
       ],
@@ -41,7 +41,7 @@
       name: 'Odie',
       subtitle: 'Rogue · Nightwalker · Underborne Mixed Ancestry',
       portrait: 'assets/canon/characters/odie-canon.webp',
-      note: 'Reference view only for this first version. Live HP, Hope, Stress and Armor marks should still be tracked on the main play sheet until Greywake becomes the agreed source of truth.',
+      note: 'Greywake is the live character sheet. Track current Hope, Stress, Hit Points, Armor and other changing character state here during play.',
       stats: [
         ['Level','1'],['Evasion','13'],['Armor','3'],['HP max','6'],['Stress max','6'],['Proficiency','1']
       ],
@@ -77,7 +77,7 @@
       name: 'Marek',
       subtitle: 'Druid · Warden of Renewal · Wildborne Mixed Ancestry',
       portrait: 'assets/canon/characters/marek-canon.jpg',
-      note: 'Imported from Marek’s current Demiplane sheet. This Greywake page is still a reference view: Demiplane remains the live source for changing Hope, HP, Stress and Armor marks for now.',
+      note: 'Greywake is the live character sheet. Track current Hope, Stress, Hit Points, Armor and other changing character state here during play.',
       stats: [
         ['Level','1'],['Evasion','12'],['Armor','4'],['HP','0 / 6 marked'],['Stress','0 / 7 marked'],['Hope','2 / 6']
       ],
@@ -196,7 +196,7 @@
     if (!section || !user) return;
     ensureTopbarButton();
     if (user.role === 'gm') {
-      section.innerHTML = `<div class="sheet-gm-empty"><div class="character-sheet-eyebrow">GM · CHARACTER SHEETS</div><h2>Preview the sheet as a player.</h2><p>Use the existing GM preview bar to switch to Marek, Velmira or Odie. The character reference will then render exactly as that player sees it.</p></div>`;
+      section.innerHTML = `<div class="sheet-gm-empty"><div class="character-sheet-eyebrow">GM · CHARACTER SHEETS</div><h2>Preview the sheet as a player.</h2><p>Use the existing GM preview bar to switch to Marek, Velmira or Odie. The live character sheet will then render exactly as that player sees it.</p></div>`;
       return;
     }
     const key = String(user.character || '').toLowerCase();
