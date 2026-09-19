@@ -58,6 +58,45 @@
     }
   ];
 
+  const FORM_PORTRAITS = {
+    'agile-scout': {
+      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Arabian%20Red%20Fox%209.jpg?width=900',
+      alt:'Marek in Agile Scout Beastform, represented by an Arabian red fox',
+      credit:'Arabian Red Fox · Manojkiri photography · Wikimedia Commons',
+      href:'https://commons.wikimedia.org/wiki/File:Arabian_Red_Fox_9.jpg'
+    },
+    'nimble-grazer': {
+      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Deer%20Portrait.jpg?width=900',
+      alt:'Marek in Nimble Grazer Beastform, represented by a deer',
+      credit:'Deer Portrait · Charles Patrick Ewing · Wikimedia Commons',
+      href:'https://commons.wikimedia.org/wiki/File:Deer_Portrait.jpg'
+    },
+    'aquatic-scout': {
+      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Common%20Octopus.jpg?width=900',
+      alt:'Marek in Aquatic Scout Beastform, represented by an octopus',
+      credit:'Common Octopus · Lee Vilenski · Wikimedia Commons',
+      href:'https://commons.wikimedia.org/wiki/File:Common_Octopus.jpg'
+    },
+    'household-friend': {
+      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Dog%20portrait.jpg?width=900',
+      alt:'Marek in Household Friend Beastform, represented by a dog',
+      credit:'Dog portrait · Owlf · Wikimedia Commons',
+      href:'https://commons.wikimedia.org/wiki/File:Dog_portrait.jpg'
+    },
+    'pack-predator': {
+      src:'https://commons.wikimedia.org/wiki/Special:FilePath/A%20spotted%20hyena.jpg?width=900',
+      alt:'Marek in Pack Predator Beastform, represented by a spotted hyena',
+      credit:'Spotted hyena · Suzeen Simon · Wikimedia Commons',
+      href:'https://commons.wikimedia.org/wiki/File:A_spotted_hyena.jpg'
+    },
+    'stalking-arachnid': {
+      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Wolf%20Spider%201.jpg?width=900',
+      alt:'Marek in Stalking Arachnid Beastform, represented by a wolf spider',
+      credit:'Wolf Spider · Hsing Lo · Wikimedia Commons',
+      href:'https://commons.wikimedia.org/wiki/File:Wolf_Spider_1.jpg'
+    }
+  };
+
   const state = {
     base:null,
     active:null,
@@ -337,6 +376,49 @@
     }
   }
 
+  function applyPortrait(form){
+    const portrait=document.querySelector('#characterSheet .character-sheet-portrait');
+    if(!portrait)return;
+    if(!portrait.dataset.marekDefaultSrc){
+      portrait.dataset.marekDefaultSrc=portrait.getAttribute('src')||'assets/canon/characters/marek-canon.jpg';
+      portrait.dataset.marekDefaultAlt=portrait.getAttribute('alt')||'Marek';
+    }
+
+    const frame=portrait.closest('.pro-portrait-frame')||portrait.parentElement;
+    let credit=frame?.querySelector('.beastform-portrait-credit');
+    const restore=()=>{
+      portrait.classList.remove('beastform-portrait-changing','beastform-portrait-active');
+      portrait.removeAttribute('data-beastform-portrait');
+      portrait.setAttribute('src',portrait.dataset.marekDefaultSrc);
+      portrait.setAttribute('alt',portrait.dataset.marekDefaultAlt);
+      credit?.remove();
+    };
+
+    if(!form){restore();return;}
+    const visual=FORM_PORTRAITS[form.id];
+    if(!visual){restore();return;}
+
+    portrait.classList.add('beastform-portrait-changing','beastform-portrait-active');
+    portrait.dataset.beastformPortrait=form.id;
+    portrait.setAttribute('alt',visual.alt);
+    portrait.addEventListener('load',()=>portrait.classList.remove('beastform-portrait-changing'),{once:true});
+    portrait.addEventListener('error',restore,{once:true});
+    portrait.setAttribute('src',visual.src);
+
+    if(frame){
+      if(!credit){
+        credit=document.createElement('a');
+        credit.className='beastform-portrait-credit';
+        credit.target='_blank';
+        credit.rel='noopener noreferrer';
+        frame.appendChild(credit);
+      }
+      credit.href=visual.href;
+      credit.textContent=`${form.name} · ${visual.credit}`;
+      credit.title='Beastform image source and attribution';
+    }
+  }
+
   function apply(){
     if (!isMarek() || !ensureUI() || !state.base) return;
     const form = currentForm();
@@ -345,6 +427,7 @@
     shell?.classList.toggle('beastform-active',Boolean(form));
 
     if (!form){
+      applyPortrait(null);
       setStat('Evasion',state.base.evasion,'');
       setStat('Armor',state.base.armor,'');
       Object.entries(state.base.traits).forEach(([name,value])=>setTrait(name,value,false));
@@ -354,6 +437,7 @@
       return;
     }
 
+    applyPortrait(form);
     setStat('Evasion',state.base.evasion + form.evasion,`+${form.evasion} Beastform`);
     setStat('Armor',Math.max(0,state.base.armor-1),'Round Shield inactive');
     Object.entries(state.base.traits).forEach(([name,base])=>{
