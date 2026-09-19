@@ -239,6 +239,7 @@
       article?.classList.add('hidden');
       portal?.classList.add('hidden');
       view.classList.remove('hidden');
+      button?.classList.add('active');
       button?.setAttribute('aria-current', 'page');
       button?.setAttribute('aria-label', 'Close character sheet');
       const crumb = document.getElementById('crumb');
@@ -255,6 +256,7 @@
       }
     } else {
       view.classList.add('hidden');
+      button?.classList.remove('active');
       button?.removeAttribute('aria-current');
       button?.setAttribute('aria-label', 'Open character sheet');
     }
