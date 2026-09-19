@@ -100,11 +100,9 @@
     };
   }
 
-  function latestRecap() {
-    const discoveries = window.GREYWAKE_DISCOVERIES || [];
-    const recap = discoveries.find(item => String(item.when || '').toLowerCase() === 'latest recap')
-      || discoveries.find(item => String(item.note || '').includes('Session 03'));
-    return recap || null;
+  function characterHomeState() {
+    const key = String(window.GreywakePlayer?.character || document.body.dataset.character || '').toLowerCase();
+    return window.GREYWAKE_HOME_STATE?.[key] || null;
   }
 
   function cleanGMView() {
@@ -125,11 +123,9 @@
 
     const heading = copy.querySelector('h2');
     const intro = copy.querySelector(':scope > p');
-    if (heading) heading.textContent = 'Back in Greywake. What matters now?';
-    if (intro) intro.textContent = 'Start with your live character sheet, catch up on where the campaign stands, or follow whatever has caught your character’s attention.';
-
-    const homeState = window.GREYWAKE_HOME_STATE || {};
-    const recap = latestRecap();
+    const homeState = characterHomeState() || {};
+    if (heading) heading.textContent = homeState.heading || `${characterName()}, what matters now?`;
+    if (intro) intro.textContent = 'Start with your live character sheet, pick up your own story, or follow whatever has caught your character’s attention.';
     let orientation = document.getElementById('arrivalOrientation');
     if (!orientation) {
       orientation = document.createElement('div');
@@ -141,19 +137,19 @@
     }
     orientation.innerHTML = `
       <div class="arrival-orientation-item">
-        <small>WHERE YOU ARE</small>
+        <small>WHERE YOU ARE NOW</small>
         <strong>${homeState.location || 'Greywake'}</strong>
-        <span>${homeState.locationDetail || 'Your current shared position in the campaign.'}</span>
+        <span>${homeState.locationDetail || 'Your current position in the story.'}</span>
       </div>
-      <a class="arrival-orientation-item" href="${recap?.note ? '#/record/' + encodeURIComponent(recap.note) : '#/campaign'}">
-        <small>LAST SHARED RECAP</small>
-        <strong>${recap?.title || 'Campaign recap'}</strong>
-        <span>${recap?.text || 'Review what happened in the latest shared session record.'}</span>
+      <a class="arrival-orientation-item" href="${homeState.chapterRoute || '#/campaign'}">
+        <small>YOUR LAST CHAPTER</small>
+        <strong>${homeState.chapterTitle || 'Your story so far'}</strong>
+        <span>${homeState.chapterDetail || 'Review the most recent part of your character’s story.'}</span>
       </a>
       <a class="arrival-orientation-item" href="#/possibilities">
-        <small>STILL IN MOTION</small>
-        <strong>Unresolved</strong>
-        <span>${homeState.unresolved || 'Known situations are still moving even when the party does not pursue them.'}</span>
+        <small>WHAT IS MOVING NOW</small>
+        <strong>${homeState.currentTitle || 'Known possibilities'}</strong>
+        <span>${homeState.currentDetail || 'Things your character currently knows they could engage with.'}</span>
       </a>`;
 
     let actions = document.getElementById('arrivalActions');
@@ -177,7 +173,7 @@
     const characterImage = findImage(document.getElementById('characterSheet'));
     const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
     const mindImage = findImage(goals.querySelector('.player-mind-view')) || worldImage;
-    const signature = JSON.stringify({name,mindCount,pursuingCount,possibilities,q,replies,latest,homeState,recap,characterImage,worldImage,mindImage});
+    const signature = JSON.stringify({name,mindCount,pursuingCount,possibilities,q,replies,latest,homeState,characterImage,worldImage,mindImage});
     const existingStatus = document.getElementById('arrivalStatus');
     if (lastSignature === signature && actions.isConnected && existingStatus?.isConnected) return;
     lastSignature = signature;
