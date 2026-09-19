@@ -91,9 +91,12 @@
       hero.insertAdjacentElement('afterend',dashboard);
       dashboard.querySelector('[data-dashboard-rest="short"]')?.addEventListener('click',()=>window.GreywakeRest?.openShort?.());
       dashboard.querySelector('[data-dashboard-rest="long"]')?.addEventListener('click',()=>window.GreywakeRest?.openLong?.());
-    }else if(dashboard.parentElement!==shell || dashboard.previousElementSibling!==hero){
-      hero.insertAdjacentElement('afterend',dashboard);
+    }else if(dashboard.parentElement!==shell){
+      shell.appendChild(dashboard);
     }
+    const tabs=document.getElementById('characterPageTabs');
+    const anchor=tabs?.parentElement===shell?tabs:hero;
+    if(dashboard.previousElementSibling!==anchor)anchor.insertAdjacentElement('afterend',dashboard);
     return dashboard.querySelector('.play-dashboard-content');
   }
 
