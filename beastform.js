@@ -3,7 +3,7 @@
 
   const FORMS = [
     {
-      id:'agile-scout', name:'Agile Scout', examples:'Fox · Mouse · Weasel',
+      id:'agile-scout', name:'Agile Scout', examples:'Fox · Mouse · Weasel', variants:[{id:'fox',name:'Fox'},{id:'mouse',name:'Mouse'},{id:'weasel',name:'Weasel'}],
       trait:'Agility', traitBonus:1, evasion:2, range:'Melee', damage:'d4 physical',
       advantages:['Deceive','Locate','Sneak'],
       features:[
@@ -12,7 +12,7 @@
       ]
     },
     {
-      id:'nimble-grazer', name:'Nimble Grazer', examples:'Deer · Gazelle · Goat',
+      id:'nimble-grazer', name:'Nimble Grazer', examples:'Deer · Gazelle · Goat', variants:[{id:'glasshoof',name:'Glasshoof',greywake:true},{id:'deer',name:'Deer'},{id:'gazelle',name:'Gazelle'},{id:'goat',name:'Goat'}],
       trait:'Agility', traitBonus:1, evasion:3, range:'Melee', damage:'d6 physical',
       advantages:['Leap','Sneak','Sprint'],
       features:[
@@ -21,7 +21,7 @@
       ]
     },
     {
-      id:'aquatic-scout', name:'Aquatic Scout', examples:'Eel · Fish · Octopus',
+      id:'aquatic-scout', name:'Aquatic Scout', examples:'Eel · Fish · Octopus', variants:[{id:'eel',name:'Eel'},{id:'fish',name:'Fish'},{id:'octopus',name:'Octopus'}],
       trait:'Agility', traitBonus:1, evasion:2, range:'Melee', damage:'d4 physical',
       advantages:['Navigate','Sneak','Swim'],
       features:[
@@ -30,7 +30,7 @@
       ]
     },
     {
-      id:'household-friend', name:'Household Friend', examples:'Cat · Dog · Rabbit',
+      id:'household-friend', name:'Household Friend', examples:'Cat · Dog · Rabbit', variants:[{id:'shard-mouse',name:'Shard Mouse',greywake:true},{id:'cat',name:'Cat'},{id:'dog',name:'Dog'},{id:'rabbit',name:'Rabbit'}],
       trait:'Instinct', traitBonus:1, evasion:2, range:'Melee', damage:'d6 physical',
       advantages:['Climb','Locate','Protect'],
       features:[
@@ -39,7 +39,7 @@
       ]
     },
     {
-      id:'pack-predator', name:'Pack Predator', examples:'Coyote · Hyena · Wolf',
+      id:'pack-predator', name:'Pack Predator', examples:'Coyote · Hyena · Wolf', variants:[{id:'cacklemaw',name:'Cacklemaw',greywake:true},{id:'coyote',name:'Coyote'},{id:'hyena',name:'Hyena'},{id:'wolf',name:'Wolf'}],
       trait:'Strength', traitBonus:2, evasion:1, range:'Melee', damage:'d8+2 physical',
       advantages:['Attack','Sprint','Track'],
       features:[
@@ -48,7 +48,7 @@
       ]
     },
     {
-      id:'stalking-arachnid', name:'Stalking Arachnid', examples:'Tarantula · Wolf Spider',
+      id:'stalking-arachnid', name:'Stalking Arachnid', examples:'Tarantula · Wolf Spider', variants:[{id:'wolf-spider',name:'Wolf Spider'},{id:'tarantula',name:'Tarantula'}],
       trait:'Finesse', traitBonus:1, evasion:2, range:'Melee', damage:'d6+1 physical',
       advantages:['Attack','Climb','Sneak'],
       features:[
@@ -58,48 +58,19 @@
     }
   ];
 
-  const FORM_PORTRAITS = {
-    'agile-scout': {
-      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Arabian%20Red%20Fox%209.jpg?width=900',
-      alt:'Marek in Agile Scout Beastform, represented by an Arabian red fox',
-      credit:'Arabian Red Fox · Manojkiri photography · Wikimedia Commons',
-      href:'https://commons.wikimedia.org/wiki/File:Arabian_Red_Fox_9.jpg'
-    },
-    'nimble-grazer': {
-      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Deer%20Portrait.jpg?width=900',
-      alt:'Marek in Nimble Grazer Beastform, represented by a deer',
-      credit:'Deer Portrait · Charles Patrick Ewing · Wikimedia Commons',
-      href:'https://commons.wikimedia.org/wiki/File:Deer_Portrait.jpg'
-    },
-    'aquatic-scout': {
-      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Common%20Octopus.jpg?width=900',
-      alt:'Marek in Aquatic Scout Beastform, represented by an octopus',
-      credit:'Common Octopus · Lee Vilenski · Wikimedia Commons',
-      href:'https://commons.wikimedia.org/wiki/File:Common_Octopus.jpg'
-    },
-    'household-friend': {
-      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Dog%20portrait.jpg?width=900',
-      alt:'Marek in Household Friend Beastform, represented by a dog',
-      credit:'Dog portrait · Owlf · Wikimedia Commons',
-      href:'https://commons.wikimedia.org/wiki/File:Dog_portrait.jpg'
-    },
-    'pack-predator': {
-      src:'https://commons.wikimedia.org/wiki/Special:FilePath/A%20spotted%20hyena.jpg?width=900',
-      alt:'Marek in Pack Predator Beastform, represented by a spotted hyena',
-      credit:'Spotted hyena · Suzeen Simon · Wikimedia Commons',
-      href:'https://commons.wikimedia.org/wiki/File:A_spotted_hyena.jpg'
-    },
-    'stalking-arachnid': {
-      src:'https://commons.wikimedia.org/wiki/Special:FilePath/Wolf%20Spider%201.jpg?width=900',
-      alt:'Marek in Stalking Arachnid Beastform, represented by a wolf spider',
-      credit:'Wolf Spider · Hsing Lo · Wikimedia Commons',
-      href:'https://commons.wikimedia.org/wiki/File:Wolf_Spider_1.jpg'
+  const VARIANT_PORTRAITS = {
+    'pack-predator:cacklemaw': {
+      src:'assets/canon/beastforms/marek-cacklemaw.webp',
+      alt:'Marek transformed into a cacklemaw',
+      credit:'Greywake canon cacklemaw',
+      href:''
     }
   };
 
   const state = {
     base:null,
     active:null,
+    variant:null,
     evolution:false,
     evolutionTrait:'Agility',
     injected:false
@@ -168,6 +139,9 @@
       const saved = JSON.parse(localStorage.getItem(storageKey()) || 'null');
       if (!saved) return;
       if (FORMS.some(f => f.id === saved.active)) state.active = saved.active;
+      const activeForm=FORMS.find(f=>f.id===state.active);
+      if(activeForm?.variants?.some(v=>v.id===saved.variant)) state.variant=saved.variant;
+      else if(activeForm?.variants?.length) state.variant=activeForm.variants[0].id;
       state.evolution = Boolean(saved.evolution);
       if (state.base?.traits && Object.hasOwn(state.base.traits, saved.evolutionTrait)) state.evolutionTrait = saved.evolutionTrait;
       else if (['Agility','Strength','Finesse','Instinct','Presence','Knowledge'].includes(saved.evolutionTrait)) state.evolutionTrait = saved.evolutionTrait;
@@ -178,6 +152,7 @@
     try{
       localStorage.setItem(storageKey(), JSON.stringify({
         active:state.active,
+        variant:state.variant,
         evolution:state.evolution,
         evolutionTrait:state.evolutionTrait
       }));
@@ -186,6 +161,11 @@
 
   function currentForm(){
     return FORMS.find(f => f.id === state.active) || null;
+  }
+
+  function currentVariant(form=currentForm()){
+    if(!form)return null;
+    return form.variants?.find(v=>v.id===state.variant) || form.variants?.[0] || null;
   }
 
   function ensureUI(){
@@ -234,18 +214,21 @@
       const newTrait = state.base.traits[form.trait] + form.traitBonus;
       const newEvasion = state.base.evasion + form.evasion;
       const featureNames = form.features.map(f=>f[0]).join(' · ');
-      return `<button class="beastform-option ${state.active===form.id?'selected':''}" type="button" data-beastform="${form.id}">
-        <span class="beastform-option-tier">TIER 1</span>
+      const variants=(form.variants||[]).map(variant=>`<button class="beastform-variant ${state.active===form.id&&state.variant===variant.id?'selected':''}" type="button" data-beastform="${form.id}" data-beastform-variant="${variant.id}"><span>${esc(variant.name)}</span>${variant.greywake?'<small>GREYWAKE</small>':''}</button>`).join('');
+      return `<section class="beastform-option ${state.active===form.id?'selected':''}" data-form-card="${form.id}">
+        <span class="beastform-option-tier">TIER 1 · MECHANICAL FORM</span>
         <strong>${esc(form.name)}</strong>
         <small>${esc(form.examples)}</small>
         <div class="beastform-option-stats"><b>${esc(form.trait)} ${formatModifier(newTrait)}</b><b>Evasion ${newEvasion}</b><b>${esc(form.range)} ${esc(form.damage)}</b></div>
         <p>Advantage: ${esc(form.advantages.join(' · '))}</p>
         <em>${esc(featureNames)}</em>
-      </button>`;
+        <div class="beastform-variants"><span>CHOOSE CREATURE</span><div>${variants}</div></div>
+      </section>`;
     }).join('');
-    wrap.querySelectorAll('[data-beastform]').forEach(button => {
+    wrap.querySelectorAll('[data-beastform][data-beastform-variant]').forEach(button => {
       button.addEventListener('click', () => {
         state.active = button.dataset.beastform;
+        state.variant = button.dataset.beastformVariant;
         save();
         apply();
         document.getElementById('beastformDialog')?.close();
@@ -257,6 +240,7 @@
     const root = document.getElementById('beastformControl');
     if (!root) return;
     const form = currentForm();
+    const variant = currentVariant(form);
     if (!form){
       root.innerHTML = `<div class="beastform-idle">
         <div><span class="beastform-kicker">DRUID · BEASTFORM</span><strong>Humanoid form</strong><small>Select a Tier 1 form to automatically recalculate Marek’s sheet.</small></div>
@@ -268,7 +252,7 @@
       const featureHTML = form.features.map(([name,text])=>`<div><b>${esc(name)}</b><span>${esc(text)}</span></div>`).join('');
       root.innerHTML = `<div class="beastform-active-panel">
         <div class="beastform-active-head">
-          <div><span class="beastform-kicker">ACTIVE BEASTFORM · TIER 1</span><strong>${esc(form.name)}</strong><small>${esc(form.examples)}</small></div>
+          <div><span class="beastform-kicker">ACTIVE BEASTFORM · TIER 1</span><strong>${esc(variant?.name||form.name)}</strong><small>${esc(form.name)} · ${esc(form.examples)}</small></div>
           <div class="beastform-active-actions"><button id="changeBeastform" type="button">Change</button><button id="dropBeastform" type="button">Return to Marek</button></div>
         </div>
         <div class="beastform-combat-line">
@@ -293,6 +277,7 @@
     root.querySelector('#changeBeastform')?.addEventListener('click', openDialog);
     root.querySelector('#dropBeastform')?.addEventListener('click', () => {
       state.active = null;
+      state.variant = null;
       state.evolution = false;
       save();
       apply();
@@ -376,7 +361,7 @@
     }
   }
 
-  function applyPortrait(form){
+  function applyPortrait(form,variant){
     const portrait=document.querySelector('#characterSheet .character-sheet-portrait');
     if(!portrait)return;
     if(!portrait.dataset.marekDefaultSrc){
@@ -395,11 +380,11 @@
     };
 
     if(!form){restore();return;}
-    const visual=FORM_PORTRAITS[form.id];
+    const visual=VARIANT_PORTRAITS[`${form.id}:${variant?.id||''}`];
     if(!visual){restore();return;}
 
     portrait.classList.add('beastform-portrait-changing','beastform-portrait-active');
-    portrait.dataset.beastformPortrait=form.id;
+    portrait.dataset.beastformPortrait=`${form.id}:${variant?.id||''}`;
     portrait.setAttribute('alt',visual.alt);
     portrait.addEventListener('load',()=>portrait.classList.remove('beastform-portrait-changing'),{once:true});
     portrait.addEventListener('error',restore,{once:true});
@@ -413,9 +398,15 @@
         credit.rel='noopener noreferrer';
         frame.appendChild(credit);
       }
-      credit.href=visual.href;
-      credit.textContent=`${form.name} · ${visual.credit}`;
-      credit.title='Beastform image source and attribution';
+      if(visual.href){
+        credit.href=visual.href;
+        credit.removeAttribute('aria-disabled');
+      }else{
+        credit.removeAttribute('href');
+        credit.setAttribute('aria-disabled','true');
+      }
+      credit.textContent=`${variant?.name||form.name} · ${visual.credit}`;
+      credit.title='Beastform image source';
     }
   }
 
@@ -426,8 +417,9 @@
     const shell=document.querySelector('#characterSheet .character-sheet-shell');
     shell?.classList.toggle('beastform-active',Boolean(form));
 
+    const variant=currentVariant(form);
     if (!form){
-      applyPortrait(null);
+      applyPortrait(null,null);
       setStat('Evasion',state.base.evasion,'');
       setStat('Armor',state.base.armor,'');
       Object.entries(state.base.traits).forEach(([name,value])=>setTrait(name,value,false));
@@ -437,7 +429,7 @@
       return;
     }
 
-    applyPortrait(form);
+    applyPortrait(form,variant);
     setStat('Evasion',state.base.evasion + form.evasion,`+${form.evasion} Beastform`);
     setStat('Armor',Math.max(0,state.base.armor-1),'Round Shield inactive');
     Object.entries(state.base.traits).forEach(([name,base])=>{
