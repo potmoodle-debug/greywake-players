@@ -328,3 +328,45 @@ body[data-character="marek"] #p10CurrentStateStrip b{color:#bdca91}
   #p10CurrentStateStrip{top:156px;flex-wrap:wrap;gap:5px 8px}
   #p10CurrentStateStrip>span{width:100%}
 }
+
+
+/* Odie: critical live Rogue states belong with the resource panel, always visible on the main screen. */
+body[data-character="odie"] #characterSheet .live-resource-board .pro-board-title .live-state-badges{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+body[data-character="odie"] .live-state-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:4px 8px;
+  border:1px solid rgba(199,151,104,.5);
+  background:rgba(199,151,104,.12);
+  color:#efc79d;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.08em;
+  white-space:nowrap;
+}
+body[data-character="odie"] .live-state-badge.cloaked{
+  border-color:rgba(128,145,194,.55);
+  background:rgba(68,78,120,.24);
+  color:#dce3ff;
+  box-shadow:0 0 12px rgba(90,110,180,.12);
+}
+body[data-character="odie"] .live-state-badge.dodge{
+  border-color:rgba(199,151,104,.52);
+  background:rgba(110,72,43,.28);
+  color:#f1c79c;
+}
+@media(max-width:760px){
+  body[data-character="odie"] #characterSheet .live-resource-board .pro-board-title .live-state-badges{
+    width:100%;
+    margin-left:0;
+    justify-content:flex-start;
+  }
+}
