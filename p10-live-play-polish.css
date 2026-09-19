@@ -289,3 +289,42 @@
   #characterSheet .p10-field-actions{grid-column:1;grid-template-columns:1fr 1fr}
   #characterSheet .live-resource-copy>strong{justify-self:end}
 }
+
+
+/* Character-specific transient state only. Live Field Condition remains the resource source of truth. */
+#p10CurrentStateStrip{
+  position:sticky;
+  top:158px;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:36px;
+  padding:7px 11px;
+  border:1px solid rgba(190,170,111,.18);
+  border-top:0;
+  background:rgba(15,15,12,.97);
+  backdrop-filter:blur(10px);
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+#p10CurrentStateStrip>span{
+  color:#837b68;
+  font-size:.52rem;
+  font-weight:850;
+  letter-spacing:.16em;
+}
+#p10CurrentStateStrip>strong{
+  color:#d9cfb6;
+  font:700 .82rem/1 Georgia,serif;
+}
+#p10CurrentStateStrip>b{
+  color:var(--dossier-accent,#c9aa61);
+  font-size:.7rem;
+  letter-spacing:.03em;
+}
+body[data-character="odie"] #p10CurrentStateStrip b{color:#d7aa7b}
+body[data-character="marek"] #p10CurrentStateStrip b{color:#bdca91}
+@media(max-width:760px){
+  #p10CurrentStateStrip{top:156px;flex-wrap:wrap;gap:5px 8px}
+  #p10CurrentStateStrip>span{width:100%}
+}
