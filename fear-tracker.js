@@ -179,6 +179,34 @@
     }
   }
 
+  let playerFearQueue = Promise.resolve();
+
+  function applyFearResponse(data, source) {
+    const next = Number(data?.fear);
+    if (!Number.isInteger(next) || next < 0 || next > MAX_FEAR) return;
+    fear = next;
+    ready = true;
+    window.GreywakeGMSessionState?.save?.({ fear: String(fear) });
+    window.dispatchEvent(new CustomEvent('greywake:fear-changed',{detail:{fear,maxFear:MAX_FEAR,source}}));
+    scheduleRender();
+  }
+
+  function gainFromPlayerRoll(meta = {}) {
+    if (document.body.dataset.role !== 'player' || document.body.dataset.gmPreview === 'true') return Promise.resolve({ skipped:true });
+    const character = identity().character;
+    const payload = { delta:1, reason:'player_roll', character, ...meta };
+    playerFearQueue = playerFearQueue.then(async () => {
+      const data = await request('PATCH', payload);
+      applyFearResponse(data, 'player-roll');
+      return data;
+    }).catch(error => {
+      console.warn('Greywake automatic Fear gain failed:', error);
+      window.dispatchEvent(new CustomEvent('greywake:fear-sync-error',{detail:{error:String(error?.message||error),source:'player-roll'}}));
+      return { error:true };
+    });
+    return playerFearQueue;
+  }
+
   async function setFear(value) {
     if (!isGM() || busy) return;
     const next = Math.max(0, Math.min(MAX_FEAR, Math.round(Number(value))));
@@ -187,10 +215,7 @@
     scheduleRender();
     try {
       const data = await request('PATCH',{fear:next});
-      fear = Number(data.fear);
-      ready = true;
-      window.GreywakeGMSessionState?.save?.({ fear: String(fear) });
-      window.dispatchEvent(new CustomEvent('greywake:fear-changed',{detail:{fear,maxFear:MAX_FEAR,source:'gm'}}));
+      applyFearResponse(data, 'gm');
     } catch (error) {
       console.warn('Greywake Fear update failed:', error);
       const state = document.getElementById('gmFearSync');
@@ -210,7 +235,7 @@
     scheduleRender();
   }
 
-  window.GreywakeFear = { get: () => fear, set: setFear, refresh: pull, max: MAX_FEAR };
+  window.GreywakeFear = { get: () => fear, set: setFear, refresh: pull, gainFromPlayerRoll, max: MAX_FEAR };
   window.addEventListener('greywake:player-ready', () => setTimeout(start, 60));
   window.addEventListener('hashchange', () => setTimeout(() => { scheduleRender(); pull(); }, 30));
   new MutationObserver(mutations => {
