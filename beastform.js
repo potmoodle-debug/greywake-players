@@ -498,11 +498,17 @@
       return;
     }
     baseRetryCount=0;
+    let restored=false;
     if (!state.injected){
       state.injected=true;
       loadSaved();
+      restored=Boolean(state.active);
     }
     apply();
+    if(restored){
+      const snapshot=beastformSnapshot();
+      requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('greywake:beastform-changed',{detail:{...snapshot,reason:'restored from saved state'}})));
+    }
   }
 
   let timer;
