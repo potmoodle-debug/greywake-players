@@ -102,14 +102,18 @@
     const root = document.getElementById('gmOperationsView');
     const strip = root?.querySelector('.gm-status-strip');
     if (!strip || !isGM() || location.hash !== '#/gm-session') return;
-    let cell = strip.querySelector('.fear-status-cell');
+    let cell = [...strip.children].find(x => /^FEAR$/i.test((x.querySelector('small')?.textContent || '').trim()));
     if (!cell) {
       cell = document.createElement('div');
-      cell.className = 'fear-status-cell';
       const captured = [...strip.children].find(x => /CAPTURED/i.test(x.querySelector('small')?.textContent || ''));
       captured ? strip.insertBefore(cell, captured) : strip.appendChild(cell);
     }
-    cell.innerHTML = `<small>FEAR</small><strong>${ready ? esc(fear) : '—'} / 12</strong>`;
+    cell.classList.add('fear-status-cell');
+    const value = ready ? `${fear} / 12` : '—';
+    if ((cell.querySelector('strong')?.textContent || '').trim() !== value) {
+      cell.innerHTML = `<small>FEAR</small><strong>${esc(value)}</strong>`;
+    }
+    [...strip.children].filter(x => x !== cell && /^FEAR$/i.test((x.querySelector('small')?.textContent || '').trim())).forEach(x => x.remove());
   }
 
   function renderGM() {
@@ -130,6 +134,9 @@
     }
     const disabledDown = busy || !ready || fear <= 0;
     const disabledUp = busy || !ready || fear >= MAX_FEAR;
+    const signature = JSON.stringify([fear, ready, busy, disabledDown, disabledUp]);
+    if (panel.dataset.fearSignature === signature) return;
+    panel.dataset.fearSignature = signature;
     panel.innerHTML = `
       <div class="gm-fear-total"><strong>${ready ? fear : '—'}</strong><span>/ 12</span></div>
       <div class="gm-fear-main"><small>LIVE FEAR POOL · PLAYERS CAN SEE THIS</small><div class="greywake-fear-pips">${ready ? pips({interactive:true}) : ''}</div><p>Click a pip to set the exact total.</p></div>
@@ -206,7 +213,11 @@
   window.GreywakeFear = { get: () => fear, set: setFear, refresh: pull, max: MAX_FEAR };
   window.addEventListener('greywake:player-ready', () => setTimeout(start, 60));
   window.addEventListener('hashchange', () => setTimeout(() => { scheduleRender(); pull(); }, 30));
-  new MutationObserver(scheduleRender).observe(document.documentElement,{childList:true,subtree:true});
+  new MutationObserver(mutations => {
+    if (mutations.some(m => [...m.addedNodes, ...m.removedNodes].some(n => n.nodeType === 1 && (n.id === 'gmOperationsView' || n.querySelector?.('#gmOperationsView'))))) {
+      scheduleRender();
+    }
+  }).observe(document.body,{childList:true,subtree:true});
   document.addEventListener('DOMContentLoaded', () => setTimeout(start, 120));
   setTimeout(start, 700);
 })();
