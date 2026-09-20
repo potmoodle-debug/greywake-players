@@ -99,19 +99,17 @@
     {
       id: 'flickerfly-study',
       title: 'Find a Flickerfly',
-      status: 'PLAYER INTEREST · NO ACTIONABLE LEAD YET',
-      direction: 'DIRECTION NOT YET ESTABLISHED',
+      status: 'MAREK LEAD · INVESTIGATE IN GREYWAKE',
+      direction: 'SOUTH RUMOUR · EXACT LOCATION UNKNOWN',
       tone: 'personal',
       image: null,
-      imageNote: 'No confirmed sighting, specimen location or expedition direction has been established yet.',
-      visibility: ['party'],
+      imageNote: 'Marek has a lead, not a confirmed Flickerfly specimen or exact expedition location.',
+      visibility: ['marek'],
       proposedBy: 'Marek',
-      summary: 'Marek has heard that a creature called a flickerfly exists somewhere in the wastes and wants to find and study one.',
-      known: 'The interest is established; a specific sighting, Digger witness, wing fragment, route or cardinal direction is not. Once an in-world source turns this into an actionable Wastes lead, its broad direction should be shown before the party chooses it.',
+      summary: 'Marek wants to find and study a Flickerfly. His investigation produced a real lead: stories about them mostly seem to come from travellers returning from south of Greywake.',
+      known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a Flickerfly, but nobody is certain. Marek can investigate by identifying that Digger and finding out where the fragment came from; no exact Flickerfly location is established yet.',
       relevance: {
-        marek: 'This began with something you said you wanted to do: find and study a flickerfly.',
-        velmira: 'If the group wants to follow Marek’s interest, the first step is finding a credible source rather than treating an unconfirmed location as fact.',
-        odie: 'If somebody in Greywake has actually seen one or brought back evidence, that would turn Marek’s interest into a practical lead.'
+        marek: 'This information came from your own investigation through the Greywake site. It gives you a concrete person to find and question without pretending the rumour or wing fragment is already confirmed as a Flickerfly.'
       }
     },
     {
