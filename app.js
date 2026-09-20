@@ -12,10 +12,14 @@ const LOCATION_GROUPS=[
 const APP_EXTERNAL_ROUTES=new Set(['#/character','#/possibilities','#/mind','#/inbox','#/explore']);
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
-function routeFor(name){return '#/record/'+encodeURIComponent(name)}
+function routeFor(name){
+ const fullGM=document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
+ return (fullGM?'#/gm-world/record/':'#/record/')+encodeURIComponent(name)
+}
 function currentRoute(){
  const h=location.hash||'';
  if(h==='#/brain')return{type:'brain'};
+ if(h.startsWith('#/gm-world/record/'))return{type:'record',name:decodeURIComponent(h.slice('#/gm-world/record/'.length))};
  if(h.startsWith('#/record/'))return{type:'record',name:decodeURIComponent(h.slice(9))};
  if(APP_EXTERNAL_ROUTES.has(h))return{type:'external'};
  return{type:'home'};
