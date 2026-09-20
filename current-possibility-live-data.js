@@ -1,5 +1,5 @@
 window.GREYWAKE_LIVE_POSSIBILITIES = {
-  version: '2026-09-13T17:55+01:00',
+  version: '2026-09-20T12:05+01:00',
   updates: {
     'something-moved-in': {
       marek: 'Latest for Marek: You know the Diggers’ work south of Greywake has stopped because something dangerous is believed to have occupied an old ruin. You still have no confirmed identification, route or explanation for why it is there.',
@@ -19,7 +19,7 @@ window.GREYWAKE_LIVE_POSSIBILITIES = {
     'cistern-plate': {
       marek: 'Latest for Marek: The Cistern Plate reached Greywake intact. Its practical effect on the settlement is unresolved, including what it may eventually change for water, animals and ordinary work.',
       velmira: 'Latest for Velmira: The Plate is back in Greywake, but custody, competing claims and who is trusted to examine it remain unresolved.',
-      odie: 'Latest for Odie: The Plate is precisely made and relevant to Greywake’s waterworks, but its exact fit, function and compatibility are still not established.'
+      odie: 'Latest for Odie: You escorted the Cistern Plate with Rennic into the Inner Cistern Court. Its construction follows the same technological rules as your separate Oldwork finger, but that does not prove the same exact makers. Keeper lower-draw records show a removable plate-like component with similar channel geometry and near-matching dimensions. You saw enough of the restricted sectional to reproduce its important geometry from memory; a record keeper noticed you looking. No fit, installation or repair benefit has been confirmed.'
     },
     'ash-plate-recovery': {
       marek: 'Latest for Marek: Ash-Plate returned under her own strength but could not carry a load. Her injury, recent exertion and readiness to work again still need proper assessment.',
