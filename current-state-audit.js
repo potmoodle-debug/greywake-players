@@ -77,23 +77,23 @@
   window.GREYWAKE_HOME_STATE = {
     marek: {
       heading: 'Marek, what matters now?',
-      location: 'Blocked Digger Way',
-      locationDetail: 'You are on the tunnel/wastes side of a recently disturbed blockage. Voices are close beyond it, but you have not identified them.',
+      location: 'Buried Ways Beneath Greywake',
+      locationDetail: 'You ended Session Four in Foldling-form Agile Scout in buried spaces beneath Greywake after leaving the real Foldling alive.',
       chapterTitle: 'The Pale Thread',
-      chapterDetail: 'An unsuccessful retrieval trip for Meren led you south onto an unfamiliar creature trail, into a concealed Digger way and finally to this blocked route.',
+      chapterDetail: 'Your southern creature trail led through the reopened Digger way and onward to a direct encounter with a Foldling beneath Greywake.',
       chapterRoute: '#/my-greywake',
       currentTitle: 'The Closing Ways',
-      currentDetail: 'You have a pale translucent membrane sample, evidence that the creature can compress through unusually tight spaces, and a blockage that shifted but did not open.'
+      currentDetail: 'You know the Foldling is primarily evasive, vibration-sensitive and adapted to enclosed ruins. Through Nature’s Tongue you learned it fled north from repeated danger or disturbance in buried places to the south. You do not know the deeper cause.'
     },
     odie: {
       heading: 'Odie, what matters now?',
-      location: 'Blocked Digger Way',
-      locationDetail: 'You are on the Greywake side of a concealed Digger route. Someone is on the other side of the blockage. Before coming here, you escorted the Cistern Plate with Rennic into the Inner Cistern Court.',
+      location: 'Returning to the Reopened Digger Way',
+      locationDetail: 'You ended Session Four travelling with Spencer back toward the reopened southern blockage so he can inspect the original closure work.',
       chapterTitle: 'Kestrel Return',
-      chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake, leaving valuable freight behind rather than risk more lives.',
+      chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake, then escorted the Plate into the Inner Cistern Court before joining the Closing Ways investigation.',
       chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
       currentTitle: 'The Closing Ways',
-      currentDetail: 'Concealed Digger entrances are being deliberately closed or filled. At least one closure required precise knowledge of an undocumented entrance.'
+      currentDetail: 'You established that the Opening Blockage was finally packed from the Greywake side and reopened it with Marek. The route is passable but visibly disturbed. Spencer’s inspection has not yet been played.'
     },
     velmira: {
       heading: 'Velmira, what matters now?',
@@ -139,7 +139,7 @@
     <h2>Player priorities</h2>
     <h3>Marek — Find a Flickerfly</h3><p><strong>Status:</strong> Interest; no actionable expedition lead yet.</p><p>Marek wants to find and study a Flickerfly. The party does not currently have a confirmed specimen, location, spoor find or established travel direction to one.</p>
     <h3>Velmira — An Earlier Stilling Case</h3><p><strong>Status:</strong> Current priority; not selectable as a Wastes expedition yet.</p><p>An earlier publicly known Stilling case apparently stabilised for a time after a journey outside Greywake. The place visited is still identifiable, but its broad direction has not yet been established.</p>
-    <h3>Odie — The Closing Ways</h3><p><strong>Status:</strong> Active Greywake problem.</p><p>Several concealed Digger haul entrances are being deliberately closed or filled. At least one closure required precise knowledge of a hidden entrance. Odie suspects someone is reporting the routes, but that remains his theory rather than established fact.</p>
+    <h3>Odie — The Closing Ways</h3><p><strong>Status:</strong> Active Greywake problem; one concealed way reopened.</p><p>Odie and Marek reopened one deliberately packed and braced southern access. The route is passable but visibly disturbed. Odie established final packing from the Greywake side and is returning with Spencer to inspect the original closure work. Odie’s informer theory remains unproven.</p>
     <h2>Selectable beyond Greater Greywake</h2>
     <h3>↓ South — Something Moved In</h3><p><strong>Status:</strong> Selectable expedition.</p><p>Diggers say something dangerous has occupied an old ruin south of Greywake and work has stopped. The creature, why it chose the site and what else may be inside remain unknown.</p><p><strong>Possible benefit:</strong> getting the work moving again may earn access to a Minor Stamina Potion recipe.</p>
     <h2>Known opportunity — not selectable yet</h2>
