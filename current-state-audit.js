@@ -61,11 +61,11 @@
   link('Tangle Lanes','Velmira');
   link('Tangle Lanes','Nemi');
 
-  // Known route history. The party knows the Groundfall, but current canon does not establish its cardinal direction.
+  // Known route history. The party travelled this route during Kestrel Return, so the Groundfall's broad direction is established.
   D['Ash-Plate Groundfall'] = {
     title: 'Ash-Plate Groundfall',
     category: 'Locations',
-    html: `<p>The place where Kestrel Return's route failure ended in a groundfall and Ash-Plate was injured. The party reached the site during the rescue and later chose to leave significant expensive freight there rather than risk lives recovering it.</p><p>The freight may still be recoverable, but Greywake's current canon does <strong>not</strong> establish whether the Groundfall is north, east, south or west of Greywake. Its broad direction must be learned before it becomes a selectable Wastes expedition.</p>`
+    html: `<p>The place where Kestrel Return's route failure ended in a groundfall and Ash-Plate was injured. The party reached the site during the rescue and later chose to leave significant expensive freight there rather than risk lives recovering it.</p><p>The Groundfall lies <strong>east of Greywake</strong> along the known Kestrel Return route. The freight may still be recoverable, though time, scavengers, weather or other travellers may have changed what remains there.</p>`
   };
   if (!C['Locations'].includes('Ash-Plate Groundfall')) C['Locations'].push('Ash-Plate Groundfall');
   link('Ash-Plate Groundfall','Known Locations');
