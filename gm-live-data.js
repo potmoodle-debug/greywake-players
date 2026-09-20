@@ -4,7 +4,8 @@
     'Mara Vell':'assets/npcs/hq-v3/mara-vell.webp',
     'Brannic Hale':'assets/npcs/hq-v3/brannic-hale.webp',
     'Selka Marr':'assets/npcs/hq-v3/selka-marr.webp',
-    'Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp'
+    'Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp',
+    'Spencer Digger':'assets/npcs/hq-v3/spencer-digger-canon.jpg'
   };
   const PRESSURES={
     'The Closing Ways':{level:'critical',origin:'PLAYED SESSION FOUR',image:'assets/canon/locations/caravan-gate.webp',summary:'Opening Blockage has been reopened by Odie and Marek and is visibly disturbed. Odie is parked with Spencer returning to inspect the original closure work. Marek followed the Foldling onward through the second concealed access, learned through Nature’s Tongue that it fled north from danger in buried places to the south, and left it alive beneath Greywake. The deeper cause remains unresolved. End-of-session Fear: 6.'},
@@ -81,7 +82,7 @@
       pressurePanel.querySelector('small').innerHTML='ACTIVE PRESSURES &nbsp; <span class="gm-live-source">CURRENT CAMPAIGN RECORD</span>';
     }
     if(!root.querySelector('.gm-live-npcs')){
-      const names=['Mara Vell','Brannic Hale','Selka Marr','Maela Rusk'].filter(n=>window.GREYWAKE_DATA?.[n]);
+      const names=['Spencer Digger','Mara Vell','Brannic Hale','Selka Marr','Maela Rusk'].filter(n=>window.GREYWAKE_DATA?.[n]);
       if(names.length){
         const section=document.createElement('section');
         section.className='gm-panel full gm-live-npcs';
