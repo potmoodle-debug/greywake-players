@@ -1,5 +1,4 @@
 (() => {
-  let pending = null;
   let observedDialog = null;
   let dialogObserver = null;
 
@@ -79,42 +78,14 @@
     if (mode==='evolution'){
       const result=resource.spendHope(3,`Evolution · ${formId} · ${variantId||'creature'}`);
       if (!result.ok){ activationError(result.message || 'Not enough Hope.'); return result; }
-      pending={mode:'evolution',trait:document.getElementById('beastformPreTrait')?.value || 'Agility'};
+      const trait=document.getElementById('beastformPreTrait')?.value || 'Agility';
+      window.GreywakeBeastform?.setActivationMode?.('evolution',trait);
       return result;
     }
     const result=resource.markStress(1,{reason:`Beastform · ${formId} · ${variantId||'creature'}`,cost:true});
     if (!result.ok){ activationError(result.message || 'No free Stress slot.'); return result; }
-    pending={mode:'stress',trait:null};
+    window.GreywakeBeastform?.setActivationMode?.('stress');
     return result;
-  }
-
-  function applyPendingMode(){
-    if (!pending) return;
-    const desired=pending;
-    pending=null;
-    let attempts=0;
-    const finish=()=>{
-      attempts++;
-      const checkbox=document.getElementById('beastformEvolution');
-      if (!checkbox){ if (attempts<8) setTimeout(finish,25); return; }
-      checkbox.disabled=false;
-      checkbox.checked=desired.mode==='evolution';
-      checkbox.dispatchEvent(new Event('change',{bubbles:true}));
-      if (desired.mode==='evolution'){
-        setTimeout(()=>{
-          const select=document.getElementById('beastformEvolutionTrait');
-          if (select){
-            select.disabled=false;
-            select.value=desired.trait;
-            select.dispatchEvent(new Event('change',{bubbles:true}));
-          }
-          lockActiveEvolution();
-        },20);
-      }else{
-        setTimeout(lockActiveEvolution,20);
-      }
-    };
-    setTimeout(finish,0);
   }
 
   function lockActiveEvolution(){
@@ -152,7 +123,7 @@
       event.stopImmediatePropagation();
       return;
     }
-    if (!result.same) applyPendingMode();
+    if (!result.same) setTimeout(lockActiveEvolution,0);
   },true);
 
   function init(){
