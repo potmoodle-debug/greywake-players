@@ -79,15 +79,16 @@ try:
     assert "Greywake Updater" in text, "Bridge panel should show updater target chat"
     assert "QUEUED" in text, "Bridge panel should show queued delivery state"
 
+    smoke_result = "WHAT WAS UPDATED\\n- Smoke-test marker only; no campaign data changed.\\nWHAT COULD NOT BE UPDATED\\n- None.\\nDECISIONS QUEUED FOR CHRIS LATER\\n- None."
     driver.execute_script("""
       window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:{
         state:'completed',at:new Date().toISOString(),sourceTitle:'Greywake Live Session',targetTitle:'Greywake Updater',message:'Harmless smoke update completed.'
       }}));
       window.dispatchEvent(new CustomEvent('greywake:live-bridge-result',{detail:{
         at:new Date().toISOString(),
-        text:'WHAT WAS UPDATED\n- Smoke-test marker only; no campaign data changed.\nWHAT COULD NOT BE UPDATED\n- None.\nDECISIONS QUEUED FOR CHRIS LATER\n- None.'
+        text:arguments[0]
       }}));
-    """)
+    """, smoke_result)
     wait.until(lambda d: "DONE" in d.find_element(By.ID, "gmLiveBridgeTest").text)
     result_text = driver.find_element(By.ID, "gmLiveBridgeTest").text
     assert "Smoke-test marker only" in result_text
