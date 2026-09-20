@@ -1,15 +1,15 @@
 window.GREYWAKE_LIVE_POSSIBILITIES = {
-  version: '2026-09-20T13:45+01:00',
+  version: '2026-09-20T15:10+01:00',
   updates: {
     'something-moved-in': {
-      marek: 'Latest for Marek: You know the Diggers’ work south of Greywake has stopped because something dangerous is believed to have occupied an old ruin. You still have no confirmed identification, route or explanation for why it is there.',
+      marek: 'Latest for Marek: You now separately know a Foldling fled north after repeated danger or disturbance drove it from buried places to the south. The Digger rumour about Something Moved In is also southern, but you have no evidence that the two are connected. The ruin’s occupant and the Foldling’s deeper disturbance both remain unidentified.',
       velmira: 'Latest for Velmira: The useful lead remains the people behind the story — who actually saw something, who is repeating it, and what the Diggers need before they will return.',
       odie: 'Latest for Odie: The stopped dig means practical salvage and access are still unavailable. No reliable identification of the creature or its reason for being there has been established.'
     },
     'groundfall-freight': {
-      marek: 'Latest for Marek: The abandoned freight may still be recoverable, but time, scavengers and animals may have changed the site. Its broad direction is still not established as a selectable expedition lead.',
-      velmira: 'Latest for Velmira: The freight still has owners, value and consequences. Who wants it back may matter as much as what remains at the Groundfall.',
-      odie: 'Latest for Odie: The Groundfall still represents possible salvage, evidence and useful parts, but returning is not yet an established directional expedition choice.'
+      marek: 'Latest for Marek: The abandoned freight remains potentially recoverable. The Groundfall is east of Greywake on the known Kestrel Return route, so returning is now a selectable expedition rather than a lead waiting for its direction.',
+      velmira: 'Latest for Velmira: The Groundfall is east of Greywake on the known Kestrel Return route. The freight still has owners, value and consequences, and returning is now a viable expedition choice.',
+      odie: 'Latest for Odie: The Groundfall is east of Greywake on the known Kestrel Return route. Returning is now a viable expedition choice, with possible salvage, damaged cargo, route evidence and whatever has changed since the caravan left.'
     },
     'route-markers': {
       marek: 'Latest for Marek: At least two route markers were deliberately altered. You do not yet know who did it or why; the change may have affected where travellers and animals now concentrate.',
@@ -36,6 +36,9 @@ window.GREYWAKE_LIVE_POSSIBILITIES = {
       velmira: 'Latest for Velmira: Marek’s interest remains real, but the group still needs a credible in-world lead before treating a Flickerfly location as established.',
       odie: 'Latest for Odie: Marek wants to study a Flickerfly. A reliable witness or recovered evidence would be enough to turn that interest into a practical lead.'
     },
+    'foldling-disturbance': {
+      marek: 'Latest for Marek: Through Nature’s Tongue, the Foldling told you it fled north because repeated danger or disturbance drove it from buried places it considered safe. You do not know what caused that pressure, exactly where it began, or whether anything else was displaced. You can pursue that question, compare it with other southern signs, share it, or leave it alone.'
+    },
     'earlier-stilling-case': {
       marek: 'Latest for Marek: Velmira’s lead still points toward an identifiable place visited by an earlier Stilling case. Whether that place mattered biologically, environmentally or not at all remains unknown.',
       velmira: 'Latest for Velmira: The earlier case apparently stabilised for a time after travelling outside Greywake. The place remains identifiable, but its direction and any causal link to the Stilling are still unproven.',
@@ -55,6 +58,22 @@ window.GREYWAKE_LIVE_POSSIBILITIES = {
     }
   },
   cardOverrides: {
+    'closing-ways': {
+      odie: {
+        status: 'NEXT SCENE · SPENCER INSPECTION',
+        direction: 'GREYWAKE · REOPENED SOUTHERN WAY',
+        summary: 'You and Marek reopened the deliberately packed southern Digger way. The route is passable, but the reopening is obvious.',
+        known: 'You established that the final packing was done from the Greywake side. Spencer believes the physical closure work may still hold useful evidence, and the session ended with you travelling back toward the reopened way with him. The inspection itself has not yet been played.',
+        next: 'Return to the reopened way with Spencer and inspect the original closure work.'
+      },
+      marek: {
+        status: 'OPEN THREAD · REOPENED WAY',
+        direction: 'GREYWAKE',
+        summary: 'You and Odie reopened the deliberately blocked southern Digger way before you followed the Foldling onward.',
+        known: 'The way is passable but visibly disturbed. Your later Foldling discoveries are private unless you choose to share them.',
+        next: 'Decide whether Marek shares what he learned, follows the southern disturbance, returns to Odie, or does something else.'
+      }
+    },
     'flickerfly-study': {
       marek: {
         status: 'MAREK LEAD · ACTIONABLE',
