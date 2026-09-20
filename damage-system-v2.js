@@ -102,6 +102,7 @@
     const nextHP=Math.min(r.maxHP,r.hp+Math.max(0,hp)),reached=r.hp<r.maxHP&&nextHP>=r.maxHP;
     applyingDamage=true;
     try{a.setResource?.('hp',nextHP,`${amount} ${direct?'direct ':''}${type} damage`);commit({armorMarked,status:reached?'death_move':state.status,deathMove:reached?null:state.deathMove},`Damage taken · ${amount} ${type}`);}finally{applyingDamage=false;}
+    window.dispatchEvent(new CustomEvent('greywake:damage-applied',{detail:{key:activeKey,amount,type,direct,hp:Math.max(0,Number(hp)||0),useArmor:Boolean(useArmor)}}));
     document.getElementById('takeDamageDialog')?.close();if(reached)setTimeout(openDeath,70);
   }
 
