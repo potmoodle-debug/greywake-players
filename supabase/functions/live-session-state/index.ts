@@ -24,25 +24,45 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const auth = identity(req);
   if (!auth.ok) return json({ error:"Invalid Greywake access code." }, 403);
+
   const url = Deno.env.get("SUPABASE_URL");
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !key) return json({ error:"Server configuration missing." }, 500);
   const db = createClient(url, key, { auth:{ persistSession:false, autoRefreshToken:false } });
+
   try {
     if (req.method === "GET") {
-      const { data, error } = await db.from("campaign_live_state").select("fear,updated_at").eq("state_key","greywake-main").single();
+      const { data, error } = await db.from("campaign_live_state")
+        .select("fear,updated_at")
+        .eq("state_key","greywake-main")
+        .single();
       if (error) throw error;
       return json({ fear:data.fear, max_fear:12, updated_at:data.updated_at });
     }
+
     if (req.method === "PATCH") {
-      if (auth.character !== "gm") return json({ error:"Only the GM can change Fear." }, 403);
       const body = await req.json();
+      if (body.delta !== undefined) {
+        const delta = Number(body.delta);
+        if (!Number.isInteger(delta) || delta < -12 || delta > 12 || delta === 0) return json({ error:"Fear adjustment is invalid." }, 400);
+        if (auth.character !== "gm" && delta !== 1) return json({ error:"Players can only add 1 Fear from a Fear roll." }, 403);
+        const { data, error } = await db.rpc("adjust_campaign_fear", { p_delta: delta }).single();
+        if (error) throw error;
+        return json({ fear:data.fear, max_fear:12, updated_at:data.updated_at });
+      }
+
+      if (auth.character !== "gm") return json({ error:"Only the GM can set Fear directly." }, 403);
       const fear = Number(body.fear);
       if (!Number.isInteger(fear) || fear < 0 || fear > 12) return json({ error:"Fear must be a whole number from 0 to 12." }, 400);
-      const { data, error } = await db.from("campaign_live_state").update({ fear, updated_at:new Date().toISOString() }).eq("state_key","greywake-main").select("fear,updated_at").single();
+      const { data, error } = await db.from("campaign_live_state")
+        .update({ fear, updated_at:new Date().toISOString() })
+        .eq("state_key","greywake-main")
+        .select("fear,updated_at")
+        .single();
       if (error) throw error;
       return json({ fear:data.fear, max_fear:12, updated_at:data.updated_at });
     }
+
     return json({ error:"Method not allowed." }, 405);
   } catch (error) {
     console.error(error);
