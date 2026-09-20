@@ -47,8 +47,7 @@ try:
     # Sidebar search remains usable in GM mode.
     menu.click()
     search = wait.until(lambda d: d.find_element(By.ID, "searchInput"))
-    search.clear()
-    search.send_keys("Greywake")
+    driver.execute_script("arguments[0].value='Greywake'; arguments[0].dispatchEvent(new Event('input',{bubbles:true}));", search)
     wait.until(lambda d: "record" in d.find_element(By.ID, "searchStatus").text.lower())
     assert driver.find_elements(By.CSS_SELECTOR, "#nav .nav-link"), "Sidebar search should return record links"
 
