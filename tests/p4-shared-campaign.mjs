@@ -14,10 +14,9 @@ requireIn(threads, "direction: 'SOUTH ↓'", 'south direction shown');
 requireIn(threads, 'Minor Stamina Potion recipe', 'known possible reward');
 
 requireIn(threads, "title: 'Freight at Ash-Plate Groundfall'", 'groundfall opportunity');
-requireIn(threads, "status: 'KNOWN OPPORTUNITY · NOT SELECTABLE YET'", 'groundfall not selectable');
-requireIn(threads, "direction: 'DIRECTION NOT YET ESTABLISHED'", 'unknown-direction boundary');
-forbidIn(threads, "direction: 'EAST →'", 'unsupported Groundfall east direction');
-forbidIn(threads, 'eastern Kestrel Return route corridor', 'unsupported eastern route claim');
+requireIn(threads, "status: 'SELECTABLE EXTERNAL OPPORTUNITY'", 'groundfall selectable');
+requireIn(threads, "direction: 'EAST →'", 'known Groundfall east direction');
+requireIn(threads, 'lies east of Greywake along the known Kestrel Return route', 'known Kestrel Return route');
 
 requireIn(threads, "title: 'Find a Flickerfly'", 'Marek Flickerfly interest');
 requireIn(threads, "status: 'PLAYER INTEREST · NO ACTIONABLE LEAD YET'", 'Flickerfly not fabricated into expedition');
@@ -35,7 +34,7 @@ requireIn(threads, "status: 'VELMIRA PRIORITY · NOT SELECTABLE YET'", 'Stilling
 requireIn(state, "D['Clay'].title = 'Clay — Historical PC'", 'Clay historical continuity');
 requireIn(state, "C['Player Characters'] = ['Marek','Velmira','Odie']", 'active PC list');
 requireIn(state, "D['Ash-Plate Groundfall']", 'Groundfall shared location record');
-requireIn(state, 'does <strong>not</strong> establish whether the Groundfall is north, east, south or west', 'Groundfall location direction boundary');
+requireIn(state, 'Groundfall lies <strong>east of Greywake</strong> along the known Kestrel Return route', 'Groundfall known east route');
 requireIn(state, 'returned to Greywake alive at the end of Session Three', 'Kestrel survivor current state');
 requireIn(state, 'the party has not yet seen a confirmed specimen', 'Flickerfly shared field-guide boundary');
 requireIn(state, 'Possible benefit:</strong> getting the work moving again may earn access to a Minor Stamina Potion recipe', 'archive choice-board reward alignment');
