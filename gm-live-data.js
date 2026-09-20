@@ -95,8 +95,8 @@
     if(status&&!status.dataset.live){
       status.dataset.live='1';
       const c=[...status.children];
-      if(c[0])c[0].innerHTML='<small>CAMPAIGN PHASE</small><strong>Session Four prep / play</strong>';
-      if(c[1])c[1].innerHTML='<small>PARTY LOCATION</small><strong>Blocked Digger way</strong>';
+      if(c[0])c[0].innerHTML='<small>CAMPAIGN PHASE</small><strong>Session Four ended · parked</strong>';
+      if(c[1])c[1].innerHTML='<small>PARTY LOCATION</small><strong>Split · buried ways / returning to blockage</strong>';
       if(c[2])c[2].innerHTML='<small>ACTIVE PARTY</small><strong>Marek · Odie</strong>';
     }
   }
