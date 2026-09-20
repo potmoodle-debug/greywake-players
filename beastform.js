@@ -109,19 +109,37 @@
 
   function captureBase(){
     if (state.base) return true;
+
+    const traitNames=['Agility','Strength','Finesse','Instinct','Presence','Knowledge'];
     const evasion = statByLabel('Evasion');
     const armor = statByLabel('Armor');
     if (!evasion || !armor) return false;
+
+    const evasionText=evasion.querySelector('strong')?.textContent?.trim();
+    const armorText=armor.querySelector('strong')?.textContent?.trim();
+    if (!evasionText || !armorText) return false;
+
     const traits = {};
-    ['Agility','Strength','Finesse','Instinct','Presence','Knowledge'].forEach(name => {
+    for (const name of traitNames){
       const card = traitCard(name);
-      traits[name] = readNumber(card?.querySelector('.sheet-value')?.textContent);
-    });
-    state.base = {
-      evasion:readNumber(evasion.querySelector('strong')?.textContent),
-      armor:readNumber(armor.querySelector('strong')?.textContent),
+      const valueText=card?.querySelector('.sheet-value')?.textContent?.trim();
+      if (!card || valueText==null || valueText==='') return false;
+      traits[name]=readNumber(valueText);
+    }
+
+    const candidate={
+      evasion:readNumber(evasionText),
+      armor:readNumber(armorText),
       traits
     };
+
+    // A half-rendered sheet can briefly expose zeroes. Marek's real base sheet
+    // has non-zero Evasion/Armor and several non-zero traits, so never capture
+    // an all-zero/transitional DOM state as the permanent Beastform baseline.
+    const meaningfulTraits=traitNames.some(name=>traits[name]!==0);
+    if (candidate.evasion<=0 || candidate.armor<=0 || !meaningfulTraits) return false;
+
+    state.base=candidate;
     return true;
   }
 
@@ -415,9 +433,20 @@
     renderOptions();
   }
 
+  let baseRetryCount=0;
+
   function init(){
     if (!isMarek()) return;
-    if (!ensureUI()) return;
+    if (!ensureUI()){
+      const sheet=document.getElementById('characterSheet');
+      const onCharacterRoute=location.hash==='#/character';
+      if (sheet && onCharacterRoute && baseRetryCount<8){
+        baseRetryCount++;
+        setTimeout(init,75);
+      }
+      return;
+    }
+    baseRetryCount=0;
     if (!state.injected){
       state.injected=true;
       loadSaved();
@@ -426,7 +455,7 @@
   }
 
   let timer;
-  const schedule=()=>{clearTimeout(timer);timer=setTimeout(init,100)};
+  const schedule=()=>{baseRetryCount=0;clearTimeout(timer);timer=setTimeout(init,100)};
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('greywake:sheet-enhanced',schedule);
   window.addEventListener('hashchange',schedule);
