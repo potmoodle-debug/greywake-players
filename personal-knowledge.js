@@ -220,9 +220,19 @@
               body: 'Odie opened the heavy pale case without damaging it. Inside was a large intact precision-made ceramic waterworks plate marked with unfamiliar water-channel diagrams. Rennic believed it could matter to Greywake’s waterworks.'
             },
             {
+              title: 'Same Technological Rules',
+              tag: 'Firsthand comparison · Oldwork',
+              body: 'At the Inner Cistern Court, Odie was able to compare what he had seen of the Cistern Plate with his separate Oldwork finger. The precision, load-transfer logic and interlocking construction follow recognisably similar rules. Odie can reasonably conclude that they belong to the same technological tradition, but he does not know that they came from the same exact makers, workshop or civilisation.'
+            },
+            {
+              title: 'Lower-Draw Sectional',
+              tag: 'Firsthand · restricted record',
+              body: 'Keeper records showed a lower-draw sectional with a removable plate-like component, a similar channel pattern and near-matching dimensions. After Varn ended Odie’s ordinary access, Odie still saw enough of the restricted sectional to reproduce its important geometry from memory. A record keeper noticed him looking. No successful fit or installation has been established.'
+            },
+            {
               title: 'What You Still Do Not Know',
               tag: 'Knowledge boundary',
-              body: 'Odie does not automatically know the plate’s exact function, compatibility, manufacture history or final value to Greywake.'
+              body: 'Odie does not know whether the Plate will actually fit, what practical benefit it will provide, whether it and the Oldwork finger share the same exact makers, or what consequence may follow from the record keeper noticing his look at the restricted sectional.'
             }
           ]
         },
