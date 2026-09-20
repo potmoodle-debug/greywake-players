@@ -3,7 +3,7 @@ import fs from 'node:fs';
 const bridge=fs.readFileSync('tools/greywake-live-bridge.user.js','utf8');
 
 for(const marker of [
-  "@version      0.4.2",
+  "@version      0.4.3",
   "RESULT_HEADINGS=['WHAT WAS UPDATED','WHAT COULD NOT BE UPDATED','DECISIONS QUEUED FOR CHRIS LATER']",
   "RESULT_STABLE_MS=6000",
   "transientResult",
