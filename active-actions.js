@@ -166,6 +166,11 @@
       button.addEventListener('click', () => {
         selectedAction = selectedAction === button.dataset.activeAction ? null : button.dataset.activeAction;
         render();
+        if (selectedAction) {
+          requestAnimationFrame(() => {
+            root.querySelector('.active-action-detail')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          });
+        }
       });
     });
 
