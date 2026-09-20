@@ -138,6 +138,6 @@
   window.addEventListener('greywake:player-ready',schedule);window.addEventListener('greywake:sheet-enhanced',schedule);window.addEventListener('hashchange',schedule);
   window.addEventListener('greywake:resources-changed',()=>{if(!applyingCap){enforceHopeCap();checkHealth();render();}});
   window.addEventListener('greywake:companion-resources-changed',()=>{if(!applyingCap){enforceHopeCap();checkHealth();render();}});
-  document.addEventListener('click',e=>{if(e.target.closest?.('#chooseBeastform,#changeBeastform,#returnBeastform,[data-beastform-form]'))setTimeout(()=>{if(activeKey==='marek')render();},80);});
+  window.addEventListener('greywake:beastform-changed',()=>{if(activeKey==='marek')requestAnimationFrame(render);});
   document.addEventListener('DOMContentLoaded',schedule);
 })();
