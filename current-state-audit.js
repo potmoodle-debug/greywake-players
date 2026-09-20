@@ -88,7 +88,7 @@
     odie: {
       heading: 'Odie, what matters now?',
       location: 'Blocked Digger Way',
-      locationDetail: 'You are on the Greywake side of a concealed Digger route with Velmira. Someone is on the other side of the blockage.',
+      locationDetail: 'You are on the Greywake side of a concealed Digger route. Someone is on the other side of the blockage. Before coming here, you escorted the Cistern Plate with Rennic into the Inner Cistern Court.',
       chapterTitle: 'Kestrel Return',
       chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake, leaving valuable freight behind rather than risk more lives.',
       chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
@@ -97,8 +97,8 @@
     },
     velmira: {
       heading: 'Velmira, what matters now?',
-      location: 'Blocked Digger Way',
-      locationDetail: 'You are on the Greywake side of a concealed Digger route with Odie. Someone is on the other side of the blockage.',
+      location: 'Greywake',
+      locationDetail: 'Velmira remains in Greywake as a background character and is not assumed to be present at the blocked Digger way.',
       chapterTitle: 'Kestrel Return',
       chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake after the cacklemaw attack and the longer return route.',
       chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
@@ -112,7 +112,7 @@
   if (D['Cacklemaw Pack']) D['Cacklemaw Pack'].html = `<p>Cacklemaws are lean pursuit predators that use broken, breathy calls to coordinate. The party has seen them circle, test defences, exploit separation and change tactics rather than simply rush the nearest target.</p><p>The pack pursued the Kestrel Return survivors from the broken runnels to Stone-Lip Hollow. During Session Three the party broke the attack; surviving scavengers fled rather than regrouping nearby.</p><p>A useful lesson from direct experience: the animal you can see may not be the only one choosing where your attention goes.</p>`;
   if (D['Ash-Plate']) D['Ash-Plate'].html = `<p>A Great-Shell from Kestrel Return. The party freed Ash-Plate after the groundfall and kept her alive.</p><p>She returned to Greywake under her own strength but remains injured. She is carrying no load until properly assessed and recovered.</p>`;
   if (D['Lowbell']) D['Lowbell'].html = `<p>A Great-Shell from Kestrel Return. Lowbell survived the caravan crisis and returned to Greywake in serviceable condition with only minor strain.</p>`;
-  if (D['Cistern Plate']) D['Cistern Plate'].html = `<p>The large precision-made ceramic waterworks plate carried in Kestrel Return's heavy pale transport case.</p><p>It was recovered from an abandoned route cistern, opened safely at Stone-Lip Hollow and brought back to Greywake intact. It is <strong>not Oldwork</strong>.</p><p>Rennic believed it could matter to Greywake's waterworks. Its exact function, compatibility, custody and eventual value remain unresolved.</p>`;
+  if (D['Cistern Plate']) D['Cistern Plate'].html = `<p>The large precision-made ceramic waterworks plate carried in Kestrel Return's heavy pale transport case.</p><p>It was recovered from an abandoned route cistern, opened safely at Stone-Lip Hollow and brought back to Greywake intact. Its deeper origin is not part of the shared player record.</p><p>Rennic believed it could matter to Greywake's waterworks. Its exact function, compatibility, custody and eventual value remain unresolved.</p>`;
 
   // Current Kestrel Return people: surviving named crew are now home, not still on the survivor trail.
   const returned = {
