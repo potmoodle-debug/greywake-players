@@ -33,6 +33,20 @@
   function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dm2';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
+  function restoreInboxThreads(){
+    const threads=document.getElementById('playerGoals'),home=document.getElementById('home');
+    if(!threads||!home||threads.parentElement===home)return;
+    const current=document.getElementById('currentThreads');
+    current?.parentNode===home?home.insertBefore(threads,current):home.prepend(threads);
+  }
+  function mountInboxThreads(){
+    const host=document.getElementById('gmInboxHost'),threads=document.getElementById('playerGoals');
+    if(!host||!threads)return;
+    host.innerHTML='<small>PLAYER ACTIVITY</small><h2>Questions & interests</h2><p>The existing player thread controls are shown here directly.</p>';
+    host.appendChild(threads);
+    threads.classList.remove('hidden');
+  }
+
   function rememberNav(){PLAYER_NAV_IDS.forEach(id=>{const b=document.getElementById(id);if(!b||b.dataset.gmOriginalSaved)return;b.dataset.gmOriginalSaved='1';b.dataset.gmOriginalText=b.textContent||'';b.dataset.gmOriginalOnclick=b.getAttribute('onclick')||'';b.dataset.gmOriginalSection=b.dataset.primarySection||''})}
   function configureNav(){
     const nav=document.getElementById('primaryNav');if(!nav||!fullGM())return;rememberNav();
@@ -107,9 +121,9 @@
   function render(){
     ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}
     if(!location.hash||location.hash==='#/'){location.hash=ROUTES.run;return}
-    configureNav();const r=route();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+    configureNav();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
     workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():renderRun();
-    workspace.classList.remove('hidden');wire(workspace);syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
+    workspace.classList.remove('hidden');wire(workspace);if(r.type==='inbox')mountInboxThreads();syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
   }
 
   document.addEventListener('click',e=>{if(!fullGM())return;const b=e.target.closest('#primaryNav [data-gm-route]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();navigate(b.dataset.gmRoute)},true);
