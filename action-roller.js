@@ -28,6 +28,18 @@
     return m ? Number(m[0].replace('−','-')) : 0;
   }
 
+  function proficiency(){
+    const ribbon=document.querySelector('#characterSheet .character-proficiency b');
+    const ribbonValue=readModifier(ribbon?.textContent);
+    if(ribbonValue>0)return ribbonValue;
+    const stat=[...document.querySelectorAll('#characterSheet .character-stat')].find(n=>n.querySelector('span')?.textContent.trim().toLowerCase()==='proficiency');
+    return Math.max(1,readModifier(stat?.querySelector('strong')?.textContent)||1);
+  }
+
+  function damageDiceCount(spec){
+    return spec?.isAttack && activeBeastform() ? proficiency() : Math.max(1,Number(spec?.damage?.count)||1);
+  }
+
   function currentTrait(name){
     const card = [...document.querySelectorAll('#characterSheet .sheet-grid.traits .sheet-card')]
       .find(c => c.querySelector('h4')?.textContent.trim() === name);
@@ -164,9 +176,10 @@
 
   function rollDamage(spec, critical, host, options={}){
     if (!spec.damage) return;
-    const rolls = Array.from({length:spec.damage.count}, () => die(spec.damage.sides));
+    const count=damageDiceCount(spec);
+    const rolls = Array.from({length:count}, () => die(spec.damage.sides));
     const baseRoll = rolls.reduce((a,b)=>a+b,0) + spec.damage.mod;
-    const criticalBonus = critical ? spec.damage.count * spec.damage.sides : 0;
+    const criticalBonus = critical ? count * spec.damage.sides : 0;
     const packRoll = options.packHunting ? die(8) : 0;
     const total = baseRoll + criticalBonus + packRoll;
     host.innerHTML = `<div class="damage-roll-result ${critical?'critical':''}"><div><span>${critical?'CRITICAL DAMAGE':'DAMAGE'}</span><strong>${total}</strong><small>${esc(spec.damage.type || 'damage')}</small></div><p>${rolls.map(r=>`d${spec.damage.sides}: <b>${r}</b>`).join(' · ')}${spec.damage.mod ? ` · modifier <b>${spec.damage.mod>0?'+':''}${spec.damage.mod}</b>` : ''}${packRoll ? ` · Pack Hunting d8: <b>${packRoll}</b>` : ''}${critical ? ` · critical maximum <b>+${criticalBonus}</b>` : ''}</p></div>`;
@@ -275,7 +288,7 @@
       ${difficulty == null && !critical ? '<p class="duality-cost">No Difficulty entered: tell the GM the total and whether it rolled with Hope or Fear.</p>' : ''}
       ${webslingerResolution}
       ${spec.isAttack ? beastformFollowupMarkup(success) : ''}
-      ${spec.isAttack && spec.damage ? `<div class="damage-roll-controls"><button type="button" data-roll-damage ${success === false ? 'disabled' : ''}>${critical?'Roll Critical Damage':'Roll Damage'}</button><span>${success === false ? 'Attack failed against the entered Difficulty.' : `${spec.damage.count}d${spec.damage.sides}${spec.damage.mod ? (spec.damage.mod>0?'+':'')+spec.damage.mod : ''} ${esc(spec.damage.type)}`}</span></div><div data-damage-result></div>` : ''}
+      ${spec.isAttack && spec.damage ? `<div class="damage-roll-controls"><button type="button" data-roll-damage ${success === false ? 'disabled' : ''}>${critical?'Roll Critical Damage':'Roll Damage'}</button><span>${success === false ? 'Attack failed against the entered Difficulty.' : `${damageDiceCount(spec)}d${spec.damage.sides}${spec.damage.mod ? (spec.damage.mod>0?'+':'')+spec.damage.mod : ''} ${esc(spec.damage.type)}`}</span></div><div data-damage-result></div>` : ''}
     </div>`;
 
     bindResultClose(result);
