@@ -276,6 +276,15 @@
       goals = await migrateOldLocalGoals(user, goals);
 
       if (isFullGM(user)) {
+        const snapshot = {};
+        ['marek','velmira','odie'].forEach(key => {
+          const characterGoals = goals.filter(g => g.character_slug === key);
+          const current = activeGoals(characterGoals);
+          const preferred = current.find(g => g.status === 'pursuing' && !isQuestion(g)) || current.find(g => !isQuestion(g)) || current.find(g => isQuestion(g));
+          snapshot[key] = preferred ? { text: preferred.goal_text, status: preferred.status, kind: preferred.entry_kind || 'interest', threadState: preferred.thread_state || '' } : null;
+        });
+        window.GreywakeGMGoalSnapshot = snapshot;
+        window.dispatchEvent(new CustomEvent('greywake:gm-goals-rendered', { detail: snapshot }));
         const grouped = ['marek','velmira','odie'].map(key => {
           const characterGoals = goals.filter(g => g.character_slug === key), current = activeGoals(characterGoals), resolved = resolvedGoals(characterGoals), counts = splitCounts(characterGoals);
           const currentCards = current.length ? `<div class="interest-thread-list">${current.map(goal => gmThreadCard(goal, messages)).join('')}</div>` : `<div class="goals-empty">${CHARACTER_NAMES[key]} has no current interests or questions.</div>`;
