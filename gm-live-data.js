@@ -7,14 +7,6 @@
     'Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp',
     'Spencer Digger':'assets/npcs/hq-v3/spencer-digger-canon.jpg'
   };
-  const PRESSURES={
-    'The Closing Ways':{level:'critical',origin:'PLAYED SESSION FOUR',image:'assets/canon/locations/caravan-gate.webp',summary:'Opening Blockage has been reopened by Odie and Marek and is visibly disturbed. Odie is parked with Spencer returning to inspect the original closure work. Marek followed the Foldling onward through the second concealed access, learned through Nature’s Tongue that it fled north from danger in buried places to the south, and left it alive beneath Greywake. The deeper cause remains unresolved. End-of-session Fear: 6.'},
-    'The altered route markers':{level:'high',origin:'WORLD CONSEQUENCE',image:'assets/canon/sessions/session-03.webp'},
-    'The Cistern Plate':{level:'high',origin:'PLAYED SESSION FOUR',image:'assets/canon/locations/valve-court-cistern-seal.webp',summary:'Odie escorted the Plate with Rennic into the Inner Cistern Court. Keeper lower-draw records show a removable plate-like component with similar channel geometry and near-matching dimensions; no fit or installation is confirmed. Odie memorised important geometry from a restricted sectional, and a record keeper noticed him looking. Any access or trust consequence remains unresolved.'},
-    "Ash-Plate's recovery":{level:'medium',origin:'WORLD CONSEQUENCE',image:'assets/canon/fauna/ash-plate.webp'},
-    'Freight at Ash-Plate Groundfall':{level:'medium',origin:'OPEN CONSEQUENCE',image:'assets/canon/sessions/session-01.webp'},
-    'Something Moved In':{level:'medium',origin:'SELECTABLE POSSIBILITY',image:'assets/canon/sessions/session-02.webp'}
-  };
   let queued=false;
 
   const isGM=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
@@ -23,64 +15,26 @@
   function firstParagraph(html){const d=document.createElement('div');d.innerHTML=html||'';return plain(d.querySelector('p')?.innerHTML||'')}
   function captures(){try{const x=JSON.parse(localStorage.getItem('greywake-gm-captures-v1')||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
 
-  function threadSections(){
-    const root=document.createElement('div');
-    root.innerHTML=window.GREYWAKE_DATA?.['Jobs & Open Threads']?.html||'';
-    const out=[];
-    root.querySelectorAll('h3').forEach(h=>{
-      const ps=[];
-      let n=h.nextElementSibling;
-      while(n&&n.tagName!=='H2'&&n.tagName!=='H3'){
-        if(n.tagName==='P')ps.push(plain(n.innerHTML));
-        n=n.nextElementSibling;
-      }
-      out.push({title:h.textContent.trim().replace(/^[?↓↑→]+\s*/,'').replace(/^South\s+[—-]\s+/i,''),ps});
-    });
-    return out;
-  }
-  function summary(name){
-    const x=threadSections().find(s=>s.title.toLowerCase()===name.toLowerCase());
-    if(!x)return'';
-    return x.ps.find(p=>!/^status:/i.test(p)&&!/^possible benefit:/i.test(p))||x.ps[0]||'';
-  }
-  function livePressures(){return Object.entries(PRESSURES).map(([title,meta])=>({title,meta,summary:meta.summary||summary(title)})).filter(x=>x.summary)}
-  function priority(){return livePressures().find(x=>x.title==='The Closing Ways')||livePressures()[0]||null}
-
   function styles(){
     if(document.getElementById('gm-live-data-styles'))return;
     const s=document.createElement('style');
     s.id='gm-live-data-styles';
     s.textContent=`
       .gm-live-source{display:inline-flex;border:1px solid #4c4634;background:#12130f;padding:4px 7px;color:#9f8d5b;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
-      .gm-live-pressure-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.gm-live-pressure{position:relative;min-height:125px;border:1px solid #48412e;background:#171811;overflow:hidden;padding:13px}.gm-live-pressure.has-image{padding-right:116px}.gm-live-pressure img{position:absolute;right:0;top:0;width:105px;height:100%;object-fit:cover;opacity:.58}.gm-live-pressure:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#665d42}.gm-live-pressure[data-level="critical"]{border-color:#80693a;background:#1d1a11}.gm-live-pressure[data-level="critical"]:after{height:5px;background:#ad8b45}.gm-live-pressure small{display:block;color:#b6a161;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}.gm-live-pressure strong{display:block;color:#eadfc2;font:700 18px/1.08 Georgia,serif;margin-bottom:6px}.gm-live-pressure p{margin:0!important;color:#96907f!important;font-size:9px!important;line-height:1.45!important}
       .gm-live-npcs{grid-column:1/-1}.gm-live-npc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.gm-live-npc{display:grid;grid-template-columns:92px minmax(0,1fr);min-height:130px;border:1px solid #3d3a2e;background:#13140f;overflow:hidden}.gm-live-npc img{width:100%;height:100%;object-fit:cover}.gm-live-npc>div{padding:11px}.gm-live-npc strong{display:block;color:#e6dcc2;font:700 17px/1.05 Georgia,serif;margin-bottom:5px}.gm-live-npc p{margin:0 0 9px!important;font-size:9px!important;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.gm-live-npc button{border:0;background:none;color:#d5bc72;padding:0;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer}
       .gm-live-goal-state{display:inline-flex;margin-top:6px;padding:3px 6px;border:1px solid #4d4736;color:#a99a70;font-size:7px;font-weight:900;text-transform:uppercase}.gm-live-goal-state.pursuing{border-color:#866e3c;color:#e0c77f}
       .gm-pipeline span.known{border-color:#876e3b;color:#e5ca7c;background:#241f13}.gm-pipeline span.unknown{border-style:dashed;color:#746e61}.gm-update-truth{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.gm-update-truth div{border:1px solid #39362b;background:#12130f;padding:10px}.gm-update-truth small{display:block;color:#7f765e;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}.gm-update-truth strong{display:block;color:#d9cfb5;font-size:10px}.gm-update-truth span{display:block;color:#817a69;font-size:8px;margin-top:3px}
       .gm-player-projection-guard{margin:0 0 14px;border:1px solid #665d42;background:#15150f;padding:14px}.gm-player-projection-guard small{display:block;color:#b6a161;font-size:7px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}.gm-player-projection-guard strong{display:block;color:#eadfc2;font:700 18px/1.1 Georgia,serif;margin:5px 0 6px}.gm-player-projection-guard p{margin:0!important;color:#9b9483!important;font-size:10px!important;line-height:1.5!important}
       #gmInboxThreadsPortal{max-width:1500px;margin:-44px auto 70px;padding:0 clamp(18px,3vw,42px) 0;color:#d9d0ba}#gmInboxThreadsPortal.hidden{display:none!important}#gmInboxThreadsPortal .gm-inbox-thread-shell{border:1px solid #3d3a2f;background:#171813;padding:16px}#gmInboxThreadsPortal .gm-inbox-thread-shell>small{color:#9d8b5d;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}#gmInboxThreadsPortal .gm-inbox-thread-shell>h2{margin:5px 0 8px;color:#e9dfc8;font:700 19px/1.15 Georgia,serif}#gmInboxThreadsPortal .gm-inbox-thread-shell>p{color:#9f9786;font-size:11px}.gm-inbox-thread-anchor{cursor:pointer}.gm-inbox-thread-anchor:hover{background:#191a13}.gm-inbox-thread-anchor:focus-visible{outline:1px solid #a78c4c;outline-offset:2px}
       @media(max-width:1050px){.gm-live-npc-grid{grid-template-columns:1fr 1fr}.gm-update-truth{grid-template-columns:1fr 1fr}}
-      @media(max-width:700px){.gm-live-pressure-grid,.gm-live-npc-grid,.gm-update-truth{grid-template-columns:1fr}.gm-live-pressure.has-image{padding-right:13px}.gm-live-pressure img{position:relative;float:right;width:90px;height:75px;margin:0 0 8px 10px}#gmInboxThreadsPortal{margin:-50px 14px 70px;padding:0}}
+      @media(max-width:700px){.gm-live-npc-grid,.gm-update-truth{grid-template-columns:1fr}#gmInboxThreadsPortal{margin:-50px 14px 70px;padding:0}}
     `;
     document.head.appendChild(s);
   }
 
   function run(root){
-    const p=priority(),hero=root.querySelector('.gm-run-hero');
-    if(p&&hero){
-      hero.querySelector('h2').textContent=p.title;
-      hero.querySelector('p').textContent=p.summary;
-      const img=hero.querySelector('img');if(img&&p.meta.image)img.src=p.meta.image;
-      const k=hero.querySelector('.gm-run-hero-copy small');
-      if(k)k.innerHTML='CURRENT PRIORITY &nbsp; <span class="gm-live-source">CURRENT THREADS</span>';
-    }
-    const pressurePanel=[...root.querySelectorAll('.gm-panel')].find(x=>x.querySelector('h2')?.textContent.trim()==='What is moving');
-    if(pressurePanel&&!pressurePanel.dataset.live){
-      pressurePanel.dataset.live='1';
-      pressurePanel.querySelector('.gm-pressure-list')?.remove();
-      const items=livePressures();
-      pressurePanel.insertAdjacentHTML('beforeend',`<div class="gm-live-pressure-grid">${items.map(x=>`<article class="gm-live-pressure ${x.meta.image?'has-image':''}" data-level="${esc(x.meta.level)}">${x.meta.image?`<img src="${esc(x.meta.image)}" alt="" loading="lazy">`:''}<small>${esc(x.meta.origin)}</small><strong>${esc(x.title)}</strong><p>${esc(x.summary)}</p></article>`).join('')}</div>`);
-      pressurePanel.querySelector('small').innerHTML='ACTIVE PRESSURES &nbsp; <span class="gm-live-source">CURRENT CAMPAIGN RECORD</span>';
-    }
+    // RUN owns its current situation, pressures and status through GREYWAKE_GM_STATE.
+    // This enhancement only adds quick access to established NPC records.
     if(!root.querySelector('.gm-live-npcs')){
       const names=['Spencer Digger','Mara Vell','Brannic Hale','Selka Marr','Maela Rusk'].filter(n=>window.GREYWAKE_DATA?.[n]);
       if(names.length){
@@ -89,16 +43,8 @@
         section.innerHTML=`<small>USEFUL PEOPLE NOW &nbsp; <span class="gm-live-source">CURRENT RECORDS</span></small><h2>People you may need at the table</h2><p>Established record text only. Untracked intentions are not invented.</p><div class="gm-live-npc-grid">${names.map(n=>`<article class="gm-live-npc"><img src="${NPC_IMAGES[n]}" alt="" loading="lazy"><div><strong>${esc(n)}</strong><p>${esc(firstParagraph(window.GREYWAKE_DATA[n].html))}</p><button data-live-record="${esc(n)}">Open record →</button></div></article>`).join('')}</div>`;
         const capture=root.querySelector('#gmCapturePanel');
         capture?.parentNode?.insertBefore(section,capture);
-        section.querySelectorAll('[data-live-record]').forEach(b=>b.onclick=()=>location.hash='#/gm-world/'+encodeURIComponent(b.dataset.liveRecord));
+        section.querySelectorAll('[data-live-record]').forEach(b=>b.onclick=()=>location.hash='#/gm-world/record/'+encodeURIComponent(b.dataset.liveRecord));
       }
-    }
-    const status=root.querySelector('.gm-status-strip');
-    if(status&&!status.dataset.live){
-      status.dataset.live='1';
-      const c=[...status.children];
-      if(c[0])c[0].innerHTML='<small>CAMPAIGN PHASE</small><strong>Session Four ended · parked</strong>';
-      if(c[1])c[1].innerHTML='<small>PARTY LOCATION</small><strong>Split · buried ways / returning to blockage</strong>';
-      if(c[2])c[2].innerHTML='<small>ACTIVE PARTY</small><strong>Marek · Odie</strong>';
     }
   }
 
