@@ -517,6 +517,13 @@
     if(!isMarek())return;
     const form=currentForm();
     if(!form)return;
+
+    const resources=window.GreywakeResources?.getState?.();
+    if(resources && Number(resources.hp)>=Number(resources.maxHP)){
+      returnToMarek('Last Hit Point marked');
+      return;
+    }
+
     const fragile=form.features?.some(([name])=>String(name).toLowerCase()==='fragile');
     if(!fragile)return;
     const hp=Math.max(0,Number(event.detail?.hp)||0);
