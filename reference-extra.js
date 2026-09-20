@@ -26,7 +26,7 @@ addReference("Caravan Work","World",`<p>Caravans are one of the ways Greywake re
 
 addReference("Known Factions","Factions",`<p>The major groups openly known in Greywake are the <strong>Cistern Keepers</strong>, <strong>Caravan Syndicate</strong>, <strong>Tower Watch</strong>, <strong>The Diggers</strong> and <strong>The Faithful</strong>.</p><p>These records describe only their public roles and what the party can safely know. Individual members can disagree, make mistakes and have motives that are not part of the shared archive.</p>`);
 
-addReference("Cistern Plate","Objects",`<p>The large ceramic waterworks plate carried in Kestrel Return's heavy pale transport case.</p><p>The case was opened safely at Stone-Lip Hollow. The plate had been recovered from an abandoned route cistern and was protected carefully during the caravan disaster because it had to remain flat.</p><p>It is <strong>not Oldwork</strong>. Rennic believed it could matter to Greywake's waterworks.</p>`);
+addReference("Cistern Plate","Objects",`<p>The large ceramic waterworks plate carried in Kestrel Return's heavy pale transport case.</p><p>The case was opened safely at Stone-Lip Hollow. The plate had been recovered from an abandoned route cistern and was protected carefully during the caravan disaster because it had to remain flat.</p><p>Its deeper origin is not part of the shared player record. Rennic believed it could matter to Greywake's waterworks.</p>`);
 
 addReference("Known Objects","Objects",`<p>Objects appear here once the whole party has seen them or learned enough about them for a shared record.</p><p>The archive records what is known, not every theory about what an object might eventually prove to be.</p>`);
 
