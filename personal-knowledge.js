@@ -27,27 +27,42 @@
           ]
         },
         {
-          title: 'The Pale Thread',
+          title: 'The Pale Thread and the Foldling',
           cards: [
             {
               title: 'The Trail South of Greywake',
-              tag: 'Firsthand · current discovery',
-              body: 'Returning from an unsuccessful retrieval trip for Meren, Marek followed an unfamiliar creature trail from south of Greywake into a concealed Digger way. He does not yet know what made the trail.'
+              tag: 'Firsthand · resolved identity',
+              body: 'Returning from an unsuccessful retrieval trip for Meren, Marek followed an unfamiliar creature trail from south of Greywake into a concealed Digger way. He later caught up with the animal and now knows it was a Foldling.'
             },
             {
               title: 'Pale Membrane',
               tag: 'Collected evidence',
-              body: 'Marek collected a pale translucent membrane fragment from the trail. From the physical evidence he established that the creature can compress itself through unusually tight spaces.'
+              body: 'Marek collected a pale translucent membrane fragment while following the trail and established that the creature could compress through unusually tight spaces.'
             },
             {
-              title: 'The Blocked Way',
-              tag: 'Firsthand · unresolved',
-              body: 'The trail reached a deliberately and recently blocked Digger way. Marek could not establish where the creature went from there. Even his smallest Agile Scout form could not pass through the intact seal.'
+              title: 'The Reopened Way',
+              tag: 'Firsthand · shared with Odie',
+              body: 'Marek and Odie identified one another through the deliberate blockage and reopened it together. The route is now passable, but loose stone and shifted bracing make the reopening obvious.'
             },
             {
-              title: 'Voices Beyond the Stone',
-              tag: 'Firsthand · identity unknown',
-              body: 'Marek tried to loosen only enough of the blockage to make a controlled gap. The attempt failed and disturbed the packed stone and timber without creating a safe opening. Through the blockage he then heard close, muffled voices. At least one sounded familiar, but he does not yet know who is on the other side.'
+              title: 'The Foldling',
+              tag: 'Firsthand · Marek only unless shared',
+              body: 'Marek followed the trail onward and directly studied a Foldling. He established that it is primarily evasive rather than predatory, strongly vibration/touch oriented and adapted to enclosed broken ruins.'
+            },
+            {
+              title: 'Foldling-form Agile Scout',
+              tag: 'Beastform · played canon',
+              body: 'Marek studied the animal closely enough to use a Foldling appearance for his Agile Scout Beastform and transformed into it in play. This uses normal Agile Scout mechanics and grants no extra Foldling powers.'
+            },
+            {
+              title: 'What the Foldling Told You',
+              tag: 'Nature’s Tongue · private',
+              body: 'Through Nature’s Tongue, Marek learned that the Foldling came from buried places to the south and fled north because repeated danger or disturbance drove it from places it regarded as safe. It came to Greywake while escaping, not seeking prey or a target. Marek does not know what caused the deeper disturbance.'
+            },
+            {
+              title: 'Where You Left It',
+              tag: 'Current position',
+              body: 'Marek reassured the Foldling and left it alive in buried spaces beneath Greywake. It is not his pet or companion. Marek ended Session Four in Foldling-form Agile Scout beneath Greywake.'
             }
           ]
         },
@@ -179,14 +194,29 @@
               body: 'Odie knows some Digger crews use concealed unofficial tunnels and old buried passages to bring salvage into Greywake without using normal gates, public unloading points or immediate scrutiny. He does not know every route and nobody should be assumed to possess a complete map.'
             },
             {
-              title: 'Entrances Are Being Closed',
-              tag: 'Known fact',
-              body: 'Several concealed entrances are being deliberately closed or filled. At least one closure was targeted precisely enough that whoever arranged it had specific knowledge of an undocumented entrance.'
+              title: 'The Opening Blockage',
+              tag: 'Firsthand · played Session Four',
+              body: 'Spencer told Odie that one concealed southern way had been deliberately packed and braced shut. Odie inspected it and established that the final packing was done from the Greywake side.'
+            },
+            {
+              title: 'Reopened with Marek',
+              tag: 'Firsthand · shared',
+              body: 'Odie and Marek identified one another through the blockage and reopened it together. The route is now passable, but the loose stone and shifted bracing make the reopening obvious.'
+            },
+            {
+              title: 'What Marek Shared',
+              tag: 'Known to Odie',
+              body: 'Odie knows Marek had reached the far side after following a living-creature trail and had pale membrane plus evidence of unusual compression. Odie does not automatically know Marek’s later Foldling encounter or Nature’s Tongue discoveries.'
+            },
+            {
+              title: 'Spencer’s Inspection',
+              tag: 'Current action · unresolved',
+              body: 'Odie asked Spencer to help identify what the physical closure work can reveal. Session Four ended with them travelling back toward the reopened blockage. The inspection has not yet been played.'
             },
             {
               title: 'Someone Is Reporting Them?',
               tag: 'Odie’s suspicion · not established fact',
-              body: 'Odie suspects somebody is reporting tunnel locations and wants to identify the source and stop further closures. He does not yet know who is responsible, why, whether one person or faction is involved, or whether every closure is connected.'
+              body: 'Odie still suspects somebody may be reporting tunnel locations. He does not yet know whether that theory is correct, who ordered the closures or whether every closure is connected.'
             }
           ]
         },
