@@ -47,6 +47,21 @@ jobs:
           node tests/p10-live-play.mjs
           node tests/cross-player-effects.mjs
 
+      - name: Run GM route browser smoke
+        working-directory: pr
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check selenium
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/greywake-smoke-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          for i in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:8765/index.html >/dev/null; then break; fi
+            sleep 0.5
+          done
+          python tests/gm-routes-smoke.py
+
       - name: Check critical JavaScript syntax
         working-directory: pr
         run: |
