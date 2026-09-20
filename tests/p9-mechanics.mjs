@@ -6,8 +6,7 @@ const removal = read('p9-item-removal.js');
 const damageUndo = read('p9-damage-undo.js');
 const equipment = read('equipment-system-v4.js');
 const nomadic = read('p9-nomadic-pack.js');
-const consumableFeedback = read('p9-consumable-feedback.js');
-const consolidation = read('p9-inventory-consolidation.js');
+const backpack = read('backpack-system.js');
 const html = read('index.html');
 
 for (const needle of ['Other / custom item','PERSONAL_GEAR','CANONICAL_ACTIONS','Powerful rolls','Small Dagger Paired +2','Startling · Mark 1 Stress','api.openWeaponUse=openDynamicWeapon']) {
@@ -19,11 +18,11 @@ for (const needle of ['function unequip(id)','TWO-HANDED','ONE-HANDED','next.act
 for (const needle of ['Once per session','spendHope','Nomadic Pack','data-nomadic-item','addCustomItem','Reset for new session','does not reset on a rest']) {
   if (!nomadic.includes(needle)) throw new Error(`Missing Nomadic Pack marker: ${needle}`);
 }
-for (const needle of ['Minor Health Potion','Minor Stamina Potion','cleared ${cleared}','potion','data-p9-consumable-result']) {
-  if (!consumableFeedback.includes(needle)) throw new Error(`Missing Backpack consumable feedback marker: ${needle}`);
+for (const needle of ['Minor Health Potion','Minor Stamina Potion','useConsumable','Action complete','remaining.']) {
+  if (!(backpack.includes(needle) || equipment.includes(needle))) throw new Error(`Missing current Backpack consumable marker: ${needle}`);
 }
-for (const needle of ['equipment-system-v4.js?v=equipment4','p9-nomadic-pack.js?v=nomadic2','p9-consumable-feedback.js?v=consumables2']) {
-  if (!consolidation.includes(needle)) throw new Error(`Missing P9 bootstrap marker: ${needle}`);
+for (const needle of ['equipment-system-v4.js?v=equipment4','p9-nomadic-pack.js?v=nomadic2','backpack-system.js?v=backpack1']) {
+  if (!html.includes(needle)) throw new Error(`Current P9 runtime script is not loaded: ${needle}`);
 }
 for (const needle of ['removedItems:clean(r)','api.importState=remote','remote.removedItems','api.restoreGear']) {
   if (!removal.includes(needle)) throw new Error(`Missing synchronized removal marker: ${needle}`);
@@ -35,5 +34,5 @@ for (const needle of ['p9-damage-undo.js?v=p9damage2','p9-mechanics-completion.j
   if (!html.includes(needle)) throw new Error(`P9 runtime script is not loaded: ${needle}`);
 }
 if (fs.existsSync('p9-stored-armor-view.js')) throw new Error('Obsolete stored armor helper should not remain in P9.');
-if (/MutationObserver/.test(mechanics+equipment+nomadic+consumableFeedback)) throw new Error('P9 mechanics must remain event-driven; no broad mutation observer.');
+if (/MutationObserver/.test(mechanics+equipment+nomadic+backpack)) throw new Error('P9 mechanics must remain event-driven; no broad mutation observer.');
 console.log('P9 hand slots, Nomadic Pack session reset, consumable feedback and mechanics checks passed');
