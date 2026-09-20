@@ -150,19 +150,19 @@
     {
       id: 'closing-ways',
       title: 'The Closing Ways',
-      status: 'ODIE PRIORITY · ACTIVE IN GREYWAKE',
+      status: 'ACTIVE · ONE WAY REOPENED',
       direction: 'GREYWAKE',
       tone: 'personal',
       image: 'assets/canon/locations/caravan-gate.webp',
       imageNote: 'Greywake access imagery — the concealed Digger entrances remain hidden.',
       visibility: ['party'],
       proposedBy: 'Odie',
-      summary: 'Several concealed Digger haul routes into Greywake are being deliberately closed or filled. Odie wants to find out how their locations are being exposed and stop more of them being lost.',
-      known: 'Different crews keep different routes quiet. At least one closure was precise enough that whoever arranged it had to know where an undocumented entrance was. Odie knows one of the recently sealed entrances well enough to take the others there. Nobody yet knows who is exposing the routes, who is closing them, whether every closure is connected, or why it is happening now.',
+      summary: 'Odie and Marek reopened one deliberately packed southern Digger way. The route is passable but visibly disturbed, and the wider Closing Ways problem remains unresolved.',
+      known: 'The two PCs met from opposite sides of the same deliberate closure and reopened it together. Loose stone and shifted bracing make the reopening obvious. Other concealed ways remain part of the unresolved pattern; the party has not established one shared cause or one responsible actor.',
       relevance: {
-        marek: 'If the group follows Odie’s lead, this is a town-side mystery about hidden movement, changing access and who knows what.',
-        velmira: 'You have heard that at least one person directly affected by the closures is angry enough to talk about it. If you want a human angle on what is changing, that gives you somewhere to start.',
-        odie: 'You know one of the sealed entrances yourself. Someone somewhere knows something they should not, and you want to work out who is exposing the hidden routes before more are lost.'
+        marek: 'You have additional private creature discoveries from later in Session Four. They are not automatically shared with Odie or the party.',
+        velmira: 'Velmira remains a background character and is not assumed to have witnessed the reopening or later investigation.',
+        odie: 'You established that final packing was done from the Greywake side and asked Spencer to inspect the original closure work. You ended the session travelling back toward the reopened way with him; that inspection has not yet been played.'
       }
     },
     {
