@@ -127,42 +127,6 @@
     });
   }
 
-  function ensureMindDashboardScript() {
-    if (!isFullGM() || document.querySelector('script[data-gm-mind-dashboard]')) return;
-    const script = document.createElement('script');
-    script.src = 'gm-mind-dashboard.js?v=mind4';
-    script.defer = true;
-    script.dataset.gmMindDashboard = 'true';
-    document.head.appendChild(script);
-  }
-
-  function ensureGMNavigationScript() {
-    if (!isFullGM() || document.querySelector('script[data-gm-navigation-fix]')) return;
-    const script = document.createElement('script');
-    script.src = 'gm-navigation-fix.js?v=navfix1';
-    script.defer = true;
-    script.dataset.gmNavigationFix = 'true';
-    document.head.appendChild(script);
-  }
-
-  function ensureVisualCockpitScript() {
-    if (!isFullGM() || document.querySelector('script[data-gm-visual-cockpit]')) return;
-    const script = document.createElement('script');
-    script.src = 'gm-visual-cockpit.js?v=visual1';
-    script.defer = true;
-    script.dataset.gmVisualCockpit = 'true';
-    document.head.appendChild(script);
-  }
-
-  function ensureCockpitMediaScript() {
-    if (!isFullGM() || document.querySelector('script[data-gm-cockpit-media]')) return;
-    const script = document.createElement('script');
-    script.src = 'gm-cockpit-media.js?v=media1';
-    script.defer = true;
-    script.dataset.gmCockpitMedia = 'true';
-    document.head.appendChild(script);
-  }
-
   function ensureDevelopmentWorkspaceAssets() {
     if (!isFullGM()) return;
     if (!document.querySelector('link[data-gm-development-css]')) {
@@ -204,10 +168,6 @@
 
   function refresh() {
     if (!isFullGM()) return;
-    ensureMindDashboardScript();
-    ensureGMNavigationScript();
-    ensureVisualCockpitScript();
-    ensureCockpitMediaScript();
     ensureDevelopmentWorkspaceAssets();
     ensureLiveGMDataScript();
     scheduleEnhance();
