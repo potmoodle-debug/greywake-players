@@ -255,6 +255,16 @@
 
     const result = detail.querySelector('[data-roll-result]');
     if (!result) return;
+
+    const isWebslinger = spec.title === 'Webslinger';
+    const webslingerResolution = isWebslinger
+      ? (success === true
+          ? '<p class="duality-cost"><b>Webslinger:</b> the target is temporarily Restrained.</p>'
+          : success === false
+            ? '<p class="duality-cost"><b>Webslinger:</b> the target is not Restrained.</p>'
+            : '<p class="duality-cost"><b>Webslinger:</b> if the GM confirms this roll succeeds, the target is temporarily Restrained.</p>')
+      : '';
+
     result.innerHTML = `<div class="duality-result ${critical?'critical':axis.toLowerCase()}">
       <button type="button" class="action-roll-result-close" data-close-roll-result>Close result ×</button>
       <div class="duality-dice"><div class="hope-die"><span>HOPE</span><b>${hope}</b></div><div class="fear-die"><span>FEAR</span><b>${fear}</b></div></div>
@@ -263,6 +273,7 @@
       ${expCost ? `<p class="duality-cost"><b>${expCost} Hope</b> spent automatically before the roll for the selected Experience${expCost>1?'s':''}.</p>` : ''}
       ${resourceLine}
       ${difficulty == null && !critical ? '<p class="duality-cost">No Difficulty entered: tell the GM the total and whether it rolled with Hope or Fear.</p>' : ''}
+      ${webslingerResolution}
       ${spec.isAttack ? beastformFollowupMarkup(success) : ''}
       ${spec.isAttack && spec.damage ? `<div class="damage-roll-controls"><button type="button" data-roll-damage ${success === false ? 'disabled' : ''}>${critical?'Roll Critical Damage':'Roll Damage'}</button><span>${success === false ? 'Attack failed against the entered Difficulty.' : `${spec.damage.count}d${spec.damage.sides}${spec.damage.mod ? (spec.damage.mod>0?'+':'')+spec.damage.mod : ''} ${esc(spec.damage.type)}`}</span></div><div data-damage-result></div>` : ''}
     </div>`;
