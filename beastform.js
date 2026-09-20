@@ -233,6 +233,8 @@
         state.variant = button.dataset.beastformVariant;
         save();
         apply();
+        const snapshot=beastformSnapshot();
+        window.dispatchEvent(new CustomEvent('greywake:beastform-changed',{detail:{...snapshot,reason:'form selected'}}));
         document.getElementById('beastformDialog')?.close();
       });
     });
