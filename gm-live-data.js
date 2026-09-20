@@ -9,7 +9,7 @@
   const PRESSURES={
     'The Closing Ways':{level:'critical',origin:'PLAYER PRIORITY',image:'assets/canon/locations/caravan-gate.webp'},
     'The altered route markers':{level:'high',origin:'WORLD CONSEQUENCE',image:'assets/canon/sessions/session-03.webp'},
-    'The Cistern Plate':{level:'high',origin:'WORLD CONSEQUENCE',image:'assets/canon/locations/valve-court-cistern-seal.webp'},
+    'The Cistern Plate':{level:'high',origin:'PLAYED SESSION FOUR',image:'assets/canon/locations/valve-court-cistern-seal.webp',summary:'Odie escorted the Plate with Rennic into the Inner Cistern Court. Keeper lower-draw records show a removable plate-like component with similar channel geometry and near-matching dimensions; no fit or installation is confirmed. Odie memorised important geometry from a restricted sectional, and a record keeper noticed him looking. Any access or trust consequence remains unresolved.'},
     "Ash-Plate's recovery":{level:'medium',origin:'WORLD CONSEQUENCE',image:'assets/canon/fauna/ash-plate.webp'},
     'Freight at Ash-Plate Groundfall':{level:'medium',origin:'OPEN CONSEQUENCE',image:'assets/canon/sessions/session-01.webp'},
     'Something Moved In':{level:'medium',origin:'SELECTABLE POSSIBILITY',image:'assets/canon/sessions/session-02.webp'}
@@ -42,7 +42,7 @@
     if(!x)return'';
     return x.ps.find(p=>!/^status:/i.test(p)&&!/^possible benefit:/i.test(p))||x.ps[0]||'';
   }
-  function livePressures(){return Object.entries(PRESSURES).map(([title,meta])=>({title,meta,summary:summary(title)})).filter(x=>x.summary)}
+  function livePressures(){return Object.entries(PRESSURES).map(([title,meta])=>({title,meta,summary:meta.summary||summary(title)})).filter(x=>x.summary)}
   function priority(){return livePressures().find(x=>x.title==='The Closing Ways')||livePressures()[0]||null}
 
   function styles(){
