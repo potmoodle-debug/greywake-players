@@ -79,7 +79,7 @@
       portrait: 'assets/canon/characters/marek-canon.jpg',
       note: 'Greywake is the live character sheet. Track current Hope, Stress, Hit Points, Armor and other changing character state here during play.',
       stats: [
-        ['Level','1'],['Evasion','12'],['Armor','4'],['HP','0 / 6 marked'],['Stress','0 / 7 marked'],['Hope','2 / 6']
+        ['Level','1'],['Evasion','12'],['Armor','4'],['HP','0 / 6 marked'],['Stress','0 / 7 marked'],['Hope','2 / 6'],['Proficiency','1']
       ],
       traits: [
         ['Agility','+1','Sprint · Dodge · Leap'],['Strength','0','Lift · Smash · Grapple'],['Finesse','+1','Control · Hide · Tinker'],['Instinct','+2','Perceive · Sense · Navigate'],['Presence','−1','Charm · Perform · Deceive'],['Knowledge','0','Recall · Analyze · Comprehend']
