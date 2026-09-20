@@ -159,7 +159,7 @@
       <div class="active-actions-column active-actions-attacks"><div class="active-actions-label"><span>ATTACKS</span><small>Use now</small></div>${data.attacks.map(actionButton).join('')}</div>
       <div class="active-actions-column active-actions-abilities"><div class="active-actions-label"><span>ABILITIES</span><small>Use now</small></div>${data.abilities.map(actionButton).join('')}</div>
     </div>
-    ${data.advantages.length ? `<div class="active-actions-advantages"><span>BEASTFORM ADVANTAGE</span>${data.advantages.map(a => `<b>${esc(a)}</b>`).join('')}</div>` : ''}
+    ${data.advantages.length ? `<div class="active-actions-advantages"><span>BEASTFORM ADVANTAGE</span>${data.advantages.map(a => `<button type="button" data-beastform-advantage="${esc(a)}">${esc(a)}</button>`).join('')}</div>` : ''}
     ${detailMarkup(selected)}`;
 
     root.querySelectorAll('[data-active-action]').forEach(button => {
@@ -183,6 +183,29 @@
       const roll=die(8);
       const host=root.querySelector('[data-companion-help-result]');
       if(host) host.innerHTML=`<strong>Help Die d8 = ${roll}</strong><small>Give this as the Advantage die for the ally's roll.</small>`;
+    });
+
+    root.querySelectorAll('[data-beastform-advantage]').forEach(button=>{
+      button.addEventListener('click',()=>{
+        const verb=button.dataset.beastformAdvantage||'this action';
+        const panel=document.getElementById('traitRollPanel');
+        const options=panel?.querySelector('.trait-roll-options');
+        const mode=panel?.querySelector('[data-trait-roll-mode]');
+        if(options) options.open=true;
+        if(mode){
+          mode.value='advantage';
+          mode.dispatchEvent(new Event('change',{bubbles:true}));
+        }
+        let notice=panel?.querySelector('[data-beastform-advantage-notice]');
+        if(panel&&!notice){
+          notice=document.createElement('div');
+          notice.dataset.beastformAdvantageNotice='true';
+          notice.className='beastform-advantage-notice';
+          panel.querySelector('.trait-roll-buttons')?.insertAdjacentElement('beforebegin',notice);
+        }
+        if(notice) notice.innerHTML=`<strong>Beastform Advantage · ${esc(verb)}</strong><small>Choose the trait that matches what Marek is doing. This roll is set to Advantage.</small>`;
+        panel?.scrollIntoView({behavior:'smooth',block:'center'});
+      });
     });
 
     root.querySelectorAll('[data-open-source]').forEach(button => {
