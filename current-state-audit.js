@@ -142,8 +142,8 @@
     <h3>Odie — The Closing Ways</h3><p><strong>Status:</strong> Active Greywake problem; one concealed way reopened.</p><p>Odie and Marek reopened one deliberately packed and braced southern access. The route is passable but visibly disturbed. Odie established final packing from the Greywake side and is returning with Spencer to inspect the original closure work. Odie’s informer theory remains unproven.</p>
     <h2>Selectable beyond Greater Greywake</h2>
     <h3>↓ South — Something Moved In</h3><p><strong>Status:</strong> Selectable expedition.</p><p>Diggers say something dangerous has occupied an old ruin south of Greywake and work has stopped. The creature, why it chose the site and what else may be inside remain unknown.</p><p><strong>Possible benefit:</strong> getting the work moving again may earn access to a Minor Stamina Potion recipe.</p>
-    <h2>Known opportunity — not selectable yet</h2>
-    <h3>? — Freight at Ash-Plate Groundfall</h3><p>Significant expensive freight remains potentially recoverable. Its cardinal direction is not established, so under Greywake's directional opportunity rule it should not be presented as a selectable Wastes expedition yet.</p>
+    <h2>Selectable beyond Greater Greywake</h2>
+    <h3>→ East — Freight at Ash-Plate Groundfall</h3><p><strong>Status:</strong> Selectable external opportunity.</p><p>Significant expensive freight remains potentially recoverable at the Groundfall east of Greywake along the known Kestrel Return route corridor. Time, scavengers, weather or other travellers may have changed what remains there.</p>
     <h2>Things you can act on in Greywake</h2>
     <h3>The altered route markers</h3><p>At least two route markers were deliberately altered. The party can begin inside Greywake by comparing evidence, witnesses, route knowledge and who might recognise the work.</p>
     <h3>The Cistern Plate</h3><p>The Plate reached Greywake intact. Its exact function, compatibility, custody, examination and practical consequences remain unresolved.</p>
