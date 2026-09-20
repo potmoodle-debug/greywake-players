@@ -256,6 +256,15 @@
 
     let headline = critical ? 'CRITICAL SUCCESS' : success == null ? `${total} WITH ${axis.toUpperCase()}` : `${success?'SUCCESS':'FAILURE'} WITH ${axis.toUpperCase()}`;
     let consequence = critical ? 'Gain 1 Hope · clear 1 Stress' : axis === 'Hope' ? 'Gain 1 Hope' : 'GM gains 1 Fear';
+    if (!critical && axis === 'Fear') {
+      window.GreywakeFear?.gainFromPlayerRoll?.({
+        roll_type: spec.isAttack ? 'attack' : 'action',
+        trait: spec.trait || null,
+        total,
+        hope_die: hope,
+        fear_die: fear
+      });
+    }
     if (critical && spec.isAttack) consequence += ' · critical damage enabled';
 
     const parts = [`${hope} Hope`, `${fear} Fear`, `${spec.trait} ${trait>=0?'+':''}${trait}`];
