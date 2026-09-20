@@ -21,7 +21,6 @@
       .gm-live-source{display:inline-flex;border:1px solid #4c4634;background:#12130f;padding:4px 7px;color:#9f8d5b;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
       .gm-live-npcs{grid-column:1/-1}.gm-live-npc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.gm-live-npc{display:grid;grid-template-columns:92px minmax(0,1fr);min-height:130px;border:1px solid #3d3a2e;background:#13140f;overflow:hidden}.gm-live-npc img{width:100%;height:100%;object-fit:cover}.gm-live-npc>div{padding:11px}.gm-live-npc strong{display:block;color:#e6dcc2;font:700 17px/1.05 Georgia,serif;margin-bottom:5px}.gm-live-npc p{margin:0 0 9px!important;font-size:9px!important;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.gm-live-npc button{border:0;background:none;color:#d5bc72;padding:0;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer}
       .gm-live-goal-state{display:inline-flex;margin-top:6px;padding:3px 6px;border:1px solid #4d4736;color:#a99a70;font-size:7px;font-weight:900;text-transform:uppercase}.gm-live-goal-state.pursuing{border-color:#866e3c;color:#e0c77f}
-      .gm-player-projection-guard{margin:0 0 14px;border:1px solid #665d42;background:#15150f;padding:14px}.gm-player-projection-guard small{display:block;color:#b6a161;font-size:7px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}.gm-player-projection-guard strong{display:block;color:#eadfc2;font:700 18px/1.1 Georgia,serif;margin:5px 0 6px}.gm-player-projection-guard p{margin:0!important;color:#9b9483!important;font-size:10px!important;line-height:1.5!important}
       #gmInboxThreadsPortal{max-width:1500px;margin:-44px auto 70px;padding:0 clamp(18px,3vw,42px) 0;color:#d9d0ba}#gmInboxThreadsPortal.hidden{display:none!important}#gmInboxThreadsPortal .gm-inbox-thread-shell{border:1px solid #3d3a2f;background:#171813;padding:16px}#gmInboxThreadsPortal .gm-inbox-thread-shell>small{color:#9d8b5d;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}#gmInboxThreadsPortal .gm-inbox-thread-shell>h2{margin:5px 0 8px;color:#e9dfc8;font:700 19px/1.15 Georgia,serif}#gmInboxThreadsPortal .gm-inbox-thread-shell>p{color:#9f9786;font-size:11px}.gm-inbox-thread-anchor{cursor:pointer}.gm-inbox-thread-anchor:hover{background:#191a13}.gm-inbox-thread-anchor:focus-visible{outline:1px solid #a78c4c;outline-offset:2px}
       @media(max-width:1050px){.gm-live-npc-grid{grid-template-columns:1fr 1fr}}
       @media(max-width:700px){.gm-live-npc-grid{grid-template-columns:1fr}#gmInboxThreadsPortal{margin:-50px 14px 70px;padding:0}}
@@ -49,15 +48,7 @@
 
 
 
-  function players(root){
-    const cards=root.querySelector('.gm-player-preview-cards');
-    if(!cards||root.querySelector('.gm-player-projection-guard'))return;
-    cards.querySelectorAll('article').forEach(card=>{
-      const name=(card.querySelector('strong')?.textContent||'').trim().toLowerCase();
-      if(name)card.dataset.character=name;
-    });
-    cards.insertAdjacentHTML('beforebegin','<section class="gm-player-projection-guard"><small>KNOWLEDGE BOUNDARY</small><strong>Each character is a separate projection.</strong><p>WORLD or canon changes do not become player knowledge automatically. Update Marek, Velmira or Odie only when that character actually learned, witnessed or was explicitly told the information. Never copy another character’s private knowledge across.</p></section>');
-  }
+
 
   function portal(){
     let p=document.getElementById('gmInboxThreadsPortal');
@@ -112,7 +103,6 @@
     if(h!=='#/gm-inbox')restoreThreads();
     if(h==='#/gm-session')run(root);
     else if(h==='#/gm-inbox')inbox(root);
-    else if(h==='#/gm-players')players(root);
   }
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhance()})}
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
