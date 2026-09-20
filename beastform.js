@@ -464,6 +464,14 @@
     getTraitModifier(name){
       const values=derivedTraits();
       return Object.hasOwn(values,name)?values[name]:null;
+    },
+    setActivationMode(mode,trait='Agility'){
+      state.evolution=mode==='evolution';
+      if(['Agility','Strength','Finesse','Instinct','Presence','Knowledge'].includes(trait)){
+        state.evolutionTrait=trait;
+      }
+      save();
+      return {evolution:state.evolution,evolutionTrait:state.evolutionTrait};
     }
   };
 
