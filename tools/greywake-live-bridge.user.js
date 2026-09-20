@@ -1,8 +1,10 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge
 // @namespace    greywake
-// @version      0.4.2
+// @version      0.4.3
 // @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat, then reports the updater result back to Greywake.
+// @updateURL    https://potmoodle-debug.github.io/greywake-players/tools/greywake-live-bridge.user.js
+// @downloadURL  https://potmoodle-debug.github.io/greywake-players/tools/greywake-live-bridge.user.js
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
 // @grant        GM_getValue
@@ -202,7 +204,7 @@
       window.addEventListener('greywake:live-bridge-set-role',event=>{setRole(event.detail?.role,event.detail?.key);window.dispatchEvent(new CustomEvent('greywake:live-bridge-role-set',{detail:{roles:rolesWithChats()}}))});
       GM_addValueChangeListener?.(STATUS_KEY,(_key,_old,value)=>{if(value){window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:value}));updateButton(value)}});
       GM_addValueChangeListener?.(RESULT_KEY,(_key,_old,value)=>{if(value)window.dispatchEvent(new CustomEvent('greywake:live-bridge-result',{detail:value}))});
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.2',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
+      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.3',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSite,{once:true});else startSite();
   }
