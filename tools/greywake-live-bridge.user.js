@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge
 // @namespace    greywake
-// @version      0.4.0
+// @version      0.4.1
 // @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat, then reports the updater result back to Greywake.
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
@@ -60,11 +60,13 @@
     return [
       'UPDATE GREYWAKE — LIVE SESSION HANDOFF','',
       'Use the current Greywake project files, connected Greywake tools, and the live-session transcript below as your source material.',
-      'Treat the current Greywake Canon Status Quo Register as the highest Greywake setting authority.','',
+      'CANON AUTHORITY: The actual Greywake Obsidian working vault is the highest canon authority. The Canon Status Quo Register is a consolidated index/summary inside that vault, not a higher authority than the vault.','',
       'This request came from the separate live-play chat. Do not write anything back into that live-play chat.','',
       'Chris does NOT need to label or categorise session facts. You must classify them yourself from the transcript, established canon and player knowledge boundaries.','Classify each justified change as appropriate: immediate player-safe reveal, persistent player knowledge, DM/world/canon state, NPC/faction consequence, unresolved consequence, or a decision genuinely requiring Chris.','Do not ask Chris to choose a category. Only queue something for Chris when the underlying truth, motive, contradiction or creative canon decision is genuinely unresolved.','',
-      'Review only what has changed since the last justified Greywake update and APPLY available writes directly.',
-      'Update relevant available destinations including Obsidian through the existing Greywake workflow, DM-facing site/repository, player-facing content with strict knowledge boundaries, connected campaign state where appropriate, canon/world state, NPC/faction state, unresolved consequences, access, rumours, promises, debts, evidence and player knowledge.','',
+      'Review the transcript for all facts established in play since the last justified Greywake update; do not rely only on browser-local capture cards. APPLY available writes directly.',
+      'Update relevant available destinations including the actual Obsidian Markdown files through Google Drive, DM-facing site/repository, player-facing content with strict knowledge boundaries, connected campaign state where appropriate, canon/world state, NPC/faction state, unresolved consequences, access, rumours, promises, debts, evidence and player knowledge.','',
+      'OBSIDIAN WRITE METHOD: for each affected raw .md note, fetch/download the existing Drive file as a connector file reference, preserve all unrelated content, create only the justified edit, then replace the same Drive file ID with Google Drive update_file using a file_uri. Verify the resulting file ID/modified time and re-read when needed. Never claim Obsidian updated unless the raw .md write succeeds.','',
+      'If the Obsidian note already contains the played fact, treat it as verified and do not rewrite merely to create a timestamp. If it contains a contradiction, correct the contradiction from actual play/explicit Chris canon while preserving unrelated material.','',
       'For player-facing information: if the transcript clearly establishes that a character or the party learned/witnessed something, update the appropriate persistent player knowledge automatically. Use the live Recent Reveals feed only when the information is an immediate at-the-table reveal that belongs in that activity feed; durable knowledge/world updates do not need a Recent Reveals entry.','',
       'Rules:',
       '- Preserve established canon and unresolved mysteries.',
@@ -182,7 +184,7 @@
       window.addEventListener('greywake:live-bridge-set-role',event=>{setRole(event.detail?.role,event.detail?.key);window.dispatchEvent(new CustomEvent('greywake:live-bridge-role-set',{detail:{roles:rolesWithChats()}}))});
       GM_addValueChangeListener?.(STATUS_KEY,(_key,_old,value)=>{if(value){window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:value}));updateButton(value)}});
       GM_addValueChangeListener?.(RESULT_KEY,(_key,_old,value)=>{if(value)window.dispatchEvent(new CustomEvent('greywake:live-bridge-result',{detail:value}))});
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.0',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
+      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.1',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSite,{once:true});else startSite();
   }
