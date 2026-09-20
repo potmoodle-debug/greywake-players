@@ -120,39 +120,19 @@
     return '0';
   }
 
-  function captureBase(){
-    if (state.base) return true;
-
-    const traitNames=['Agility','Strength','Finesse','Instinct','Presence','Knowledge'];
-    const evasion = statByLabel('Evasion');
-    const armor = statByLabel('Armor');
-    if (!evasion || !armor) return false;
-
-    const evasionText=evasion.querySelector('strong')?.textContent?.trim();
-    const armorText=armor.querySelector('strong')?.textContent?.trim();
-    if (!evasionText || !armorText) return false;
-
-    const traits = {};
-    for (const name of traitNames){
-      const card = traitCard(name);
-      const valueText=card?.querySelector('.sheet-value')?.textContent?.trim();
-      if (!card || valueText==null || valueText==='') return false;
-      traits[name]=readNumber(valueText);
-    }
-
-    const candidate={
-      evasion:readNumber(evasionText),
-      armor:readNumber(armorText),
-      traits
+  function canonicalHumanoidBase(){
+    return {
+      evasion:MAREK_HUMANOID_BASE.evasion,
+      armor:MAREK_HUMANOID_BASE.armor,
+      traits:{...MAREK_HUMANOID_BASE.traits}
     };
+  }
 
-    // A half-rendered sheet can briefly expose zeroes. Marek's real base sheet
-    // has non-zero Evasion/Armor and several non-zero traits, so never capture
-    // an all-zero/transitional DOM state as the permanent Beastform baseline.
-    const meaningfulTraits=traitNames.some(name=>traits[name]!==0);
-    if (candidate.evasion<=0 || candidate.armor<=0 || !meaningfulTraits) return false;
-
-    state.base=candidate;
+  function captureBase(){
+    // Marek's Beastform always derives from his known humanoid sheet.
+    // Do not infer the baseline from rendered DOM values: those values can be
+    // transiently incomplete while the Character page is updating.
+    state.base=canonicalHumanoidBase();
     return true;
   }
 
@@ -301,11 +281,7 @@
       state.active = null;
       state.variant = null;
       state.evolution = false;
-      state.base={
-        evasion:MAREK_HUMANOID_BASE.evasion,
-        armor:MAREK_HUMANOID_BASE.armor,
-        traits:{...MAREK_HUMANOID_BASE.traits}
-      };
+      state.base=canonicalHumanoidBase();
       save();
       apply();
       window.GreywakeTraitRoller?.refresh?.();
@@ -428,11 +404,7 @@
 
     const variant=currentVariant(form);
     if (!form){
-      const humanoid={
-        evasion:MAREK_HUMANOID_BASE.evasion,
-        armor:MAREK_HUMANOID_BASE.armor,
-        traits:{...MAREK_HUMANOID_BASE.traits}
-      };
+      const humanoid=canonicalHumanoidBase();
       state.base=humanoid;
       applyBeastformStatus(null,null);
       setStat('Evasion',humanoid.evasion,'');
@@ -456,6 +428,7 @@
     setAvailability(true);
     renderControl();
     renderOptions();
+    window.GreywakeTraitRoller?.refresh?.();
   }
 
   let baseRetryCount=0;
