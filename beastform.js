@@ -395,6 +395,34 @@
     }
   }
 
+  function derivedTraits(){
+    const base=canonicalHumanoidBase().traits;
+    const values={...base};
+    const form=currentForm();
+    if(form){
+      values[form.trait]=(values[form.trait]||0)+form.traitBonus;
+      if(state.evolution && Object.hasOwn(values,state.evolutionTrait)){
+        values[state.evolutionTrait]+=1;
+      }
+    }
+    return values;
+  }
+
+  function beastformSnapshot(){
+    const form=currentForm();
+    const variant=currentVariant(form);
+    return {
+      active:Boolean(form),
+      formId:form?.id||null,
+      formName:form?.name||null,
+      variantId:variant?.id||null,
+      variantName:variant?.name||null,
+      traits:derivedTraits(),
+      evasion:form ? MAREK_HUMANOID_BASE.evasion+form.evasion : MAREK_HUMANOID_BASE.evasion,
+      armor:form ? Math.max(0,MAREK_HUMANOID_BASE.armor-1) : MAREK_HUMANOID_BASE.armor
+    };
+  }
+
   function apply(){
     if (!isMarek() || !ensureUI() || !state.base) return;
     const form = currentForm();
@@ -419,10 +447,9 @@
     applyBeastformStatus(form,variant);
     setStat('Evasion',state.base.evasion + form.evasion,`+${form.evasion} Beastform`);
     setStat('Armor',Math.max(0,state.base.armor-1),'Round Shield inactive');
-    Object.entries(state.base.traits).forEach(([name,base])=>{
-      let value=base;
-      if (name===form.trait) value+=form.traitBonus;
-      if (state.evolution && name===state.evolutionTrait) value+=1;
+    const transformedTraits=derivedTraits();
+    Object.entries(transformedTraits).forEach(([name,value])=>{
+      const base=MAREK_HUMANOID_BASE.traits[name];
       setTrait(name,value,value!==base);
     });
     setAvailability(true);
@@ -430,6 +457,15 @@
     renderOptions();
     window.GreywakeTraitRoller?.refresh?.();
   }
+
+  window.GreywakeBeastform={
+    getState:beastformSnapshot,
+    getTraits:derivedTraits,
+    getTraitModifier(name){
+      const values=derivedTraits();
+      return Object.hasOwn(values,name)?values[name]:null;
+    }
+  };
 
   let baseRetryCount=0;
 
