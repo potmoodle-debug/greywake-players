@@ -144,19 +144,6 @@
     </div>`;
   }
 
-  function actionDialogMarkup(action) {
-    if (!action) return '';
-    return `<dialog id="activeActionDialog" class="beastform-dialog active-action-dialog">
-      <div class="beastform-dialog-shell active-action-dialog-shell">
-        <div class="beastform-dialog-head">
-          <div><span>${action.type === 'attack' ? 'ACTIVE ATTACK' : 'ACTIVE ABILITY'}</span><h2>${esc(action.title)}</h2><p>${esc(action.meta || 'Marek · ready to use')}</p></div>
-          <button type="button" class="beastform-dialog-close" data-active-action-dialog-close aria-label="Close action">×</button>
-        </div>
-        <div class="active-action-dialog-body">${detailMarkup(action)}</div>
-      </div>
-    </dialog>`;
-  }
-
   function render() {
     const root = ensurePanel();
     if (!root) return;
@@ -173,31 +160,23 @@
       <div class="active-actions-column active-actions-abilities"><div class="active-actions-label"><span>ABILITIES</span><small>Use now</small></div>${data.abilities.map(actionButton).join('')}</div>
     </div>
     ${data.advantages.length ? `<div class="active-actions-advantages"><span>BEASTFORM ADVANTAGE</span>${data.advantages.map(a => `<button type="button" data-beastform-advantage="${esc(a)}">${esc(a)}</button>`).join('')}</div>` : ''}
-    ${actionDialogMarkup(selected)}`;
+    ${detailMarkup(selected)}`;
 
     root.querySelectorAll('[data-active-action]').forEach(button => {
       button.addEventListener('click', () => {
-        selectedAction = button.dataset.activeAction;
+        selectedAction = selectedAction === button.dataset.activeAction ? null : button.dataset.activeAction;
         render();
-        requestAnimationFrame(() => {
-          const dialog = root.querySelector('#activeActionDialog');
-          if (!dialog) return;
-          if (typeof dialog.showModal === 'function' && !dialog.open) dialog.showModal();
-          else dialog.setAttribute('open','');
-        });
+        if (selectedAction) {
+          requestAnimationFrame(() => {
+            root.querySelector('.active-action-detail')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          });
+        }
       });
     });
 
-    const closeActionDialog = () => {
-      const dialog = root.querySelector('#activeActionDialog');
-      if (dialog?.open) dialog.close();
+    root.querySelector('.active-action-detail-close')?.addEventListener('click', () => {
       selectedAction = null;
       render();
-    };
-    root.querySelector('[data-active-action-dialog-close]')?.addEventListener('click', closeActionDialog);
-    root.querySelector('.active-action-detail-close')?.addEventListener('click', closeActionDialog);
-    root.querySelector('#activeActionDialog')?.addEventListener('click', event => {
-      if (event.target === event.currentTarget) closeActionDialog();
     });
 
     root.querySelector('[data-open-beastform]')?.addEventListener('click', () => {
