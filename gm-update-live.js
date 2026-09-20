@@ -48,7 +48,7 @@
     const lines=[
       'Use the current Greywake project files, connected Greywake tools, and this update packet as your source material.',
       '',
-      'Treat the current Greywake Canon Status Quo Register as the highest Greywake setting authority.',
+      'Treat the actual Greywake Obsidian working vault as the highest canon authority. The Canon Status Quo Register is a consolidated summary within that vault.',
       '',
       'Rules:',
       '- Preserve established canon. Do not invent events that did not happen.',
