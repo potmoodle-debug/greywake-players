@@ -107,6 +107,27 @@
     }
   };
 
+
+  // Single GM-facing owner for the current operational campaign state.
+  // GM views should read this object rather than maintaining a second hand-written snapshot.
+  window.GREYWAKE_GM_STATE = {
+    session: 'Session Four — ended',
+    partyLocation: 'Split after play: Marek beneath Greywake · Odie returning with Spencer · Velmira in Greywake',
+    activeParty: ['Marek','Odie'],
+    backgroundParty: ['Velmira'],
+    situationTitle: 'The Closing Ways',
+    situationDetail: 'One deliberately closed southern Digger way has been reopened. Marek continued into buried spaces and encountered a Foldling; Odie is returning with Spencer so the original closure work can be inspected. Velmira remains in Greywake and is not assumed to be at the Digger way.',
+    sceneTitle: 'Between scenes',
+    sceneDetail: 'Session Four ended with Marek beneath Greywake and Odie travelling back toward the reopened southern blockage with Spencer. Spencer’s inspection has not yet been played.',
+    pressures: [
+      ['→ High','The Closing Ways'],
+      ['→ High','Disturbance south of Greywake'],
+      ['→ High','Cistern Plate consequences'],
+      ['→','Altered route markers'],
+      ['→','Ash-Plate recovery']
+    ]
+  };
+
   // Current state after Session Three.
   if (D['Stone-Lip Hollow']) D['Stone-Lip Hollow'].html = `<p>A shallow side basin beneath a curved stone overhang where the Kestrel Return survivors sheltered.</p><p>The cacklemaw assault here was broken during Session Three. The survivors, the Cistern Plate, Ash-Plate and Lowbell subsequently returned to Greywake.</p><p>Stone-Lip Hollow remains part of the known route history, but the party is no longer trapped there.</p>`;
   if (D['Cacklemaw Pack']) D['Cacklemaw Pack'].html = `<p>Cacklemaws are lean pursuit predators that use broken, breathy calls to coordinate. The party has seen them circle, test defences, exploit separation and change tactics rather than simply rush the nearest target.</p><p>The pack pursued the Kestrel Return survivors from the broken runnels to Stone-Lip Hollow. During Session Three the party broke the attack; surviving scavengers fled rather than regrouping nearby.</p><p>A useful lesson from direct experience: the animal you can see may not be the only one choosing where your attention goes.</p>`;
