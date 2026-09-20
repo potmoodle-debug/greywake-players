@@ -86,6 +86,8 @@
     });
   }
 
+  window.GreywakeNatureTongue={open:openDialog,bind};
+
   const schedule=()=>setTimeout(bind,120);
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('greywake:sheet-enhanced',schedule);
