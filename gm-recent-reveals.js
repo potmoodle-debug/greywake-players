@@ -62,24 +62,3 @@
   function resetTimer() { if (timer) clearInterval(timer); timer = null; refresh(); if (fullGM() && inSessionSupport()) timer = setInterval(refresh, POLL_MS); }
   window.addEventListener('hashchange', () => setTimeout(resetTimer, 0)); window.addEventListener('greywake:player-ready', () => setTimeout(resetTimer, 0)); window.addEventListener('greywake:live-reveal-published', () => setTimeout(refresh, 0)); document.addEventListener('DOMContentLoaded', resetTimer); ensureStyles(); resetTimer();
 })();
-
-(() => {
-  if (document.querySelector('script[data-gm-player-feed]')) return;
-  const script = document.createElement('script'); script.src = 'player-feed.js?v=feed1'; script.defer = true; script.dataset.gmPlayerFeed = 'true'; document.head.appendChild(script);
-})();
-
-(() => {
-  const helpers = [
-    ['gm-player-priority.js?v=priority5','gmPlayerPriority'],
-    ['gm-session-state.js?v=session1','gmSessionState'],
-    ['gm-prep-live.js?v=prep1','gmPrepLive']
-  ];
-  helpers.forEach(([src,key]) => {
-    if (document.querySelector(`script[data-${key}]`)) return;
-    const script = document.createElement('script');
-    script.src = src;
-    script.defer = true;
-    script.dataset[key] = 'true';
-    document.head.appendChild(script);
-  });
-})();
