@@ -19,13 +19,13 @@
     {
       id: 'groundfall-freight',
       title: 'Freight at Ash-Plate Groundfall',
-      status: 'SELECTABLE EXTERNAL OPPORTUNITY',
-      direction: 'EAST →',
+      status: 'KNOWN OPPORTUNITY · NOT SELECTABLE YET',
+      direction: 'DIRECTION NOT YET ESTABLISHED',
       tone: 'open',
       image: 'assets/canon/sessions/session-01.webp',
       visibility: ['party'],
-      summary: 'Significant expensive caravan freight was left behind when the group chose lives over cargo during the Kestrel Return. The route back to the Groundfall is known.',
-      known: 'The Groundfall lies east of Greywake along the known Kestrel Return route corridor. The freight may still be recoverable, but time, scavengers, weather or other travellers may have changed what remains there.',
+      summary: 'Significant expensive caravan freight was left behind when the group chose lives over cargo during the Kestrel Return. The Groundfall is known, but its broad cardinal direction from Greywake is not currently established.',
+      known: 'The freight may still be recoverable, but the Groundfall is not yet a selectable Wastes expedition. Its broad direction must first be established in play; time, scavengers, weather or other travellers may also have changed what remains there.',
       relevance: {
         marek: 'Time, scavengers and animals may already have changed the site since the caravan left it.',
         velmira: 'The freight has owners, value and consequences. Who wants it back may matter as much as what is still there.',
