@@ -21,9 +21,8 @@
       .gm-live-source{display:inline-flex;border:1px solid #4c4634;background:#12130f;padding:4px 7px;color:#9f8d5b;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
       .gm-live-npcs{grid-column:1/-1}.gm-live-npc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.gm-live-npc{display:grid;grid-template-columns:92px minmax(0,1fr);min-height:130px;border:1px solid #3d3a2e;background:#13140f;overflow:hidden}.gm-live-npc img{width:100%;height:100%;object-fit:cover}.gm-live-npc>div{padding:11px}.gm-live-npc strong{display:block;color:#e6dcc2;font:700 17px/1.05 Georgia,serif;margin-bottom:5px}.gm-live-npc p{margin:0 0 9px!important;font-size:9px!important;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.gm-live-npc button{border:0;background:none;color:#d5bc72;padding:0;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer}
       .gm-live-goal-state{display:inline-flex;margin-top:6px;padding:3px 6px;border:1px solid #4d4736;color:#a99a70;font-size:7px;font-weight:900;text-transform:uppercase}.gm-live-goal-state.pursuing{border-color:#866e3c;color:#e0c77f}
-      #gmInboxThreadsPortal{max-width:1500px;margin:-44px auto 70px;padding:0 clamp(18px,3vw,42px) 0;color:#d9d0ba}#gmInboxThreadsPortal.hidden{display:none!important}#gmInboxThreadsPortal .gm-inbox-thread-shell{border:1px solid #3d3a2f;background:#171813;padding:16px}#gmInboxThreadsPortal .gm-inbox-thread-shell>small{color:#9d8b5d;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}#gmInboxThreadsPortal .gm-inbox-thread-shell>h2{margin:5px 0 8px;color:#e9dfc8;font:700 19px/1.15 Georgia,serif}#gmInboxThreadsPortal .gm-inbox-thread-shell>p{color:#9f9786;font-size:11px}.gm-inbox-thread-anchor{cursor:pointer}.gm-inbox-thread-anchor:hover{background:#191a13}.gm-inbox-thread-anchor:focus-visible{outline:1px solid #a78c4c;outline-offset:2px}
       @media(max-width:1050px){.gm-live-npc-grid{grid-template-columns:1fr 1fr}}
-      @media(max-width:700px){.gm-live-npc-grid{grid-template-columns:1fr}#gmInboxThreadsPortal{margin:-50px 14px 70px;padding:0}}
+      @media(max-width:700px){.gm-live-npc-grid{grid-template-columns:1fr}}
     `;
     document.head.appendChild(s);
   }
@@ -50,59 +49,15 @@
 
 
 
-  function portal(){
-    let p=document.getElementById('gmInboxThreadsPortal');
-    if(p)return p;
-    p=document.createElement('section');
-    p.id='gmInboxThreadsPortal';
-    p.className='hidden';
-    document.getElementById('mainContent')?.appendChild(p);
-    return p;
-  }
-  function restoreThreads(){
-    const threads=document.getElementById('playerGoals'),home=document.getElementById('home'),p=document.getElementById('gmInboxThreadsPortal');
-    if(threads&&home&&threads.parentElement!==home){
-      const current=document.getElementById('currentThreads');
-      current?.parentNode===home?home.insertBefore(threads,current):home.prepend(threads);
-    }
-    if(p){p.classList.add('hidden');p.innerHTML=''}
-  }
-  function inbox(root){
-    const feed=root.querySelector('#gmInboxHost'),threads=document.getElementById('playerGoals');
-    if(!feed||!threads)return;
-    const p=portal();
-    if(threads.parentElement!==p){
-      p.innerHTML='<div class="gm-inbox-thread-shell"><small>LIVE Q&A / INTEREST THREADS</small><h2>Open the actual conversation</h2><p>These are the existing GM thread controls from the player-goals system, not a duplicate.</p></div>';
-      p.querySelector('.gm-inbox-thread-shell').appendChild(threads);
-    }
-    p.classList.remove('hidden');
-    threads.classList.remove('hidden');
-    setTimeout(()=>{
-      root.querySelectorAll('.gm-player-feed-item:not([data-live-linked])').forEach(row=>{
-        row.dataset.liveLinked='1';
-        row.classList.add('gm-inbox-thread-anchor');
-        row.tabIndex=0;
-        const who=row.querySelector('.gm-player-feed-who strong')?.textContent?.trim(),text=row.querySelector('.gm-player-feed-copy p')?.textContent?.trim();
-        const open=()=>{
-          const cards=[...threads.querySelectorAll('.gm-interest-thread')];
-          const match=cards.find(c=>(c.querySelector('.interest-status')?.textContent||'').includes(who)&&(c.textContent||'').includes(text?.slice(0,45)||''))||cards.find(c=>(c.querySelector('.interest-status')?.textContent||'').includes(who));
-          if(match){match.scrollIntoView({behavior:'smooth',block:'start'});match.querySelector('textarea,button')?.focus()}
-        };
-        row.addEventListener('click',open);
-        row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
-      });
-    },220);
-  }
+
 
   function enhance(){
-    if(!isGM()){restoreThreads();return}
+    if(!isGM())return
     styles();
     const root=document.getElementById('gmOperationsView');
     if(!root||root.classList.contains('hidden'))return;
     const h=location.hash;
-    if(h!=='#/gm-inbox')restoreThreads();
     if(h==='#/gm-session')run(root);
-    else if(h==='#/gm-inbox')inbox(root);
   }
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;enhance()})}
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
