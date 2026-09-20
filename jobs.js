@@ -33,13 +33,13 @@
       <p>Word among the Diggers is that work at an old ruin south of Greywake has stopped because something dangerous has nested inside the dig site. Nobody seems certain what the creature is, or why it chose that particular ruin.</p>
       <p>You could investigate it, ask around first, leave it alone, approach the problem without killing the creature, or never go there at all.</p>
 
-      <h3>Freight at Ash-Plate Groundfall</h3>
-      <p><strong>Status:</strong> Known opportunity; not selectable yet</p>
+      <h3>→ East — Freight at Ash-Plate Groundfall</h3>
+      <p><strong>Status:</strong> Selectable external opportunity</p>
       <p>Significant expensive freight was deliberately left behind rather than risk lives recovering it while Ash-Plate was injured and the survivors were exhausted.</p>
-      <p>The Groundfall itself is known, but its broad cardinal direction from Greywake is not currently established. That direction must be learned before recovering the freight becomes a selectable Wastes expedition.</p>
+      <p>The party travelled the Kestrel Return route and knows the Groundfall lies east of Greywake. The freight may still be recoverable, though its present condition and current hazards are unknown.</p>
 
       <p><strong>North:</strong> no current known external expedition.</p>
-      <p><strong>East:</strong> no current known external expedition.</p>
+      <p><strong>East:</strong> Ash-Plate Groundfall is a known return expedition along the Kestrel Return route.</p>
       <p><strong>West:</strong> no current known external expedition.</p>
 
       <h2>Things you could pursue in Greywake</h2>
