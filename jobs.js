@@ -12,9 +12,9 @@
       <p>These began with something one of the characters put at the front of their mind, then developed into a concrete lead the party could actually pursue. They are shared possibilities, not obligations.</p>
 
       <h3>Marek — Find a Flickerfly</h3>
-      <p><strong>Status:</strong> Player proposal / new lead</p>
-      <p>Marek wants to find and study a flickerfly. Stories about them mostly seem to come from travellers returning from south of Greywake.</p>
-      <p>A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. The first step is to identify that Digger and find out exactly where it came from.</p>
+      <p><strong>Status:</strong> Player interest; no actionable lead yet</p>
+      <p>Marek wants to find and study a flickerfly. The interest is established, but a specific sighting, witness, specimen, route or cardinal direction is not.</p>
+      <p>The first step is finding a credible in-world source. Until that happens, this is not a selectable Wastes expedition.</p>
 
       <h3>Velmira — An Earlier Stilling Case</h3>
       <p><strong>Status:</strong> Player proposal / known lead</p>
@@ -22,9 +22,9 @@
       <p>Velmira wants to find that place and see whether anything there might help Nemi. The place is still identifiable, but the exact direction has not yet been established and nobody knows whether the journey actually caused the apparent improvement.</p>
 
       <h3>Odie — The Closing Ways</h3>
-      <p><strong>Status:</strong> Player proposal / active problem</p>
-      <p>Several concealed Digger haul routes into Greywake are being deliberately closed, filled or braced shut.</p>
-      <p>At least one closure required specific knowledge of an undocumented entrance. Odie wants to work out how the hidden routes are being exposed and stop more of them from being lost.</p>
+      <p><strong>Status:</strong> Active Greywake problem; one concealed way reopened</p>
+      <p>Odie and Marek reopened one deliberately packed southern Digger way. The route is passable but visibly disturbed.</p>
+      <p>Odie established that the final packing was done from the Greywake side and is returning with Spencer so the original closure work can be inspected. Who is exposing or closing the concealed ways, and why, remains unresolved.</p>
 
       <h2>Beyond Greywake</h2>
 
@@ -33,13 +33,13 @@
       <p>Word among the Diggers is that work at an old ruin south of Greywake has stopped because something dangerous has nested inside the dig site. Nobody seems certain what the creature is, or why it chose that particular ruin.</p>
       <p>You could investigate it, ask around first, leave it alone, approach the problem without killing the creature, or never go there at all.</p>
 
-      <h3>→ East — Freight at Ash-Plate Groundfall</h3>
-      <p><strong>Status:</strong> Abandoned, potentially recoverable</p>
+      <h3>Freight at Ash-Plate Groundfall</h3>
+      <p><strong>Status:</strong> Known opportunity; not selectable yet</p>
       <p>Significant expensive freight was deliberately left behind rather than risk lives recovering it while Ash-Plate was injured and the survivors were exhausted.</p>
-      <p>Ash-Plate Groundfall lies on the eastern Kestrel Return route corridor through Old Marker Wash. The party travelled this route during Sessions One to Three, so its broad direction is known even though exact current hazards and the freight's present condition are not.</p>
+      <p>The Groundfall itself is known, but its broad cardinal direction from Greywake is not currently established. That direction must be learned before recovering the freight becomes a selectable Wastes expedition.</p>
 
       <p><strong>North:</strong> no current known external expedition.</p>
-      <p><strong>East:</strong> the Kestrel Return road, Old Marker Wash, Ash-Plate Groundfall and Stone-Lip Hollow lie on this corridor; recovering the abandoned freight is a current known possibility.</p>
+      <p><strong>East:</strong> no current known external expedition.</p>
       <p><strong>West:</strong> no current known external expedition.</p>
 
       <h2>Things you could pursue in Greywake</h2>
@@ -47,7 +47,7 @@
       <h3>The altered route markers</h3>
       <p><strong>Status:</strong> Unresolved</p>
       <p>At least two route markers were deliberately altered. The party does not know who did it, when, why, or whether the same person was responsible for both.</p>
-      <p>This can begin inside Greywake by speaking to people, comparing route knowledge or examining known evidence. The marker sites already encountered during the Kestrel Return lie on the eastern route corridor.</p>
+      <p>This can begin inside Greywake by speaking to people, comparing route knowledge or examining known evidence. The party has encountered altered markers during the Kestrel Return, but this record does not establish a shared cardinal direction for those sites.</p>
 
       <h3>The Cistern Plate</h3>
       <p><strong>Status:</strong> Back in Greywake</p>
