@@ -58,15 +58,6 @@
     }
   ];
 
-  const VARIANT_PORTRAITS = {
-    'pack-predator:cacklemaw': {
-      src:'assets/canon/beastforms/marek-cacklemaw-v2.jpg',
-      alt:'Marek transformed into a cacklemaw',
-      credit:'Greywake canon cacklemaw',
-      href:''
-    }
-  };
-
   const state = {
     base:null,
     active:null,
@@ -361,52 +352,33 @@
     }
   }
 
-  function applyPortrait(form,variant){
+  function applyBeastformStatus(form,variant){
     const portrait=document.querySelector('#characterSheet .character-sheet-portrait');
     if(!portrait)return;
-    if(!portrait.dataset.marekDefaultSrc){
-      portrait.dataset.marekDefaultSrc=portrait.getAttribute('src')||'assets/canon/characters/marek-canon.jpg';
-      portrait.dataset.marekDefaultAlt=portrait.getAttribute('alt')||'Marek';
-    }
 
     const frame=portrait.closest('.pro-portrait-frame')||portrait.parentElement;
-    let credit=frame?.querySelector('.beastform-portrait-credit');
-    const restore=()=>{
-      portrait.classList.remove('beastform-portrait-changing','beastform-portrait-active');
-      portrait.removeAttribute('data-beastform-portrait');
-      portrait.setAttribute('src',portrait.dataset.marekDefaultSrc);
-      portrait.setAttribute('alt',portrait.dataset.marekDefaultAlt);
-      credit?.remove();
-    };
+    portrait.setAttribute('src','assets/canon/characters/marek-canon.jpg');
+    portrait.setAttribute('alt','Marek');
+    portrait.classList.remove('beastform-portrait-changing','beastform-portrait-active');
+    portrait.removeAttribute('data-beastform-portrait');
+    frame?.querySelector('.beastform-portrait-credit')?.remove();
 
-    if(!form){restore();return;}
-    const visual=VARIANT_PORTRAITS[`${form.id}:${variant?.id||''}`];
-    if(!visual){restore();return;}
+    let status=frame?.querySelector('.beastform-portrait-status');
+    if(!form){
+      frame?.classList.remove('beastform-portrait-frame-active');
+      status?.remove();
+      return;
+    }
 
-    portrait.classList.add('beastform-portrait-changing','beastform-portrait-active');
-    portrait.dataset.beastformPortrait=`${form.id}:${variant?.id||''}`;
-    portrait.setAttribute('alt',visual.alt);
-    portrait.addEventListener('load',()=>portrait.classList.remove('beastform-portrait-changing'),{once:true});
-    portrait.addEventListener('error',restore,{once:true});
-    portrait.setAttribute('src',visual.src);
-
-    if(frame){
-      if(!credit){
-        credit=document.createElement('a');
-        credit.className='beastform-portrait-credit';
-        credit.target='_blank';
-        credit.rel='noopener noreferrer';
-        frame.appendChild(credit);
-      }
-      if(visual.href){
-        credit.href=visual.href;
-        credit.removeAttribute('aria-disabled');
-      }else{
-        credit.removeAttribute('href');
-        credit.setAttribute('aria-disabled','true');
-      }
-      credit.textContent=`${variant?.name||form.name} · ${visual.credit}`;
-      credit.title='Beastform image source';
+    frame?.classList.add('beastform-portrait-frame-active');
+    if(frame&&!status){
+      status=document.createElement('div');
+      status.className='beastform-portrait-status';
+      status.setAttribute('aria-live','polite');
+      frame.appendChild(status);
+    }
+    if(status){
+      status.innerHTML=`<span>BEASTFORM ACTIVE</span><strong>${esc(variant?.name||form.name)}</strong><small>${esc(form.name)}</small>`;
     }
   }
 
@@ -419,7 +391,7 @@
 
     const variant=currentVariant(form);
     if (!form){
-      applyPortrait(null,null);
+      applyBeastformStatus(null,null);
       setStat('Evasion',state.base.evasion,'');
       setStat('Armor',state.base.armor,'');
       Object.entries(state.base.traits).forEach(([name,value])=>setTrait(name,value,false));
@@ -429,7 +401,7 @@
       return;
     }
 
-    applyPortrait(form,variant);
+    applyBeastformStatus(form,variant);
     setStat('Evasion',state.base.evasion + form.evasion,`+${form.evasion} Beastform`);
     setStat('Armor',Math.max(0,state.base.armor-1),'Round Shield inactive');
     Object.entries(state.base.traits).forEach(([name,base])=>{

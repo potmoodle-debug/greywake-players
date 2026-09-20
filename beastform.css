@@ -4,41 +4,56 @@
 @media(max-width:430px){.beastform-combat-line{grid-template-columns:1fr}.beastform-active-actions{width:100%}.beastform-active-actions button{flex:1}.beastform-dialog-head{padding:.85rem}.beastform-options{padding:.7rem}.beastform-option{min-height:0}}
 
 
-/* Marek portrait follows his active Beastform. */
-body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait{
-  transition:opacity .18s ease,transform .22s ease,filter .22s ease;
+/* Marek keeps his normal portrait; Beastform changes the frame and status treatment. */
+body[data-character="marek"] .pro-portrait-frame{
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
 }
-body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait.beastform-portrait-changing{
-  opacity:.25;
-  transform:scale(1.015);
+body[data-character="marek"] .pro-portrait-frame.beastform-portrait-frame-active{
+  border-color:rgba(168,183,126,.88);
+  background:
+    linear-gradient(145deg,rgba(168,183,126,.18),transparent 22%),
+    linear-gradient(180deg,#2d3124,#11130e);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.48),
+    0 0 0 1px rgba(168,183,126,.24),
+    0 0 28px rgba(168,183,126,.13),
+    inset 0 0 0 6px rgba(10,10,8,.6),
+    inset 0 0 0 7px rgba(220,199,143,.08);
 }
-body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait.beastform-portrait-active{
-  object-fit:cover;
-  object-position:center;
-  filter:saturate(.84) contrast(1.06);
+body[data-character="marek"] .pro-portrait-frame.beastform-portrait-frame-active .character-sheet-portrait{
+  filter:saturate(.58) contrast(1.12) sepia(.12);
 }
-.beastform-portrait-credit{
+.beastform-portrait-status{
   position:absolute;
-  left:8px;
-  right:8px;
-  bottom:5px;
-  z-index:4;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  color:#a8a08c;
-  font-size:.46rem;
-  line-height:1.2;
-  letter-spacing:.015em;
-  text-decoration:none;
-  opacity:.7;
+  left:15px;
+  right:15px;
+  bottom:40px;
+  z-index:6;
+  display:grid;
+  gap:2px;
+  padding:8px 10px 9px;
+  border:1px solid rgba(168,183,126,.48);
+  border-left:3px solid #a8b77e;
+  background:linear-gradient(90deg,rgba(10,13,8,.96),rgba(18,21,14,.88));
+  box-shadow:0 8px 24px rgba(0,0,0,.42);
+  pointer-events:none;
 }
-.beastform-portrait-credit:hover,.beastform-portrait-credit:focus-visible{
-  color:#d7ddbc;
-  opacity:1;
+.beastform-portrait-status span{
+  color:#a8b77e;
+  font-size:.5rem;
+  font-weight:900;
+  letter-spacing:.17em;
 }
-
-
+.beastform-portrait-status strong{
+  color:#f1ead7;
+  font:700 1rem/1.05 Georgia,serif;
+}
+.beastform-portrait-status small{
+  color:#aaa38f;
+  font-size:.62rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
 /* Specific creature choice inside each mechanical Beastform. */
 .beastform-option{cursor:default}
 .beastform-variants{display:grid;gap:.4rem;margin-top:.55rem;padding-top:.55rem;border-top:1px solid rgba(255,255,255,.07)}
@@ -84,7 +99,3 @@ body[data-character="marek"] .pro-portrait-frame .character-sheet-portrait.beast
 }
 
 
-/* Cacklemaw portrait crop is authored for the narrow Marek frame. */
-body[data-character="marek"] .character-sheet-portrait[data-beastform-portrait="pack-predator:cacklemaw"]{
-  object-position:58% 42%;
-}
