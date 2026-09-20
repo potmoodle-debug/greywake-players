@@ -242,6 +242,24 @@
     beastformObserver.observe(beast, { childList: true, subtree: true, characterData: true });
   }
 
+  function openByTitle(title) {
+    if (!isMarek()) return false;
+    const data=currentActions();
+    const action=[...data.attacks,...data.abilities].find(a=>a.title===title);
+    if(!action)return false;
+    selectedAction=action.id;
+    render();
+    requestAnimationFrame(()=>{
+      document.querySelector('#activeActionsPanel .active-action-detail')?.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    return true;
+  }
+
+  function clearSelection(){
+    selectedAction=null;
+    render();
+  }
+
   function init() {
     if (!isMarek()) return;
     if (!document.querySelector('#characterSheet .character-sheet-shell')) return;
@@ -249,6 +267,8 @@
     observeBeastform();
     render();
   }
+
+  window.GreywakeActiveActions={openByTitle,clearSelection,refresh:render};
 
   let timer;
   const schedule = () => { clearTimeout(timer); timer = setTimeout(init, 140); };
