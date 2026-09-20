@@ -29,7 +29,7 @@ for(const marker of [
   'ensureCompanionRows','ensureCompanionFieldActions','enhanceCompanionActions',
   'openCompanionCanDo','openCompanionAction','data-p10-actions','data-p10-can-do',
   'live-resource-water','live-resource-armor','setArmorMarked','setWater',
-  'ensureSticky','p10StickyVitals','ensureRestButtons','p10-rest-utility',
+  'ensureSticky','p10CurrentStateStrip','ensureRestButtons','p10-rest-utility',
   'data-p10-short-rest','data-p10-long-rest','GreywakeBackpack','openDamage',
   'MutationObserver','needsRepair','observedRoot','GreywakeLivePlayParity',
   'data-p10-backpack','data-p10-beastform'
