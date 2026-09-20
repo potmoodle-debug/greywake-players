@@ -17,7 +17,7 @@ DELETED = [
     "gm-player-priority.js",
     "gm-prep-live.js",
     "gm-preview-mind-direct.js",
-    "gm-recent-reveals.js",
+    "player-feed.js",
     "gm-run-current-context.js",
     "gm-session-state.js",
     "gm-update-live.js",
