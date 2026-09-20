@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#171713">
+  <base href="../">
+  <title>Greywake — Player Archive v2</title>
+  <link rel="stylesheet" href="v2/style.css?v=portraitframe1">
+  <link rel="stylesheet" href="brain-enhanced.css?v=brainrestore1">
+  <link rel="stylesheet" href="brain-mobile-fix.css?v=brainrestore1">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <div class="tower-mark" aria-hidden="true"></div>
+        <div>
+          <div class="eyebrow">PLAYER ARCHIVE · V2</div>
+          <div class="brand-title">GREYWAKE</div>
+        </div>
+      </div>
+      <div class="safe-badge">Spoiler-safe party record</div>
+      <label class="search-box">
+        <span>Search known records</span>
+        <input id="searchInput" type="search" placeholder="Person, place, creature…" autocomplete="off">
+      </label>
+      <nav id="nav" aria-label="Greywake archive"></nav>
+      <div class="sidebar-note">Only shared player-safe information appears here. Missing information may simply be unknown.</div>
+    </aside>
+
+    <main class="main-column">
+      <header class="topbar">
+        <button class="icon-btn" id="menuBtn" aria-label="Open navigation">☰</button>
+        <div id="crumb" class="crumb">Greywake / Archive</div>
+        <div class="top-actions">
+          <button id="homeBtn">Home</button>
+          <button id="brainBtn" class="primary">Player Brain</button>
+        </div>
+      </header>
+
+      <section id="homeView" class="view">
+        <section class="hero">
+          <img src="assets/tower-distant.jpg" alt="Greywake beneath the White Tower">
+          <div class="hero-shade"></div>
+          <div class="hero-content">
+            <div class="eyebrow">A SHRINKING HOLD IN THE WASTES</div>
+            <h1>What the party knows.</h1>
+            <p>People, places, creatures, sessions and discoveries enter this archive only when they are safe for the whole party.</p>
+            <div class="hero-actions">
+              <button class="primary" data-route="brain">Explore Player Brain</button>
+              <button data-record="Greywake">Greywake overview</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading">
+            <div><div class="eyebrow">BROWSE THE ARCHIVE</div><h2>Known records</h2></div>
+            <p>Built from the existing player-safe Greywake data, with one consistent image system.</p>
+          </div>
+          <div id="categoryGrid" class="category-grid"></div>
+        </section>
+
+        <section class="section-block">
+          <div class="section-heading">
+            <div><div class="eyebrow">RECENTLY ADDED</div><h2>Latest discoveries</h2></div>
+            <p>New shared discoveries remain easy to find.</p>
+          </div>
+          <div id="discoveryGrid" class="discovery-grid"></div>
+        </section>
+
+        <section class="field-strip">
+          <div><div class="eyebrow">FIELD ARCHIVE</div><h2>Known. Seen. Earned.</h2><p>This is not the GM encyclopedia. Private knowledge, unrevealed motives and future material remain outside the site.</p></div>
+          <button class="primary" data-route="brain">Open relationship view</button>
+        </section>
+      </section>
+
+      <section id="brainView" class="view brain-view hidden">
+        <div class="section-head brain-head">
+          <div><div class="eyebrow">RELATIONSHIP VIEW</div><h2>Player Brain</h2></div>
+          <div class="brain-copy"><p>Navigate Greywake by what is connected, not by folders.</p><div><strong id="nodeCount">0</strong> known records · <strong id="edgeCount">0</strong> known links</div></div>
+        </div>
+        <div id="graph"></div>
+      </section>
+
+      <article id="recordView" class="view record-view hidden"></article>
+    </main>
+  </div>
+
+  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
+    <img id="lightboxImage" alt="">
+    <div id="lightboxCaption" class="lightbox-caption"></div>
+  </div>
+
+  <script src="data.js?v=content1"></script>
+  <script src="flora-extra.js?v=flora1"></script>
+  <script src="locations-extra.js?v=content1"></script>
+  <script src="shared-knowledge.js?v=content1"></script>
+  <script src="npc-extra.js?v=knownpeople1"></script>
+  <script src="reference-extra.js?v=content1"></script>
+  <script src="backstory-public.js?v=background1"></script>
+  <script src="discoveries.js?v=content1"></script>
+  <script src="jobs.js?v=jobs1"></script>
+  <script src="v2/app.js?v=portraitframe1"></script>
+  <script src="brain-enhanced.js?v=brainrestore1"></script>
+  <script src="brain-mobile-fix.js?v=brainrestore1"></script>
+</body>
+</html>

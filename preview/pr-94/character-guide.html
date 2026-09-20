@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171713">
+<title>Character Sheet Guide — Greywake</title>
+<meta name="description" content="Player-facing guide to the Daggerheart mechanics used on Greywake character sheets.">
+<link rel="stylesheet" href="style.css?v=images2">
+<style>
+:root{--guide-ink:#e8e1d2;--guide-muted:#aba18d;--guide-line:rgba(225,199,125,.22);--guide-gold:#d8bd72;--guide-panel:rgba(22,22,18,.92)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:#11110e;color:var(--guide-ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:inherit}
+.guide-topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;min-height:58px;padding:10px 18px;border-bottom:1px solid var(--guide-line);background:rgba(17,17,14,.95);backdrop-filter:blur(14px)}
+.guide-back{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--guide-line);border-radius:8px;text-decoration:none;color:var(--guide-ink);font-size:.84rem;font-weight:750;letter-spacing:.02em}
+.guide-back:hover,.guide-back:focus-visible{border-color:rgba(225,199,125,.55);outline:none;background:rgba(225,199,125,.08)}
+.guide-crumb{color:var(--guide-muted);font-size:.82rem}.guide-crumb strong{color:var(--guide-ink)}
+.guide-shell{width:min(1120px,calc(100% - 28px));margin:0 auto;padding:32px 0 70px}
+.guide-hero{padding:34px clamp(22px,5vw,52px);border:1px solid var(--guide-line);border-radius:18px;background:radial-gradient(circle at 86% 10%,rgba(216,189,114,.12),transparent 32%),linear-gradient(145deg,rgba(42,39,30,.94),rgba(19,19,16,.96));box-shadow:0 26px 70px rgba(0,0,0,.28)}
+.guide-eyebrow{color:var(--guide-gold);font-size:.72rem;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
+.guide-hero h1{margin:.32rem 0 .7rem;font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.1rem,6vw,4.6rem);font-weight:500;letter-spacing:-.035em;line-height:.96}
+.guide-hero p{max-width:760px;margin:0;color:#c9c0ad;font-size:1rem}.guide-hero p+p{margin-top:.7rem}
+.guide-index{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 32px}.guide-index a{padding:8px 11px;border:1px solid var(--guide-line);border-radius:999px;text-decoration:none;color:#cfc4ad;font-size:.78rem;font-weight:700}.guide-index a:hover,.guide-index a:focus-visible{color:#fff;border-color:rgba(225,199,125,.52);outline:none;background:rgba(225,199,125,.07)}
+.guide-section{margin-top:34px}.guide-section-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:12px;padding:0 2px}.guide-section-head h2{margin:.18rem 0 0;font-family:Georgia,"Times New Roman",serif;font-size:1.65rem;font-weight:500}.guide-section-head p{margin:0;color:var(--guide-muted);font-size:.82rem;text-align:right}
+.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.guide-card{position:relative;min-width:0;padding:19px 20px 18px;border:1px solid var(--guide-line);border-radius:13px;background:var(--guide-panel);box-shadow:0 14px 30px rgba(0,0,0,.12)}
+.guide-card:target{border-color:rgba(225,199,125,.74);box-shadow:0 0 0 2px rgba(225,199,125,.09),0 20px 44px rgba(0,0,0,.22)}
+.guide-card h3{margin:0 0 6px;color:#f4eddf;font-size:1rem}.guide-card p{margin:0;color:#bfb5a2;font-size:.9rem}.guide-card p+p{margin-top:8px}.guide-card strong{color:#e7dcc4}.guide-card .guide-example{margin-top:11px;padding:10px 12px;border-left:2px solid rgba(225,199,125,.55);background:rgba(225,199,125,.045);color:#cfc4ae;font-size:.84rem}
+.guide-wide{grid-column:1/-1}
+.guide-note{margin-top:30px;padding:18px 20px;border:1px dashed rgba(225,199,125,.28);border-radius:12px;color:#b9ae99;background:rgba(225,199,125,.035);font-size:.86rem}
+.guide-note strong{color:#e2d4b5}
+@media(max-width:720px){.guide-topbar{padding:8px 10px}.guide-crumb{display:none}.guide-shell{width:min(100% - 18px,1120px);padding-top:18px}.guide-hero{padding:26px 20px}.guide-grid{grid-template-columns:1fr}.guide-section-head{align-items:start;flex-direction:column;gap:4px}.guide-section-head p{text-align:left}.guide-wide{grid-column:auto}}
+</style>
+</head>
+<body>
+<header class="guide-topbar">
+  <a class="guide-back" href="index.html#/" onclick="if(document.referrer && document.referrer.includes(location.host)){event.preventDefault();history.back()}">← Character sheet</a>
+  <div class="guide-crumb">Greywake / <strong>Character Sheet Guide</strong></div>
+</header>
+<main class="guide-shell">
+  <section class="guide-hero">
+    <div class="guide-eyebrow">PLAYER REFERENCE · DAGGERHEART</div>
+    <h1>How your sheet works.</h1>
+    <p>The small <strong>?</strong> symbols on your Greywake character sheet bring you here. They explain what a field or part of the sheet does without changing, rolling, spending, or marking anything on the sheet itself.</p>
+    <p>Your character’s own card text is still the authority for that specific spell or feature. This page explains the shared rules around it.</p>
+  </section>
+
+  <nav class="guide-index" aria-label="Character guide sections">
+    <a href="#core">Core numbers</a><a href="#traits">Traits</a><a href="#rolling">Rolling</a><a href="#health">Damage & condition</a><a href="#build">Character abilities</a><a href="#equipment">Equipment</a><a href="#rests">Rests & Water</a>
+  </nav>
+
+  <section class="guide-section" id="core">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">01 · CORE NUMBERS</div><h2>The numbers you check most often</h2></div><p>These change how hard you are to hit, how much you can endure, and how much damage you roll.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card" id="level"><h3>Level</h3><p>Your level shows how far your character has advanced. It controls which advancement options and domain cards you can access, and your level is added to the base damage thresholds from your armor.</p></article>
+      <article class="guide-card" id="evasion"><h3>Evasion</h3><p>Evasion is how difficult you are to hit. When an adversary makes an attack roll against you, the GM compares the result to your Evasion.</p><div class="guide-example">Higher Evasion makes attacks against you less likely to succeed.</div></article>
+      <article class="guide-card" id="armor"><h3>Armor & Armor Slots</h3><p>Your Armor Score determines how many Armor Slots you have. When you take damage, you can normally mark <strong>one Armor Slot</strong> to reduce that damage by one severity: Severe → Major, Major → Minor, or Minor → none.</p><p>Some damage or abilities can change how armor works; follow the exact text when they do.</p></article>
+      <article class="guide-card" id="proficiency"><h3>Proficiency</h3><p>Proficiency tells you how many of your weapon’s damage dice you roll after a successful attack. If your Proficiency is 1 and a weapon deals d8 damage, you normally roll 1d8; higher Proficiency adds more of that weapon die.</p></article>
+      <article class="guide-card" id="hit-points"><h3>Hit Points (HP)</h3><p>Hit Points measure how much harm your character can keep taking. Damage severity tells you how many HP to mark. If you mark your final Hit Point, you make a death move.</p></article>
+      <article class="guide-card" id="stress"><h3>Stress</h3><p>Stress represents pressure, strain, effort, and the costs of some abilities. Features can ask you to mark Stress. If you must mark Stress but have no empty Stress slots, you mark a Hit Point instead.</p></article>
+      <article class="guide-card" id="hope"><h3>Hope</h3><p>Hope is a player resource. You gain Hope when your Hope Die is higher on a Duality roll, up to your maximum. You spend Hope on things such as Experiences, helping allies, class Hope features, Tag Team Rolls, and abilities that specifically call for it.</p></article>
+      <article class="guide-card" id="damage-thresholds"><h3>Damage Thresholds</h3><p>After damage is rolled, compare the total to your thresholds. Minor damage marks 1 HP, Major damage marks 2 HP, and Severe damage marks 3 HP. Your equipped armor supplies the base thresholds and your level increases them.</p></article>
+    </div>
+  </section>
+
+  <section class="guide-section" id="traits">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">02 · TRAITS</div><h2>What kind of action are you taking?</h2></div><p>When a roll is needed, the fiction decides which trait applies.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card" id="agility"><h3>Agility</h3><p>Speed, movement, quick reactions, balance, and manoeuvring through danger. Typical uses include sprinting, leaping, and moving through difficult terrain.</p></article>
+      <article class="guide-card" id="strength"><h3>Strength</h3><p>Physical force, endurance, lifting, smashing, holding ground, and grappling.</p></article>
+      <article class="guide-card" id="finesse"><h3>Finesse</h3><p>Precision, control, stealth, delicate work, tinkering, and actions where careful hands matter.</p></article>
+      <article class="guide-card" id="instinct"><h3>Instinct</h3><p>Perception, intuition, sensing danger, tracking, reading surroundings, and navigation.</p></article>
+      <article class="guide-card" id="presence"><h3>Presence</h3><p>Force of personality, charm, performance, deception, intimidation, and other social pressure.</p></article>
+      <article class="guide-card" id="knowledge"><h3>Knowledge</h3><p>Recall, analysis, understanding, deduction, research, and applying what you know.</p></article>
+    </div>
+  </section>
+
+  <section class="guide-section" id="rolling">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">03 · ROLLING</div><h2>Duality rolls</h2></div><p>Daggerheart uses two d12s: Hope and Fear.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card guide-wide" id="action-rolls"><h3>Action Rolls</h3><p>When an outcome is uncertain and a roll matters, roll your Hope and Fear d12s, add them together, then add the relevant trait and any other valid modifiers. Compare the total to the Difficulty.</p><p>The higher Duality Die also matters: Hope can generate Hope; Fear gives the GM Fear and can shape the consequence. Matching results on both Duality Dice are a critical success.</p></article>
+      <article class="guide-card" id="advantage"><h3>Advantage & Disadvantage</h3><p>Advantage adds a d6 to a roll; disadvantage subtracts a d6. When more than one source applies, follow the normal Daggerheart rules for resolving those dice rather than simply stacking flat bonuses.</p></article>
+      <article class="guide-card" id="experiences"><h3>Experiences</h3><p>Experiences are the pieces of your character’s history and expertise that can help with a roll. Before an action or reaction roll, if an Experience genuinely applies, you can normally spend a Hope to add its modifier.</p><div class="guide-example">The important question is not “Can I force this Experience onto the roll?” but “Does this part of my character’s lived experience actually help here?”</div></article>
+    </div>
+  </section>
+
+  <section class="guide-section" id="health">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">04 · DAMAGE & CONDITION</div><h2>What happens when things go wrong</h2></div><p>HP, Stress, armor, and thresholds work together.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card guide-wide" id="damage"><h3>Taking Damage</h3><p>First determine the damage total, then compare it with your current thresholds to find the severity. If you choose and are able to use armor, mark an Armor Slot to reduce the severity by one step. Then mark the remaining Hit Points.</p><div class="guide-example">The site can automate parts of this flow, but the same Daggerheart rule is underneath it.</div></article>
+      <article class="guide-card" id="conditions"><h3>Conditions</h3><p>Conditions such as Vulnerable, Restrained, Hidden, or Cloaked change what a character can do or how rolls interact with them. If your character has a special version of a condition, follow that feature’s exact text.</p></article>
+      <article class="guide-card" id="direct-damage"><h3>Direct Damage</h3><p>Direct damage bypasses the normal use of Armor Slots, so you cannot mark an Armor Slot to reduce it unless another rule specifically says otherwise.</p></article>
+    </div>
+  </section>
+
+  <section class="guide-section" id="build">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">05 · CHARACTER ABILITIES</div><h2>Where your special rules come from</h2></div><p>The exact wording on your own card or sheet overrides this overview.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card" id="features"><h3>Features</h3><p>A feature is a rule granted by your class, subclass, ancestry, community, equipment, or another character choice. Some are always active; others cost Hope, Stress, or have a limited frequency. Read the feature’s own text for its trigger and cost.</p></article>
+      <article class="guide-card" id="class-feature"><h3>Class Features</h3><p>Class features are abilities shared by characters of that class. They are part of the character’s core toolkit and can interact with other features and domain cards.</p></article>
+      <article class="guide-card" id="hope-feature"><h3>Hope Feature</h3><p>Each class has a special feature powered by Hope. The sheet tells you the cost and exact effect. Spending the Hope is part of activating it.</p></article>
+      <article class="guide-card" id="subclass"><h3>Subclass</h3><p>Your subclass further defines how your class plays. Foundation abilities come first; later advancement can unlock specialization and mastery features.</p></article>
+      <article class="guide-card" id="ancestry"><h3>Ancestry</h3><p>Ancestry describes part of your character’s lineage and grants ancestry features. A mixed ancestry can combine appropriate features according to the character-creation rules.</p></article>
+      <article class="guide-card" id="community"><h3>Community</h3><p>Community reflects the kind of culture or environment your character comes from and grants a community feature.</p></article>
+      <article class="guide-card" id="domain-cards"><h3>Domain Cards</h3><p>Domain cards are spells and abilities from the two domains linked to your class. Your active choices form your loadout; other learned cards can sit in your vault. Each card’s own text tells you its trigger, range, cost, roll, and effect.</p></article>
+      <article class="guide-card" id="recall"><h3>Recall Cost</h3><p>A domain card’s Recall value matters when you bring that card back into active use during play. The card displays its Recall cost so you can judge how costly it is to retrieve compared with leaving it in your vault until a rest or another safe opportunity.</p></article>
+      <article class="guide-card" id="beastform"><h3>Beastform</h3><p>For druids, Beastform changes the character into an eligible creature form while keeping the transformation inside the normal Daggerheart Beastform rules. The selected form supplies its listed traits or features; any Greywake anatomical description is flavour unless the sheet says it changes mechanics.</p></article>
+    </div>
+  </section>
+
+  <section class="guide-section" id="equipment">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">06 · EQUIPMENT</div><h2>Weapons, armor, and carried gear</h2></div><p>What is equipped can matter mechanically; what is carried remains available in the fiction.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card" id="weapons"><h3>Weapons</h3><p>A weapon shows the trait used for its attack, its range, its damage die and type, and any special feature. After a successful attack, Proficiency determines how many weapon damage dice you roll.</p></article>
+      <article class="guide-card" id="range"><h3>Range</h3><p>Daggerheart uses broad narrative ranges rather than exact grid distances: Melee, Very Close, Close, Far, and Very Far. The fiction and the scene establish which range a target is currently at.</p></article>
+      <article class="guide-card" id="damage-dice"><h3>Damage Dice & Type</h3><p>The weapon or spell tells you which die to roll and whether the damage is physical or magic. Proficiency controls the number of weapon damage dice unless the ability says otherwise.</p></article>
+      <article class="guide-card" id="inventory"><h3>Inventory</h3><p>Inventory is what your character is carrying. Items can matter because of explicit rules or because they make a fictional action possible. Greywake assumes sensible everyday possessions when appropriate, but significant or specialised equipment should still be recorded.</p></article>
+    </div>
+  </section>
+
+  <section class="guide-section" id="rests">
+    <div class="guide-section-head"><div><div class="guide-eyebrow">07 · RESTS & GREYWAKE</div><h2>Recovery in a place where water matters</h2></div><p>Greywake changes when water is spent, not the underlying Daggerheart rest moves.</p></div>
+    <div class="guide-grid">
+      <article class="guide-card" id="short-rest"><h3>Short Rest</h3><p>A Short Rest is a brief recovery period. Characters can rearrange domain cards as allowed by the rest rules and choose Short Rest moves such as tending wounds, clearing Stress, repairing armor, or preparing.</p></article>
+      <article class="guide-card" id="long-rest"><h3>Long Rest</h3><p>A Long Rest is a deeper recovery period. It allows the stronger Long Rest moves and gives the GM the normal Daggerheart Fear and long-term countdown opportunities associated with a Long Rest.</p></article>
+      <article class="guide-card guide-wide" id="water"><h3>Water — Greywake rule</h3><p>In Greywake, <strong>Water is spent only when a character takes a Short Rest or Long Rest.</strong> Each character spends 1 Water for either kind of rest.</p><p>Without Water, a Short Rest provides no benefit. A Long Rest without Water provides only the benefits of a Short Rest. Greywake does not add a separate daily water tax on top of this rule.</p><div class="guide-example">This is a Greywake campaign rule layered onto the normal Daggerheart rest system.</div></article>
+    </div>
+  </section>
+
+  <div class="guide-note"><strong>When the sheet and this page differ:</strong> use the exact text on the current character card or feature for character-specific effects, and use the Greywake site’s current campaign rules for Greywake-specific changes. The <strong>?</strong> is explanatory only; it never spends Hope, marks Stress, rolls dice, or changes character state.</div>
+</main>
+</body>
+</html>
