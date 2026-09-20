@@ -7,7 +7,7 @@
     'Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp'
   };
   const PRESSURES={
-    'The Closing Ways':{level:'critical',origin:'PLAYER PRIORITY',image:'assets/canon/locations/caravan-gate.webp'},
+    'The Closing Ways':{level:'critical',origin:'PLAYED SESSION FOUR',image:'assets/canon/locations/caravan-gate.webp',summary:'Opening Blockage has been reopened by Odie and Marek and is visibly disturbed. Odie is parked with Spencer returning to inspect the original closure work. Marek followed the Foldling onward through the second concealed access, learned through Nature’s Tongue that it fled north from danger in buried places to the south, and left it alive beneath Greywake. The deeper cause remains unresolved. End-of-session Fear: 6.'},
     'The altered route markers':{level:'high',origin:'WORLD CONSEQUENCE',image:'assets/canon/sessions/session-03.webp'},
     'The Cistern Plate':{level:'high',origin:'PLAYED SESSION FOUR',image:'assets/canon/locations/valve-court-cistern-seal.webp',summary:'Odie escorted the Plate with Rennic into the Inner Cistern Court. Keeper lower-draw records show a removable plate-like component with similar channel geometry and near-matching dimensions; no fit or installation is confirmed. Odie memorised important geometry from a restricted sectional, and a record keeper noticed him looking. Any access or trust consequence remains unresolved.'},
     "Ash-Plate's recovery":{level:'medium',origin:'WORLD CONSEQUENCE',image:'assets/canon/fauna/ash-plate.webp'},
