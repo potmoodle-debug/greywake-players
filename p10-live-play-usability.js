@@ -57,8 +57,37 @@
     });
     if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');
   }
-  function closeActionUse(){const d=document.getElementById('p10ActionUseDialog'),detail=d?.querySelector('.active-action-detail'),panel=document.getElementById('activeActionsPanel');if(detail&&panel)panel.appendChild(detail);d?.close();}
-  function openActionUse(title){const panel=document.getElementById('activeActionsPanel'),target=[...(panel?.querySelectorAll('.active-action-card')||[])].find(card=>titleOf(card)===title);if(!panel||!target)return;target.click();let tries=0;const wait=()=>{const detail=panel.querySelector('.active-action-detail');if((!detail||!detail.querySelector('.action-roller'))&&tries++<12){setTimeout(wait,25);return;}if(!detail)return;const d=ensureActionUseDialog();d.innerHTML=`<div class="p10-action-use-shell"><div class="equip-dialog-head"><div><span>USE NOW</span><h2>${esc(title)}</h2></div><button type="button" data-close>×</button></div><div class="p10-action-use-body"></div></div>`;d.querySelector('.p10-action-use-body')?.appendChild(detail);d.querySelector('[data-close]')?.addEventListener('click',closeActionUse);d.addEventListener('cancel',e=>{e.preventDefault();closeActionUse();},{once:true});if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');};wait();}
+  function closeActionUse(){
+    const d=document.getElementById('p10ActionUseDialog');
+    const detail=d?.querySelector('.active-action-detail');
+    const panel=document.getElementById('activeActionsPanel');
+    if(detail&&panel)panel.appendChild(detail);
+    d?.close();
+  }
+  function openActionUse(title){
+    const panel=document.getElementById('activeActionsPanel');
+    const target=[...(panel?.querySelectorAll('.active-action-card')||[])].find(card=>titleOf(card)===title);
+    if(!panel||!target)return;
+
+    // Make selection deterministic. A previously-used action can remain selected
+    // after its detail is returned from the use dialog; clicking it again would
+    // toggle it off and make the second use behave differently from the first.
+    if(!target.classList.contains('selected'))target.click();
+
+    let tries=0;
+    const wait=()=>{
+      const detail=panel.querySelector('.active-action-detail');
+      if((!detail||!detail.querySelector('.action-roller'))&&tries++<12){setTimeout(wait,25);return;}
+      if(!detail)return;
+      const d=ensureActionUseDialog();
+      d.innerHTML=`<div class="p10-action-use-shell"><div class="equip-dialog-head"><div><span>USE NOW</span><h2>${esc(title)}</h2></div><button type="button" data-close>×</button></div><div class="p10-action-use-body"></div></div>`;
+      d.querySelector('.p10-action-use-body')?.appendChild(detail);
+      d.querySelector('[data-close]')?.addEventListener('click',closeActionUse);
+      d.addEventListener('cancel',e=>{e.preventDefault();closeActionUse();},{once:true});
+      if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');
+    };
+    wait();
+  }
   function openCanDo(){const panel=document.getElementById('activeActionsPanel'),d=ensureCanDoDialog();if(!panel)return;const cards=[...panel.querySelectorAll('.active-action-card')].filter(c=>available(titleOf(c))&&!c.disabled&&!c.classList.contains('equipment-action-disabled'));const helpAvailable=(Number(resources()?.hope)||0)>=1;d.innerHTML=`<div class="p10-can-do-shell"><div class="equip-dialog-head"><div><span>AVAILABLE RIGHT NOW</span><h2>What can Marek do?</h2><p>Current form, equipped gear and live resources only. Select an action to use it.</p></div><button type="button" data-close>×</button></div><div class="p10-can-do-list"><button type="button" class="p10-can-do-item ${helpAvailable?'':'p10-action-card-unavailable'}" data-p10-help-ally ${helpAvailable?'':'disabled'}><span>CORE ACTION · TEAMWORK</span><strong>Help an Ally</strong><small>Spend 1 Hope · describe how you help · roll a d6 Advantage die for the ally.</small><span class="p10-action-chips"><span class="p10-action-chip">1 Hope</span><span class="p10-action-chip">d6 Advantage</span></span></button>${cards.map(card=>{const title=titleOf(card),meta=card.querySelector('em')?.textContent.trim()||'',chips=META[title]||[];return `<button type="button" class="p10-can-do-item" data-p10-action-title="${esc(title)}"><span>${card.classList.contains('active-action-attack')?'ATTACK':'ABILITY'}</span><strong>${esc(title)}</strong>${meta?`<small>${esc(meta)}</small>`:''}<span class="p10-action-chips">${chips.map(x=>`<span class="p10-action-chip">${esc(x)}</span>`).join('')}</span></button>`;}).join('')||'<div class="p10-can-do-item"><strong>No other actions currently available.</strong></div>'}</div></div>`;d.querySelector('[data-close]')?.addEventListener('click',()=>d.close());d.querySelector('[data-p10-help-ally]')?.addEventListener('click',()=>{d.close();openHelpAlly();});d.querySelectorAll('[data-p10-action-title]').forEach(button=>button.addEventListener('click',()=>{const title=button.dataset.p10ActionTitle;d.close();openActionUse(title);}));if(typeof d.showModal==='function'&&!d.open)d.showModal();else d.setAttribute('open','');}
   function removeDuplicateTraits(){document.querySelector('#characterSheet .sheet-grid.traits')?.closest('.sheet-group')?.classList.add('p10-traits-duplicate');}
   function simplifyLowerPanels(){for(const id of ['damageHealthPanel','readyGearPanel','restPanel'])document.getElementById(id)?.setAttribute('aria-hidden','true');}
