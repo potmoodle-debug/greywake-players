@@ -48,40 +48,7 @@
     }
   }
 
-  function liveGoals(){
-    const host=document.getElementById('playerGoals');
-    if(!host)return{};
-    const out={};
-    host.querySelectorAll('.gm-interest-thread').forEach(card=>{
-      const status=(card.querySelector('.interest-status')?.textContent||'').toLowerCase();
-      if(/question|resolved/.test(status))return;
-      const slug=status.includes('marek')?'marek':status.includes('velmira')?'velmira':status.includes('odie')?'odie':null;
-      const text=card.querySelector('h3')?.textContent?.trim();
-      if(!slug||!text)return;
-      const pursuing=status.includes('pursuing');
-      if(!out[slug]||pursuing)out[slug]={text,pursuing};
-    });
-    return out;
-  }
-  function prep(root){
-    const grid=root.querySelector('.gm-player-cards');
-    if(!grid||grid.dataset.live)return;
-    const goals=liveGoals();
-    let changed=false;
-    [...grid.querySelectorAll('article')].forEach(card=>{
-      const name=(card.dataset.character||card.querySelector('strong')?.textContent||'').trim().toLowerCase();
-      const slug=name==='marek'?'marek':name==='velmira'?'velmira':name==='odie'?'odie':null;
-      const g=slug&&goals[slug];
-      if(!g)return;
-      const text=card.querySelector('span'),body=card.querySelector('div');
-      if(!text||!body)return;
-      text.textContent=g.text;
-      body.querySelector('.gm-live-goal-state')?.remove();
-      body.insertAdjacentHTML('beforeend',`<em class="gm-live-goal-state ${g.pursuing?'pursuing':''}">${g.pursuing?'Pursuing':'Live player interest'}</em>`);
-      changed=true;
-    });
-    if(changed)grid.dataset.live='1';
-  }
+
 
   function readUpdate(){try{return JSON.parse(localStorage.getItem(UPDATE_KEY)||'null')}catch{return null}}
   function rememberUpdate(){
@@ -173,7 +140,6 @@
     const h=location.hash;
     if(h!=='#/gm-inbox')restoreThreads();
     if(h==='#/gm-session')run(root);
-    else if(h==='#/gm-prep')prep(root);
     else if(h==='#/gm-update')update(root);
     else if(h==='#/gm-inbox')inbox(root);
     else if(h==='#/gm-players')players(root);
