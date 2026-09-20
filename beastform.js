@@ -58,6 +58,19 @@
     }
   ];
 
+  const MAREK_HUMANOID_BASE = Object.freeze({
+    evasion:12,
+    armor:4,
+    traits:Object.freeze({
+      Agility:1,
+      Strength:0,
+      Finesse:1,
+      Instinct:2,
+      Presence:-1,
+      Knowledge:0
+    })
+  });
+
   const state = {
     base:null,
     active:null,
@@ -288,8 +301,14 @@
       state.active = null;
       state.variant = null;
       state.evolution = false;
+      state.base={
+        evasion:MAREK_HUMANOID_BASE.evasion,
+        armor:MAREK_HUMANOID_BASE.armor,
+        traits:{...MAREK_HUMANOID_BASE.traits}
+      };
       save();
       apply();
+      window.GreywakeTraitRoller?.refresh?.();
     });
     const evolution = root.querySelector('#beastformEvolution');
     evolution?.addEventListener('change', () => {
@@ -409,10 +428,16 @@
 
     const variant=currentVariant(form);
     if (!form){
+      const humanoid={
+        evasion:MAREK_HUMANOID_BASE.evasion,
+        armor:MAREK_HUMANOID_BASE.armor,
+        traits:{...MAREK_HUMANOID_BASE.traits}
+      };
+      state.base=humanoid;
       applyBeastformStatus(null,null);
-      setStat('Evasion',state.base.evasion,'');
-      setStat('Armor',state.base.armor,'');
-      Object.entries(state.base.traits).forEach(([name,value])=>setTrait(name,value,false));
+      setStat('Evasion',humanoid.evasion,'');
+      setStat('Armor',humanoid.armor,'');
+      Object.entries(humanoid.traits).forEach(([name,value])=>setTrait(name,value,false));
       setAvailability(false);
       renderControl();
       renderOptions();
