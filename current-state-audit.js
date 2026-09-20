@@ -83,7 +83,7 @@
       chapterDetail: 'Your southern creature trail led through the reopened Digger way and onward to a direct encounter with a Foldling beneath Greywake.',
       chapterRoute: '#/my-greywake',
       currentTitle: 'The Closing Ways',
-      currentDetail: 'You know the Foldling is primarily evasive, vibration-sensitive and adapted to enclosed ruins. Through Nature’s Tongue you learned it fled north from repeated danger or disturbance in buried places to the south. You do not know the deeper cause.'
+      currentDetail: 'You know the Foldling is primarily evasive, vibration-sensitive and adapted to enclosed ruins. Through Nature’s Tongue you learned it fled north from repeated danger or disturbance in buried places to the south. Separately, your own investigation into Flickerflies produced a lead: stories tend to come from travellers returning from south of Greywake, and a recently returned Digger is said to have brought back a thin translucent wing fragment that someone thought might be from a Flickerfly. Neither the fragment nor an exact Flickerfly location is confirmed.'
     },
     odie: {
       heading: 'Odie, what matters now?',

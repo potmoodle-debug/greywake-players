@@ -19,10 +19,11 @@ requireIn(threads, "direction: 'EAST →'", 'known Groundfall east direction');
 requireIn(threads, 'lies east of Greywake along the known Kestrel Return route', 'known Kestrel Return route');
 
 requireIn(threads, "title: 'Find a Flickerfly'", 'Marek Flickerfly interest');
-requireIn(threads, "status: 'PLAYER INTEREST · NO ACTIONABLE LEAD YET'", 'Flickerfly not fabricated into expedition');
-requireIn(threads, 'a specific sighting, Digger witness, wing fragment, route or cardinal direction is not', 'Flickerfly evidence boundary');
-forbidIn(threads, 'thin translucent piece of wing caught among broken stone', 'invented Flickerfly wing lead');
-forbidIn(threads, 'Stories about them mostly seem to come from travellers returning from south', 'invented Flickerfly south lead');
+requireIn(threads, "status: 'MAREK LEAD · INVESTIGATE IN GREYWAKE'", 'Marek player-discovered Flickerfly lead');
+requireIn(threads, "direction: 'SOUTH RUMOUR · EXACT LOCATION UNKNOWN'", 'Flickerfly rumour direction boundary');
+requireIn(threads, 'thin translucent piece of wing caught among broken stone', 'Marek-discovered wing fragment lead');
+requireIn(threads, 'stories about them mostly seem to come from travellers returning from south of Greywake', 'Marek-discovered south rumour');
+requireIn(threads, 'no exact Flickerfly location is established yet', 'Flickerfly uncertainty boundary');
 
 requireIn(threads, "title: 'The Cistern Plate'", 'Cistern Plate current pressure');
 requireIn(threads, 'compatibility are not established', 'Cistern Plate compatibility boundary');
