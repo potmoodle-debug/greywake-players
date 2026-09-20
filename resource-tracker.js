@@ -238,6 +238,14 @@
 
   function actionDetail(){ return document.querySelector('#activeActionsPanel .active-action-detail'); }
 
+  function currentEvasion(){
+    const beast=window.GreywakeBeastform?.getState?.();
+    if(beast?.active && Number.isFinite(Number(beast.evasion))) return Number(beast.evasion);
+    const node=statNode('Evasion');
+    const match=String(node?.querySelector('strong')?.textContent||'').match(/\d+/);
+    return match?Number(match[0]):0;
+  }
+
   function enhanceActionCost(){
     const detail=actionDetail();
     if (!detail) return;
@@ -255,11 +263,20 @@
     const wrap=document.createElement('div');
     wrap.className='resource-action-use';
     wrap.dataset.signature=signature;
-    wrap.innerHTML=`<button type="button" ${available?'':'disabled'}>${esc(spec.label)} · ${spec.resource==='hope'?'Spend':'Mark'} ${spec.amount} ${spec.resource==='hope'?'Hope':'Stress'}</button><small>${esc(available?spec.note:`Unavailable: not enough ${spec.resource==='hope'?'Hope':'free Stress slots'}.`)}</small>`;
+    wrap.innerHTML=`<button type="button" ${available?'':'disabled'}>${esc(spec.label)} · ${spec.resource==='hope'?'Spend':'Mark'} ${spec.amount} ${spec.resource==='hope'?'Hope':'Stress'}</button><small>${esc(available?spec.note:`Unavailable: not enough ${spec.resource==='hope'?'Hope':'free Stress slots'}.`)}</small><div class="resource-action-result" aria-live="polite"></div>`;
     tools.insertAdjacentElement('beforebegin',wrap);
     wrap.querySelector('button')?.addEventListener('click',()=>{
       const result=spec.resource==='hope' ? spendHope(spec.amount,title) : markStress(spec.amount,{reason:title,cost:true});
-      if (result.ok) enhanceActionCost();
+      if (!result.ok) return;
+      if(title==='Elusive Prey'){
+        const roll=Math.floor(Math.random()*4)+1;
+        const evasion=currentEvasion();
+        const total=evasion+roll;
+        const host=wrap.querySelector('.resource-action-result');
+        if(host) host.innerHTML=`<strong>Elusive Prey · d4 = ${roll}</strong><span>Evasion ${total} against this attack</span><small>Base Beastform Evasion ${evasion} + ${roll}</small>`;
+      }else{
+        enhanceActionCost();
+      }
     });
   }
 
