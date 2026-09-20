@@ -29,7 +29,7 @@ requireIn(threads, "title: 'The Cistern Plate'", 'Cistern Plate current pressure
 requireIn(threads, 'compatibility are not established', 'Cistern Plate compatibility boundary');
 forbidIn(threads, 'intended to interface with Greywake’s waterworks', 'unsupported exact Plate intent');
 requireIn(threads, "direction: 'GREYWAKE FIRST'", 'route-marker investigation starts in town');
-requireIn(threads, "status: 'ODIE PRIORITY · ACTIVE IN GREYWAKE'", 'Closing Ways state');
+requireIn(threads, "status: 'ACTIVE · ONE WAY REOPENED'", 'Closing Ways state');
 requireIn(threads, "status: 'VELMIRA PRIORITY · NOT SELECTABLE YET'", 'Stilling lead state');
 
 requireIn(state, "D['Clay'].title = 'Clay — Historical PC'", 'Clay historical continuity');
