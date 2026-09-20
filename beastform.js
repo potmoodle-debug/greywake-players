@@ -278,13 +278,7 @@
     root.querySelector('#chooseBeastform')?.addEventListener('click', openDialog);
     root.querySelector('#changeBeastform')?.addEventListener('click', openDialog);
     root.querySelector('#dropBeastform')?.addEventListener('click', () => {
-      state.active = null;
-      state.variant = null;
-      state.evolution = false;
-      state.base=canonicalHumanoidBase();
-      save();
-      apply();
-      window.GreywakeTraitRoller?.refresh?.();
+      returnToMarek('manual');
     });
     const evolution = root.querySelector('#beastformEvolution');
     evolution?.addEventListener('change', () => {
@@ -297,6 +291,18 @@
       save();
       apply();
     });
+  }
+
+  function returnToMarek(reason='manual'){
+    if(!state.active)return;
+    state.active=null;
+    state.variant=null;
+    state.evolution=false;
+    state.base=canonicalHumanoidBase();
+    save();
+    apply();
+    window.GreywakeTraitRoller?.refresh?.();
+    window.dispatchEvent(new CustomEvent('greywake:beastform-changed',{detail:{active:false,reason}}));
   }
 
   function openDialog(){
@@ -465,6 +471,7 @@
       const values=derivedTraits();
       return Object.hasOwn(values,name)?values[name]:null;
     },
+    returnToMarek,
     setActivationMode(mode,trait='Agility'){
       state.evolution=mode==='evolution';
       if(['Agility','Strength','Finesse','Instinct','Presence','Knowledge'].includes(trait)){
@@ -498,6 +505,15 @@
 
   let timer;
   const schedule=()=>{baseRetryCount=0;clearTimeout(timer);timer=setTimeout(init,100)};
+  window.addEventListener('greywake:damage-applied',event=>{
+    if(!isMarek())return;
+    const form=currentForm();
+    if(!form)return;
+    const fragile=form.features?.some(([name])=>String(name).toLowerCase()==='fragile');
+    if(!fragile)return;
+    const hp=Math.max(0,Number(event.detail?.hp)||0);
+    if(hp>=2)returnToMarek('Fragile · Major or greater damage');
+  });
   window.addEventListener('greywake:player-ready',schedule);
   window.addEventListener('greywake:sheet-enhanced',schedule);
   window.addEventListener('hashchange',schedule);
