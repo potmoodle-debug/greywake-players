@@ -152,8 +152,9 @@
     }
 
     if (names.has('venomous bite')){
-      rows.push(`<div class="attack-followup-row attack-followup-info">
-        <div><b>Venomous Bite</b><span>On a successful Melee attack, remember to resolve the form's temporary Poison effect on the target.</span></div>
+      rows.push(`<div class="attack-followup-row attack-followup-info" data-followup-row="venom">
+        <div><b>Venomous Bite</b><span>The target is temporarily Poisoned. Each time it acts, it takes 1d10 direct physical damage.</span><small data-poison-result></small></div>
+        <button type="button" data-roll-poison>Roll Poison Damage d10</button>
       </div>`);
     }
 
@@ -192,6 +193,13 @@
       }
       button.textContent = 'Applied';
       button.disabled = true;
+    });
+
+    result.querySelector('[data-roll-poison]')?.addEventListener('click', event => {
+      const roll=die(10);
+      const row=event.currentTarget.closest('[data-followup-row="venom"]');
+      const host=row?.querySelector('[data-poison-result]');
+      if(host) host.innerHTML=`Poison deals <b>${roll}</b> direct physical damage for this action.`;
     });
   }
 
