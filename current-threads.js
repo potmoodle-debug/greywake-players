@@ -11,7 +11,7 @@
       summary: 'Diggers say something dangerous has occupied an old ruin south of Greywake and work has stopped. Nobody seems certain what it is or why it chose that site.',
       known: 'This is the currently established selectable Wastes expedition. The exact route, the creature and what the Diggers had uncovered remain uncertain. Getting the work moving again may earn access to a Minor Stamina Potion recipe.',
       relevance: {
-        marek: 'Why this place? What biological problem does the creature solve there, and what changed to make the ruin useful to it?',
+        marek: 'You separately know a Foldling fled north from repeated danger or disturbance in buried places to the south. This Digger rumour is also southern, but you have no evidence that the two are connected.',
         velmira: 'The useful question may be who has actually seen it, who is repeating the story, and what the Diggers need before they return.',
         odie: 'If the dig has stopped, useful salvage and working access are also locked behind whatever moved in.'
       }
@@ -19,17 +19,17 @@
     {
       id: 'groundfall-freight',
       title: 'Freight at Ash-Plate Groundfall',
-      status: 'KNOWN OPPORTUNITY · NOT SELECTABLE YET',
-      direction: 'DIRECTION NOT YET ESTABLISHED',
+      status: 'SELECTABLE EXTERNAL OPPORTUNITY',
+      direction: 'EAST →',
       tone: 'open',
       image: 'assets/canon/sessions/session-01.webp',
       visibility: ['party'],
-      summary: 'Significant expensive caravan freight was left behind when the group chose lives over cargo during the Kestrel Return.',
-      known: 'The freight is still potentially recoverable, but Greywake canon does not yet establish the Groundfall’s North/East/South/West direction. Under the directional opportunity rule, it should not become a selectable Wastes expedition until that direction is learned or established.',
+      summary: 'Significant expensive caravan freight was left behind when the group chose lives over cargo during the Kestrel Return. The route back to the Groundfall is known.',
+      known: 'The Groundfall lies east of Greywake along the known Kestrel Return route corridor. The freight may still be recoverable, but time, scavengers, weather or other travellers may have changed what remains there.',
       relevance: {
         marek: 'Time, scavengers and animals may already have changed the site since the caravan left it.',
-        velmira: 'The freight has owners, value and consequences. Who wants it back may matter as much as what is there.',
-        odie: 'Abandoned freight and a damaged route can mean salvage, evidence and practical parts — if returning becomes a viable choice.'
+        velmira: 'The freight has owners, value and consequences. Who wants it back may matter as much as what is still there.',
+        odie: 'You know the route and the kind of damaged cargo and salvage the site may still hold. Returning is now a viable expedition choice.'
       }
     },
     {
@@ -112,6 +112,22 @@
         marek: 'This began with something you said you wanted to do: find and study a flickerfly.',
         velmira: 'If the group wants to follow Marek’s interest, the first step is finding a credible source rather than treating an unconfirmed location as fact.',
         odie: 'If somebody in Greywake has actually seen one or brought back evidence, that would turn Marek’s interest into a practical lead.'
+      }
+    },
+    {
+      id: 'foldling-disturbance',
+      title: 'What Drove the Foldling North?',
+      status: 'MAREK PRIVATE LEAD · OPEN',
+      direction: 'SOUTH ↓ · EXACT ROUTE UNKNOWN',
+      tone: 'personal',
+      image: null,
+      imageNote: 'This is Marek’s private conclusion from direct contact with the Foldling. It is not party knowledge unless he shares it.',
+      visibility: ['marek'],
+      proposedBy: 'Marek',
+      summary: 'The Foldling told Marek that repeated danger or disturbance drove it north from buried places to the south.',
+      known: 'Marek knows the Foldling was escaping rather than hunting or seeking Greywake. He does not know what caused the disturbance, exactly where it began, whether more Foldlings were displaced, or whether it has any connection to the separate Digger rumour called Something Moved In.',
+      relevance: {
+        marek: 'You could try to identify the source of the disturbance, compare it with other southern signs, tell Odie what you learned, or leave the question alone. No connection to another mystery is established yet.'
       }
     },
     {
