@@ -5,7 +5,6 @@ const companion=fs.readFileSync('companion-play.js','utf8');
 const layout=fs.readFileSync('character-layout-order.js','utf8');
 const velmira=fs.readFileSync('velmira-play-view.js','utf8');
 const velmiraCss=fs.readFileSync('velmira-play-view.css','utf8');
-const boot=fs.readFileSync('p9-inventory-consolidation.js','utf8');
 const index=fs.readFileSync('index.html','utf8');
 
 for(const marker of ['MAX_WATER=9','live-resource-water','live-resource-armor','data-p10-take-damage','openDamage','p10-sticky','p10-can-do-field','What can I do?','data-p10-action-title','openActionUse','p10-action-use-dialog','p10-action-chip','p10-traits-duplicate','#damageHealthPanel,#readyGearPanel,#restPanel','GreywakeLivePlayUsability']){
@@ -83,8 +82,9 @@ if(guard.includes('localStorage.setItem')||guard.includes('greywake:resources:od
   throw new Error('Parity guard must not become a second owner of character resource state.');
 }
 if(/beastform\.js/.test(live)||/beastform\.js/.test(guard))throw new Error('P10 must not replace or load Beastform owner.');
-if(boot.includes('p10-live-play-usability.js')||boot.includes('p10-live-fixes.js'))throw new Error('P10 must not be bootstrapped through the shared inventory loader.');
-if(!index.includes('p9-inventory-consolidation.js?v=p9inventory1'))throw new Error('Shared inventory loader must retain the normal-site cache key.');
+if(fs.existsSync('p9-inventory-consolidation.js'))throw new Error('Retired shared inventory loader must remain deleted.');
+if(!index.includes('p10-live-play-usability.js?v=p10live10'))throw new Error('P10 live-play usability must be loaded directly by index.html.');
+if(!index.includes('p10-live-board-guard.js?v=p10guard6'))throw new Error('P10 live-board guard must be loaded directly by index.html.');
 if(!index.includes('velmira-play-view.css?v=velmira3')||!index.includes('velmira-play-view.js?v=velmira3'))throw new Error('Retired Velmira-only skin/shim cache keys must be bumped.');
 if(!index.includes('character-layout-order.js?v=order6'))throw new Error('Shared character layout must load with the new cache key.');
 if(!index.includes('p10-live-play-usability.js?v=p10live7'))throw new Error('P10 must be loaded directly with its own cache key.');
