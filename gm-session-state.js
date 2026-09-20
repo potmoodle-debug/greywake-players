@@ -3,7 +3,7 @@
   window.__GreywakeGMSessionState=true;
 
   const KEY='greywake-gm-live-session-state-v1';
-  const DEFAULTS={session:'Session Four',phase:'Opening',location:'Blocked Digger way · party split',party:'Marek · Velmira · Odie',scene:'Blocked Digger Way',fear:'',timeWeather:'',danger:'',activeNPCs:''};
+  const DEFAULTS={session:'Session Four',phase:'Ended · 20 Sep 2026',location:'Odie: with Spencer returning to reopened blockage · Marek: buried spaces beneath Greywake',party:'Marek · Odie',scene:'Session ended — parked split positions',fear:'6',timeWeather:'',danger:'',activeNPCs:'Spencer · Foldling'};
   let queued=false;
   let timer=null;
 
