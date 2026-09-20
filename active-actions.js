@@ -16,6 +16,15 @@
     return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
   }
 
+  function die(sides){
+    if(window.crypto?.getRandomValues){
+      const b=new Uint32Array(1);
+      window.crypto.getRandomValues(b);
+      return (b[0]%sides)+1;
+    }
+    return Math.floor(Math.random()*sides)+1;
+  }
+
   function sheetCard(title) {
     return [...document.querySelectorAll('#characterSheet .sheet-card')].find(card => card.querySelector('h4')?.textContent.trim() === title) || null;
   }
@@ -122,6 +131,7 @@
     if (!action) return '';
     const sourceButton = action.sourceTitle ? `<button type="button" class="active-action-source" data-open-source="${esc(action.id)}">Open full card</button>` : '';
     const beastformButton = action.title === 'Beastform' ? `<button type="button" class="active-action-source" data-open-beastform>Choose Beastform</button>` : '';
+    const companionButton = action.title === 'Companion' ? `<button type="button" class="active-action-source" data-roll-companion-help>Roll Help Die d8</button><div class="active-action-inline-result" data-companion-help-result aria-live="polite"></div>` : '';
     return `<div class="active-action-detail">
       <div class="active-action-detail-mark" aria-hidden="true">${action.type === 'attack' ? '⚔' : '✦'}</div>
       <div class="active-action-detail-copy">
@@ -130,7 +140,7 @@
         ${action.meta ? `<p class="active-action-detail-meta">${esc(action.meta)}</p>` : ''}
         <p>${esc(action.body || 'No additional rules text is recorded on the current sheet.')}</p>
       </div>
-      <div class="active-action-detail-tools">${sourceButton}${beastformButton}<button type="button" class="active-action-detail-close">Close</button></div>
+      <div class="active-action-detail-tools">${sourceButton}${beastformButton}${companionButton}<button type="button" class="active-action-detail-close">Close</button></div>
     </div>`;
   }
 
@@ -167,6 +177,12 @@
     root.querySelector('[data-open-beastform]')?.addEventListener('click', () => {
       document.getElementById('chooseBeastform')?.click();
       document.getElementById('changeBeastform')?.click();
+    });
+
+    root.querySelector('[data-roll-companion-help]')?.addEventListener('click', () => {
+      const roll=die(8);
+      const host=root.querySelector('[data-companion-help-result]');
+      if(host) host.innerHTML=`<strong>Help Die d8 = ${roll}</strong><small>Give this as the Advantage die for the ally's roll.</small>`;
     });
 
     root.querySelectorAll('[data-open-source]').forEach(button => {
