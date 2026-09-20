@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Greywake Live Session Bridge
 // @namespace    greywake
-// @version      0.4.1
+// @version      0.4.2
 // @description  Routes UPDATE GREYWAKE from a designated live-session chat to a designated updater chat, then reports the updater result back to Greywake.
 // @match        https://chatgpt.com/*
 // @match        https://potmoodle-debug.github.io/greywake-players/*
@@ -137,6 +137,19 @@
     setStatus({state:'sent',at:now(),id:item.id,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',message:'Prompt sent to designated updater chat.'});
   }
 
+  const RESULT_HEADINGS=['WHAT WAS UPDATED','WHAT COULD NOT BE UPDATED','DECISIONS QUEUED FOR CHRIS LATER'];
+  const RESULT_STABLE_MS=6000;
+  const transientResult=text=>{
+    const v=clean(text).toLowerCase().replace(/[.…]+$/,'').trim();
+    return !v||['thinking','working','working on it','processing','generating','responding'].includes(v);
+  };
+  const validFinalResult=text=>{
+    const raw=clean(text),upper=raw.toUpperCase();
+    if(transientResult(raw))return false;
+    const pos=RESULT_HEADINGS.map(h=>upper.indexOf(h));
+    return pos.every(x=>x>=0)&&pos[0]<pos[1]&&pos[1]<pos[2];
+  };
+
   function captureUpdaterResult(){
     if(!isChatGPT)return;
     const key=conversationKey(),roles=rolesWithChats();if(key!==roles.updaterKey)return;
@@ -145,12 +158,17 @@
     const handoff=messages.slice().reverse().find(m=>m.role==='user'&&m.text.startsWith('UPDATE GREYWAKE — LIVE SESSION HANDOFF'));
     if(!handoff)return;
     if(item.state==='sent'){item.state='accepted';item.acceptedAt=now();item.handoffIndex=handoff.index;GM_setValue(QUEUE_KEY,queue);setStatus({state:'accepted',at:now(),id:item.id,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',message:'Updater chat accepted the prompt.'})}
-    const assistant=messages.find(m=>m.role==='assistant'&&m.index>handoff.index);if(!assistant)return;
-    const sig=hash(assistant.text),t=Date.now();
+    const assistant=messages.filter(m=>m.role==='assistant'&&m.index>handoff.index).slice(-1)[0];if(!assistant)return;
+    const finalText=clean(assistant.text);
+    if(!validFinalResult(finalText)){
+      if(item.resultCandidateSignature||item.resultCandidateAt){delete item.resultCandidateSignature;delete item.resultCandidateAt;GM_setValue(QUEUE_KEY,queue)}
+      return;
+    }
+    const sig=hash(finalText),t=Date.now();
     if(item.resultCandidateSignature!==sig){item.resultCandidateSignature=sig;item.resultCandidateAt=t;GM_setValue(QUEUE_KEY,queue);return}
-    if(t-Number(item.resultCandidateAt||t)<2500)return;
-    item.state='completed';item.completedAt=now();item.resultText=assistant.text;GM_setValue(QUEUE_KEY,queue);
-    const result={id:item.id,at:item.completedAt,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',text:assistant.text};
+    if(t-Number(item.resultCandidateAt||t)<RESULT_STABLE_MS)return;
+    item.state='completed';item.completedAt=now();item.resultText=finalText;GM_setValue(QUEUE_KEY,queue);
+    const result={id:item.id,at:item.completedAt,sourceTitle:roles.live?.title||'',targetTitle:roles.updater?.title||'',text:finalText};
     GM_setValue(RESULT_KEY,result);
     setStatus({state:'completed',at:now(),id:item.id,sourceTitle:result.sourceTitle,targetTitle:result.targetTitle,message:'Updater finished. Result available on Greywake UPDATE.'});
   }
@@ -184,7 +202,7 @@
       window.addEventListener('greywake:live-bridge-set-role',event=>{setRole(event.detail?.role,event.detail?.key);window.dispatchEvent(new CustomEvent('greywake:live-bridge-role-set',{detail:{roles:rolesWithChats()}}))});
       GM_addValueChangeListener?.(STATUS_KEY,(_key,_old,value)=>{if(value){window.dispatchEvent(new CustomEvent('greywake:live-bridge-status',{detail:value}));updateButton(value)}});
       GM_addValueChangeListener?.(RESULT_KEY,(_key,_old,value)=>{if(value)window.dispatchEvent(new CustomEvent('greywake:live-bridge-result',{detail:value}))});
-      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.1',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
+      window.dispatchEvent(new CustomEvent('greywake:live-bridge-ready',{detail:{version:'0.4.2',roles:rolesWithChats()}}));setTimeout(()=>updateButton(GM_getValue(STATUS_KEY,{})),500);
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSite,{once:true});else startSite();
   }
