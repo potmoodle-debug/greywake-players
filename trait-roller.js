@@ -129,6 +129,15 @@
 
     if(critical){api?.gainHope?.(1,'Critical success');api?.clearStress?.(1,'Critical success');}
     else if(axis==='Hope')api?.gainHope?.(1,'Roll with Hope');
+    else {
+      window.GreywakeFear?.gainFromPlayerRoll?.({
+        roll_type: reroll ? 'trait_reroll' : 'trait',
+        trait,
+        total,
+        hope_die: hope,
+        fear_die: fear
+      });
+    }
 
     const headline=critical?'CRITICAL SUCCESS':success==null?`${total} WITH ${axis.toUpperCase()}`:`${success?'SUCCESS':'FAILURE'} WITH ${axis.toUpperCase()}`;
     const parts=[`${hope} Hope`,`${fear} Fear`,`${trait} ${traitMod>=0?'+':''}${traitMod}`];
