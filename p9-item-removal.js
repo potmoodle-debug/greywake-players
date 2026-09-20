@@ -15,7 +15,7 @@
   const setRemoved=(kind,id,removed=true)=>{const s=load(),list=new Set(s[kind]||[]),value=String(id||'');if(!value)return s;removed?list.add(value):list.delete(value);s[kind]=[...list];save(s);window.dispatchEvent(new CustomEvent('greywake:equipment-state-changed',{detail:{ok:true,key:character(),reason:removed?'Item removed':'Item restored'}}));return s;};
 
   function extend(){
-    const api=window.GreywakeEquipment;if(!api||api.__p9RemovalExtended||!api.getState)return false;
+    const api=window.GreywakeEquipment;if(!api||api.__p9RemovalExtended||!api.getState||!api.__p9ArmorExtended||!api.isArmorOwned)return false;
     const original={
       getState:api.getState.bind(api),
       importState:api.importState?.bind(api),
