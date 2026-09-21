@@ -48,28 +48,6 @@ try:
     wait.until(lambda d: d.find_element(By.TAG_NAME, "body").get_attribute("data-role") == "gm")
     wait.until(lambda d: d.find_element(By.TAG_NAME, "body").get_attribute("data-gm-preview") == "false")
 
-    webp_stats = driver.execute_async_script("""
-      const done = arguments[0];
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 90; canvas.height = 113;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        let sum = 0, min = 255, max = 0, visible = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          const y = (data[i] + data[i+1] + data[i+2]) / 3;
-          sum += y; min = Math.min(min, y); max = Math.max(max, y);
-          if (y > 25) visible++;
-        }
-        done({avg: sum / (data.length / 4), min, max, visible, pixels: data.length / 4});
-      };
-      img.onerror = () => done({error: 'load failed'});
-      img.src = 'assets/npcs/hq-v3/spencer-digger.webp?diag=1';
-    """)
-    print(f"Spencer WEBP diagnostic: {webp_stats}")
-
     expected_nav = ["RUN", "PREP", "UPDATE", "WORLD", "INBOX", "PLAYERS"]
     nav = [x.text.strip() for x in driver.find_elements(By.CSS_SELECTOR, "#primaryNav button") if x.is_displayed()]
     assert nav == expected_nav, f"GM navigation mismatch: {nav}"
