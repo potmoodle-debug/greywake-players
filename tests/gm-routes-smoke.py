@@ -70,7 +70,7 @@ try:
     wait.until(lambda d: d.execute_script("return arguments[0].complete", spencer_img))
     natural_width = driver.execute_script("return arguments[0].naturalWidth", spencer_img)
     assert natural_width > 0, f"Spencer Digger portrait failed to load: {spencer_img.get_attribute('src')}"
-    assert "spencer-digger-canon.jpg?v=spencer3" in spencer_img.get_attribute("src"), "GM RUN must use Spencer's canonical media reference"
+    assert "spencer-digger.png?v=spencer4" in spencer_img.get_attribute("src"), "GM RUN must use Spencer's restored Obsidian portrait"
 
     driver.execute_script("location.hash = '#/gm-players'")
     wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 3)
