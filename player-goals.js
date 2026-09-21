@@ -2,7 +2,6 @@
   const API_URL = 'https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const API_KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const LOCAL_PREFIX = 'greywake-player-goals-v1:';
-  const MAX_INTERESTS = 3;
   const MAX_LENGTH = 240;
   const MAX_REPLY_LENGTH = 1200;
   const CHARACTER_NAMES = { marek: 'Marek', velmira: 'Velmira', odie: 'Odie' };
@@ -74,7 +73,6 @@
     const existing = new Set(serverGoals.map(g => g.goal_text.toLowerCase()));
     let current = [...serverGoals];
     for (const oldGoal of oldGoals) {
-      if (activeInterestCount(current) >= MAX_INTERESTS) break;
       if (existing.has(oldGoal.toLowerCase())) continue;
       try {
         const result = await request(user, 'POST', { goal: oldGoal.slice(0, MAX_LENGTH), entry_kind: 'interest' });
@@ -91,10 +89,10 @@
   }
 
   function statusLabel(goal) {
-    if (goal.status === 'done') return 'RESOLVED';
+    if (goal.status === 'done') return 'PLAYED / RESOLVED';
     if (goal.status === 'pursuing') return 'PURSUING';
-    if (goal.status === 'dormant') return 'DORMANT';
-    return isQuestion(goal) ? 'QUESTION' : 'PLAYER INTEREST';
+    if (goal.status === 'dormant') return 'SET ASIDE';
+    return isQuestion(goal) ? 'QUESTION' : 'INTERESTED';
   }
 
   function threadStateLabel(state) {
@@ -135,7 +133,7 @@
       waiting_player: 'The GM has replied. The next move is yours whenever you want to answer.',
       waiting_gm: 'Your latest message is with the GM. You can add another thought if you need to.',
       play_at_table: 'This has reached a point that should be played during a game session. It will be picked up at the table.',
-      resolved: 'This thread is closed for now. It remains in your record and can be reopened.'
+      resolved: 'This is now part of your history. It remains in your record and can be reopened if it becomes relevant again.'
     }[state] || '';
     return `<div class="interest-waiting interest-waiting-${esc(state)}"><strong>${esc(threadStateLabel(state))}</strong><span>${esc(copy)}</span></div>`;
   }
@@ -156,37 +154,56 @@
       ${sourceMarkup(goal)}${conversationMarkup(goal, messages, playerName)}${waitingBanner(goal)}${promotionMarkup(goal, isPreview)}
       ${canReply ? `<form class="interest-reply-form" data-player-reply="${goal.id}"><label for="playerReply-${goal.id}">Reply to this ${noun}</label><textarea id="playerReply-${goal.id}" maxlength="${MAX_REPLY_LENGTH}" rows="3" placeholder="What does ${esc(playerName)} ask, think, investigate or want to do next?"></textarea><div class="interest-reply-actions"><button type="submit">Send reply</button><span>The GM will see this between games.</span></div></form>` : ''}
       ${resolved && !isPreview ? `<button type="button" class="interest-reopen" data-reopen-goal="${goal.id}">Reopen this ${noun}</button>` : ''}
-      ${!resolved && !isPreview ? `<button type="button" class="interest-close-player" data-close-player-goal="${goal.id}">Close this ${noun}</button>` : ''}
+      ${!resolved && !isPreview ? `<button type="button" class="interest-close-player" data-close-player-goal="${goal.id}">Set aside this ${noun}</button>` : ''}
     </article>`;
   }
 
   function gmStatusActions(goal) {
-    if (goal.status === 'done') return `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Reopen</button>`;
-    return `${isQuestion(goal) ? `<button type="button" data-goal-kind="interest" data-goal-id="${goal.id}">Mark Interest</button>` : ''}${goal.status !== 'open' ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">${isQuestion(goal) ? 'Open Question' : 'Player Interest'}</button>` : ''}${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Pursuing</button>` : ''}${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Dormant</button>` : ''}`;
+    if (goal.status === 'done' || goal.status === 'dormant') return `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Reopen as Interested</button>`;
+    return `${isQuestion(goal) ? `<button type="button" data-goal-kind="interest" data-goal-id="${goal.id}">Mark Interested</button>` : ''}${goal.status !== 'open' ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">${isQuestion(goal) ? 'Open Question' : 'Interested'}</button>` : ''}${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Pursuing</button>` : ''}${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Set Aside</button>` : ''}`;
   }
 
   function gmThreadCard(goal, messages) {
     const playerName = CHARACTER_NAMES[goal.character_slug] || goal.character_slug;
-    const resolved = goal.status === 'done';
+    const resolved = goal.status === 'done' || goal.status === 'dormant';
     return `<article class="interest-thread gm-interest-thread${resolved ? ' interest-thread-resolved' : ''}" data-goal-id="${goal.id}" data-entry-kind="${isQuestion(goal) ? 'question' : 'interest'}">
       <div class="interest-thread-head"><div><span class="interest-status">${esc(playerName.toUpperCase())} · ${esc(statusLabel(goal))}</span><h3>${esc(goal.goal_text)}</h3></div><span class="interest-waiting-pill">${esc(threadStateLabel(goal.thread_state))}</span></div>
       ${sourceMarkup(goal)}${conversationMarkup(goal, messages, playerName)}${waitingBanner(goal)}
-      ${!resolved ? `<form class="gm-interest-reply" data-gm-reply="${goal.id}"><label for="gmReply-${goal.id}">Reply to ${esc(playerName)}</label><textarea id="gmReply-${goal.id}" maxlength="${MAX_REPLY_LENGTH}" rows="3" placeholder="Reply, give a lead, or leave this blank and send it to the table."></textarea><div class="gm-thread-actions"><button type="button" data-send-kind="reply">Reply</button><button type="button" data-send-kind="lead">Give Lead</button><button type="button" data-send-kind="table">Play at Table</button><button type="button" class="gm-thread-close" data-close-thread="${goal.id}">Close Thread</button></div></form>` : ''}
+      ${!resolved ? `<form class="gm-interest-reply" data-gm-reply="${goal.id}"><label for="gmReply-${goal.id}">Reply to ${esc(playerName)}</label><textarea id="gmReply-${goal.id}" maxlength="${MAX_REPLY_LENGTH}" rows="3" placeholder="Reply, give a lead, or leave this blank and send it to the table."></textarea><div class="gm-thread-actions"><button type="button" data-send-kind="reply">Reply</button><button type="button" data-send-kind="lead">Give Lead</button><button type="button" data-send-kind="table">Play at Table</button><button type="button" class="gm-thread-close" data-close-thread="${goal.id}">Played / Resolved</button></div></form>` : ''}
       <div class="gm-interest-state"><span>Thread state</span><div class="gm-goal-actions">${gmStatusActions(goal)}</div></div>
     </article>`;
   }
 
-  const activeGoals = goals => goals.filter(g => g.status !== 'done');
-  const resolvedGoals = goals => goals.filter(g => g.status === 'done');
+  const activeGoals = goals => goals.filter(g => !['done','dormant'].includes(g.status));
+  const resolvedGoals = goals => goals.filter(g => ['done','dormant'].includes(g.status));
 
   function attachSourceActions(host) {
     host.querySelectorAll('[data-engagement-route]').forEach(btn => btn.addEventListener('click', () => { location.hash = btn.dataset.engagementRoute; }));
   }
 
+  async function setSinglePursuit(user, goalId, entryKind = null) {
+    const latest = await request(user, 'GET');
+    const goals = Array.isArray(latest.goals) ? latest.goals : [];
+    const target = goals.find(goal => Number(goal.id) === Number(goalId));
+    if (!target) throw new Error('Greywake could not find that interest.');
+    for (const other of goals) {
+      if (other.character_slug === target.character_slug && other.status === 'pursuing' && Number(other.id) !== Number(goalId)) {
+        await request(user, 'PATCH', { id: Number(other.id), status: 'open' });
+      }
+    }
+    const patch = { id: Number(goalId), status: 'pursuing' };
+    if (entryKind) patch.entry_kind = entryKind;
+    await request(user, 'PATCH', patch);
+  }
+
   function attachStatusActions(host, user) {
     host.querySelectorAll('[data-goal-status]').forEach(btn => btn.addEventListener('click', async () => {
       btn.disabled = true;
-      try { await request(user, 'PATCH', { id: Number(btn.dataset.goalId), status: btn.dataset.goalStatus }); await render(user); }
+      try {
+        if (btn.dataset.goalStatus === 'pursuing') await setSinglePursuit(user, Number(btn.dataset.goalId));
+        else await request(user, 'PATCH', { id: Number(btn.dataset.goalId), status: btn.dataset.goalStatus });
+        await render(user);
+      }
       catch (error) { btn.disabled = false; alert(error.message); }
     }));
     host.querySelectorAll('[data-goal-kind]').forEach(btn => btn.addEventListener('click', async () => {
@@ -232,7 +249,7 @@
     }));
     host.querySelectorAll('[data-promote-pursuing]').forEach(btn => btn.addEventListener('click', async () => {
       btn.disabled = true;
-      try { await request(user, 'PATCH', { id: Number(btn.dataset.promotePursuing), entry_kind: 'interest', status: 'pursuing' }); await render(user); }
+      try { await setSinglePursuit(user, Number(btn.dataset.promotePursuing), 'interest'); await render(user); }
       catch (error) { btn.disabled = false; alert(error.message); }
     }));
     host.querySelectorAll('[data-reopen-goal]').forEach(btn => btn.addEventListener('click', async () => {
@@ -242,7 +259,7 @@
     }));
     host.querySelectorAll('[data-close-player-goal]').forEach(btn => btn.addEventListener('click', async () => {
       btn.disabled = true;
-      try { await request(user, 'PATCH', { id: Number(btn.dataset.closePlayerGoal), status: 'done' }); await render(user); }
+      try { await request(user, 'PATCH', { id: Number(btn.dataset.closePlayerGoal), status: 'dormant' }); await render(user); }
       catch (error) { btn.disabled = false; alert(error.message); }
     }));
   }
@@ -288,10 +305,10 @@
         const grouped = ['marek','velmira','odie'].map(key => {
           const characterGoals = goals.filter(g => g.character_slug === key), current = activeGoals(characterGoals), resolved = resolvedGoals(characterGoals), counts = splitCounts(characterGoals);
           const currentCards = current.length ? `<div class="interest-thread-list">${current.map(goal => gmThreadCard(goal, messages)).join('')}</div>` : `<div class="goals-empty">${CHARACTER_NAMES[key]} has no current interests or questions.</div>`;
-          const resolvedCards = resolved.length ? `<details class="resolved-goals"><summary>Resolved / closed (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => gmThreadCard(goal, messages)).join('')}</div></details>` : '';
+          const resolvedCards = resolved.length ? `<details class="resolved-goals"><summary>Played / resolved (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => gmThreadCard(goal, messages)).join('')}</div></details>` : '';
           return `<section class="gm-goal-group"><div class="eyebrow">${CHARACTER_NAMES[key].toUpperCase()}</div><h3>${CHARACTER_NAMES[key]}'s questions & interests</h3><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${currentCards}${resolvedCards}</section>`;
         }).join('');
-        host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">PLAYER-DIRECTED PREP</div><h2>Player Questions & Interests</h2></div><p>Questions capture curiosity without turning it into a quest. Reply between games, give a lead, or send a consequential moment to the table. Players can promote a question into an interest or pursuit.</p></div><div class="interest-legend"><span>QUESTION</span><span>PLAYER INTEREST</span><span>PURSUING</span><span>PLAY AT TABLE</span><span>RESOLVED</span></div>${grouped}`;
+        host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">PLAYER-DIRECTED PREP</div><h2>Player Questions & Interests</h2></div><p>Questions capture curiosity without turning it into a quest. Interested means the character cares about it. Pursuing means this is the one thing that player currently wants to act on in play.</p></div><div class="interest-legend"><span>QUESTION</span><span>PLAYER INTEREST</span><span>PURSUING</span><span>PLAY AT TABLE</span><span>PLAYED / RESOLVED</span></div>${grouped}`;
         attachSourceActions(host); attachStatusActions(host, user); attachGMReplyActions(host, user); return;
       }
 
@@ -300,8 +317,8 @@
       const current = activeGoals(goals), resolved = resolvedGoals(goals), counts = splitCounts(goals), isPreview = document.body.dataset.gmPreview === 'true';
       publishPlayerSnapshot(key, current, messages, counts);
       const list = current.length ? `<div class="interest-thread-list">${current.map(goal => playerThreadCard(goal, messages, user, false, isPreview)).join('')}</div>` : `<div class="goals-empty">Nothing current yet. Questions you ask from cards and records will appear here automatically, without becoming a quest unless you choose to pursue them.</div>`;
-      const resolvedSection = resolved.length ? `<details class="resolved-goals"><summary>Resolved / closed (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => playerThreadCard(goal, messages, user, true, isPreview)).join('')}</div></details>` : '';
-      host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">YOUR DIRECTION</div><h2>Questions & Interests</h2></div><p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved questions and interests.` : `Ask directly from things you are reading. A question stays a question until you decide it matters enough to become one of the three things currently on your mind.`}</p></div><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${list}${resolvedSection}${isPreview ? `<div class="goal-hint">GM preview · replies and changes are disabled in preview mode</div>` : `<form id="goalForm" class="goal-form"><label for="goalInput">Start a new interest or direction</label><div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. I'd love to study a flickerfly."><button type="submit" ${activeInterestCount(current) >= MAX_INTERESTS ? 'disabled' : ''}>Add interest</button></div><div class="goal-hint">${activeInterestCount(current)}/${MAX_INTERESTS} things on your mind · questions do not use a slot</div></form>`}`;
+      const resolvedSection = resolved.length ? `<details class="resolved-goals"><summary>Played / set aside (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => playerThreadCard(goal, messages, user, true, isPreview)).join('')}</div></details>` : '';
+      host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">YOUR DIRECTION</div><h2>Questions & Interests</h2></div><p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved questions and interests.` : `Ask directly from things you are reading. A question stays a question until you decide it matters enough to keep as an interest or make your one current pursuit.`}</p></div><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${list}${resolvedSection}${isPreview ? `<div class="goal-hint">GM preview · replies and changes are disabled in preview mode</div>` : `<form id="goalForm" class="goal-form"><label for="goalInput">Start a new interest or direction</label><div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. I'd love to study a flickerfly."><button type="submit">Add interest</button></div><div class="goal-hint">Interested items are saved without using a pursuit slot · one Pursuing item at a time</div></form>`}`;
       attachSourceActions(host);
       if (!isPreview) {
         attachPlayerActions(host, user);

@@ -92,7 +92,6 @@ jobs:
           node --check personal-knowledge.js
           node --check current-threads.js
           node --check card-priorities.js
-          node --check group-choice.js
           node --check p7-usability.js
           node --check equipment-system-v4.js
           node --check backpack-system.js

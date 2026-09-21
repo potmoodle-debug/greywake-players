@@ -35,8 +35,8 @@ if (source.includes('handlePriorityClick')) failures.push('P7 must not intercept
 if (source.includes('MAX_ACTIVE_INTERESTS') || source.includes('MAX_PURSUING')) failures.push('Priority hierarchy limits must not be owned by P7.');
 if (source.includes("observe(document.body,{childList:true,subtree:true})")) failures.push('P7 must not use a full-page recursive childList observer.');
 
-requirePriority('MAX_ACTIVE_INTERESTS = 12', 'Interested capacity is twelve');
-requirePriority('MAX_PURSUING = 3', 'Pursuing remains a focused shortlist');
+requirePriority('MAX_PURSUING = 1', 'Pursuing is one active intention');
+if (priorities.includes('MAX_ACTIVE_INTERESTS')) failures.push('Interested must not regain a hard shortlist cap.');
 requirePriority("await patchGoal(goal.id, 'dormant')", 'Interested can be set aside');
 requirePriority("await patchGoal(goal.id, 'open')", 'Pursuing can be demoted');
 requirePriority("await patchGoal(goal.id, 'pursuing')", 'Interested can be promoted');
@@ -46,10 +46,11 @@ requirePriority("data-context-pursue", 'priority owner binds Pursue directly');
 
 requireMind('Pursuing', 'Pursuing tier');
 requireMind('Interested', 'Interested tier');
-requireMind('This is a hierarchy', 'hierarchy explanation');
-requireMind('MAX_PURSUING=3', 'three-item Pursuing cap');
-requireMind('MAX_INTERESTS=12', 'larger Interested holding area');
-requireMind('Interested → Pursuing → Group Choice.', 'player-facing hierarchy path');
+requireMind('Pursuing is the one thing you currently want to act on in play.', 'one-pursuit explanation');
+requireMind('MAX_PURSUING=1', 'one-item Pursuing cap');
+if (mind.includes('MAX_INTERESTS')) failures.push('On my mind must not impose an Interested cap.');
+requireMind('Interested → Pursuing → Played / Set Aside.', 'player-facing intention path');
+requireMind('Pursuing is personal intent, not a party vote.', 'no automatic group vote');
 requireMind('Open source card →', 'mind cards clearly return to their source card');
 requireMind("location.hash='#/campaign'", 'mind card fallback opens Campaign rather than Q&A');
 requireMind('greywake:mind-source-card', 'mind card fallback remembers which source card to focus');
