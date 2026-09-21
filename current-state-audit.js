@@ -130,7 +130,80 @@
       ['→ High','Cistern Plate consequences'],
       ['→','Altered route markers'],
       ['→','Ash-Plate recovery']
-    ]
+    ],
+    prep: {
+      startingPositions: [
+        {
+          name: 'Marek',
+          location: 'Beneath Greywake',
+          detail: 'Session Four ended with Marek below Greywake after the Foldling encounter. He is separated from Odie and remains in the buried passages.',
+          status: 'ACTIVE PC'
+        },
+        {
+          name: 'Odie',
+          location: 'Returning to the southern Digger way',
+          detail: 'Odie is travelling back with Spencer so the deliberately packed and braced closure can be inspected before the scene is disturbed further.',
+          status: 'ACTIVE PC'
+        },
+        {
+          name: 'Velmira',
+          location: 'Greywake',
+          detail: 'Velmira is now an NPC. No off-screen move is established for her; she remains available in Greywake if play brings her into a scene.',
+          status: 'NPC'
+        }
+      ],
+      likelyScenes: [
+        {
+          title: 'Spencer inspects the reopened blockage',
+          detail: 'Odie is bringing Spencer back specifically to examine the original closure work. Who made it, why it was closed and what Spencer concludes remain unresolved.',
+          readiness: 'READY',
+          records: ['Spencer Digger','The Closing Ways']
+        },
+        {
+          title: 'Marek beneath Greywake',
+          detail: 'Marek ended below Greywake after learning that the Foldling was fleeing repeated danger or disturbance from buried places farther south. What he does next remains Martin’s choice.',
+          readiness: 'READY',
+          records: ['The Closing Ways']
+        },
+        {
+          title: 'Regroup or stay split',
+          detail: 'There is no assumed reunion. If either player turns back, pushes deeper or seeks the other, let that choice determine the next connection between scenes.',
+          readiness: 'CHOICE',
+          records: []
+        }
+      ],
+      npcMoves: [
+        {
+          name: 'Spencer Digger',
+          knowledge: 'A southern access was deliberately packed and braced, and Odie has brought him back to inspect the original work.',
+          decision: 'Return with Odie and inspect the closure.',
+          next: 'Examine the packing, bracing and surrounding traces at the reopened way.',
+          certainty: 'ESTABLISHED'
+        },
+        {
+          name: 'Velmira',
+          knowledge: 'No new off-screen information has been established for her since becoming an NPC.',
+          decision: 'No current NPC decision established.',
+          next: 'Do not invent a move. Use her only if events in Greywake naturally involve her.',
+          certainty: 'OPEN'
+        }
+      ],
+      evidence: [
+        {kind:'FACT', text:'The southern Digger way was deliberately packed and braced.'},
+        {kind:'FACT', text:'Odie and Marek reopened one concealed way; the route is passable but visibly disturbed.'},
+        {kind:'FACT', text:'Marek encountered a Foldling below Greywake; it was primarily evasive and had fled repeated danger or disturbance from buried places farther south.'},
+        {kind:'UNKNOWN', text:'Who closed the way, who may be exposing concealed ways, and why.'},
+        {kind:'UNKNOWN', text:'What Spencer will conclude from inspecting the original closure work.'},
+        {kind:'UNKNOWN', text:'Whether the buried disturbance south is connected to the Closing Ways.'}
+      ],
+      assets: [
+        {label:'Southern Digger way', type:'SCENE / MAP', status:'USE IF PLAY GOES THERE'},
+        {label:'Spencer Digger', type:'NPC / PORTRAIT', status:'READY'},
+        {label:'Foldling reference', type:'CREATURE', status:'READY IF MAREK CONTINUES'},
+        {label:'Buried Greywake passages', type:'TACTICAL / EXPLORATION', status:'USE IF SPATIAL PLAY MATTERS'},
+        {label:'The Closing Ways', type:'HANDOUT / RECORD', status:'READY'}
+      ]
+    }
   };
 
   // Current state after Session Three.
