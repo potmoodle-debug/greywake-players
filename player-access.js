@@ -3,14 +3,12 @@
   const PREVIEW_KEY = 'greywake-gm-preview-v1';
   const USERS = {
     martin: { label: 'Martin', character: 'Marek', code: 'MAREK', role: 'player' },
-    carla: { label: 'Carla', character: 'Velmira', code: 'VELMIRA', role: 'player' },
     ritchie: { label: 'Ritchie', character: 'Odie', code: 'ODIE', role: 'player' },
     gm: { label: 'GM', character: 'GM', code: 'GREYWAKE', role: 'gm' }
   };
 
   const PREVIEW_RESOURCE_KEYS = new Set([
     'greywake:resources:marek:v1',
-    'greywake:resources:velmira:v1',
     'greywake:resources:odie:v1'
   ]);
 
