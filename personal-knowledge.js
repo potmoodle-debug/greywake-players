@@ -21,7 +21,7 @@
             },
             {
               title: 'Velmira',
-              tag: 'Fellow PC · social interpreter',
+              tag: 'NPC · social interpreter',
               body: 'Velmira helps Marek interpret social intent and subtext. He is strong at reading bodies but less reliable at reading what people mean.'
             }
           ]
