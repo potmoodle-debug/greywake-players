@@ -30,7 +30,7 @@
   }
 
   window.GREYWAKE_MEDIA["Spencer Digger"]=[
-    {src:"assets/npcs/hq-v3/spencer-digger-canon.jpg?v=spencer3",caption:"Spencer Digger — Digger and salvage worker."}
+    {src:"assets/npcs/hq-v3/spencer-digger.png?v=spencer4",caption:"Spencer Digger — Digger and salvage worker."}
   ];
 
   [["Spencer Digger","Greywake"],["Spencer Digger","Known People"],["Spencer Digger","Mara Vell"],["Spencer Digger","The Diggers"]].forEach(([a,b])=>{
