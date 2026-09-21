@@ -92,7 +92,7 @@
     if (goal.status === 'done') return 'PLAYED / RESOLVED';
     if (goal.status === 'pursuing') return 'PURSUING';
     if (goal.status === 'dormant') return 'SET ASIDE';
-    return isQuestion(goal) ? 'QUESTION' : 'PLAYER INTEREST';
+    return isQuestion(goal) ? 'QUESTION' : 'INTERESTED';
   }
 
   function threadStateLabel(state) {
@@ -169,7 +169,7 @@
     return `<article class="interest-thread gm-interest-thread${resolved ? ' interest-thread-resolved' : ''}" data-goal-id="${goal.id}" data-entry-kind="${isQuestion(goal) ? 'question' : 'interest'}">
       <div class="interest-thread-head"><div><span class="interest-status">${esc(playerName.toUpperCase())} · ${esc(statusLabel(goal))}</span><h3>${esc(goal.goal_text)}</h3></div><span class="interest-waiting-pill">${esc(threadStateLabel(goal.thread_state))}</span></div>
       ${sourceMarkup(goal)}${conversationMarkup(goal, messages, playerName)}${waitingBanner(goal)}
-      ${!resolved ? `<form class="gm-interest-reply" data-gm-reply="${goal.id}"><label for="gmReply-${goal.id}">Reply to ${esc(playerName)}</label><textarea id="gmReply-${goal.id}" maxlength="${MAX_REPLY_LENGTH}" rows="3" placeholder="Reply, give a lead, or leave this blank and send it to the table."></textarea><div class="gm-thread-actions"><button type="button" data-send-kind="reply">Reply</button><button type="button" data-send-kind="lead">Give Lead</button><button type="button" data-send-kind="table">Play at Table</button><button type="button" class="gm-thread-close" data-close-thread="${goal.id}">Close Thread</button></div></form>` : ''}
+      ${!resolved ? `<form class="gm-interest-reply" data-gm-reply="${goal.id}"><label for="gmReply-${goal.id}">Reply to ${esc(playerName)}</label><textarea id="gmReply-${goal.id}" maxlength="${MAX_REPLY_LENGTH}" rows="3" placeholder="Reply, give a lead, or leave this blank and send it to the table."></textarea><div class="gm-thread-actions"><button type="button" data-send-kind="reply">Reply</button><button type="button" data-send-kind="lead">Give Lead</button><button type="button" data-send-kind="table">Play at Table</button><button type="button" class="gm-thread-close" data-close-thread="${goal.id}">Played / Resolved</button></div></form>` : ''}
       <div class="gm-interest-state"><span>Thread state</span><div class="gm-goal-actions">${gmStatusActions(goal)}</div></div>
     </article>`;
   }
