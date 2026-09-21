@@ -113,7 +113,7 @@
         <section class="gm-panel full"><small>LIKELY NEXT SCENES</small><h2>Prepare possibilities, not an order</h2><p>These are the scenes the current state makes immediately available. Player choices decide which one becomes play.</p><div class="gm-prep-scenes">${scenes}</div></section>
         <section class="gm-panel full"><small>PLAYER INTENTIONS</small><h2>What Marek and Odie are signalling</h2><p>One active pursuit can guide preparation without becoming a required path.</p><div class="gm-player-cards">${cards}</div></section>
         <section class="gm-panel wide"><small>NPC MOVES</small><h2>What people are actually about to do</h2><p>Established actions only. An open entry is permission not to invent an off-screen move.</p><div class="gm-prep-npc-list">${moves}</div></section>
-        <section class="gm-panel"><small>EVIDENCE / UNKNOWNS</small><h2>Do not solve it in prep</h2><div class="gm-prep-evidence-list">${evidence}</div></section>
+        <section class="gm-panel"><small>KNOWLEDGE BOUNDARY</small><h2>GM truth · player facts · unresolved</h2><p>The GM view may show hidden truth. Only genuinely undecided material is marked unresolved.</p><div class="gm-prep-evidence-list">${evidence}</div></section>
         <section class="gm-panel wide"><small>ASSETS TO HAVE READY</small><h2>Only load what might hit the table</h2><div class="gm-prep-assets">${assets}</div></section>
         <section class="gm-panel"><small>SESSION CAPTURES</small><h2>${activeCaptureCount()} waiting</h2><p>These are unfinished updates from play, not prep material unless they affect the starting state.</p><button class="gm-inline-action" data-gm-go="update">Review captures →</button></section>
       </div>`;
