@@ -50,6 +50,9 @@ requireMind('Pursuing is the one thing you currently want to act on in play.', '
 requireMind('MAX_PURSUING=1', 'one-item Pursuing cap');
 if (mind.includes('MAX_INTERESTS')) failures.push('On my mind must not impose an Interested cap.');
 requireMind('Interested → Pursuing → Played / Set Aside.', 'player-facing intention path');
+requireMind('data-player-mind-set-aside', 'Set Aside control is visible on On my mind cards');
+requireMind("card?.querySelector('[data-close-player-goal]')", 'Set Aside delegates to player-goals state owner');
+requireMind("[data-player-mind-set-aside]:not(:disabled)", 'GM preview cannot trigger Set Aside');
 requireMind('Pursuing is personal intent, not a party vote.', 'no automatic group vote');
 requireMind('Open source card →', 'mind cards clearly return to their source card');
 requireMind("location.hash='#/campaign'", 'mind card fallback opens Campaign rather than Q&A');
