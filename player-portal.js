@@ -153,7 +153,7 @@
   function renderMyGreywake() {
     const content = showPortal('my-greywake', 'PERSONAL RECORD', 'My Greywake');
     if (!content) return;
-    content.appendChild(introBlock('WHAT BELONGS TO YOU', 'My Greywake', 'Your character’s knowledge, relationships, interests and conversations live here. Things marked Interested are saved here; things marked Pursuing are the ones you want treated as active choices.'));
+    content.appendChild(introBlock('WHAT BELONGS TO YOU', 'My Greywake', 'Your character’s knowledge, relationships, interests and conversations live here. Interested means something matters to your character; Pursuing is the one thing you currently want to act on in play.'));
     content.appendChild(hubGrid([
       {href:'#/mind', kicker:'INTERESTS & PRIORITIES', title:'On my mind', copy:'Manage the things your character cares about. Keep them as interests, actively pursue them, or set them aside.', action:'Open interests →'},
       {href:'#/inbox', kicker:'BETWEEN GAMES', title:'Questions & replies', copy:'Questions, GM replies and unfinished conversations that can continue between sessions.', action:'Open conversations →'}
@@ -169,7 +169,7 @@
   function renderPossibilities() {
     const content = showPortal('possibilities', 'PARTY-KNOWN POSSIBILITIES', "What's out there");
     if (!content) return;
-    content.appendChild(introBlock('THE WORLD IS MOVING', "What's out there?", 'Browse what the party knows it could do. Mark Interested when something matters to your character; choose Pursue when you want it treated as an active choice. Nothing here is an assignment.'));
+    content.appendChild(introBlock('THE WORLD IS MOVING', "What's out there?", 'Browse what the party knows it could do. Mark Interested when something matters to your character; choose Pursue when you actively want to follow it in play. Pursuing informs the GM — it does not commit the party.'));
     content.appendChild(threads);
     notifyLiveMounted('threads');
     document.title = "What's out there — Greywake";
@@ -178,7 +178,7 @@
   function renderMind() {
     const content = showPortal('mind', 'INTERESTS & PRIORITIES', 'On my mind');
     if (!content) return;
-    content.appendChild(introBlock('YOUR CURRENT INTERESTS', "What's on my mind", 'These are the things your character currently cares about. Interested keeps something in view; Pursuing means you want to actively follow it. Neither automatically commits the whole party.'));
+    content.appendChild(introBlock('YOUR CURRENT INTERESTS', "What's on my mind", 'These are the things your character currently cares about. Interested keeps something in your personal record; Pursuing is your one current intention for play. It informs the GM and does not commit the party.'));
     content.appendChild(goals);
     notifyLiveMounted('goals');
     document.title = 'On my mind — Greywake';
@@ -223,7 +223,7 @@
   function renderCampaign() {
     const content = showPortal('campaign', 'ACTIVE CAMPAIGN', 'Campaign');
     if (!content) return;
-    content.appendChild(introBlock('WHAT IS HAPPENING NOW', 'Campaign', 'Browse the possibilities the party knows about and the record of what has already happened. Mark something Interested when it matters to your character; choose Pursue when you want the group to seriously consider following it.'));
+    content.appendChild(introBlock('WHAT IS HAPPENING NOW', 'Campaign', 'Browse the possibilities the party knows about and the record of what has already happened. Mark something Interested when it matters to your character; choose Pursue when you personally want to act on it in play.'));
     const sessions = (window.GREYWAKE_CATEGORIES?.Sessions || []).filter(name => window.GREYWAKE_DATA?.[name]);
     const cards = [
       ...sessions.map((name, index) => ({href:recordHref(name), kicker:`SESSION ${String(index + 1).padStart(2,'0')}`, title:window.GREYWAKE_DATA[name].title, copy:'Player-facing recap of what the party established in play.', action:'Open recap →'})),
