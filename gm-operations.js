@@ -10,7 +10,7 @@
     'Brannic Hale':'assets/npcs/hq-v3/brannic-hale.webp',
     'Selka Marr':'assets/npcs/hq-v3/selka-marr.webp',
     'Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp',
-    'Spencer Digger':'assets/npcs/hq-v3/spencer-digger-canon.jpg'
+    'Spencer Digger':'assets/npcs/hq-v3/spencer-digger.webp'
   };
 
   const fullGM=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
