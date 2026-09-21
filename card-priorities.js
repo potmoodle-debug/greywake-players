@@ -135,12 +135,22 @@
   async function setInterested(context) {
     const goals = await loadGoals();
     const goal = matchingGoal(goals, context);
-    if (goal?.status === 'pursuing' || goal?.status === 'open') {
-      await patchGoal(goal.id, 'dormant');
-      return;
-    }
+    if (goal?.status === 'open') return;
     if (goal) await patchGoal(goal.id, 'open');
     else await createPriority(context, goals);
+  }
+
+  async function setAside(context) {
+    let goals = await loadGoals();
+    let goal = matchingGoal(goals, context);
+    if (!goal) {
+      await createPriority(context, goals);
+      goals = await loadGoals(true);
+      goal = matchingGoal(goals, context);
+    }
+    if (!goal) throw new Error('Greywake could not find that interest after adding it.');
+    if (goal.status === 'dormant') return;
+    await patchGoal(goal.id, 'dormant');
   }
 
   async function setPursuing(context) {
@@ -201,13 +211,15 @@
     style.id = 'card-priority-styles';
     style.textContent = `
       .context-mind-action{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
-      .context-mind-button,.context-pursue-button{appearance:none;border:1px solid #756642;background:#211e15;color:#ead79e;padding:10px 13px;font:800 10px/1.1 inherit;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;min-height:38px}
+      .context-mind-button,.context-pursue-button,.context-set-aside-button{appearance:none;border:1px solid #756642;background:#211e15;color:#ead79e;padding:10px 13px;font:800 10px/1.1 inherit;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;min-height:38px}
       .context-pursue-button{border-color:#9b7b42;background:#2d2517;color:#f1d68b}
-      .context-mind-button:hover,.context-pursue-button:hover{border-color:#b39a5b;background:#2b2618;color:#fff0bf}
-      .context-mind-button:focus-visible,.context-pursue-button:focus-visible{outline:2px solid #c6ae69;outline-offset:2px}
-      .context-mind-button:disabled,.context-pursue-button:disabled{opacity:.72;cursor:default}
+      .context-set-aside-button{border-color:#5f594b;background:#181713;color:#b8b09c}
+      .context-mind-button:hover,.context-pursue-button:hover,.context-set-aside-button:hover{border-color:#b39a5b;background:#2b2618;color:#fff0bf}
+      .context-mind-button:focus-visible,.context-pursue-button:focus-visible,.context-set-aside-button:focus-visible{outline:2px solid #c6ae69;outline-offset:2px}
+      .context-mind-button:disabled,.context-pursue-button:disabled,.context-set-aside-button:disabled{opacity:.72;cursor:default}
       .context-mind-button.is-active{border-color:#6f8059;background:#1d2519;color:#d9e8bd}
       .context-pursue-button.is-active{border-color:#b9934d;background:#342816;color:#ffe6a1}
+      .context-set-aside-button.is-active{border-color:#77705f;background:#201f1a;color:#d2cab7}
       .context-mind-status{font-size:10px;color:#9d947b;min-height:1em;flex-basis:100%}
       .article > .context-mind-action{margin:6px 0 16px}
     `;
@@ -216,17 +228,20 @@
 
   function renderControl(wrap, context, goal, preview = false) {
     if (preview) {
-      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>☆ Interested</button><button type="button" class="context-pursue-button" disabled>◆ Pursue</button><span class="context-mind-status">Preview only — these are player controls.</span>`;
+      wrap.innerHTML = `<button type="button" class="context-mind-button" disabled>☆ Interested</button><button type="button" class="context-pursue-button" disabled>◆ Pursue</button><button type="button" class="context-set-aside-button" disabled>— Set Aside</button><span class="context-mind-status">Preview only — these are player controls.</span>`;
       return;
     }
-    const interested = goal && ['open', 'pursuing'].includes(goal.status);
+    const interested = goal?.status === 'open';
     const pursuing = goal?.status === 'pursuing';
+    const aside = goal?.status === 'dormant';
     wrap.innerHTML = `
       <button type="button" class="context-mind-button${interested ? ' is-active' : ''}" data-context-interest>${interested ? '✓ Interested' : '☆ Interested'}</button>
       <button type="button" class="context-pursue-button${pursuing ? ' is-active' : ''}" data-context-pursue>${pursuing ? '◆ Pursuing' : '◆ Pursue'}</button>
-      <span class="context-mind-status">${pursuing ? 'This is the one thing you currently want to act on in play. Press Pursuing to move it back to Interested.' : interested ? 'This matters to your character. Press Interested to set it aside, or Pursue to make it your current active intention.' : 'Interested saves this to My Greywake. Pursue tells the GM you actively want to follow it in play.'}</span>`;
+      <button type="button" class="context-set-aside-button${aside ? ' is-active' : ''}" data-context-set-aside>${aside ? '✓ Set Aside' : '— Set Aside'}</button>
+      <span class="context-mind-status">${pursuing ? 'This is the one thing you currently want to act on in play.' : interested ? 'This matters to your character, but it is not your active pursuit.' : aside ? 'Set aside for now. It stays in your Greywake history and can be brought back later.' : 'Interested keeps it on your radar. Pursue makes it your active intention. Set Aside records that you are leaving it for now.'}</span>`;
     wrap.querySelector('[data-context-interest]')?.addEventListener('click', () => actInterested(wrap, context));
     wrap.querySelector('[data-context-pursue]')?.addEventListener('click', () => actPursue(wrap, context));
+    wrap.querySelector('[data-context-set-aside]')?.addEventListener('click', () => actSetAside(wrap, context));
   }
 
   async function hydrateControl(wrap, context) {
@@ -263,6 +278,20 @@
     if (status) status.textContent = 'Saving…';
     try {
       await setInterested(context);
+      await finishAction(wrap, context);
+    } catch (error) {
+      await hydrateControl(wrap, context);
+      const nextStatus = wrap.querySelector('.context-mind-status');
+      if (nextStatus) nextStatus.textContent = error.message;
+    }
+  }
+
+  async function actSetAside(wrap, context) {
+    disableControls(wrap);
+    const status = wrap.querySelector('.context-mind-status');
+    if (status) status.textContent = 'Saving…';
+    try {
+      await setAside(context);
       await finishAction(wrap, context);
     } catch (error) {
       await hydrateControl(wrap, context);
