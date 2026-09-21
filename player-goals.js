@@ -159,13 +159,13 @@
   }
 
   function gmStatusActions(goal) {
-    if (goal.status === 'done') return `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Reopen</button>`;
+    if (goal.status === 'done' || goal.status === 'dormant') return `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">Reopen as Interested</button>`;
     return `${isQuestion(goal) ? `<button type="button" data-goal-kind="interest" data-goal-id="${goal.id}">Mark Interested</button>` : ''}${goal.status !== 'open' ? `<button type="button" data-goal-status="open" data-goal-id="${goal.id}">${isQuestion(goal) ? 'Open Question' : 'Interested'}</button>` : ''}${goal.status !== 'pursuing' ? `<button type="button" data-goal-status="pursuing" data-goal-id="${goal.id}">Pursuing</button>` : ''}${goal.status !== 'dormant' ? `<button type="button" data-goal-status="dormant" data-goal-id="${goal.id}">Set Aside</button>` : ''}`;
   }
 
   function gmThreadCard(goal, messages) {
     const playerName = CHARACTER_NAMES[goal.character_slug] || goal.character_slug;
-    const resolved = goal.status === 'done';
+    const resolved = goal.status === 'done' || goal.status === 'dormant';
     return `<article class="interest-thread gm-interest-thread${resolved ? ' interest-thread-resolved' : ''}" data-goal-id="${goal.id}" data-entry-kind="${isQuestion(goal) ? 'question' : 'interest'}">
       <div class="interest-thread-head"><div><span class="interest-status">${esc(playerName.toUpperCase())} · ${esc(statusLabel(goal))}</span><h3>${esc(goal.goal_text)}</h3></div><span class="interest-waiting-pill">${esc(threadStateLabel(goal.thread_state))}</span></div>
       ${sourceMarkup(goal)}${conversationMarkup(goal, messages, playerName)}${waitingBanner(goal)}
@@ -174,8 +174,8 @@
     </article>`;
   }
 
-  const activeGoals = goals => goals.filter(g => g.status !== 'done');
-  const resolvedGoals = goals => goals.filter(g => g.status === 'done');
+  const activeGoals = goals => goals.filter(g => !['done','dormant'].includes(g.status));
+  const resolvedGoals = goals => goals.filter(g => ['done','dormant'].includes(g.status));
 
   function attachSourceActions(host) {
     host.querySelectorAll('[data-engagement-route]').forEach(btn => btn.addEventListener('click', () => { location.hash = btn.dataset.engagementRoute; }));
@@ -228,7 +228,7 @@
     });
     host.querySelectorAll('[data-close-thread]').forEach(btn => btn.addEventListener('click', async () => {
       btn.disabled = true;
-      try { await request(user, 'PATCH', { id: Number(btn.dataset.closeThread), status: 'dormant' }); await render(user); }
+      try { await request(user, 'PATCH', { id: Number(btn.dataset.closeThread), status: 'done' }); await render(user); }
       catch (error) { btn.disabled = false; alert(error.message); }
     }));
   }
@@ -259,7 +259,7 @@
     }));
     host.querySelectorAll('[data-close-player-goal]').forEach(btn => btn.addEventListener('click', async () => {
       btn.disabled = true;
-      try { await request(user, 'PATCH', { id: Number(btn.dataset.closePlayerGoal), status: 'done' }); await render(user); }
+      try { await request(user, 'PATCH', { id: Number(btn.dataset.closePlayerGoal), status: 'dormant' }); await render(user); }
       catch (error) { btn.disabled = false; alert(error.message); }
     }));
   }
@@ -317,7 +317,7 @@
       const current = activeGoals(goals), resolved = resolvedGoals(goals), counts = splitCounts(goals), isPreview = document.body.dataset.gmPreview === 'true';
       publishPlayerSnapshot(key, current, messages, counts);
       const list = current.length ? `<div class="interest-thread-list">${current.map(goal => playerThreadCard(goal, messages, user, false, isPreview)).join('')}</div>` : `<div class="goals-empty">Nothing current yet. Questions you ask from cards and records will appear here automatically, without becoming a quest unless you choose to pursue them.</div>`;
-      const resolvedSection = resolved.length ? `<details class="resolved-goals"><summary>Resolved / closed (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => playerThreadCard(goal, messages, user, true, isPreview)).join('')}</div></details>` : '';
+      const resolvedSection = resolved.length ? `<details class="resolved-goals"><summary>Played / set aside (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => playerThreadCard(goal, messages, user, true, isPreview)).join('')}</div></details>` : '';
       host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">YOUR DIRECTION</div><h2>Questions & Interests</h2></div><p>${isPreview ? `GM preview of ${esc(user.character)}'s centrally saved questions and interests.` : `Ask directly from things you are reading. A question stays a question until you decide it matters enough to keep as an interest or make your one current pursuit.`}</p></div><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${list}${resolvedSection}${isPreview ? `<div class="goal-hint">GM preview · replies and changes are disabled in preview mode</div>` : `<form id="goalForm" class="goal-form"><label for="goalInput">Start a new interest or direction</label><div class="goal-input-row"><input id="goalInput" maxlength="${MAX_LENGTH}" placeholder="e.g. I'd love to study a flickerfly."><button type="submit">Add interest</button></div><div class="goal-hint">Interested items are saved without using a pursuit slot · one Pursuing item at a time</div></form>`}`;
       attachSourceActions(host);
       if (!isPreview) {
