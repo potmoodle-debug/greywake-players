@@ -83,7 +83,6 @@
     const snapshot=window.GreywakeGMGoalSnapshot||{};
     const players=[
       ['marek','Marek','assets/canon/characters/marek-canon.jpg'],
-      ['velmira','Velmira','assets/canon/characters/velmira-poster.webp'],
       ['odie','Odie','assets/canon/characters/odie-canon.webp']
     ];
     const cards=players.map(([key,name,image])=>{
@@ -106,14 +105,13 @@
     const snapshot=window.GreywakeGMGoalSnapshot||{};
     const players=[
       ['martin','marek','MARTIN','Marek','assets/canon/characters/marek-canon.jpg'],
-      ['carla','velmira','CARLA','Velmira','assets/canon/characters/velmira-poster.webp'],
       ['ritchie','odie','RITCHIE','Odie','assets/canon/characters/odie-canon.webp']
     ];
     const cards=players.map(([preview,key,player,name,image])=>{
       const item=snapshot[key],text=item?.text||'No current player interest or question recorded.';
       return `<article data-character="${key}"><img src="${image}" alt="${name}"><div><small>${player}</small><strong>${name}</strong><span>${esc(text)}</span><button data-preview-player="${preview}">Preview ${name}</button></div></article>`;
     }).join('');
-    return`${authority()}${head('PLAYERS','See exactly what they see.','Preview each player-facing site without leaking GM-only or another character’s private information.')}<section class="gm-player-projection-guard"><small>KNOWLEDGE BOUNDARY</small><strong>Each character is a separate projection.</strong><p>WORLD or canon changes do not become player knowledge automatically. Update Marek, Velmira or Odie only when that character actually learned, witnessed or was explicitly told the information. Never copy another character’s private knowledge across.</p></section><div class="gm-player-cards gm-player-preview-cards">${cards}</div>`}
+    return`${authority()}${head('PLAYERS','See exactly what they see.','Preview each player-facing site without leaking GM-only or another character’s private information.')}<section class="gm-player-projection-guard"><small>KNOWLEDGE BOUNDARY</small><strong>Each character is a separate projection.</strong><p>WORLD or canon changes do not become player knowledge automatically. Update Marek or Odie only when that character actually learned, witnessed or was explicitly told the information. Velmira is now an NPC and should be handled through NPC/world state rather than player projection. Never copy another character’s private knowledge across.</p></section><div class="gm-player-cards gm-player-preview-cards">${cards}</div>`}
 
   function wire(workspace){
     workspace.querySelectorAll('[data-gm-go]').forEach(b=>b.addEventListener('click',()=>navigate(ROUTES[b.dataset.gmGo]||b.dataset.gmGo)));
