@@ -2,8 +2,7 @@
   const API_URL = 'https://tmqxxgzqiccclcjagdsh.supabase.co/functions/v1/player-goals';
   const API_KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const MAX_LENGTH = 240;
-  const MAX_ACTIVE_INTERESTS = 12;
-  const MAX_PURSUING = 3;
+  const MAX_PURSUING = 1;
   const LOAD_TIMEOUT_MS = 5000;
   const CHARACTER_CODES = { marek: 'MAREK', velmira: 'VELMIRA', odie: 'ODIE' };
   let observer;
@@ -87,8 +86,8 @@
     return goals.filter(goal => goal.entry_kind !== 'question' && ['open', 'pursuing'].includes(goal.status));
   }
 
-  function pursuingCount(goals) {
-    return activeGoals(goals).filter(goal => goal.status === 'pursuing').length;
+  function pursuingGoals(goals) {
+    return activeGoals(goals).filter(goal => goal.status === 'pursuing');
   }
 
   function matchingGoal(goals, context) {
@@ -115,9 +114,6 @@
     const user = currentUser();
     const character = characterKey(user);
     if (!character) throw new Error('Greywake player identity is unavailable.');
-    if (activeGoals(goals).length >= MAX_ACTIVE_INTERESTS) {
-      throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');
-    }
     const response = await fetchWithTimeout(API_URL, {
       method: 'POST',
       headers: identityHeaders(user, character),
@@ -143,9 +139,6 @@
       await patchGoal(goal.id, 'dormant');
       return;
     }
-    if (activeGoals(goals).length >= MAX_ACTIVE_INTERESTS) {
-      throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');
-    }
     if (goal) await patchGoal(goal.id, 'open');
     else await createPriority(context, goals);
   }
@@ -157,19 +150,16 @@
       await patchGoal(goal.id, 'open');
       return;
     }
-    if (pursuingCount(goals) >= MAX_PURSUING) {
-      throw new Error('You already have three things Pursuing. Stop pursuing one before promoting another.');
-    }
     if (!goal || !['open', 'pursuing'].includes(goal.status)) {
-      if (activeGoals(goals).length >= MAX_ACTIVE_INTERESTS) {
-        throw new Error('Your Interested list already has twelve active items. Set one aside before adding another.');
-      }
       if (goal) await patchGoal(goal.id, 'open');
       else await createPriority(context, goals);
       goals = await loadGoals(true);
       goal = matchingGoal(goals, context);
     }
     if (!goal) throw new Error('Greywake could not find that interest after adding it.');
+    for (const other of pursuingGoals(goals)) {
+      if (Number(other.id) !== Number(goal.id)) await patchGoal(other.id, 'open');
+    }
     await patchGoal(goal.id, 'pursuing');
   }
 
@@ -234,7 +224,7 @@
     wrap.innerHTML = `
       <button type="button" class="context-mind-button${interested ? ' is-active' : ''}" data-context-interest>${interested ? '✓ Interested' : '☆ Interested'}</button>
       <button type="button" class="context-pursue-button${pursuing ? ' is-active' : ''}" data-context-pursue>${pursuing ? '◆ Pursuing' : '◆ Pursue'}</button>
-      <span class="context-mind-status">${pursuing ? 'Pursuing is your focused shortlist. Press Pursuing to demote it back to Interested.' : interested ? 'This matters to your character. Press Interested to set it aside, or Pursue to promote it.' : 'Interested saves this to My Greywake. Pursue marks it as an active choice.'}</span>`;
+      <span class="context-mind-status">${pursuing ? 'This is the one thing you currently want to act on in play. Press Pursuing to move it back to Interested.' : interested ? 'This matters to your character. Press Interested to set it aside, or Pursue to make it your current active intention.' : 'Interested saves this to My Greywake. Pursue tells the GM you actively want to follow it in play.'}</span>`;
     wrap.querySelector('[data-context-interest]')?.addEventListener('click', () => actInterested(wrap, context));
     wrap.querySelector('[data-context-pursue]')?.addEventListener('click', () => actPursue(wrap, context));
   }
@@ -352,7 +342,7 @@
   window.GreywakeCardPriorities = {
     refresh: refreshControls,
     ownsPriorityActions: true,
-    limits: { interested: MAX_ACTIVE_INTERESTS, pursuing: MAX_PURSUING }
+    limits: { interested: null, pursuing: MAX_PURSUING }
   };
   window.addEventListener('greywake:player-ready', () => { clearGoalCache(); setupObserver(); schedule(); });
   window.addEventListener('greywake:engagement-changed', refreshControls);
