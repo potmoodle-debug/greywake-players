@@ -19,8 +19,13 @@
     D['Clay'].category = 'Archived Characters';
     D['Clay'].html = `<p>Clay was Martin's Ridgeborne Ranger during Sessions One to Three. He was a Great-Shell handler, caravan scout and practical judge of desert risk, travelling with Hopkins, his giant kangaroo-rat companion.</p><p>Clay is retired from active play. His actions during the Kestrel Return remain historical canon and are not reassigned to Marek.</p>`;
   }
-  C['Player Characters'] = ['Marek','Velmira','Odie'];
+  C['Player Characters'] = ['Marek','Odie'];
   C['Archived Characters'] = ['Clay'];
+  if (D['Velmira']) {
+    D['Velmira'].category = 'People';
+    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She was formerly a player character and is now an NPC in Greywake. Her established history, relationships and knowledge remain part of the campaign.</p>`;
+  }
+  C['People'] = [...new Set([...(C['People'] || []), 'Velmira'])];
   link('Marek','Player Brain');
   link('Marek','Greywake');
 
