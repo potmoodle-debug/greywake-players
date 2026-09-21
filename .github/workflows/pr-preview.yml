@@ -31,35 +31,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           path: pr
 
-      - name: Repair Spencer portrait on this PR branch
-        working-directory: pr
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m pip install --disable-pip-version-check pillow
-          python - <<'PY'
-          from PIL import Image, ImageFile
-          from pathlib import Path
-          ImageFile.LOAD_TRUNCATED_IMAGES = True
-          p = Path("assets/npcs/hq-v3/spencer-digger-canon.jpg")
-          im = Image.open(p)
-          print("Spencer source:", im.size, im.mode, im.format)
-          im.load()
-          if im.mode not in ("RGB", "L"):
-              im = im.convert("RGB")
-          im.save(p, format="JPEG", quality=92, optimize=True)
-          check = Image.open(p)
-          check.verify()
-          print("Spencer repaired:", p.stat().st_size, "bytes")
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/npcs/hq-v3/spencer-digger-canon.jpg
-          if ! git diff --cached --quiet; then
-            git commit -m "Repair Spencer Digger canonical portrait data"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi
-
       - name: Run GM route browser smoke
         working-directory: pr
         shell: bash
