@@ -61,6 +61,16 @@ try:
         wait.until(lambda d: d.find_elements(By.CSS_SELECTOR, marker))
         assert driver.find_element(By.CSS_SELECTOR, marker).is_displayed(), f"{route}: marker not visible: {marker}"
 
+    driver.execute_script("location.hash = '#/gm-session'")
+    wait.until(lambda d: d.current_url.endswith("#/gm-session"))
+    wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, ".gm-live-npc")) >= 1)
+    spencer = next((card for card in driver.find_elements(By.CSS_SELECTOR, ".gm-live-npc") if "Spencer Digger" in card.text), None)
+    assert spencer is not None, "RUN page is missing the Spencer Digger card"
+    spencer_img = spencer.find_element(By.TAG_NAME, "img")
+    wait.until(lambda d: d.execute_script("return arguments[0].complete", spencer_img))
+    natural_width = driver.execute_script("return arguments[0].naturalWidth", spencer_img)
+    assert natural_width > 0, f"Spencer Digger portrait failed to load: {spencer_img.get_attribute('src')}"
+
     driver.execute_script("location.hash = '#/gm-players'")
     wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 3)
 
