@@ -155,7 +155,7 @@
       likelyScenes: [
         {
           title: 'Spencer inspects the reopened blockage',
-          detail: 'Odie is bringing Spencer back specifically to examine the original closure work. Who made it, why it was closed and what Spencer concludes remain unresolved.',
+          detail: 'Odie is bringing Spencer back specifically to examine the original closure work. GM truth: this is Tower Watch closure #1, authorised by Brannic Hale after Jessa Vale saw the Foldling emerge. Spencer does not know that yet; what he concludes from the physical evidence remains unplayed.',
           readiness: 'READY',
           records: ['Spencer Digger','The Closing Ways']
         },
@@ -189,12 +189,13 @@
         }
       ],
       evidence: [
-        {kind:'FACT', text:'The southern Digger way was deliberately packed and braced.'},
-        {kind:'FACT', text:'Odie and Marek reopened one concealed way; the route is passable but visibly disturbed.'},
-        {kind:'FACT', text:'Marek encountered a Foldling below Greywake; it was primarily evasive and had fled repeated danger or disturbance from buried places farther south.'},
-        {kind:'UNKNOWN', text:'Who closed the way, who may be exposing concealed ways, and why.'},
-        {kind:'UNKNOWN', text:'What Spencer will conclude from inspecting the original closure work.'},
-        {kind:'UNKNOWN', text:'Whether the buried disturbance south is connected to the Closing Ways.'}
+        {kind:'PLAYER FACT', text:'The southern Digger way was deliberately packed and braced.'},
+        {kind:'PLAYER FACT', text:'Odie and Marek reopened one concealed way; the route is passable but visibly disturbed.'},
+        {kind:'PLAYER FACT', text:'Marek encountered a Foldling below Greywake; it was primarily evasive and had fled repeated danger or disturbance from buried places farther south.'},
+        {kind:'GM ONLY', text:'The reopened southern blockage is Tower Watch closure #1. Jessa Vale saw the Foldling emerge through this concealed access; Brannic Hale then authorised it to be sealed from the Greywake side for containment and public safety.'},
+        {kind:'GM ONLY', text:'There are two established Tower Watch closures caused by Jessa revealing accesses, plus a separate third closure by the Caravan Syndicate after it inferred another route and acted for commercial advantage by redirecting movement through Caravan Gate.'},
+        {kind:'GM ONLY', text:'The buried southern disturbance displaced the Foldling northward. That displacement led to Jessa witnessing it use concealed Digger accesses, which in turn triggered the Watch closures. The exact nature of the deeper disturbance remains unrevealed and not fully defined.'},
+        {kind:'UNRESOLVED', text:'What Spencer will recognise or conclude from the physical evidence when he inspects the reopened blockage. Do not pre-write his conclusion; play the inspection from what he can actually observe.'}
       ],
       assets: [
         {label:'Southern Digger way', type:'SCENE / MAP', status:'USE IF PLAY GOES THERE'},
