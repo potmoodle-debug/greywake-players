@@ -1,0 +1,8 @@
+(function(){
+const D=window.GREYWAKE_DATA,E=window.GREYWAKE_EDGES,C=window.GREYWAKE_CATEGORIES;
+D['Marek — Equipment']={title:'Marek — Equipment',category:'Equipment',html:'<p>Marek’s current carried equipment.</p><ul><li>Shortstaff — primary weapon, one-handed, magical</li><li>Round Shield — secondary weapon, one-handed, Protective</li><li>Gambeson armor</li><li>Torch</li><li>50 ft of rope</li><li>Basic supplies</li><li>Small bag of rocks and bones</li><li>Minor Stamina Potion — immediately clears 1d4 Stress</li></ul>'};
+D['Odie — Equipment']={title:'Odie — Equipment',category:'Equipment',html:'<p>Odie’s current carried equipment.</p><ul><li>Spear — primary weapon, physical, two-handed</li><li>Small dagger — inventory secondary weapon, one-handed</li><li>Gambeson armor</li><li>Torch</li><li>50 ft of rope</li><li>Basic supplies</li><li>Grappling hook</li><li>Minor Health Potion — immediately clears 1d4 Hit Points</li><li>Salvage-built prosthetic arm</li><li>Oldwork finger — a separate object; not fitted to the prosthetic</li></ul>'};
+D['Velmira — Equipment']={title:'Velmira — Equipment',category:'Equipment',html:'<p>Velmira’s current carried equipment.</p><ul><li>Greatstaff — primary weapon, magical, two-handed</li><li>Whip — inventory secondary weapon, one-handed</li><li>Leather armor</li><li>Torch</li><li>50 ft of rope</li><li>Basic supplies</li><li>Minor Stamina Potion — immediately clears 1d4 Stress</li><li>Nomadic pack</li><li>A book she is trying to translate</li><li>Leather satchel</li></ul>'};
+C['Equipment']=['Marek — Equipment','Odie — Equipment','Velmira — Equipment'];
+E.push(['Marek','Marek — Equipment'],['Odie','Odie — Equipment'],['Velmira','Velmira — Equipment']);
+})();
