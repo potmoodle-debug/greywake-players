@@ -159,6 +159,13 @@ function expandActiveNav(name){
 function showNote(name){
  if(!DATA[name]){go('#/');return}
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
+ if(name==='Known People'&&window.GREYWAKE_RENDER_PEOPLE_BROWSER){
+   window.GREYWAKE_RENDER_PEOPLE_BROWSER(article);
+   document.getElementById('crumb').textContent='Greywake / Known People';
+   document.title='Known People — Greywake';expandActiveNav(name);
+   scrollToTop();document.querySelector('.sidebar').classList.remove('open');focusRouteHeading(article);
+   return;
+ }
  const body=autoLinkHTML(DATA[name].html,name);
  article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
