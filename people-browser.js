@@ -71,7 +71,7 @@
           <div>
             <div class="eyebrow">THE CAST</div>
             <h1>${gmMode?'People of Greywake':'Known People'}</h1>
-            <p>${gmMode?'Run NPCs first. Current identity, faction, relationships and usable table information come before reference material.':'Browse people already established in the party record. This view uses only player-safe information: what is known, seen or earned in play.'}</p>
+            <p>${gmMode?'Run NPCs first. Current identity, faction, relationships and usable table information come before reference material.':'People your character has actually met, heard about or learned about in play. Hidden motives, private knowledge and GM running notes are not shown here.'}</p>
           </div>
           <div class="people-browser-stat"><strong id="peopleBrowserTopCount">${records.length}</strong><small>${gmMode?'NPC RECORDS':'KNOWN PEOPLE'}</small></div>
         </div>
@@ -158,22 +158,29 @@
           </div>
         </section>
         ${gmReveal}
-        <div class="people-browser-facts">
-          <div><small>FACTION</small><strong>${esc(factionText)}</strong></div>
-          <div><small>AFFILIATION</small><strong>${esc(affiliationText)}</strong></div>
-          <div><small>RECORD</small><strong>${gmMode?'Current campaign':'Player-known'}</strong></div>
-        </div>
-        <section class="people-browser-at-table">
-          <div class="eyebrow">AT THE TABLE</div>
-          <div class="people-browser-field"><h4>What they want now</h4><p>${esc(want)}</p></div>
-          <div class="people-browser-field"><h4>How to play them</h4><p>${esc(portrayal)}</p></div>
-          <div class="people-browser-field"><h4>What they know</h4><p>${esc(knows)}</p></div>
-          <div class="people-browser-field"><h4>Relationships</h4><p>${esc(relationshipText)}</p></div>
-        </section>
-        <details class="people-browser-reference" ${gmMode?'':'open'}>
-          <summary>${gmMode?'Campaign reference':'Known record'}</summary>
-          <div class="people-browser-body">${r.html||''}</div>
-        </details>`;
+        ${gmMode ? `
+          <div class="people-browser-facts">
+            <div><small>FACTION</small><strong>${esc(factionText)}</strong></div>
+            <div><small>AFFILIATION</small><strong>${esc(affiliationText)}</strong></div>
+            <div><small>RECORD</small><strong>Current campaign</strong></div>
+          </div>
+          <section class="people-browser-at-table">
+            <div class="eyebrow">AT THE TABLE</div>
+            <div class="people-browser-field"><h4>What they want now</h4><p>${esc(want)}</p></div>
+            <div class="people-browser-field"><h4>How to play them</h4><p>${esc(portrayal)}</p></div>
+            <div class="people-browser-field"><h4>What they know</h4><p>${esc(knows)}</p></div>
+            <div class="people-browser-field"><h4>Relationships</h4><p>${esc(relationshipText)}</p></div>
+          </section>
+          <details class="people-browser-reference">
+            <summary>Campaign reference</summary>
+            <div class="people-browser-body">${r.html||''}</div>
+          </details>
+        ` : `
+          <div class="people-browser-player-known">
+            <div class="eyebrow">WHAT YOU KNOW</div>
+            <div class="people-browser-body">${r.html||''}</div>
+          </div>
+        `}`;
 
       detail.querySelector('#peopleOpenRecord')?.addEventListener('click',()=>{location.hash='#/record/'+encodeURIComponent(r.name)});
       detail.querySelectorAll('[data-reveal-npc]').forEach(btn=>btn.addEventListener('click',async()=>{
