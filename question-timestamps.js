@@ -26,7 +26,7 @@
       // format September as "Sept" (four letters), so the cleanup regex did
       // not match and the MutationObserver repeatedly appended the timestamp.
       const cleaned = String(label.textContent || '')
-        .replace(/(?:\s*·\s*\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4},?\s+\d{2}:\d{2})+\s*$/i, '')
+        .replace(/(?:\s*[·•]\s*\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4},?\s+\d{2}:\d{2})+\s*$/i, '')
         .trimEnd();
       label.dataset.questionTimestampBase = cleaned;
     }
