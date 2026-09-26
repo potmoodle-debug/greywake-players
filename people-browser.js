@@ -6,6 +6,28 @@
     return (box.textContent||'').replace(/\s+/g,' ').trim();
   };
   const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const PORTRAITS={
+    'Mara Vell':'assets/npcs/hq-v3/mara-vell.webp',
+    'High Keeper Varn':'assets/npcs/hq-v3/high-keeper-varn.webp',
+    'Selka Marr':'assets/npcs/hq-v3/selka-marr.webp',
+    'Brannic Hale':'assets/npcs/hq-v3/brannic-hale.webp',
+    'Sister Elowen':'assets/npcs/hq-v3/sister-elowen.webp',
+    'Nemi':'assets/npcs/hq-v3/nemi.webp',
+    'Hessa Vey':'assets/npcs/hq-v3/hessa-vey.webp',
+    'Talla Reed':'assets/npcs/hq-v3/talla-reed.webp',
+    'Joric Noll':'assets/npcs/hq-v3/joric-noll.webp',
+    'Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp',
+    'Sarn Pell':'assets/npcs/hq-v3/sarn-pell.webp',
+    'Bessa Trant':'assets/npcs/hq-v3/bessa-trant.webp',
+    'Rennic Vale':'assets/npcs/hq-v3/rennic-vale.webp',
+    'Spencer Digger':'assets/npcs/hq-v3/spencer-digger-canon.jpg',
+    'Velmira':'assets/canon/characters/velmira-poster.webp',
+    'Daro Pell':'assets/canon/characters/daro-pell.webp',
+    'Meren':'assets/canon/characters/meren.webp'
+  };
+  const portraitFor=name=>PORTRAITS[name]||'';
+  const initials=name=>String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+
   const people=()=>((window.GREYWAKE_CATEGORIES?.People)||[])
     .filter(name=>name!=='Known People'&&window.GREYWAKE_DATA?.[name])
     .map(name=>({name,...window.GREYWAKE_DATA[name]}))
@@ -100,17 +122,32 @@
       const want=detailText(r,'want')||detailText(r,'goal')||'No current want is recorded yet.';
       const tags=[factionText!=='Not established'?factionText:'',r.affiliation||''].filter(Boolean).map(t=>`<span class="people-browser-tag">${esc(t)}</span>`).join('');
       const fullButton=gmMode?'':`<button type="button" id="peopleOpenRecord">Open full record →</button>`;
+      const portrait=portraitFor(r.name);
+      const portraitHTML=portrait
+        ? `<img src="${portrait}" alt="${esc(r.title||r.name)}" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="people-browser-portrait-fallback" hidden>${initials(r.title||r.name)}</span>`
+        : `<span class="people-browser-portrait-fallback">${initials(r.title||r.name)}</span>`;
+      const gmReveal=gmMode?`
+        <div class="people-browser-reveal">
+          <div><small>REVEAL TO PLAYERS</small><span id="peopleRevealState">Choose who has just met or learned about this person.</span></div>
+          <div class="people-browser-reveal-actions">
+            <button type="button" data-reveal-npc="party">Party</button>
+            <button type="button" data-reveal-npc="marek">Marek</button>
+            <button type="button" data-reveal-npc="odie">Odie</button>
+          </div>
+        </div>`:'';
 
       detail.innerHTML=`
-        <header class="people-browser-detail-head">
-          <div>
+        <section class="people-browser-character-hero">
+          <div class="people-browser-portrait">${portraitHTML}</div>
+          <div class="people-browser-character-copy">
             <div class="eyebrow">${esc(factionText==='Not established'?'GREYWAKE':factionText)}</div>
             <h2>${esc(r.title||r.name)}</h2>
             <p>${esc(summary)}</p>
+            <div class="people-browser-tags">${tags}</div>
+            ${fullButton}
           </div>
-          ${fullButton}
-        </header>
-        <div class="people-browser-tags">${tags}</div>
+        </section>
+        ${gmReveal}
         <div class="people-browser-facts">
           <div><small>FACTION</small><strong>${esc(factionText)}</strong></div>
           <div><small>AFFILIATION</small><strong>${esc(affiliationText)}</strong></div>
@@ -129,6 +166,18 @@
         </details>`;
 
       detail.querySelector('#peopleOpenRecord')?.addEventListener('click',()=>{location.hash='#/record/'+encodeURIComponent(r.name)});
+      detail.querySelectorAll('[data-reveal-npc]').forEach(btn=>btn.addEventListener('click',async()=>{
+        const state=detail.querySelector('#peopleRevealState');
+        const audience=btn.dataset.revealNpc;
+        detail.querySelectorAll('[data-reveal-npc]').forEach(x=>x.disabled=true);
+        if(state)state.textContent='Revealing…';
+        try{
+          if(!window.GREYWAKE_REVEAL_NPC)throw new Error('Live reveal service is not ready.');
+          await window.GREYWAKE_REVEAL_NPC(r.name,audience,summary);
+          if(state)state.textContent=`Revealed to ${audience==='party'?'Party':audience[0].toUpperCase()+audience.slice(1)}.`;
+        }catch(err){if(state)state.textContent=err.message||'Reveal failed.'}
+        finally{detail.querySelectorAll('[data-reveal-npc]').forEach(x=>x.disabled=false)}
+      }));
       detail.scrollTop=0;
     };
 
@@ -149,7 +198,11 @@
         b.dataset.person=r.name;
         const factionName=r.faction&&r.faction!=='Not established'?r.faction:'';
         const sub=[r.affiliation||'',factionName].filter(Boolean).join(' · ')||'Greywake';
-        b.innerHTML='<div><strong>'+esc(r.title||r.name)+'</strong><span>'+esc(sub)+'</span></div><em>'+(gmMode?'CURRENT':'KNOWN')+'</em>';
+        const portrait=portraitFor(r.name);
+        const thumb=portrait
+          ? '<span class="people-browser-thumb"><img src="'+portrait+'" alt="" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><i hidden>'+initials(r.title||r.name)+'</i></span>'
+          : '<span class="people-browser-thumb"><i>'+initials(r.title||r.name)+'</i></span>';
+        b.innerHTML=thumb+'<div><strong>'+esc(r.title||r.name)+'</strong><span>'+esc(sub)+'</span></div><em>'+(gmMode?'CURRENT':'KNOWN')+'</em>';
         b.addEventListener('click',()=>renderDetail(r.name));
         list.appendChild(b);
       });
