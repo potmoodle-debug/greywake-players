@@ -27,6 +27,55 @@
   }
   C['People'] = [...new Set([...(C['People'] || []), 'Velmira'])];
 
+  D['Jessa Vale'] = {
+    title: 'Jessa Vale',
+    category: 'People',
+    faction: 'Not established',
+    playerHidden: true,
+    html: `<p>Jessa Vale is the witness whose report led to Brannic Hale authorising Tower Watch closure #1 after she saw the Foldling emerge. Her exact role, wider knowledge and motives are not established.</p>`,
+    playerHtml: `<p>Jessa Vale is a person in Greywake. Further information should only appear here after it is learned in play.</p>`
+  };
+  D['Tavi'] = {
+    title: 'Tavi',
+    category: 'People',
+    faction: 'Not established',
+    playerHidden: true,
+    html: `<p>Tavi is part of Velmira's established relationship network and has a growing visible connection to the Faithful. Tavi's private beliefs and knowledge are not established.</p>`,
+    playerHtml: `<p>Tavi is connected to people around the Faithful. What Tavi actually believes or knows must be learned in play.</p>`
+  };
+  D['Lysa'] = {
+    title: 'Lysa',
+    category: 'People',
+    faction: 'Not established',
+    playerHidden: true,
+    html: `<p>Lysa is part of Velmira's established personal network and lives in the Tangle Lanes household connected to Nemi. Lysa's private motives and knowledge are not established.</p>`,
+    playerHtml: `<p>Lysa is part of Nemi's household in the Tangle Lanes. Further information should come from meeting her or learning about her in play.</p>`
+  };
+  D['Meren'] = {
+    title: 'Meren',
+    category: 'People',
+    faction: 'Not established',
+    knownTo: ['marek'],
+    html: `<p>Meren is established in Marek's current personal knowledge as his former teacher. Her speciality is herbs, medicine and medicinal biology. She respects Marek's ability but is cautious about his tendency to experiment before he fully understands a phenomenon.</p><p>Broader social and faction details remain unestablished.</p>`,
+    playerHtml: `<p>Meren trained Marek. Her speciality is herbs, medicine and medicinal biology, complementing his interest in fauna and anatomy.</p>`
+  };
+  D['Daro Pell'] = {
+    title: 'Daro Pell',
+    category: 'People',
+    faction: 'Not established',
+    playerHidden: true,
+    html: `<p>Daro Pell is named by the current site state as part of Marek's personal network, but the exact relationship, role, knowledge and faction ties are not yet established in the authoritative Marek reference.</p><p>Keep this as a GM reconciliation record rather than inventing missing detail.</p>`,
+    playerHtml: `<p>Daro Pell is connected to Marek. The exact nature of that relationship has not yet been established in the player-facing record.</p>`
+  };
+  C['People'] = [...new Set([...(C['People'] || []), 'Jessa Vale','Tavi','Lysa','Meren','Daro Pell'])];
+  link('Jessa Vale','Brannic Hale');
+  link('Jessa Vale','The Closing Ways');
+  link('Tavi','The Faithful');
+  link('Lysa','Tangle Lanes');
+  link('Lysa','Nemi');
+  link('Meren','Marek');
+  link('Daro Pell','Marek');
+
   // PEOPLE AUDIT: named current NPCs that were referenced elsewhere but missing from the People index.
   D['Jessa Vale'] = {
     title: 'Jessa Vale',
