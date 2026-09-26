@@ -217,54 +217,61 @@
   // Single GM-facing owner for the current operational campaign state.
   // GM views should read this object rather than maintaining a second hand-written snapshot.
   window.GREYWAKE_GM_STATE = {
-    session: 'Session Four — ended',
-    partyLocation: 'Split after play: Marek beneath Greywake · Odie returning with Spencer · Velmira in Greywake',
+    session: 'Two days after Kestrel Return',
+    partyLocation: 'Greywake and the buried ways: Marek below Greywake · Odie returning with Spencer · Velmira in Greywake',
     activeParty: ['Marek','Odie'],
     backgroundParty: ['Velmira'],
-    situationTitle: 'The Closing Ways',
-    situationDetail: 'One deliberately closed southern Digger way has been reopened. Marek continued into buried spaces and encountered a Foldling; Odie is returning with Spencer so the original closure work can be inspected. Velmira remains in Greywake and is not assumed to be at the Digger way.',
-    sceneTitle: 'Between scenes',
-    sceneDetail: 'Session Four ended with Marek beneath Greywake and Odie travelling back toward the reopened southern blockage with Spencer. Spencer’s inspection has not yet been played.',
+    situationTitle: 'Greywake has reacted',
+    situationDetail: 'Two days have passed since Kestrel Return reached Greywake. The rescue is no longer fresh news: accounts are circulating, losses are being counted, Ash-Plate remains out of normal work, the Cistern Plate is under controlled attention, Digger crews are guarding route knowledge more tightly, and the altered-marker and closure questions remain unresolved.',
+    sceneTitle: 'Between scenes — Day 2',
+    sceneDetail: 'Session Four left Marek beneath Greywake and Odie travelling back toward the reopened southern blockage with Spencer. Around them, Greywake has had time to react to the return without solving the underlying mysteries.',
     pressures: [
       ['→ High','The Closing Ways'],
       ['→ High','Disturbance south of Greywake'],
-      ['→ High','Cistern Plate consequences'],
-      ['→','Altered route markers'],
-      ['→','Ash-Plate recovery']
+      ['→ High','Cistern Plate custody and examination'],
+      ['→','Altered route markers under renewed scrutiny'],
+      ['→','Ash-Plate out of normal hauling work'],
+      ['→','Abandoned freight still exposed east of Greywake']
     ],
     prep: {
       startingPositions: [
         {
           name: 'Marek',
           location: 'Beneath Greywake',
-          detail: 'Session Four ended with Marek below Greywake after the Foldling encounter. He is separated from Odie and remains in the buried passages.',
+          detail: 'Session Four ended with Marek below Greywake after the Foldling encounter. He is separated from Odie and knows the Foldling fled repeated danger or disturbance from buried places farther south.',
           status: 'ACTIVE PC'
         },
         {
           name: 'Odie',
           location: 'Returning to the southern Digger way',
-          detail: 'Odie is travelling back with Spencer so the deliberately packed and braced closure can be inspected before the scene is disturbed further.',
+          detail: 'Odie is travelling back with Spencer so the deliberately packed and braced closure can be inspected. The reopened access is now visibly disturbed rather than an untouched scene.',
           status: 'ACTIVE PC'
         },
         {
           name: 'Velmira',
           location: 'Greywake',
-          detail: 'Velmira is now an NPC. No off-screen move is established for her; she remains available in Greywake if play brings her into a scene.',
+          detail: 'Velmira is now an NPC and remains in Greywake. No additional private move is assumed unless play brings her into one.',
           status: 'NPC'
         }
       ],
       likelyScenes: [
         {
           title: 'Spencer inspects the reopened blockage',
-          detail: 'Odie is bringing Spencer back specifically to examine the original closure work. GM truth: this is Tower Watch closure #1, authorised by Brannic Hale after Jessa Vale saw the Foldling emerge. Spencer does not know that yet; what he concludes from the physical evidence remains unplayed.',
+          detail: 'Odie is bringing Spencer back specifically to examine the original closure work. The physical scene has been altered by reopening, so Spencer can distinguish some original work from later disturbance but cannot recover evidence that no longer exists.',
           readiness: 'READY',
           records: ['Spencer Digger','The Closing Ways']
         },
         {
-          title: 'Marek beneath Greywake',
-          detail: 'Marek ended below Greywake after learning that the Foldling was fleeing repeated danger or disturbance from buried places farther south. What he does next remains Martin’s choice.',
+          title: 'Marek follows the Foldling question',
+          detail: 'Marek knows the Foldling came from buried places to the south and was driven north by repeated danger or disturbance. The cause remains unknown. His current practical next steps include questioning Diggers about the affected worksite or pursuing the southern evidence himself.',
           readiness: 'READY',
           records: ['The Closing Ways']
+        },
+        {
+          title: 'Greywake after two days of reaction',
+          detail: 'The Kestrel Return story has spread into ordinary life. Caravan workers are discussing losses and route safety, Diggers are sharing less route information, Ash-Plate is visibly unavailable for work, and the Plate is no longer a casual object anyone can simply handle.',
+          readiness: 'AMBIENT',
+          records: ['Cistern Plate','Ash-Plate','Maela Rusk','Selka Marr']
         },
         {
           title: 'Regroup or stay split',
@@ -276,33 +283,69 @@
       npcMoves: [
         {
           name: 'Spencer Digger',
-          knowledge: 'A southern access was deliberately packed and braced, and Odie has brought him back to inspect the original work.',
+          knowledge: 'A southern access was deliberately packed and braced, and Odie has brought him back to inspect the original work after the way was reopened.',
           decision: 'Return with Odie and inspect the closure.',
-          next: 'Examine the packing, bracing and surrounding traces at the reopened way.',
+          next: 'Separate original packing and bracing from the later disturbance caused by reopening, then report only what the remaining evidence supports.',
           certainty: 'ESTABLISHED'
         },
         {
+          name: 'Maela Rusk',
+          knowledge: 'She survived Kestrel Return and can give a firsthand account of the failed route, groundfall, losses and rescue.',
+          decision: 'Give an honest account of what happened rather than leave the return to rumour.',
+          next: 'Her version becomes one of the main accounts people in Greywake compare, without fixing blame that has not been established.',
+          certainty: 'OFF-SCREEN MOVE'
+        },
+        {
+          name: 'Selka Marr',
+          knowledge: 'Kestrel Return lost freight, transport capacity and confidence in an eastern route after deliberately altered markers were found.',
+          decision: 'Begin practical loss accounting and route-safety review.',
+          next: 'Press for clarity over abandoned freight and whether another caravan can safely use the same route.',
+          certainty: 'OFF-SCREEN MOVE'
+        },
+        {
+          name: 'High Keeper Varn',
+          knowledge: 'The Cistern Plate reached Greywake intact and may have practical value to the waterworks, but its exact function and compatibility are not fully established.',
+          decision: 'Keep access controlled while examination proceeds cautiously.',
+          next: 'Limit casual handling, record who is examining it and avoid installation until there is enough evidence to justify the risk.',
+          certainty: 'OFF-SCREEN MOVE'
+        },
+        {
+          name: 'Mara Vell',
+          knowledge: 'Several versions of the Kestrel Return story are circulating, with different people emphasising markers, freight, the groundfall or the recovered Plate.',
+          decision: 'Compare accounts rather than repeat the loudest version.',
+          next: 'Notice contradictions, repeated details and claims that outrun the evidence.',
+          certainty: 'OFF-SCREEN MOVE'
+        },
+        {
           name: 'Velmira',
-          knowledge: 'No new off-screen information has been established for her since becoming an NPC.',
+          knowledge: 'No new private off-screen information has been established for her since becoming an NPC.',
           decision: 'No current NPC decision established.',
-          next: 'Do not invent a move. Use her only if events in Greywake naturally involve her.',
+          next: 'Use her only if events in Greywake naturally involve her.',
           certainty: 'OPEN'
         }
       ],
       evidence: [
-        {kind:'PLAYER FACT', text:'The southern Digger way was deliberately packed and braced.'},
-        {kind:'PLAYER FACT', text:'Odie and Marek reopened one concealed way; the route is passable but visibly disturbed.'},
-        {kind:'PLAYER FACT', text:'Marek encountered a Foldling below Greywake; it was primarily evasive and had fled repeated danger or disturbance from buried places farther south.'},
+        {kind:'PLAYER FACT', text:'Two days have passed since Kestrel Return reached Greywake.'},
+        {kind:'PLAYER FACT', text:'Ash-Plate returned alive but remains injured and unavailable for normal hauling work.'},
+        {kind:'PLAYER FACT', text:'Significant freight remains abandoned at the Groundfall east of Greywake unless play establishes otherwise.'},
+        {kind:'PLAYER FACT', text:'At least two eastern route markers were deliberately altered; culprit and purpose remain unresolved.'},
+        {kind:'PLAYER FACT', text:'The southern Digger way was deliberately packed and braced, and Odie and Marek reopened it. The route is passable but visibly disturbed.'},
+        {kind:'PLAYER FACT', text:'Marek encountered a Foldling below Greywake and learned that it fled repeated danger or disturbance from buried places farther south.'},
+        {kind:'GM STATE', text:'Over the two days, the Kestrel Return account has spread, the Caravan Syndicate has begun loss accounting and route review, Keepers have tightened control around the Cistern Plate, and Digger crews have become more guarded about concealed route knowledge.'},
+        {kind:'GM STATE', text:'The abandoned freight has not automatically been recovered. Its continued exposure creates pressure around ownership, salvage cost and whether another expedition is worth the risk.'},
+        {kind:'GM STATE', text:'The Foldling discovery has not become general Greywake knowledge unless Marek or Odie shares it. Rumours may describe something moving through the southern ways without naming it correctly.'},
+        {kind:'UNRESOLVED', text:'Who altered the route markers, what caused the deeper southern disturbance, who is behind every closure, whether all closures share one cause, what the Cistern Plate ultimately does, and whether the abandoned freight has changed hands remain unresolved.'},
         {kind:'GM ONLY', text:'The reopened southern blockage is Tower Watch closure #1. Jessa Vale saw the Foldling emerge through this concealed access; Brannic Hale then authorised it to be sealed from the Greywake side for containment and public safety.'},
         {kind:'GM ONLY', text:'There are two established Tower Watch closures caused by Jessa revealing accesses, plus a separate third closure by the Caravan Syndicate after it inferred another route and acted for commercial advantage by redirecting movement through Caravan Gate.'},
-        {kind:'GM ONLY', text:'The buried southern disturbance displaced the Foldling northward. That displacement led to Jessa witnessing it use concealed Digger accesses, which in turn triggered the Watch closures. The exact nature of the deeper disturbance remains unrevealed and not fully defined.'},
-        {kind:'UNRESOLVED', text:'What Spencer will recognise or conclude from the physical evidence when he inspects the reopened blockage. Do not pre-write his conclusion; play the inspection from what he can actually observe.'}
+        {kind:'GM ONLY', text:'The buried southern disturbance displaced the Foldling northward. That displacement led to Jessa witnessing it use concealed Digger accesses. The exact nature of the deeper disturbance remains unrevealed and not fully defined.'}
       ],
       assets: [
         {label:'Southern Digger way', type:'SCENE / MAP', status:'USE IF PLAY GOES THERE'},
         {label:'Spencer Digger', type:'NPC / PORTRAIT', status:'READY'},
+        {label:'Kestrel Return aftermath', type:'GM STATE', status:'UPDATED — DAY 2'},
+        {label:'Cistern Plate', type:'OBJECT / PRESSURE', status:'CONTROLLED ACCESS'},
+        {label:'Ash-Plate', type:'CREATURE / CONSEQUENCE', status:'INJURED — OUT OF WORK'},
         {label:'Foldling reference', type:'CREATURE', status:'READY IF MAREK CONTINUES'},
-        {label:'Buried Greywake passages', type:'TACTICAL / EXPLORATION', status:'USE IF SPATIAL PLAY MATTERS'},
         {label:'The Closing Ways', type:'HANDOUT / RECORD', status:'READY'}
       ]
     }
