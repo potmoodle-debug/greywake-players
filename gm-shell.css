@@ -60,3 +60,21 @@ body[data-role="gm"][data-gm-preview="false"] #primaryNav button{white-space:now
 .gm-prep-asset>span{max-width:44%;text-align:right;color:#b79e60;font-size:7px;font-weight:900;letter-spacing:.06em}
 @media(max-width:1050px){.gm-prep-position-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.gm-prep-position-grid{grid-template-columns:1fr}.gm-prep-scene{grid-template-columns:38px minmax(0,1fr)}.gm-prep-npc-move dl>div{grid-template-columns:1fr}.gm-prep-asset{align-items:flex-start;flex-direction:column}.gm-prep-asset>span{max-width:none;text-align:left}}
+
+
+/* GM sidebar — workspace navigation + full record browser */
+body[data-role="gm"][data-gm-preview="false"] #sidebar.gm-sidebar-active #nav{border-top:1px solid #343126;padding-top:10px}
+.gm-sidebar-nav{margin:4px 0 12px;padding:10px;border:1px solid #4a432f;background:#14150f}
+.gm-sidebar-heading{padding:2px 2px 9px;border-bottom:1px solid #343126}
+.gm-sidebar-heading small,.gm-sidebar-record-label small{display:block;color:#a58d52;font-size:7px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.gm-sidebar-heading strong{display:block;margin-top:3px;color:#eadfc5;font:700 17px/1.1 Georgia,serif}
+.gm-sidebar-links{display:grid;gap:5px;padding:9px 0}
+.gm-sidebar-links button{appearance:none;width:100%;display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:8px;border:1px solid transparent;background:transparent;padding:8px 9px;text-align:left;color:#b9b09c;cursor:pointer}
+.gm-sidebar-links button:hover{border-color:#51472f;background:#1b1a13}
+.gm-sidebar-links button.active{border-color:#7c693d;background:#272115;box-shadow:inset 3px 0 0 #c1a253}
+.gm-sidebar-links button span{color:#dfc879;font-size:9px;font-weight:900;letter-spacing:.08em}
+.gm-sidebar-links button small{color:#8f8776;font-size:9px;line-height:1.25}
+.gm-sidebar-links button.active small{color:#c7bda7}
+.gm-sidebar-record-label{padding:9px 2px 1px;border-top:1px solid #343126}
+.gm-sidebar-record-label span{display:block;margin-top:4px;color:#7f786a;font-size:8px;line-height:1.35}
+body[data-role="gm"][data-gm-preview="false"] #sidebar.gm-sidebar-active .search{margin-top:10px}
