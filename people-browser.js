@@ -25,7 +25,11 @@
     'Daro Pell':'assets/canon/characters/daro-pell.webp',
     'Meren':'assets/canon/characters/meren.webp'
   };
-  const portraitFor=name=>PORTRAITS[name]||'';
+  const portraitFor=name=>{
+    const media=window.GREYWAKE_MEDIA?.[name];
+    const registered=Array.isArray(media)?media.find(item=>item?.src)?.src:'';
+    return registered||PORTRAITS[name]||'';
+  };
   const initials=name=>String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
 
   const currentCharacter=()=>String(document.body.dataset.character||'').toLowerCase();
