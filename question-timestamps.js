@@ -17,8 +17,32 @@
     }).format(date);
   }
 
-  function stripExistingTimestamp(text) {
-    return String(text || '').replace(/\s+·\s+\d{2}\s+[A-Z][a-z]{2}\s+\d{4},?\s+\d{2}:\d{2}$/, '');
+  function getBaseLabel(label) {
+    if (!label) return '';
+
+    if (!label.dataset.questionTimestampBase) {
+      // Keep the original label once. The old implementation tried to remove
+      // its own timestamp from textContent on every render, but en-GB can
+      // format September as "Sept" (four letters), so the cleanup regex did
+      // not match and the MutationObserver repeatedly appended the timestamp.
+      const cleaned = String(label.textContent || '')
+        .replace(/(?:\s*·\s*\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4},?\s+\d{2}:\d{2})+\s*$/i, '')
+        .trimEnd();
+      label.dataset.questionTimestampBase = cleaned;
+    }
+
+    return label.dataset.questionTimestampBase;
+  }
+
+  function setTimestamp(label, stamp) {
+    if (!label || !stamp) return;
+    const desired = getBaseLabel(label) + ' · ' + stamp;
+
+    // Avoid mutating the DOM when nothing changed. This prevents our own
+    // MutationObserver from creating a render loop.
+    if (label.textContent !== desired) {
+      label.textContent = desired;
+    }
   }
 
   function decorate() {
@@ -35,10 +59,7 @@
       if (!blocks.length) return;
 
       const openingLabel = blocks[0].querySelector('span');
-      const openingStamp = formatTimestamp(goal.created_at);
-      if (openingLabel && openingStamp) {
-        openingLabel.textContent = stripExistingTimestamp(openingLabel.textContent) + ' · ' + openingStamp;
-      }
+      setTimestamp(openingLabel, formatTimestamp(goal.created_at));
 
       const replies = messages
         .filter(message => Number(message.goal_id) === Number(goal.id))
@@ -50,10 +71,7 @@
 
       blocks.slice(1).forEach((block, index) => {
         const label = block.querySelector('span');
-        const stamp = formatTimestamp(replies[index]?.created_at);
-        if (label && stamp) {
-          label.textContent = stripExistingTimestamp(label.textContent) + ' · ' + stamp;
-        }
+        setTimestamp(label, formatTimestamp(replies[index]?.created_at));
       });
     });
   }
