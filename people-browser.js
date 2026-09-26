@@ -11,22 +11,41 @@
     .map(name=>({name,...window.GREYWAKE_DATA[name]}))
     .sort((a,b)=>(a.title||a.name).localeCompare(b.title||b.name));
 
-  window.GREYWAKE_RENDER_PEOPLE_BROWSER=function(host){
+  const connectedNames=name=>{
+    const edges=window.GREYWAKE_EDGES||[],data=window.GREYWAKE_DATA||{};
+    const found=[];
+    edges.forEach(([a,b])=>{if(a===name&&data[b])found.push(b);else if(b===name&&data[a])found.push(a)});
+    return [...new Set(found)].filter(n=>n!==name);
+  };
+  const summaryFor=r=>stripHTML(r.html).split(/(?<=[.!?])\s+/)[0]||'Known person in Greywake.';
+  const detailText=(r,label)=>{
+    const box=document.createElement('div');box.innerHTML=r.html||'';
+    const heads=[...box.querySelectorAll('h2,h3,strong')];
+    const hit=heads.find(h=>h.textContent.trim().toLowerCase().includes(label.toLowerCase()));
+    if(hit){
+      const next=hit.closest('h2,h3')?.nextElementSibling||hit.parentElement?.nextElementSibling;
+      if(next?.textContent?.trim())return next.textContent.trim();
+    }
+    return '';
+  };
+
+  window.GREYWAKE_RENDER_PEOPLE_BROWSER=function(host,options={}){
     const records=people();
+    const gmMode=options.gm===true || (document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true');
     let selected=records[0]?.name||'';
     host.innerHTML=`
-      <section class="people-browser" aria-label="Known people browser">
+      <section class="people-browser ${gmMode?'gm-people-browser':''}" aria-label="${gmMode?'Greywake people':'Known people'} browser">
         <div class="people-browser-head">
           <div>
-            <div class="eyebrow">THE PEOPLE YOU KNOW</div>
-            <h1>Known People</h1>
-            <p>Browse people already established in the party record. This view uses only player-safe information: what is known, seen or earned in play.</p>
+            <div class="eyebrow">THE CAST</div>
+            <h1>${gmMode?'People of Greywake':'Known People'}</h1>
+            <p>${gmMode?'Run NPCs first. Current identity, faction, relationships and usable table information come before reference material.':'Browse people already established in the party record. This view uses only player-safe information: what is known, seen or earned in play.'}</p>
           </div>
-          <div class="people-browser-stat"><strong id="peopleBrowserTopCount">${records.length}</strong><small>KNOWN PEOPLE</small></div>
+          <div class="people-browser-stat"><strong id="peopleBrowserTopCount">${records.length}</strong><small>${gmMode?'NPC RECORDS':'KNOWN PEOPLE'}</small></div>
         </div>
         <section class="people-browser-shell">
           <div class="people-browser-tools">
-            <input id="peopleBrowserSearch" type="search" placeholder="Search name, faction, affiliation or known detail" autocomplete="off">
+            <input id="peopleBrowserSearch" type="search" placeholder="Search name, faction, affiliation, role or known detail" autocomplete="off">
             <select id="peopleBrowserFaction"><option value="">All factions</option></select>
             <select id="peopleBrowserAffiliation"><option value="">All affiliations</option></select>
             <button id="peopleBrowserClear" type="button">Clear</button>
@@ -48,7 +67,7 @@
     const detail=host.querySelector('#peopleBrowserDetail');
     const count=host.querySelector('#peopleBrowserCount');
 
-    const factions=[...new Set(records.map(r=>r.faction).filter(Boolean))].sort();
+    const factions=[...new Set(records.map(r=>r.faction).filter(v=>v&&v!=='Not established'))].sort();
     const affiliations=[...new Set(records.map(r=>r.affiliation).filter(Boolean))].sort();
     factions.forEach(v=>faction.insertAdjacentHTML('beforeend',`<option value="${esc(v)}">${esc(v)}</option>`));
     affiliations.forEach(v=>affiliation.insertAdjacentHTML('beforeend',`<option value="${esc(v)}">${esc(v)}</option>`));
@@ -66,36 +85,56 @@
     const renderDetail=name=>{
       const r=records.find(x=>x.name===name);
       if(!r){
-        detail.innerHTML='<div class="people-browser-empty"><small>KNOWN PEOPLE</small>Select a person to open their record.</div>';
+        detail.innerHTML='<div class="people-browser-empty"><small>THE CAST</small>Select a person to open their record.</div>';
         return;
       }
       selected=r.name;
       list.querySelectorAll('.people-browser-row').forEach(b=>b.classList.toggle('active',b.dataset.person===selected));
-      const summary=stripHTML(r.html).split(/(?<=[.!?])\s+/)[0]||'Known person in Greywake.';
-      const tags=[
-        r.faction?'<span class="people-browser-tag">Faction · '+esc(r.faction)+'</span>':'',
-        r.affiliation?'<span class="people-browser-tag">Affiliation · '+esc(r.affiliation)+'</span>':''
-      ].join('');
+      const summary=summaryFor(r);
+      const factionText=r.faction&&r.faction!=='Not established'?r.faction:'Not established';
+      const affiliationText=r.affiliation||'Not established';
+      const connections=connectedNames(r.name);
+      const relationshipText=connections.length?connections.slice(0,8).map(n=>window.GREYWAKE_DATA[n]?.title||n).join(' · '):'No connected record established.';
+      const portrayal=detailText(r,'play')||detailText(r,'portray')||'No specific portrayal note is recorded yet.';
+      const knows=detailText(r,'know')||'Use only the information established in this record and current campaign state.';
+      const want=detailText(r,'want')||detailText(r,'goal')||'No current want is recorded yet.';
+      const tags=[factionText!=='Not established'?factionText:'',r.affiliation||''].filter(Boolean).map(t=>`<span class="people-browser-tag">${esc(t)}</span>`).join('');
+      const fullButton=gmMode?'':`<button type="button" id="peopleOpenRecord">Open full record →</button>`;
+
       detail.innerHTML=`
         <header class="people-browser-detail-head">
           <div>
-            <div class="eyebrow">KNOWN PERSON</div>
+            <div class="eyebrow">${esc(factionText==='Not established'?'GREYWAKE':factionText)}</div>
             <h2>${esc(r.title||r.name)}</h2>
             <p>${esc(summary)}</p>
           </div>
-          <button type="button" id="peopleOpenRecord">Open full record →</button>
+          ${fullButton}
         </header>
         <div class="people-browser-tags">${tags}</div>
-        <div class="people-browser-body">${r.html||''}</div>`;
-      detail.querySelector('#peopleOpenRecord')?.addEventListener('click',()=>{
-        location.hash='#/record/'+encodeURIComponent(r.name);
-      });
+        <div class="people-browser-facts">
+          <div><small>FACTION</small><strong>${esc(factionText)}</strong></div>
+          <div><small>AFFILIATION</small><strong>${esc(affiliationText)}</strong></div>
+          <div><small>RECORD</small><strong>${gmMode?'Current campaign':'Player-known'}</strong></div>
+        </div>
+        <section class="people-browser-at-table">
+          <div class="eyebrow">AT THE TABLE</div>
+          <div class="people-browser-field"><h4>What they want now</h4><p>${esc(want)}</p></div>
+          <div class="people-browser-field"><h4>How to play them</h4><p>${esc(portrayal)}</p></div>
+          <div class="people-browser-field"><h4>What they know</h4><p>${esc(knows)}</p></div>
+          <div class="people-browser-field"><h4>Relationships</h4><p>${esc(relationshipText)}</p></div>
+        </section>
+        <details class="people-browser-reference" ${gmMode?'':'open'}>
+          <summary>${gmMode?'Campaign reference':'Known record'}</summary>
+          <div class="people-browser-body">${r.html||''}</div>
+        </details>`;
+
+      detail.querySelector('#peopleOpenRecord')?.addEventListener('click',()=>{location.hash='#/record/'+encodeURIComponent(r.name)});
       detail.scrollTop=0;
     };
 
     const renderList=()=>{
       const rows=matching();
-      count.textContent=`${rows.length} / ${records.length} people`;
+      count.textContent=`${rows.length} / ${records.length} NPCs`;
       list.innerHTML='';
       if(!rows.length){
         list.innerHTML='<div class="people-browser-empty"><small>NO MATCHES</small>No known people match those filters.</div>';
@@ -108,8 +147,9 @@
         b.type='button';
         b.className='people-browser-row'+(r.name===selected?' active':'');
         b.dataset.person=r.name;
-        const sub=[r.faction&&r.faction!=='Not established'?r.faction:'',r.affiliation||''].filter(Boolean).join(' · ')||'Public record';
-        b.innerHTML='<em>'+esc(r.category||'People')+'</em><strong>'+esc(r.title||r.name)+'</strong><span>'+esc(sub)+'</span>';
+        const factionName=r.faction&&r.faction!=='Not established'?r.faction:'';
+        const sub=[r.affiliation||'',factionName].filter(Boolean).join(' · ')||'Greywake';
+        b.innerHTML='<div><strong>'+esc(r.title||r.name)+'</strong><span>'+esc(sub)+'</span></div><em>'+(gmMode?'CURRENT':'KNOWN')+'</em>';
         b.addEventListener('click',()=>renderDetail(r.name));
         list.appendChild(b);
       });
@@ -117,9 +157,7 @@
     };
 
     [search,faction,affiliation].forEach(el=>el.addEventListener(el===search?'input':'change',renderList));
-    host.querySelector('#peopleBrowserClear').addEventListener('click',()=>{
-      search.value='';faction.value='';affiliation.value='';renderList();search.focus();
-    });
+    host.querySelector('#peopleBrowserClear').addEventListener('click',()=>{search.value='';faction.value='';affiliation.value='';renderList();search.focus()});
     renderList();
   };
 })();
