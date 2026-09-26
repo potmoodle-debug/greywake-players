@@ -229,7 +229,5 @@
     [search,faction,affiliation].forEach(el=>el.addEventListener(el===search?'input':'change',renderList));
     host.querySelector('#peopleBrowserClear').addEventListener('click',()=>{search.value='';faction.value='';affiliation.value='';renderList();search.focus()});
     renderList();
-    const refresh=()=>{ if(document.body.dataset.role!=='gm' || document.body.dataset.gmPreview==='true'){ window.GREYWAKE_RENDER_PEOPLE_BROWSER(host,options); } };
-    window.addEventListener('greywake:live-reveals-updated',refresh,{once:true});
   };
 })();
