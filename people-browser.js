@@ -43,7 +43,13 @@
     return ((window.GREYWAKE_CATEGORIES?.People)||[])
       .filter(name=>name!=='Known People'&&window.GREYWAKE_DATA?.[name])
       .map(name=>({name,...window.GREYWAKE_DATA[name]}))
-      .filter(r=>gm||r.playerHidden!==true||revealed.has(r.name)||revealed.has(r.title))
+      .filter(r=>{
+        if(gm)return true;
+        if(revealed.has(r.name)||revealed.has(r.title))return true;
+        const knownTo=Array.isArray(r.knownTo)?r.knownTo.map(x=>String(x).toLowerCase()):[];
+        if(knownTo.includes(currentCharacter()))return true;
+        return r.playerHidden!==true;
+      })
       .sort((a,b)=>(a.title||a.name).localeCompare(b.title||b.name));
   };
 
@@ -182,7 +188,7 @@
         ` : `
           <div class="people-browser-player-known">
             <div class="eyebrow">WHAT YOU KNOW</div>
-            <div class="people-browser-body">${r.html||''}</div>
+            <div class="people-browser-body">${r.playerHtml||r.html||''}</div>
           </div>
         `}`;
 
