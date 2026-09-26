@@ -38,7 +38,7 @@
   function updateCapture(id,patch){saveCaptures(readCaptures().map(x=>x.id===id?{...x,...patch}:x));render()}
   function removeCapture(id){saveCaptures(readCaptures().filter(x=>x.id!==id));render()}
 
-  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dm2';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
+  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dm3';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
   function restoreInboxThreads(){
@@ -65,8 +65,44 @@
   function restoreNav(){
     document.getElementById('gmPlayersNav')?.remove();
     PLAYER_NAV_IDS.forEach(id=>{const b=document.getElementById(id);if(!b||!b.dataset.gmOriginalSaved)return;b.textContent=b.dataset.gmOriginalText||'';const oc=b.dataset.gmOriginalOnclick||'';if(oc)b.setAttribute('onclick',oc);else b.removeAttribute('onclick');const sec=b.dataset.gmOriginalSection||'';if(sec)b.dataset.primarySection=sec;delete b.dataset.gmRoute})
+    restoreSidebar();
   }
-  function syncNav(type){const target=type==='record'?ROUTES.world:ROUTES[type]||ROUTES.run;document.querySelectorAll('#primaryNav [data-gm-route]').forEach(b=>{const active=b.dataset.gmRoute===target;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
+  function ensureGMSidebar(){
+    const sidebar=document.getElementById('sidebar'),nav=document.getElementById('nav');
+    if(!sidebar||!nav||!fullGM())return;
+    let gmNav=document.getElementById('gmSidebarNav');
+    if(!gmNav){
+      gmNav=document.createElement('section');
+      gmNav.id='gmSidebarNav';
+      gmNav.className='gm-sidebar-nav';
+      gmNav.setAttribute('aria-label','GM workspace');
+      gmNav.innerHTML=`<div class="gm-sidebar-heading"><small>GM WORKSPACE</small><strong>Run Greywake</strong></div>
+        <div class="gm-sidebar-links">
+          <button type="button" data-gm-side-route="${ROUTES.run}"><span>RUN</span><small>Live session cockpit</small></button>
+          <button type="button" data-gm-side-route="${ROUTES.prep}"><span>PREP</span><small>Prepare the next session</small></button>
+          <button type="button" data-gm-side-route="${ROUTES.update}"><span>UPDATE</span><small>Process session changes</small></button>
+          <button type="button" data-gm-side-route="${ROUTES.world}"><span>WORLD</span><small>GM records and campaign state</small></button>
+          <button type="button" data-gm-side-route="${ROUTES.inbox}"><span>INBOX</span><small>Player questions and interests</small></button>
+          <button type="button" data-gm-side-route="${ROUTES.players}"><span>PLAYERS</span><small>Preview what each player sees</small></button>
+        </div>
+        <div class="gm-sidebar-record-label"><small>GREYWAKE RECORDS</small><span>People, places, creatures, factions and session records</span></div>`;
+      nav.parentNode.insertBefore(gmNav,nav);
+      gmNav.addEventListener('click',e=>{const b=e.target.closest('[data-gm-side-route]');if(!b)return;navigate(b.dataset.gmSideRoute);document.querySelector('.sidebar')?.classList.remove('open')});
+    }
+    sidebar.classList.add('gm-sidebar-active');
+    const brand=sidebar.querySelector('.eyebrow');if(brand){if(!brand.dataset.gmOriginalText)brand.dataset.gmOriginalText=brand.textContent||'';brand.textContent='GM CONSOLE'}
+    const safe=sidebar.querySelector('.safe-mark');if(safe){if(!safe.dataset.gmOriginalText)safe.dataset.gmOriginalText=safe.textContent||'';safe.textContent='GM workspace + complete campaign record'}
+    const foot=sidebar.querySelector('.sidebar-foot');if(foot){if(!foot.dataset.gmOriginalText)foot.dataset.gmOriginalText=foot.textContent||'';foot.textContent='Operational pages stay at the top. The complete Greywake record remains searchable below.'}
+  }
+  function restoreSidebar(){
+    const sidebar=document.getElementById('sidebar');document.getElementById('gmSidebarNav')?.remove();sidebar?.classList.remove('gm-sidebar-active');
+    sidebar?.querySelectorAll('[data-gm-original-text]').forEach(el=>{el.textContent=el.dataset.gmOriginalText;delete el.dataset.gmOriginalText});
+  }
+  function syncNav(type){
+    const target=type==='record'?ROUTES.world:ROUTES[type]||ROUTES.run;
+    document.querySelectorAll('#primaryNav [data-gm-route]').forEach(b=>{const active=b.dataset.gmRoute===target;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+    document.querySelectorAll('#gmSidebarNav [data-gm-side-route]').forEach(b=>{const active=b.dataset.gmSideRoute===target;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+  }
 
   const authority=()=>`<div class="gm-authority"><div><small>CANON AUTHORITY</small><strong>Obsidian remains the source of truth.</strong><span>The site runs Greywake; it does not silently decide Greywake.</span></div><span class="gm-status-badge">GM ONLY</span></div>`;
   const head=(k,t,c)=>`<header class="gm-page-head"><div><small>${esc(k)}</small><h1>${esc(t)}</h1></div><p>${esc(c)}</p></header>`;
@@ -153,7 +189,7 @@
   function render(){
     ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}
     if(!location.hash||location.hash==='#/'){location.hash=ROUTES.run;return}
-    configureNav();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+    configureNav();ensureGMSidebar();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
     workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():renderRun();
     workspace.classList.remove('hidden');wire(workspace);if(r.type==='inbox')mountInboxThreads();syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
   }
