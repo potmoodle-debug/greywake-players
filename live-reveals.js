@@ -135,12 +135,12 @@
     try {
       const data = await request('GET');
       const items = Array.isArray(data.reveals) ? data.reveals : [];
-      window.GREYWAKE_LIVE_REVEALS = items;
-      window.dispatchEvent(new CustomEvent('greywake:live-reveals-updated',{detail:{items}}));
       const signature = items.map(x=>x.id).join(',');
       if (signature === lastSignature) return;
       const firstLoad = lastSignature === '';
       lastSignature = signature;
+      window.GREYWAKE_LIVE_REVEALS = items;
+      window.dispatchEvent(new CustomEvent('greywake:live-reveals-updated',{detail:{items}}));
       renderPlayerPanel(items);
       const seen = readSeen();
       const unseen = items.filter(item => !seen.has(item.id));
