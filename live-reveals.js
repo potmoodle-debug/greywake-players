@@ -135,6 +135,8 @@
     try {
       const data = await request('GET');
       const items = Array.isArray(data.reveals) ? data.reveals : [];
+      window.GREYWAKE_LIVE_REVEALS = items;
+      window.dispatchEvent(new CustomEvent('greywake:live-reveals-updated',{detail:{items}}));
       const signature = items.map(x=>x.id).join(',');
       if (signature === lastSignature) return;
       const firstLoad = lastSignature === '';
