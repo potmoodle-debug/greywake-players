@@ -218,3 +218,38 @@
   .people-browser-directory{max-height:310px}
   .people-browser-detail{max-height:none;min-height:400px;padding:19px}
 }
+
+
+/* People browser v2 — Barovia GM database interaction, Greywake visual language */
+.people-browser.gm-people-browser{padding:8px 0 36px}
+.gm-people-browser .people-browser-head{padding:4px 3px 0}
+.gm-people-browser .people-browser-head h1{font-size:43px}
+.gm-people-browser .people-browser-shell{margin-top:18px}
+.gm-people-browser .people-browser-layout{grid-template-columns:minmax(330px,.85fr) minmax(0,1.6fr);min-height:620px}
+.gm-people-browser .people-browser-directory{max-height:720px}
+.gm-people-browser .people-browser-detail{max-height:720px}
+.gm-people-browser .people-browser-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 13px}
+.gm-people-browser .people-browser-row.active{border-left-width:3px}
+.gm-people-browser .people-browser-row em{float:none}
+.people-browser-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid #3d392e;margin:14px 0 18px}
+.people-browser-facts>div{padding:11px;border-right:1px solid #3d392e}
+.people-browser-facts>div:last-child{border-right:0}
+.people-browser-facts small{display:block;color:#776f5e;font-size:8px;letter-spacing:.12em}
+.people-browser-facts strong{display:block;color:#e0d5bd;font:15px Georgia,serif;margin-top:4px}
+.people-browser-at-table{border:1px solid #3d392e;background:#14150f;padding:13px;margin:0 0 16px}
+.people-browser-at-table>.eyebrow{margin-bottom:2px}
+.people-browser-field{padding:12px 0;border-top:1px solid #312e25}
+.people-browser-field:first-of-type{border-top:0}
+.people-browser-field h4{margin:0 0 6px;color:#c6ad68;font-size:9px;text-transform:uppercase;letter-spacing:.14em}
+.people-browser-field p{margin:0;color:#c1b8a4;font-size:13px;line-height:1.55}
+.people-browser-reference{border-top:1px solid #373329;margin-top:6px}
+.people-browser-reference summary{padding:12px 0;color:#988b68;font-size:9px;text-transform:uppercase;letter-spacing:.1em;cursor:pointer}
+.people-browser-reference[open] summary{color:#d0b96f}
+.gm-people-browser .people-browser-body{padding-bottom:10px}
+@media(max-width:900px){
+  .gm-people-browser .people-browser-layout{grid-template-columns:1fr}
+  .gm-people-browser .people-browser-directory,.gm-people-browser .people-browser-detail{max-height:none}
+  .people-browser-facts{grid-template-columns:1fr}
+  .people-browser-facts>div{border-right:0;border-bottom:1px solid #3d392e}
+  .people-browser-facts>div:last-child{border-bottom:0}
+}
