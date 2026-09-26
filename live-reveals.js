@@ -147,7 +147,23 @@
     } catch (_) { /* quiet during play; next poll retries */ }
   }
 
-  function refreshMode() {
+  window.GREYWAKE_REVEAL_NPC = async function(name,audience='party',body=''){
+    if(!fullGM())throw new Error('GM access required.');
+    const cleanName=String(name||'').trim();
+    if(!cleanName)throw new Error('NPC name missing.');
+    const cleanAudience=['party','marek','odie','velmira'].includes(audience)?audience:'party';
+    const result=await request('POST',{
+      kind:'npc',
+      audience:[cleanAudience],
+      title:cleanName,
+      body:String(body||`You have encountered ${cleanName}.`).trim(),
+      source_route:'#/record/'+encodeURIComponent(cleanName)
+    });
+    window.dispatchEvent(new CustomEvent('greywake:live-reveal-published',{detail:result.reveal||null}));
+    return result;
+  };
+
+    function refreshMode() {
     ensureStyles(); ensureGMBar();
     if (timer) { clearInterval(timer); timer=null; }
     if (!fullGM()) { poll(); timer=setInterval(poll,POLL_MS); }
