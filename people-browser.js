@@ -28,10 +28,20 @@
   const portraitFor=name=>PORTRAITS[name]||'';
   const initials=name=>String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
 
-  const people=()=>((window.GREYWAKE_CATEGORIES?.People)||[])
-    .filter(name=>name!=='Known People'&&window.GREYWAKE_DATA?.[name])
-    .map(name=>({name,...window.GREYWAKE_DATA[name]}))
-    .sort((a,b)=>(a.title||a.name).localeCompare(b.title||b.name));
+  const currentCharacter=()=>String(document.body.dataset.character||'').toLowerCase();
+  const revealedNpcNames=()=>new Set((window.GREYWAKE_LIVE_REVEALS||[])
+    .filter(x=>x?.reveal_kind==='npc')
+    .map(x=>String(x.title||'').trim())
+    .filter(Boolean));
+  const people=()=>{
+    const gm=document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
+    const revealed=revealedNpcNames();
+    return ((window.GREYWAKE_CATEGORIES?.People)||[])
+      .filter(name=>name!=='Known People'&&window.GREYWAKE_DATA?.[name])
+      .map(name=>({name,...window.GREYWAKE_DATA[name]}))
+      .filter(r=>gm||r.playerHidden!==true||revealed.has(r.name)||revealed.has(r.title))
+      .sort((a,b)=>(a.title||a.name).localeCompare(b.title||b.name));
+  };
 
   const connectedNames=name=>{
     const edges=window.GREYWAKE_EDGES||[],data=window.GREYWAKE_DATA||{};
@@ -212,5 +222,7 @@
     [search,faction,affiliation].forEach(el=>el.addEventListener(el===search?'input':'change',renderList));
     host.querySelector('#peopleBrowserClear').addEventListener('click',()=>{search.value='';faction.value='';affiliation.value='';renderList();search.focus()});
     renderList();
+    const refresh=()=>{ if(document.body.dataset.role!=='gm' || document.body.dataset.gmPreview==='true'){ window.GREYWAKE_RENDER_PEOPLE_BROWSER(host,options); } };
+    window.addEventListener('greywake:live-reveals-updated',refresh,{once:true});
   };
 })();
