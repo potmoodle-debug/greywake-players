@@ -20,7 +20,7 @@
     'Sarn Pell':'assets/npcs/hq-v3/sarn-pell.webp',
     'Bessa Trant':'assets/npcs/hq-v3/bessa-trant.webp',
     'Rennic Vale':'assets/npcs/hq-v3/rennic-vale.webp',
-    'Spencer Digger':'assets/npcs/hq-v3/spencer-digger-canon.jpg',
+    'Spencer Digger':'assets/npcs/hq-v3/spencer-digger.png?v=spencer5',
     'Velmira':'assets/canon/characters/velmira-poster.webp',
     'Daro Pell':'assets/canon/characters/daro-pell.webp',
     'Meren':'assets/canon/characters/meren.webp'
