@@ -106,6 +106,25 @@
     return 'GM · REPLY';
   }
 
+  function formatTimestamp(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(date);
+  }
+
+  function labelWithTimestamp(label, value) {
+    const stamp = formatTimestamp(value);
+    return stamp ? `${label} · ${stamp}` : label;
+  }
+
   function threadMessages(goal, allMessages) {
     return allMessages.filter(message => Number(message.goal_id) === Number(goal.id));
   }
@@ -122,9 +141,9 @@
   function conversationMarkup(goal, messages, playerName) {
     const replies = threadMessages(goal, messages).map(message => `
       <div class="interest-message ${message.author_role === 'gm' ? 'interest-message-gm' : 'interest-message-player'} ${message.message_kind === 'lead' ? 'interest-message-lead' : ''} ${message.message_kind === 'table' ? 'interest-message-table' : ''}">
-        <span>${esc(messageLabel(message, playerName))}</span><p>${esc(message.message_text)}</p>
+        <span>${esc(labelWithTimestamp(messageLabel(message, playerName), message.created_at))}</span><p>${esc(message.message_text)}</p>
       </div>`).join('');
-    return `<div class="interest-conversation"><div class="interest-message interest-message-player interest-message-opening"><span>${esc(playerName.toUpperCase())} · ${isQuestion(goal) ? 'QUESTION' : 'PLAYER INTEREST'}</span><p>${esc(goal.goal_text)}</p></div>${replies}</div>`;
+    return `<div class="interest-conversation"><div class="interest-message interest-message-player interest-message-opening"><span>${esc(labelWithTimestamp(`${playerName.toUpperCase()} · ${isQuestion(goal) ? 'QUESTION' : 'PLAYER INTEREST'}`, goal.created_at))}</span><p>${esc(goal.goal_text)}</p></div>${replies}</div>`;
   }
 
   function waitingBanner(goal) {
