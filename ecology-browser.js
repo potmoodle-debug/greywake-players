@@ -13,7 +13,7 @@
   }
   function enhance(){
     if((location.hash||'')!=='#/record/Known%20Flora%20and%20Fauna')return;
-    const article=document.getElementById('article'); if(!article||article.dataset.ecologyEnhanced==='1')return;
+    const article=document.getElementById('article'); if(!article||article.querySelector('.ecology-directory'))return;
     const D=window.GREYWAKE_DATA||{}, C=window.GREYWAKE_CATEGORIES||{};
     const names=(C['Flora & Fauna']||[]).filter(n=>n!=='Known Flora and Fauna'&&D[n]); if(!names.length)return;
     const old=article.querySelector('.record-directory'); if(!old)return;
@@ -22,7 +22,7 @@
     section.innerHTML='<div class="ecology-directory-head"><div><div class="related-kicker">PARTY-KNOWN FIELD GUIDE</div><h2>Flora & Fauna</h2><p>What the party can currently recognise, use, avoid or interpret in the wastes. This is deliberately incomplete: Greywake is a living ecosystem, not a revealed bestiary.</p></div><div class="ecology-ledger"><strong>'+names.length+'</strong><span>shared records</span></div></div>'+
       (fauna.length?'<section class="ecology-group"><div class="ecology-group-title"><span>FAUNA</span><h3>Creatures of the wastes</h3></div><div class="ecology-grid">'+fauna.map(card).join('')+'</div></section>':'')+
       (flora.length?'<section class="ecology-group"><div class="ecology-group-title"><span>FLORA</span><h3>Plants & useful growths</h3></div><div class="ecology-grid">'+flora.map(card).join('')+'</div></section>':'');
-    old.replaceWith(section); article.dataset.ecologyEnhanced='1';
+    old.replaceWith(section);
     section.querySelectorAll('a[data-note]').forEach(a=>a.addEventListener('click',()=>{}));
   }
   const article=document.getElementById('article');
