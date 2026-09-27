@@ -142,7 +142,12 @@
     'Cistern Keepers':'center 16%',
     'Caravan Syndicate':'center 52%',
     'Tower Watch':'center 42%',
-    'The Faithful':'center 24%'
+    'The Faithful':'center 24%',
+    "Digger's Tooth":'center 23%',
+    'Hookspike':'center 18%',
+    'Longhook':'center 14%',
+    'Gatehammer':'center 20%',
+    'White Shard':'center 17%'
   };
   const WEAPON_RECORDS=new Set(["Digger's Tooth",'Hookspike','Longhook','Gatehammer','White Shard']);
   const PROP_EQUIPMENT_RECORDS=new Set([...WEAPON_RECORDS,'Minor Stamina Potion']);

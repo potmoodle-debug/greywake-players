@@ -102,7 +102,7 @@
 .article.equipment-prop-record .record-backdrop{
   background-size:cover;
   background-repeat:no-repeat;
-  background-position:center;
+  background-position:var(--record-focus,center 24%);
   background-color:#0a0b08;
   filter:saturate(.78) contrast(1.08) brightness(.9);
 }
