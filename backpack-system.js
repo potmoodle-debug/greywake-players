@@ -106,9 +106,14 @@
     if(item.kind==='consumable'&&item.greywake){
       const buttons=preview()?'':`<button class="gw-card-main" type="button" data-backpack-use-consumable="${esc(item.id)}">Use potion · ${item.count} left</button><button class="gw-card-remove" type="button" data-backpack-consumable-remove="${esc(item.id)}" aria-label="Remove one ${esc(item.title)}">Remove one</button>`;
       return `<article class="p7-pack-card greywake-consumable-card cinematic" data-pack-kind="consumable">
-        <div class="gw-card-image gw-potion-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"><span class="gw-card-state">${item.count}/5 CARRIED</span><div class="gw-card-title"><small>GREYWAKE TONIC</small><h3>${esc(item.title)}</h3></div></div>
+        <div class="gw-card-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"><span class="gw-card-state">${item.count}/5 CARRIED</span><div class="gw-card-title"><small>GREYWAKE TONIC</small><h3>${esc(item.title)}</h3></div></div>
         <div class="gw-card-body">
-          <div class="gw-potion-effect"><small>EFFECT</small><strong>${esc(item.effect||'—')}</strong></div>
+          <div class="gw-card-stats">
+            <span><small>TYPE</small><b>Consumable</b></span>
+            <span><small>EFFECT</small><b>1d4 Stress</b></span>
+            <span><small>FORM</small><b>Tonic</b></span>
+            <span><small>COUNT</small><b>${item.count}/5</b></span>
+          </div>
           <div class="gw-card-feature"><small>WHAT IT IS</small><p>${esc(item.description||'A practical Greywake restorative carried in a reusable vial.')}</p></div>
           <div class="gw-card-actions">${buttons}</div>
         </div>
