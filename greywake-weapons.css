@@ -65,12 +65,12 @@
 @media(max-width:680px){
   .weapon-statline{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-.weapon-acquire{margin:22px 0 4px;padding-top:18px;border-top:1px solid rgba(201,180,118,.2)}
-.weapon-add-button{width:100%;border:1px solid #9b8146;background:linear-gradient(180deg,#4b3b20,#2e2416);color:#ffe4a2;padding:13px 16px;font-weight:900;letter-spacing:.04em;cursor:pointer}
+.weapon-acquire{display:flex;flex-wrap:wrap;align-items:center;gap:9px 14px;margin:22px 0 4px;padding-top:16px;border-top:1px solid rgba(201,180,118,.2)}
+.weapon-add-button{width:auto;border:1px solid #846d3c;border-radius:4px;background:linear-gradient(180deg,#352b1b,#241d13);color:#e7ce8f;padding:8px 12px;font-size:10px;font-weight:900;letter-spacing:.05em;cursor:pointer}
 .weapon-add-button:hover:not(:disabled){filter:brightness(1.08)}
 .weapon-add-button:disabled{opacity:.58;cursor:default}
 .weapon-add-button.is-owned{border-color:rgba(121,185,105,.7);background:#1b321c;color:#dcf2d7}
-.weapon-acquire small,.weapon-acquire-note,.weapon-add-error{display:block;margin-top:8px;color:#9e947c;font-size:10px;line-height:1.4}
+.weapon-acquire small,.weapon-acquire-note,.weapon-add-error{display:block;margin:0;color:#8f8774;font-size:9px;line-height:1.4;max-width:440px}
 .weapon-add-error{color:#e7a08f}
 .equip-item.greywake-weapon-card{position:relative;overflow:hidden;padding-top:0!important}
 .equip-item-art{display:block;width:calc(100% + 24px);height:150px;margin:0 -12px 12px;box-sizing:border-box;padding:8px;object-fit:contain;object-position:center;background:#0d0d0a;border-bottom:1px solid rgba(201,180,118,.22)}
@@ -100,9 +100,9 @@
 
 /* Weapon record hero: full prop remains readable, atmospheric copy fills the banner. */
 .article.weapon-record .record-backdrop{
-  background-size:contain,cover;
-  background-repeat:no-repeat,no-repeat;
-  background-position:center,center;
+  background-size:cover;
+  background-repeat:no-repeat;
+  background-position:center;
   background-color:#0a0b08;
   filter:saturate(.78) contrast(1.08) brightness(.9);
 }
