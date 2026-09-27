@@ -82,6 +82,9 @@ window.GREYWAKE_MEDIA = {
   "Great-Shell": [
     {"src":"assets/canon/fauna/great-shell.webp","caption":"Great-Shell — canon visual reference.","layout":"wide","backdrop":false}
   ],
+  "Cacklemaw": [
+    {"src":"assets/canon/fauna/cacklemaw-pack.webp","caption":"Cacklemaw — approved pack visual from the Stone-Lip encounter."}
+  ],
   "Cacklemaw Pack": [
     {"src":"assets/canon/fauna/cacklemaw-pack.webp","caption":"Cacklemaw pack — Stone-Lip view."}
   ],
