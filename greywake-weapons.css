@@ -114,7 +114,7 @@
 .article.equipment-prop-record .article-media{display:none!important}
 
 /* Greywake weapon inventory cards: object first, mechanics second, controls last. */
-.p7-pack-card.greywake-weapon-card.cinematic{
+.p7-pack-card:is(.greywake-weapon-card,.greywake-consumable-card).cinematic{
   min-height:0;
   border:1px solid #76633a;
   border-radius:10px;
@@ -122,7 +122,7 @@
   box-shadow:0 18px 42px rgba(0,0,0,.38),inset 0 0 0 1px rgba(231,205,132,.07);
   overflow:hidden;
 }
-.p7-pack-card.greywake-weapon-card.cinematic:before{display:none}
+.p7-pack-card:is(.greywake-weapon-card,.greywake-consumable-card).cinematic:before{display:none}
 .gw-card-image{
   position:relative;
   aspect-ratio:4/3;
