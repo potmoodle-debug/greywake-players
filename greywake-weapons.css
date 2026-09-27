@@ -73,7 +73,27 @@
 .weapon-acquire small,.weapon-acquire-note,.weapon-add-error{display:block;margin-top:8px;color:#9e947c;font-size:10px;line-height:1.4}
 .weapon-add-error{color:#e7a08f}
 .equip-item.greywake-weapon-card{position:relative;overflow:hidden;padding-top:0!important}
-.equip-item-art{display:block;width:calc(100% + 24px);height:108px;margin:0 -12px 12px;object-fit:cover;border-bottom:1px solid rgba(201,180,118,.22)}
-.p7-pack-art.has-image{display:block;height:110px;overflow:hidden}
-.p7-pack-art.has-image img{width:100%;height:100%;object-fit:cover;display:block}
+.equip-item-art{display:block;width:calc(100% + 24px);height:150px;margin:0 -12px 12px;box-sizing:border-box;padding:8px;object-fit:contain;object-position:center;background:#0d0d0a;border-bottom:1px solid rgba(201,180,118,.22)}
+.p7-pack-art.has-image{display:flex;height:150px;align-items:center;justify-content:center;overflow:hidden;background:#0d0d0a}
+.p7-pack-art.has-image img{display:block;width:100%;height:100%;box-sizing:border-box;padding:8px;object-fit:contain;object-position:center}
 .p7-pack-card.greywake-weapon-card{background:linear-gradient(180deg,#28231a 0 42%,#171610 42% 100%)}
+
+.article[data-record-category="Equipment"] .article-media figure.media-reference:has(img[src*="/weapons/"]){
+  grid-column:1/-1;
+  max-width:720px;
+  justify-self:center;
+  background:#0d0d0a;
+}
+.article[data-record-category="Equipment"] .article-media figure.media-reference:has(img[src*="/weapons/"]) img{
+  width:min(100%,680px);
+  aspect-ratio:1/1;
+  object-fit:contain;
+  object-position:center;
+  padding:18px;
+  box-sizing:border-box;
+}
+@media(max-width:680px){
+  .equip-item-art{height:132px}
+  .p7-pack-art.has-image{height:132px}
+  .article[data-record-category="Equipment"] .article-media figure.media-reference:has(img[src*="/weapons/"]) img{padding:10px}
+}
