@@ -65,7 +65,7 @@
       const a=maps.armors.get(activeArmor)||api?.armor?.(activeArmor);if(a)add({kind:'armor',id:activeArmor,title:a.name,meta:armorMeta(a),active:true});
     }
     (state.ownedArmor||[]).filter(id=>id&&id!==activeArmor).forEach(id=>{const a=maps.armors.get(id)||api?.armor?.(id);if(a&&!removed('armor',id))add({kind:'armor',id,title:a.name,meta:armorMeta(a),active:false,stored:true});});
-    maps.consumables.forEach((c,id)=>{const count=Number(state.consumables?.[id]||0);if(count>0)add({kind:'consumable',id,title:c.name,meta:`${c.effect} · ${count}/5 carried.`,count});});
+    maps.consumables.forEach((c,id)=>{const count=Number(state.consumables?.[id]||0);if(count>0)add({kind:'consumable',id,title:c.name,meta:`${c.effect} · ${count}/5 carried.`,count,image:c.image||'',greywake:Boolean(c.greywake),effect:c.effect,description:c.description||''});});
     (COMMON_GEAR[characterKey()]||[]).forEach(title=>{if(!removed('gear',title))add({kind:'gear',id:title,title,meta:'',active:false});});
     loadState().items.forEach((title,index)=>add({kind:'custom',id:`custom:${index}`,title,meta:'Player-added carried item',custom:true,index}));
     return items;
@@ -99,6 +99,17 @@
             <span><small>HANDS</small><b>${Number(item.burden)===2?'Two':'One'}</b></span>
           </div>
           <div class="gw-card-feature"><small>${esc(featureName)}</small><p>${esc(featureBody)}</p></div>
+          <div class="gw-card-actions">${buttons}</div>
+        </div>
+      </article>`;
+    }
+    if(item.kind==='consumable'&&item.greywake){
+      const buttons=preview()?'':`<button class="gw-card-main" type="button" data-backpack-use-consumable="${esc(item.id)}">Use potion · ${item.count} left</button><button class="gw-card-remove" type="button" data-backpack-consumable-remove="${esc(item.id)}" aria-label="Remove one ${esc(item.title)}">Remove one</button>`;
+      return `<article class="p7-pack-card greywake-consumable-card cinematic" data-pack-kind="consumable">
+        <div class="gw-card-image gw-potion-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"><span class="gw-card-state">${item.count}/5 CARRIED</span><div class="gw-card-title"><small>GREYWAKE TONIC</small><h3>${esc(item.title)}</h3></div></div>
+        <div class="gw-card-body">
+          <div class="gw-potion-effect"><small>EFFECT</small><strong>${esc(item.effect||'—')}</strong></div>
+          <div class="gw-card-feature"><small>WHAT IT IS</small><p>${esc(item.description||'A practical Greywake restorative carried in a reusable vial.')}</p></div>
           <div class="gw-card-actions">${buttons}</div>
         </div>
       </article>`;
