@@ -99,19 +99,19 @@
 }
 
 /* Weapon record hero: full prop remains readable, atmospheric copy fills the banner. */
-.article.weapon-record .record-backdrop{
+.article.equipment-prop-record .record-backdrop{
   background-size:cover;
   background-repeat:no-repeat;
   background-position:center;
   background-color:#0a0b08;
   filter:saturate(.78) contrast(1.08) brightness(.9);
 }
-.article.weapon-record .record-backdrop:after{
+.article.equipment-prop-record .record-backdrop:after{
   background:
     linear-gradient(90deg,rgba(7,8,6,.9) 0%,rgba(7,8,6,.28) 42%,rgba(7,8,6,.46) 100%),
     linear-gradient(0deg,#10110d 0%,rgba(16,17,13,.38) 37%,rgba(16,17,13,.08) 74%);
 }
-.article.weapon-record .article-media{display:none!important}
+.article.equipment-prop-record .article-media{display:none!important}
 
 /* Greywake weapon inventory cards: object first, mechanics second, controls last. */
 .p7-pack-card.greywake-weapon-card.cinematic{
