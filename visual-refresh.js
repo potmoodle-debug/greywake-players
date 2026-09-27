@@ -184,7 +184,7 @@
       if(layer.childElementCount)layer.replaceChildren();
       delete layer.dataset.factionPanels;
       const encoded=String(src).replace(/"/g,'%22');
-      layer.style.backgroundImage=WEAPON_RECORDS.has(name)?`url("${encoded}"),url("${encoded}")`:`url("${encoded}")`;
+      layer.style.backgroundImage=`url("${encoded}")`;
     }
     article.style.setProperty('--record-focus',RECORD_FOCUS[name]||(/People|Characters/.test(category)?'center 24%':'center 48%'));
     article.dataset.backdropSrc=normalizedAsset(src);
