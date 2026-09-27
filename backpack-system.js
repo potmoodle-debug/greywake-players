@@ -58,8 +58,8 @@
   function carriedItems(){
     const api=equipment(),state=api?.getState?.()||{},maps=mechanicalMaps(),items=[],seen=new Set();
     const add=item=>{const key=`${item.kind}:${item.id||item.title}`;if(seen.has(key))return;seen.add(key);items.push(item);};
-    [state.activePrimary,state.activeSecondary].filter(Boolean).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:true});});
-    (state.inventoryWeapons||[]).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:false});});
+    [state.activePrimary,state.activeSecondary].filter(Boolean).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:true,image:w.image||'',greywake:Boolean(w.greywake)});});
+    (state.inventoryWeapons||[]).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:false,image:w.image||'',greywake:Boolean(w.greywake)});});
     const activeArmor=state.activeArmor;
     if(activeArmor&&!removed('armor',activeArmor)){
       const a=maps.armors.get(activeArmor)||api?.armor?.(activeArmor);if(a)add({kind:'armor',id:activeArmor,title:a.name,meta:armorMeta(a),active:true});
@@ -84,7 +84,7 @@
   function renderCard(item){
     const viewKind=item.kind==='custom'?'gear':item.kind;
     const type=item.custom?'BACKPACK ITEM':item.stored?'STORED ARMOR · NOT CARRIED':item.kind.toUpperCase();
-    return `<article class="p7-pack-card" data-pack-kind="${viewKind}"><div class="p7-pack-art" aria-hidden="true"><span style="font-size:34px">${categoryIcon(item.kind)}</span></div><div class="p7-pack-content"><span class="p7-pack-type">${type}</span><h3>${esc(item.title)}</h3>${item.meta?`<p>${esc(item.meta)}</p>`:''}${actionMarkup(item)}</div></article>`;
+    const art=item.image?`<div class="p7-pack-art has-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="p7-pack-art" aria-hidden="true"><span style="font-size:34px">${categoryIcon(item.kind)}</span></div>`;return `<article class="p7-pack-card ${item.greywake?'greywake-weapon-card':''}" data-pack-kind="${viewKind}">${art}<div class="p7-pack-content"><span class="p7-pack-type">${type}</span><h3>${esc(item.title)}</h3>${item.meta?`<p>${esc(item.meta)}</p>`:''}${actionMarkup(item)}</div></article>`;
   }
 
   function filterMarkup(){return `<div class="p7-backpack-filters" role="group" aria-label="Backpack view"><span>VIEW</span>${FILTERS.map(([kind,label])=>`<button type="button" class="p7-backpack-filter" data-pack-filter="${kind}" aria-pressed="${activeFilter===kind?'true':'false'}">${label}<b data-pack-count="${kind}">0</b></button>`).join('')}</div>`;}
@@ -107,7 +107,7 @@
     if(removed('gear',item.name))return'removed';
     return visibleTitles().has(item.name.toLowerCase())?'owned':'missing';
   }
-  function libraryTemplate(){return `<section class="p9-library" ${libraryOpen?'':'hidden'} data-filter="all"><div class="p9-library-head"><div><small>KNOWN · OFFICIAL DAGGERHEART</small><strong>Add from item library</strong></div><small>Tier 1 weapons and armor supported by the live sheet, plus known consumables and gear.</small></div><input class="p9-library-search" type="search" placeholder="Search known items…" aria-label="Search known official items"><div class="p9-library-filters"><button type="button" data-filter="all" class="active">All</button><button type="button" data-filter="weapon">Weapons</button><button type="button" data-filter="armor">Armor</button><button type="button" data-filter="consumable">Consumables</button><button type="button" data-filter="gear">Gear</button><button type="button" data-p9-custom-item>Other / custom item</button></div><div class="p9-library-grid"></div><p class="p9-library-note">Add records equipment the character has acquired. Armor is acquired first, then equipped separately when safe. Unequipped owned armor is stored rather than carried.</p></section>`;}
+  function libraryTemplate(){return `<section class="p9-library" ${libraryOpen?'':'hidden'} data-filter="all"><div class="p9-library-head"><div><small>KNOWN EQUIPMENT</small><strong>Add from item library</strong></div><small>Tier 1 Daggerheart gear plus Greywake-specific weapons supported by the live sheet.</small></div><input class="p9-library-search" type="search" placeholder="Search known items…" aria-label="Search known official items"><div class="p9-library-filters"><button type="button" data-filter="all" class="active">All</button><button type="button" data-filter="weapon">Weapons</button><button type="button" data-filter="armor">Armor</button><button type="button" data-filter="consumable">Consumables</button><button type="button" data-filter="gear">Gear</button><button type="button" data-p9-custom-item>Other / custom item</button></div><div class="p9-library-grid"></div><p class="p9-library-note">Add records equipment the character has acquired. Armor is acquired first, then equipped separately when safe. Unequipped owned armor is stored rather than carried.</p></section>`;}
 
   function ensureDialog(){let d=dialog();if(d)return d;d=document.createElement('dialog');d.id='p7BackpackDialog';d.className='p7-backpack-dialog';document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target===d)d.close();});return d;}
   function applyFilter(d=ensureDialog(),filter=activeFilter){
