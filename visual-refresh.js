@@ -144,15 +144,18 @@
     'Tower Watch':'center 42%',
     'The Faithful':'center 24%'
   };
+  const WEAPON_RECORDS=new Set(["Digger's Tooth",'Hookspike','Longhook','Gatehammer','White Shard']);
 
   function currentRecordName(){
     const hash=location.hash||'';
+    if(hash.startsWith('#/gm-world/record/'))return decodeURIComponent(hash.slice('#/gm-world/record/'.length));
     return hash.startsWith('#/record/')?decodeURIComponent(hash.slice(9)):null;
   }
   function normalizedAsset(src){
     try{return new URL(src,location.href).href.split('?')[0]}catch{return src.split('?')[0]}
   }
   function recordBackdrop(name){
+    if(WEAPON_RECORDS.has(name)&&MEDIA[name]?.[0]?.src)return MEDIA[name][0].src;
     const direct=MEDIA[name]?.find(item=>item.backdrop!==false)?.src;if(direct)return direct;
     const equipment=name.match(/^(.+?) — Equipment$/);
     if(equipment&&MEDIA[equipment[1]])return MEDIA[equipment[1]][1]?.src||MEDIA[equipment[1]][0]?.src;
@@ -180,11 +183,14 @@
     }else{
       if(layer.childElementCount)layer.replaceChildren();
       delete layer.dataset.factionPanels;
-      layer.style.backgroundImage=`url("${String(src).replace(/"/g,'%22')}")`;
+      const encoded=String(src).replace(/"/g,'%22');
+      layer.style.backgroundImage=WEAPON_RECORDS.has(name)?`url("${encoded}"),url("${encoded}")`:`url("${encoded}")`;
     }
     article.style.setProperty('--record-focus',RECORD_FOCUS[name]||(/People|Characters/.test(category)?'center 24%':'center 48%'));
     article.dataset.backdropSrc=normalizedAsset(src);
     article.dataset.recordCategory=category;
+    article.dataset.recordName=name;
+    article.classList.toggle('weapon-record',WEAPON_RECORDS.has(name));
     article.classList.add('has-record-backdrop');
     requestAnimationFrame(dedupeBackdropMedia);
   }

@@ -58,8 +58,8 @@
   function carriedItems(){
     const api=equipment(),state=api?.getState?.()||{},maps=mechanicalMaps(),items=[],seen=new Set();
     const add=item=>{const key=`${item.kind}:${item.id||item.title}`;if(seen.has(key))return;seen.add(key);items.push(item);};
-    [state.activePrimary,state.activeSecondary].filter(Boolean).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:true,image:w.image||'',greywake:Boolean(w.greywake)});});
-    (state.inventoryWeapons||[]).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:false,image:w.image||'',greywake:Boolean(w.greywake)});});
+    [state.activePrimary,state.activeSecondary].filter(Boolean).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:true,image:w.image||'',greywake:Boolean(w.greywake),trait:w.trait,range:w.range,damage:w.damage,damageType:w.damageType,feature:w.feature,burden:w.burden});});
+    (state.inventoryWeapons||[]).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:false,image:w.image||'',greywake:Boolean(w.greywake),trait:w.trait,range:w.range,damage:w.damage,damageType:w.damageType,feature:w.feature,burden:w.burden});});
     const activeArmor=state.activeArmor;
     if(activeArmor&&!removed('armor',activeArmor)){
       const a=maps.armors.get(activeArmor)||api?.armor?.(activeArmor);if(a)add({kind:'armor',id:activeArmor,title:a.name,meta:armorMeta(a),active:true});
@@ -83,8 +83,29 @@
 
   function renderCard(item){
     const viewKind=item.kind==='custom'?'gear':item.kind;
+    if(item.kind==='weapon'&&item.greywake){
+      const feature=String(item.feature||'—'),parts=feature.split(': '),featureName=parts.length>1?parts.shift():'Weapon feature',featureBody=parts.length?parts.join(': '):feature;
+      const stateLabel=item.active?'READY':'IN PACK';
+      const buttons=preview()?'':item.active
+        ? `<button class="gw-card-main" type="button" data-backpack-use-weapon="${esc(item.id)}">Use weapon</button>`
+        : `<button class="gw-card-main" type="button" data-backpack-equip-weapon="${esc(item.id)}">Ready weapon</button><button class="gw-card-remove" type="button" data-backpack-remove-weapon="${esc(item.id)}" aria-label="Remove ${esc(item.title)}">Remove</button>`;
+      return `<article class="p7-pack-card greywake-weapon-card cinematic" data-pack-kind="weapon">
+        <div class="gw-card-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"><span class="gw-card-state">${stateLabel}</span><div class="gw-card-title"><small>GREYWAKE WEAPON</small><h3>${esc(item.title)}</h3></div></div>
+        <div class="gw-card-body">
+          <div class="gw-card-stats">
+            <span><small>TRAIT</small><b>${esc(item.trait||'—')}</b></span>
+            <span><small>RANGE</small><b>${esc(item.range||'—')}</b></span>
+            <span><small>DAMAGE</small><b>${esc(item.damage||'—')}</b></span>
+            <span><small>HANDS</small><b>${Number(item.burden)===2?'Two':'One'}</b></span>
+          </div>
+          <div class="gw-card-feature"><small>${esc(featureName)}</small><p>${esc(featureBody)}</p></div>
+          <div class="gw-card-actions">${buttons}</div>
+        </div>
+      </article>`;
+    }
     const type=item.custom?'BACKPACK ITEM':item.stored?'STORED ARMOR · NOT CARRIED':item.kind.toUpperCase();
-    const art=item.image?`<div class="p7-pack-art has-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="p7-pack-art" aria-hidden="true"><span style="font-size:34px">${categoryIcon(item.kind)}</span></div>`;return `<article class="p7-pack-card ${item.greywake?'greywake-weapon-card':''}" data-pack-kind="${viewKind}">${art}<div class="p7-pack-content"><span class="p7-pack-type">${type}</span><h3>${esc(item.title)}</h3>${item.meta?`<p>${esc(item.meta)}</p>`:''}${actionMarkup(item)}</div></article>`;
+    const art=item.image?`<div class="p7-pack-art has-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="p7-pack-art" aria-hidden="true"><span style="font-size:34px">${categoryIcon(item.kind)}</span></div>`;
+    return `<article class="p7-pack-card" data-pack-kind="${viewKind}">${art}<div class="p7-pack-content"><span class="p7-pack-type">${type}</span><h3>${esc(item.title)}</h3>${item.meta?`<p>${esc(item.meta)}</p>`:''}${actionMarkup(item)}</div></article>`;
   }
 
   function filterMarkup(){return `<div class="p7-backpack-filters" role="group" aria-label="Backpack view"><span>VIEW</span>${FILTERS.map(([kind,label])=>`<button type="button" class="p7-backpack-filter" data-pack-filter="${kind}" aria-pressed="${activeFilter===kind?'true':'false'}">${label}<b data-pack-count="${kind}">0</b></button>`).join('')}</div>`;}
@@ -187,7 +208,7 @@
 
   function renderDialog(){
     ensureStyles();const d=ensureDialog(),items=carriedItems();
-    d.innerHTML=`<div class="p7-backpack-shell"><header class="p7-backpack-head"><div class="p7-backpack-head-title">${bagIcon}<div><span>CARRIED INVENTORY</span><h2>${esc(characterName())}'s Backpack</h2></div></div><button class="p7-backpack-close" type="button" data-pack-close>×</button></header><div class="p7-backpack-body"><div class="p7-backpack-toolbar"><p>Everything currently carried. Equipped items are shown too, so this works as a quick "what have I got?" view.</p>${preview()?'':'<button class="p7-backpack-add" type="button" data-pack-add-open>+ Add item</button>'}</div>${filterMarkup()}<div class="backpack-use-note"><strong>Use items here.</strong> Weapons, armor, consumables and special gear use their live rules. Ordinary gear can be declared in use here and then resolved normally if a roll is needed.</div>${statusMarkup()}${preview()?'':libraryTemplate()}<div class="p7-add-panel ${customPanelOpen?'open':''}" data-pack-add-panel><label>ADD SOMETHING TO THE BACKPACK</label><div class="p7-add-row-new"><input type="text" maxlength="80" placeholder="What did you pick up?" aria-label="Item name"><button type="button" data-pack-save>Add to backpack</button></div></div><div class="p7-backpack-grid">${items.length?items.map(renderCard).join(''):'<div class="p7-pack-empty">Nothing is currently recorded in the backpack.</div>'}</div><div class="p7-backpack-note">Detailed item artwork is intentionally deferred to the later item-art pass.</div></div></div>`;
+    d.innerHTML=`<div class="p7-backpack-shell"><header class="p7-backpack-head"><div class="p7-backpack-head-title">${bagIcon}<div><span>CARRIED INVENTORY</span><h2>${esc(characterName())}'s Backpack</h2></div></div><button class="p7-backpack-close" type="button" data-pack-close>×</button></header><div class="p7-backpack-body"><div class="p7-backpack-toolbar"><p>Everything currently carried. Equipped items are shown too, so this works as a quick "what have I got?" view.</p>${preview()?'':'<button class="p7-backpack-add" type="button" data-pack-add-open>+ Add item</button>'}</div>${filterMarkup()}<div class="backpack-use-note"><strong>Use items here.</strong> Weapons, armor, consumables and special gear use their live rules. Ordinary gear can be declared in use here and then resolved normally if a roll is needed.</div>${statusMarkup()}${preview()?'':libraryTemplate()}<div class="p7-add-panel ${customPanelOpen?'open':''}" data-pack-add-panel><label>ADD SOMETHING TO THE BACKPACK</label><div class="p7-add-row-new"><input type="text" maxlength="80" placeholder="What did you pick up?" aria-label="Item name"><button type="button" data-pack-save>Add to backpack</button></div></div><div class="p7-backpack-grid">${items.length?items.map(renderCard).join(''):'<div class="p7-pack-empty">Nothing is currently recorded in the backpack.</div>'}</div></div></div>`;
     bindActions(d);applyFilter(d);setTimeout(()=>window.GreywakeP9Mechanics?.enhance?.(),0);
   }
 
