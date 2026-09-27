@@ -98,6 +98,23 @@
     const sidebar=document.getElementById('sidebar');document.getElementById('gmSidebarNav')?.remove();sidebar?.classList.remove('gm-sidebar-active');
     sidebar?.querySelectorAll('[data-gm-original-text]').forEach(el=>{el.textContent=el.dataset.gmOriginalText;delete el.dataset.gmOriginalText});
   }
+
+  function ensureGMRecordSidebarRouting(){
+    const nav=document.getElementById('nav');
+    if(!nav||nav.dataset.gmRecordRouting==='1')return;
+    nav.dataset.gmRecordRouting='1';
+    nav.addEventListener('click',e=>{
+      if(!fullGM())return;
+      const button=e.target.closest('.nav-link[data-note]');
+      if(!button)return;
+      const name=button.dataset.note;
+      if(!name||!recordExists(name))return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      navigate(gmRecordRoute(name));
+      document.querySelector('.sidebar')?.classList.remove('open');
+    },true);
+  }
   function syncNav(type){
     const target=type==='record'?ROUTES.world:ROUTES[type]||ROUTES.run;
     document.querySelectorAll('#primaryNav [data-gm-route]').forEach(b=>{const active=b.dataset.gmRoute===target;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
@@ -195,7 +212,7 @@
   function render(){
     ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}
     if(!location.hash||location.hash==='#/'){location.hash=ROUTES.run;return}
-    configureNav();ensureGMSidebar();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+    configureNav();ensureGMSidebar();ensureGMRecordSidebarRouting();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
     workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():renderRun();
     workspace.classList.remove('hidden');wire(workspace);if(r.type==='inbox')mountInboxThreads();syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
   }
