@@ -145,7 +145,7 @@
     'The Faithful':'center 24%'
   };
   const WEAPON_RECORDS=new Set(["Digger's Tooth",'Hookspike','Longhook','Gatehammer','White Shard']);
-  const POTION_RECORDS=new Set(['Minor Stamina Potion']);
+  const PROP_EQUIPMENT_RECORDS=new Set([...WEAPON_RECORDS,'Minor Stamina Potion']);
 
   function currentRecordName(){
     const hash=location.hash||'';
@@ -156,7 +156,7 @@
     try{return new URL(src,location.href).href.split('?')[0]}catch{return src.split('?')[0]}
   }
   function recordBackdrop(name){
-    if((WEAPON_RECORDS.has(name)||POTION_RECORDS.has(name))&&MEDIA[name]?.[0]?.src)return MEDIA[name][0].src;
+    if(PROP_EQUIPMENT_RECORDS.has(name)&&MEDIA[name]?.[0]?.src)return MEDIA[name][0].src;
     const direct=MEDIA[name]?.find(item=>item.backdrop!==false)?.src;if(direct)return direct;
     const equipment=name.match(/^(.+?) — Equipment$/);
     if(equipment&&MEDIA[equipment[1]])return MEDIA[equipment[1]][1]?.src||MEDIA[equipment[1]][0]?.src;
@@ -186,21 +186,13 @@
       delete layer.dataset.factionPanels;
       const encoded=String(src).replace(/"/g,'%22');
       layer.style.backgroundImage=`url("${encoded}")`;
-      if(POTION_RECORDS.has(name)){
-        const image=document.createElement('img');
-        image.className='record-object-image';
-        image.src=src;
-        image.alt='';
-        image.setAttribute('aria-hidden','true');
-        layer.appendChild(image);
-      }
     }
     article.style.setProperty('--record-focus',RECORD_FOCUS[name]||(/People|Characters/.test(category)?'center 24%':'center 48%'));
     article.dataset.backdropSrc=normalizedAsset(src);
     article.dataset.recordCategory=category;
     article.dataset.recordName=name;
     article.classList.toggle('weapon-record',WEAPON_RECORDS.has(name));
-    article.classList.toggle('potion-record',POTION_RECORDS.has(name));
+    article.classList.toggle('equipment-prop-record',PROP_EQUIPMENT_RECORDS.has(name));
     article.classList.add('has-record-backdrop');
     requestAnimationFrame(dedupeBackdropMedia);
   }
