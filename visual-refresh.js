@@ -186,6 +186,14 @@
       delete layer.dataset.factionPanels;
       const encoded=String(src).replace(/"/g,'%22');
       layer.style.backgroundImage=`url("${encoded}")`;
+      if(POTION_RECORDS.has(name)){
+        const image=document.createElement('img');
+        image.className='record-object-image';
+        image.src=src;
+        image.alt='';
+        image.setAttribute('aria-hidden','true');
+        layer.appendChild(image);
+      }
     }
     article.style.setProperty('--record-focus',RECORD_FOCUS[name]||(/People|Characters/.test(category)?'center 24%':'center 48%'));
     article.dataset.backdropSrc=normalizedAsset(src);
