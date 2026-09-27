@@ -21,7 +21,7 @@
   };
 
   MEDIA['Minor Stamina Potion']=[
-    {src:'assets/consumables/minor-stamina-potion-header.webp',caption:'Minor Stamina Potion — Greywake restorative, cinematic header.',layout:'wide'},
+    {src:'assets/consumables/minor-stamina-potion-header.webp?v=2',caption:'Minor Stamina Potion — Greywake restorative, cinematic header.',layout:'wide'},
     {src:'assets/consumables/minor-stamina-potion.webp',caption:'Minor Stamina Potion — a reused Greywake ceramic medicine vial.',layout:'reference',backdrop:false}
   ];
   const equipment=CATS['Equipment']||(CATS['Equipment']=[]);
