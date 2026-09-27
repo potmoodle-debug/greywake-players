@@ -82,7 +82,7 @@
   function ensureStyle(){
     if(document.getElementById('gm-ecology-style'))return;
     const s=document.createElement('style');s.id='gm-ecology-style';s.textContent=`
-      .gm-ecology-registry{margin-top:22px}.gm-ecology-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 18px}
+      .gm-ecology-registry{margin-top:8px}.gm-ecology-hero{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(360px,.8fr);gap:28px;align-items:end;margin:0 0 18px;padding:28px 0 24px;border-top:1px solid #4b4431;border-bottom:1px solid #4b4431;background:linear-gradient(90deg,rgba(79,63,31,.12),transparent 58%)}.gm-ecology-hero-copy small{display:block;margin-bottom:8px;color:#b79c61;font-size:8px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}.gm-ecology-hero-copy h2{margin:0 0 10px;color:#f0e6cd;font:clamp(36px,4vw,52px)/1 Georgia,serif}.gm-ecology-hero-copy p{max-width:60ch;margin:0;color:#b9b09d;font-size:11px;line-height:1.6}.gm-ecology-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0}
       .gm-ecology-summary div{padding:13px 14px;border:1px solid #3e3a2d;background:#151611}.gm-ecology-summary strong{display:block;color:#eadba8;font:27px/1 Georgia,serif}.gm-ecology-summary span{color:#8f8771;font-size:8px;letter-spacing:.1em;text-transform:uppercase}
       .gm-ecology-section{margin-top:24px}.gm-ecology-section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}.gm-ecology-section-head small{color:#a99358;font-size:8px;font-weight:900;letter-spacing:.15em}.gm-ecology-section-head h2{margin:0;color:#e7dec6;font:24px/1.2 Georgia,serif}
       .gm-ecology-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.gm-ecology-card{position:relative;min-height:190px;overflow:hidden;border:1px solid #38372b;background:#11120e;text-align:left;cursor:pointer;color:#ddd5bf;padding:0}
@@ -91,7 +91,7 @@
       .gm-ecology-card.no-image{padding:15px;min-height:160px}.gm-ecology-card.no-image .gm-ecology-card-copy{position:static;padding:0}.gm-ecology-card:hover{border-color:#9b8652;transform:translateY(-2px)}
       .gm-ecology-state{display:inline-flex!important;width:max-content;margin-bottom:7px;padding:3px 5px;border:1px solid #5a5037;background:#211e15;color:#cfb979!important}.gm-ecology-state.shared{border-color:#3f654d;background:#152219;color:#9fc7a7!important}.gm-ecology-state.sparse{border-color:#6a5540;background:#211912;color:#d4aa7c!important}
       .gm-ecology-note{margin:14px 0;padding:11px 12px;border-left:2px solid #a88f53;background:#191811;color:#c8bea7;font-size:10px;line-height:1.5}.gm-ecology-record-badge{display:inline-block;margin:0 0 12px;padding:4px 7px;border:1px solid #5c5034;color:#ceb777;font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
-      @media(max-width:900px){.gm-ecology-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.gm-ecology-grid,.gm-ecology-summary{grid-template-columns:1fr}}
+      @media(max-width:900px){.gm-ecology-hero{grid-template-columns:1fr}.gm-ecology-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.gm-ecology-grid,.gm-ecology-summary{grid-template-columns:1fr}}
     `;document.head.appendChild(s);
   }
 
@@ -106,8 +106,8 @@
     const hidden=Object.entries(DM_RECORDS).filter(([,x])=>x.state==='unrevealed');
     const sparse=Object.entries(DM_RECORDS).filter(([,x])=>x.state==='sparse');
     const individuals=INDIVIDUALS.filter(n=>D[n]);
-    return `<section class="gm-ecology-registry"><div class="gm-ecology-summary"><div><strong>${shared.length}</strong><span>shared species / plants</span></div><div><strong>${hidden.length}</strong><span>established unrevealed</span></div><div><strong>${sparse.length}</strong><span>established sparse records</span></div></div>
-      <div class="gm-ecology-note">GM catalogue is intentionally broader than the player field guide. A record being here does not mean the players know it. Sparse records preserve established names without inventing missing biology.</div>
+    return `<section class="gm-ecology-registry"><header class="gm-ecology-hero"><div class="gm-ecology-hero-copy"><small>DM ECOLOGY REGISTER</small><h2>Greywake Ecology</h2><p>Everything currently established behind the screen, separated by what the players already know and what is still waiting to be discovered.</p></div><div class="gm-ecology-summary"><div><strong>${shared.length}</strong><span>player shared</span></div><div><strong>${hidden.length}</strong><span>unrevealed</span></div><div><strong>${sparse.length}</strong><span>sparse canon</span></div></div></header>
+      <div class="gm-ecology-note">A record being in this register does not make it player knowledge. Sparse records preserve established names without inventing missing biology.</div>
       <section class="gm-ecology-section"><div class="gm-ecology-section-head"><small>PLAYER SHARED</small><h2>Already in the field guide</h2></div><div class="gm-ecology-grid">${shared.map(n=>card(n,'shared',plainSummary(n))).join('')}</div></section>
       <section class="gm-ecology-section"><div class="gm-ecology-section-head"><small>DM ONLY</small><h2>Established, waiting to be discovered</h2></div><div class="gm-ecology-grid">${hidden.map(([n,x])=>card(n,'unrevealed',x.summary)).join('')}</div></section>
       <section class="gm-ecology-section"><div class="gm-ecology-section-head"><small>UNDER-DOCUMENTED</small><h2>Established names, preserve the gaps</h2></div><div class="gm-ecology-grid">${sparse.map(([n,x])=>card(n,'sparse',x.summary)).join('')}</div></section>
@@ -129,7 +129,7 @@
     if(routeName()!=='Known Flora and Fauna')return;
     const host=document.getElementById('gmOperationsView');if(!host||host.dataset.ecologyRegistry==='1')return;
     const article=host.querySelector('.gm-world-record');if(!article)return;
-    article.innerHTML='<p>This is the DM ecology register. Player knowledge is only the green-labelled subset.</p>'+registryHTML();
+    article.innerHTML=registryHTML();
     host.dataset.ecologyRegistry='1';
   }
 
