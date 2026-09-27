@@ -161,4 +161,9 @@
   document.addEventListener('DOMContentLoaded',()=>setTimeout(enhance,180));
   new MutationObserver(()=>setTimeout(enhance,0)).observe(document.documentElement,{childList:true,subtree:true});
   setTimeout(enhance,260);
+
+  ['gm-creature-pages.js?v=1','gm-creature-sparse.js?v=1','ecology-reveal-bridge.js?v=1','gm-creature-reveal-override.js?v=1'].forEach(src=>{
+    if(document.querySelector('script[src="'+src+'"]'))return;
+    const s=document.createElement('script');s.src=src;s.defer=true;document.head.appendChild(s);
+  });
 })();
