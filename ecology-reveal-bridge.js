@@ -14,7 +14,7 @@
 
   window.GREYWAKE_QUEUE_ECOLOGY_REVEAL=function(name,stage,label,text,audience){
     if(!fullGM())throw new Error('GM access required.');
-    sessionStorage.setItem(QUEUE_KEY,JSON.stringify({name,stage,label,text,audience}));
+    sessionStorage.setItem(QUEUE_KEY,JSON.stringify({name,stage,label,text,audience,returnHash:location.hash||'#/gm-world'}));
     location.hash='#/gm-session';
     setTimeout(flushQueue,80);
   };
@@ -29,6 +29,7 @@
     if(!kind||!input||!target){setTimeout(flushQueue,120);return}
     kind.value='creature';
     input.value=packetBody(q.name,q.stage,q.label,q.text);
+    sessionStorage.setItem(QUEUE_KEY+':return',q.returnHash||'#/gm-world');
     sessionStorage.removeItem(QUEUE_KEY);
     target.click();
   }
@@ -81,6 +82,14 @@
       if(d){const s=toast.querySelector('strong');if(s)s.textContent=d.name+' · '+d.label;p.textContent=d.text;}
     }
   }
+
+  window.addEventListener('greywake:live-reveal-published',()=>{
+    if(!fullGM())return;
+    const back=sessionStorage.getItem(QUEUE_KEY+':return');
+    if(!back)return;
+    sessionStorage.removeItem(QUEUE_KEY+':return');
+    setTimeout(()=>{location.hash=back},220);
+  });
 
   function refresh(){
     if(fullGM()){flushQueue();return}
