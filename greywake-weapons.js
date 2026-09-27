@@ -100,13 +100,17 @@
     const name=currentWeaponName(),article=document.getElementById('article');if(!name||!article)return;
     const host=article.querySelector('[data-greywake-weapon-acquire]');if(!host)return;
     const id=WEAPON_IDS[name],api=window.GreywakeEquipment,role=window.GreywakePlayer?.role||document.body.dataset.role;
-    if(role==='gm'&&document.body.dataset.gmPreview!=='true'){host.innerHTML='<div class="weapon-acquire-note">PLAYER INVENTORY CARD · switch to a player preview to test adding this weapon.</div>';return;}
-    if(!api){host.innerHTML='<button type="button" class="weapon-add-button" disabled>Inventory loading…</button>';return;}
-    const owned=api.isOwned?.(id),state=api.getState?.()||{},full=!owned&&(state.inventoryWeapons||[]).length>=2;
-    const who=safe(window.GreywakePlayer?.character||'character');
-    host.innerHTML=owned
-      ? `<button type="button" class="weapon-add-button is-owned" disabled>✓ In ${who} inventory</button>`
-      : `<button type="button" class="weapon-add-button" data-add-greywake-weapon="${id}" ${full?'disabled':''}>${full?'Inventory weapon slots full':'＋ Add to Inventory'}</button><small>${full?'Equip or remove an inventory weapon to make room.':'Adds this weapon as a live card in the character-sheet inventory and Backpack.'}</small>`;
+    let markup='';
+    if(role==='gm'&&document.body.dataset.gmPreview!=='true') markup='<div class="weapon-acquire-note">PLAYER INVENTORY CARD · switch to a player preview to test adding this weapon.</div>';
+    else if(!api) markup='<button type="button" class="weapon-add-button" disabled>Inventory loading…</button>';
+    else{
+      const owned=api.isOwned?.(id),state=api.getState?.()||{},full=!owned&&(state.inventoryWeapons||[]).length>=2;
+      const who=safe(window.GreywakePlayer?.character||'character');
+      markup=owned
+        ? `<button type="button" class="weapon-add-button is-owned" disabled>✓ In ${who} inventory</button>`
+        : `<button type="button" class="weapon-add-button" data-add-greywake-weapon="${id}" ${full?'disabled':''}>${full?'Inventory weapon slots full':'＋ Add to Inventory'}</button><small>${full?'Equip or remove an inventory weapon to make room.':'Adds this weapon as a live card in the character-sheet inventory and Backpack.'}</small>`;
+    }
+    if(host.innerHTML!==markup)host.innerHTML=markup;
   }
   document.addEventListener('click',event=>{
     const b=event.target.closest?.('[data-add-greywake-weapon]');if(!b)return;
@@ -119,7 +123,6 @@
   window.addEventListener('hashchange',()=>setTimeout(refreshAcquire,80));
   window.addEventListener('greywake:equipment-state-changed',()=>setTimeout(refreshAcquire,0));
   window.addEventListener('greywake:player-ready',()=>setTimeout(refreshAcquire,100));
-  const article=document.getElementById('article');if(article)new MutationObserver(()=>{if(currentWeaponName())refreshAcquire();}).observe(article,{childList:true,subtree:true});
   setTimeout(refreshAcquire,150);
 
   const link=(a,b)=>{if(DATA[a]&&DATA[b]&&!EDGES.some(e=>(e[0]===a&&e[1]===b)||(e[0]===b&&e[1]===a)))EDGES.push([a,b])};
