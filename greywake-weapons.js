@@ -84,11 +84,11 @@
     {src:"assets/weapons/gatehammer.webp",caption:"Gatehammer — short breaching hammer.","layout":"reference"},
     {src:"assets/weapons/white-shard.webp",caption:"White Shard — locally mounted pale cutting fragment.","layout":"reference"}
   ];
-  MEDIA["Digger's Tooth"]=[{src:"assets/weapons/diggers-tooth.webp",caption:"Digger's Tooth — tool first, weapon when needed."}];
-  MEDIA["Hookspike"]=[{src:"assets/weapons/hookspike.webp",caption:"Hookspike — built to catch and drag."}];
-  MEDIA["Longhook"]=[{src:"assets/weapons/longhook.webp",caption:"Longhook — caravan tool turned controlling weapon."}];
-  MEDIA["Gatehammer"]=[{src:"assets/weapons/gatehammer.webp",caption:"Gatehammer — compact weight for cramped spaces."}];
-  MEDIA["White Shard"]=[{src:"assets/weapons/white-shard.webp",caption:"White Shard — a Greywake mounting around an unusual pale fragment."}];
+  MEDIA["Digger's Tooth"]=[{src:"assets/weapons/diggers-tooth.webp",caption:"Digger's Tooth — tool first, weapon when needed.",layout:"reference",backdrop:false}];
+  MEDIA["Hookspike"]=[{src:"assets/weapons/hookspike.webp",caption:"Hookspike — built to catch and drag.",layout:"reference",backdrop:false}];
+  MEDIA["Longhook"]=[{src:"assets/weapons/longhook.webp",caption:"Longhook — caravan tool turned controlling weapon.",layout:"reference",backdrop:false}];
+  MEDIA["Gatehammer"]=[{src:"assets/weapons/gatehammer.webp",caption:"Gatehammer — compact weight for cramped spaces.",layout:"reference",backdrop:false}];
+  MEDIA["White Shard"]=[{src:"assets/weapons/white-shard.webp",caption:"White Shard — a Greywake mounting around an unusual pale fragment.",layout:"reference",backdrop:false}];
 
   const equipment=CATS["Equipment"]||(CATS["Equipment"]=[]);
   ["Greywake Weapons","Digger's Tooth","Hookspike","Longhook","Gatehammer","White Shard"].forEach(name=>{if(!equipment.includes(name))equipment.push(name)});
