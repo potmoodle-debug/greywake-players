@@ -9,7 +9,7 @@
     {label:'Digger Yards', record:'Digger Yards', x:55.8, y:77.8},
     {label:'Great-Shell Pens', record:'Great-Shell Pens', x:50.5, y:87.2}
   ];
-  const IMAGE_SRC = 'assets/maps/greywake-v24-player-map.png';
+  const IMAGE_SRC = 'assets/maps/greywake-v24-player-map.webp';
 
   function href(record){ return '#/record/' + encodeURIComponent(record); }
 
