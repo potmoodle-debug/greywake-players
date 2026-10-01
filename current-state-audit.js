@@ -120,7 +120,7 @@
 
   C['People'] = [...new Set([...(C['People'] || []), 'Jessa Vale','Tavi','Lysa','Meren','Daro Pell'])];
   link('Jessa Vale','Brannic Hale');
-  link('Jessa Vale','The Closing Ways');
+  link('Jessa Vale','Jobs & Open Threads');
   link('Tavi','The Faithful');
   link('Lysa','Tangle Lanes');
   link('Lysa','Nemi');
