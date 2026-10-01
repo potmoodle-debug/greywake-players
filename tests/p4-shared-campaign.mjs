@@ -33,7 +33,8 @@ requireIn(threads, "status: 'ACTIVE · ONE WAY REOPENED'", 'Closing Ways state')
 requireIn(threads, "status: 'VELMIRA PRIORITY · NOT SELECTABLE YET'", 'Stilling lead state');
 
 requireIn(state, "D['Clay'].title = 'Clay — Historical PC'", 'Clay historical continuity');
-requireIn(state, "C['Player Characters'] = ['Marek','Velmira','Odie']", 'active PC list');
+requireIn(state, "C['Player Characters'] = ['Marek','Odie']", 'active PC list');
+requireIn(state, "D['Velmira'].category = 'People'", 'Velmira NPC status');
 requireIn(state, "D['Ash-Plate Groundfall']", 'Groundfall shared location record');
 requireIn(state, 'Groundfall lies <strong>east of Greywake</strong> along the known Kestrel Return route', 'Groundfall known east route');
 requireIn(state, 'returned to Greywake alive at the end of Session Three', 'Kestrel survivor current state');

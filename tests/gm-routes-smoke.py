@@ -25,7 +25,7 @@ DELETED = [
 ]
 ROUTES = {
     "#/gm-session": ("At the table.", ".gm-run-hero"),
-    "#/gm-prep": ("Prepare only what may matter.", ".gm-player-cards"),
+    "#/gm-prep": ("If we play right now.", ".gm-player-cards"),
     "#/gm-update": ("Update Greywake.", "#gmRunUpdate"),
     "#/gm-world": ("Browse Greywake.", ".gm-world-grid"),
     "#/gm-inbox": ("What needs you?", "#gmInboxHost #playerGoals"),
@@ -73,7 +73,7 @@ try:
     assert "spencer-digger.png?v=spencer4" in spencer_img.get_attribute("src"), "GM RUN must use Spencer's restored Obsidian portrait"
 
     driver.execute_script("location.hash = '#/gm-players'")
-    wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 3)
+    wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 2)
 
     resources = driver.execute_script("return performance.getEntriesByType('resource').map(e => e.name)")
     legacy_loaded = [name for name in DELETED if any(name in url for url in resources)]

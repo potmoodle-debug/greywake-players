@@ -20,7 +20,7 @@ requireText(source, '☆ Interested', 'clear interested action');
 requireText(source, '✓ Interested', 'interested active state');
 requireText(source, '◆ Pursuing', 'pursuing state');
 requireText(source, '◆ Pursue', 'direct pursue action');
-requireText(source, 'Pursue tells the GM you actively want to follow it in play.', 'Pursue meaning explained');
+requireText(source, 'This is the one thing you currently want to act on in play.', 'Pursue meaning explained');
 requireText(source, 'limits: { interested: null, pursuing: MAX_PURSUING }', 'Interested has no hard shortlist cap');
 requireText(source, 'Preview only — these are player controls.', 'GM preview explains disabled controls');
 requireText(source, "source_route: '#/campaign'", 'Campaign source route');
@@ -42,7 +42,7 @@ forbidText(goals, 'MAX_INTERESTS', 'old three-interest cap');
 requireText(portal, 'Pursuing is your one current intention for play.', 'My Greywake explains Pursuing');
 requireText(portal, 'Pursuing informs the GM — it does not commit the party.', 'party commitment boundary');
 requireText(gm, 'ACTIVE PURSUIT', 'GM sees active pursuit clearly');
-requireText(gm, 'Other interests are context, not commitments or votes.', 'GM prep distinguishes pursuit from interests');
+requireText(gm, 'One active pursuit can guide preparation without becoming a required path.', 'GM prep distinguishes pursuit from interests');
 
 if (failures.length) {
   console.error(failures.map(message => `- ${message}`).join('\n'));

@@ -186,7 +186,7 @@ if (!/dataset\.characterNavOwner\s*=\s*['"]page['"]/.test(characterPageSource)) 
 
 // GM preview must never write the real Hope / Stress / HP browser keys.
 const accessSource = readFileSync(join(root, 'player-access.js'), 'utf8');
-for (const character of ['marek', 'velmira', 'odie']) {
+for (const character of ['marek', 'odie']) {
   if (!accessSource.includes(`greywake:resources:${character}:v1`)) {
     fail(`player-access.js is missing preview isolation for ${character} resources.`);
   }
