@@ -1,0 +1,85 @@
+/* Play-first character sheet dashboard */
+.character-page-view .play-dashboard-ready{justify-content:flex-start;padding-top:1.35rem;padding-bottom:1.2rem}
+.character-page-view .play-dashboard-ready .character-stat-strip{grid-template-columns:repeat(4,minmax(86px,1fr));max-width:none;margin:.8rem 0 .55rem;gap:.4rem}
+.character-page-view .play-dashboard-ready .character-stat{min-height:58px;padding:.52rem .58rem .48rem}
+.character-page-view .play-dashboard-ready .character-stat span{font-size:.5rem}
+.character-page-view .play-dashboard-ready .character-stat strong{font-size:1.12rem}
+.character-page-view .play-dashboard-ready .character-sheet-note{display:none}
+
+.character-page-view .play-dashboard-ready .live-resource-board{max-width:none;width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.55rem 0 0;padding:.55rem;border-left-width:1px;background:linear-gradient(180deg,rgba(9,10,8,.8),rgba(16,16,13,.84))}
+.character-page-view .play-dashboard-ready .live-resource-board .pro-board-title{grid-column:1/-1;margin:0;padding:0 0 .35rem;border-bottom:1px solid rgba(255,255,255,.065)}
+.character-page-view .play-dashboard-ready .live-resource-row{display:grid;grid-template-columns:1fr;gap:.35rem;padding:.48rem .5rem;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018)}
+.character-page-view .play-dashboard-ready .live-resource-copy{grid-template-columns:1fr auto;column-gap:.45rem}
+.character-page-view .play-dashboard-ready .live-resource-copy>strong{font-size:1rem}
+.character-page-view .play-dashboard-ready .live-resource-copy>em{display:none}
+.character-page-view .play-dashboard-ready .live-resource-controls{grid-template-columns:28px minmax(0,1fr) 28px;gap:.3rem}
+.character-page-view .play-dashboard-ready .live-resource-controls>button{min-height:28px}
+.character-page-view .play-dashboard-ready .live-resource-pip{height:15px}
+.character-page-view .play-dashboard-ready .live-resource-foot{grid-column:1/-1;padding:.35rem 0 0;border-top:0}
+
+.play-dashboard{position:relative;margin:0;border-top:1px solid color-mix(in srgb,var(--dossier-accent) 34%,#3f382b);border-bottom:1px solid color-mix(in srgb,var(--dossier-accent) 28%,#3f382b);background:linear-gradient(180deg,#11110e,#15140f 50%,#10100d);box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}
+.play-dashboard-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.72rem 1rem .65rem;border-bottom:1px solid rgba(255,255,255,.055);background:linear-gradient(90deg,var(--dossier-accent-soft),transparent 58%)}
+.play-dashboard-head>div:first-child{display:grid;grid-template-columns:auto auto;align-items:baseline;gap:.28rem .65rem}
+.play-dashboard-head span{font:900 .58rem/1 system-ui,sans-serif;letter-spacing:.18em;color:var(--dossier-accent)}
+.play-dashboard-head strong{font:700 .95rem/1 Georgia,serif;color:#eee4cf}
+.play-dashboard-head small{grid-column:1/-1;color:#7f786a;font-size:.66rem}
+.play-dashboard-rest{display:flex;gap:.4rem}
+.play-dashboard-rest button{min-height:34px;padding:.35rem .65rem;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.22);color:#d8cfba;font-size:.68rem;font-weight:800;cursor:pointer}
+.play-dashboard-rest button:hover{border-color:color-mix(in srgb,var(--dossier-accent) 48%,transparent);background:var(--dossier-accent-soft)}
+.play-dashboard-content{padding:.8rem 1rem 1rem}
+.play-dashboard-content>.trait-roll-panel,.play-dashboard-content>.active-actions-panel,.play-dashboard-content>.damage-health-panel,.play-dashboard-content>.beastform-control{margin-top:.7rem;max-width:none}
+.play-dashboard-content>.trait-roll-panel{margin-top:0;padding:.72rem .78rem}
+.play-dashboard-content .trait-roll-head strong{font-size:1rem}
+.play-dashboard-content .trait-roll-head small{display:none}
+.play-dashboard-content .trait-roll-buttons{margin-top:.55rem;gap:.35rem}
+.play-dashboard-content .trait-roll-buttons button{min-height:48px;padding:.42rem .3rem}
+.play-dashboard-content .trait-roll-buttons span{font-size:.61rem}
+.play-dashboard-content .trait-roll-buttons b{font-size:1.15rem}
+.play-dashboard-content .trait-roll-options{margin-top:.5rem;padding-top:.4rem}
+
+/* Expanded actions must stay compact inside the dashboard. Character-specific
+   controls are explicitly placed so they cannot collapse into the icon column. */
+.play-dashboard-content .active-action-detail{grid-template-columns:42px minmax(0,1fr) minmax(250px,360px);align-items:start}
+.play-dashboard-content .active-action-detail>.active-action-detail-mark{grid-column:1;grid-row:1}
+.play-dashboard-content .active-action-detail>.active-action-detail-copy{grid-column:2;grid-row:1;min-width:0}
+.play-dashboard-content .active-action-detail>.companion-effect-banner{grid-column:3;grid-row:1;margin:0;min-width:0}
+.play-dashboard-content .active-action-detail>.resource-action-use,
+.play-dashboard-content .active-action-detail>.companion-no-roll,
+.play-dashboard-content .active-action-detail>.action-roller{grid-column:2/-1;width:100%;min-width:0;margin:.15rem 0 .25rem}
+.play-dashboard-content .active-action-detail>.active-action-detail-tools{grid-column:2/-1;justify-content:flex-start;margin-top:.1rem}
+.play-dashboard-content .active-action-detail>.resource-action-use button{width:100%;white-space:normal}
+
+.character-page-view #restPanel{margin:1rem 1.35rem 1.45rem}
+
+/* Keep the GM-only preview control out of the centre of the play controls. */
+body[data-gm-preview="true"] .gm-preview-bar{left:auto;right:18px;transform:none}
+
+@media(max-width:1100px){
+  .play-dashboard-content .active-action-detail{grid-template-columns:42px minmax(0,1fr)}
+  .play-dashboard-content .active-action-detail>.companion-effect-banner,
+  .play-dashboard-content .active-action-detail>.resource-action-use,
+  .play-dashboard-content .active-action-detail>.companion-no-roll,
+  .play-dashboard-content .active-action-detail>.action-roller,
+  .play-dashboard-content .active-action-detail>.active-action-detail-tools{grid-column:2/-1;grid-row:auto}
+}
+@media(max-width:900px){
+  .character-page-view .play-dashboard-ready .character-stat-strip{grid-template-columns:repeat(3,minmax(80px,1fr))}
+  .character-page-view .play-dashboard-ready .live-resource-board{grid-template-columns:1fr}
+  .character-page-view .play-dashboard-ready .live-resource-board .pro-board-title,.character-page-view .play-dashboard-ready .live-resource-foot{grid-column:1}
+}
+@media(max-width:700px){
+  .character-page-view .play-dashboard-ready{padding-left:1rem;padding-right:1rem}
+  .character-page-view .play-dashboard-ready .character-stat-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .play-dashboard-head{align-items:flex-start;flex-direction:column}
+  .play-dashboard-rest{width:100%}.play-dashboard-rest button{flex:1;min-height:40px}
+  .play-dashboard-content{padding:.65rem}
+  .play-dashboard-content .active-action-detail{grid-template-columns:36px minmax(0,1fr)}
+  .play-dashboard-content .active-action-detail>.active-action-detail-mark{width:36px;height:36px}
+  .play-dashboard-content .active-action-detail>.companion-effect-banner,
+  .play-dashboard-content .active-action-detail>.resource-action-use,
+  .play-dashboard-content .active-action-detail>.companion-no-roll,
+  .play-dashboard-content .active-action-detail>.action-roller,
+  .play-dashboard-content .active-action-detail>.active-action-detail-tools{grid-column:1/-1}
+  .character-page-view #restPanel{margin:.75rem .65rem 1rem}
+  body[data-gm-preview="true"] .gm-preview-bar{left:50%;right:auto;transform:translateX(-50%)}
+}
