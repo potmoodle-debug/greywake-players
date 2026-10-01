@@ -65,7 +65,7 @@ if (!cardCss.includes('.p7-utility-card[data-p7-kind="items"] .p7-list-row')) fa
 if (!cardCss.includes('aspect-ratio:5/7')) failures.push('Greywake item cards must retain a collectible-card proportion.');
 if (!arrival.includes('greywake-item-cards.css?v=p7-card1')) failures.push('Greywake item-card stylesheet is not loaded by the player site.');
 if (arrival.includes('p7-backpack.js')) failures.push('Arrival experience still requests the retired p7-backpack.js layer.');
-if (!index.includes('backpack-system.js?v=backpack1')) failures.push('Current Backpack system is not loaded by the player site.');
+if (!index.includes('backpack-system.js?v=backpack5')) failures.push('Current Backpack system is not loaded by the player site.');
 if (!backpack.includes('Open Backpack')) failures.push('Backpack system does not expose an open control.');
 if (!backpack.includes(".p7-utility-card[data-p7-kind=\"items\"]{display:none!important}")) failures.push('Old permanent item-entry form is still visible.');
 if (!backpack.includes('Add from item library')) failures.push('Backpack add-item flow is missing.');
