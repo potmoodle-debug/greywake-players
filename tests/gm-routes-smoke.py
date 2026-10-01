@@ -25,7 +25,7 @@ DELETED = [
 ]
 ROUTES = {
     "#/gm-session": ("At the table.", ".gm-run-hero"),
-    "#/gm-prep": ("Prepare only what may matter.", ".gm-player-cards"),
+    "#/gm-prep": ("If we play right now.", ".gm-player-cards"),
     "#/gm-update": ("Update Greywake.", "#gmRunUpdate"),
     "#/gm-world": ("Browse Greywake.", ".gm-world-grid"),
     "#/gm-inbox": ("What needs you?", "#gmInboxHost #playerGoals"),
