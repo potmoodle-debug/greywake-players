@@ -28,6 +28,7 @@
     const hash = location.hash || '#/';
     if (hash === '#/my-greywake') return 'my-greywake';
     if (hash === '#/greywake' || hash === '#/explore') return 'greywake';
+    if (hash === '#/map') return 'map';
     if (hash === '#/campaign') return 'campaign';
     if (hash === '#/possibilities') return 'possibilities';
     if (hash === '#/mind') return 'mind';
@@ -42,7 +43,7 @@
     if (page === 'character') return 'character';
     if (['my-greywake','mind','inbox'].includes(page)) return 'my-greywake';
     if (['campaign','possibilities'].includes(page)) return 'campaign';
-    if (['greywake','brain','record'].includes(page)) return 'greywake';
+    if (['greywake','map','brain','record'].includes(page)) return 'greywake';
     return 'home';
   }
 
@@ -211,6 +212,7 @@
     if (!content) return;
     content.appendChild(introBlock('KNOWN. SEEN. EARNED.', 'Greywake', 'Browse the shared world when you want people, places, field knowledge or context. Player Brain remains available as a relationship view, but it is no longer the main way to navigate.'));
     content.appendChild(hubGrid([
+      {href:'#/map', kicker:'PLAYER MAP', title:'Explore Greywake', copy:'Pan and zoom across the boundary and working grounds. Open places the party already knows.', action:'Open map →'},
       {href:recordHref('Known People'), kicker:'PEOPLE', title:'Who do we know?', copy:'NPCs, contacts and people the party has learned about.', action:'Browse people →'},
       {href:recordHref('Known Locations'), kicker:'PLACES', title:'Where can we go?', copy:'Greywake, Greater Greywake, routes and discovered locations.', action:'Browse places →'},
       {href:recordHref('Known Flora and Fauna'), kicker:'FIELD GUIDE', title:'Creatures & plants', copy:'Wildlife, flora and practical harvesting knowledge.', action:'Open field guide →'},
@@ -218,6 +220,15 @@
       {href:'#/brain', kicker:'CONNECTIONS', title:'Player Brain', copy:'Follow relationships between people, places, events and discoveries.', action:'Explore connections →'}
     ]));
     document.title = 'Greywake — Shared World Record';
+  }
+
+  function renderMap() {
+    const content = showPortal('map', 'PLAYER MAP', 'Explore Greywake');
+    if (!content) return;
+    content.classList.add('player-map-content');
+    if (window.GreywakePlayerMap?.mount) window.GreywakePlayerMap.mount(content);
+    else content.innerHTML = '<p class="player-map-unavailable">The player map could not be loaded.</p>';
+    document.title = 'Map — Greywake';
   }
 
   function renderCampaign() {
@@ -262,6 +273,7 @@
 
     if (page === 'my-greywake') return renderMyGreywake();
     if (page === 'greywake') return renderGreywake();
+    if (page === 'map') return renderMap();
     if (page === 'campaign') return renderCampaign();
     if (page === 'possibilities') return renderPossibilities();
     if (page === 'mind') return renderMind();
