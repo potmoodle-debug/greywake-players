@@ -201,8 +201,7 @@
       button.replaceWith(owned);
       button = owned;
       button.addEventListener('click', () => {
-        if (isCharacterRoute()) closeCharacterPage();
-        else openCharacterPage();
+        if (!isCharacterRoute()) openCharacterPage();
       });
     }
 
@@ -212,15 +211,12 @@
   function openCharacterPage() {
     if (!isCharacterRoute()) previousHash = location.hash && location.hash !== '#/character' ? location.hash : '#/';
     activeTab = 'overview';
-    if (location.hash !== '#/character') history.pushState(null, '', '#/character');
-    renderCharacterRoute();
+    window.GreywakeNavigation.navigate('#/character');
   }
 
   function closeCharacterPage() {
-    const target = previousHash && previousHash !== '#/character' ? previousHash : '#/';
-    if (location.hash !== target) history.pushState(null, '', target);
-    renderCharacterRoute();
-    window.GreywakePlayerPortal?.render?.();
+    const target = window.GreywakeNavigation.returnRoute() || previousHash || '#/';
+    window.GreywakeNavigation.navigate(target, {replace: true});
   }
 
   function renderCharacterRoute() {
@@ -242,7 +238,7 @@
       view.classList.remove('hidden');
       button?.classList.add('active');
       button?.setAttribute('aria-current', 'page');
-      button?.setAttribute('aria-label', 'Close character sheet');
+      button?.setAttribute('aria-label', 'Open character sheet');
       const crumb = document.getElementById('crumb');
       const character = window.GreywakePlayer?.character || document.body.dataset.character || 'Character';
       if (crumb) crumb.textContent = `Greywake / ${character} / Character`;
@@ -285,8 +281,7 @@
     ensureView();
     ensureCharacterButton();
     schedule();
-    window.addEventListener('hashchange', () => setTimeout(renderCharacterRoute, 0));
-    window.addEventListener('popstate', () => setTimeout(renderCharacterRoute, 0));
+    window.GreywakeNavigation.register('character', renderCharacterRoute);
     window.addEventListener('greywake:player-ready', schedule);
     window.addEventListener('greywake:sheet-enhanced', () => {
       setTimeout(() => {

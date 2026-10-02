@@ -31,7 +31,7 @@
     if(h===ROUTES.players)return{type:'players'};
     return{type:'run'};
   }
-  function navigate(hash){if(location.hash===hash)render();else location.hash=hash}
+  function navigate(hash){window.GreywakeNavigation.navigate(hash)}
   function readCaptures(){try{const x=JSON.parse(localStorage.getItem(CAPTURE_KEY)||'[]');return Array.isArray(x)?x:[]}catch{return[]}}
   function saveCaptures(items){localStorage.setItem(CAPTURE_KEY,JSON.stringify(items))}
   function addCapture(type,text){const clean=String(text||'').trim();if(!clean)return;const items=readCaptures();items.unshift({id:`cap-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,type,text:clean,stage:'captured',session:gmState().session||'Current session',createdAt:new Date().toISOString()});saveCaptures(items);render()}
@@ -219,5 +219,5 @@
   }
 
   document.addEventListener('click',e=>{if(!fullGM())return;const b=e.target.closest('#primaryNav [data-gm-route]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();navigate(b.dataset.gmRoute)},true);
-  window.addEventListener('hashchange',()=>setTimeout(render,0));window.addEventListener('greywake:player-ready',()=>setTimeout(render,0));window.addEventListener('greywake:gm-goals-rendered',()=>{if(fullGM()&&(location.hash===ROUTES.prep||location.hash===ROUTES.players))setTimeout(render,0)});document.addEventListener('DOMContentLoaded',()=>setTimeout(render,80));new MutationObserver(()=>{if(fullGM()&&!document.getElementById('gmOperationsView'))render()}).observe(document.documentElement,{childList:true,subtree:true});setTimeout(render,160);
+  window.GreywakeNavigation.register('gm',render);window.addEventListener('greywake:player-ready',()=>setTimeout(render,0));window.addEventListener('greywake:gm-goals-rendered',()=>{if(fullGM()&&(location.hash===ROUTES.prep||location.hash===ROUTES.players))setTimeout(render,0)});document.addEventListener('DOMContentLoaded',()=>setTimeout(render,80));new MutationObserver(()=>{if(fullGM()&&!document.getElementById('gmOperationsView'))render()}).observe(document.documentElement,{childList:true,subtree:true});setTimeout(render,160);
 })();

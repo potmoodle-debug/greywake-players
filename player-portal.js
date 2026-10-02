@@ -292,14 +292,7 @@
     }
   }
 
-  function navigate(route) {
-    if (!route || !route.startsWith('#/')) return;
-    if (location.hash === route) {
-      render();
-      return;
-    }
-    location.hash = route;
-  }
+  function navigate(route) { window.GreywakeNavigation.navigate(route); }
 
   window.GreywakePlayerPortal = { render, navigate, syncPrimaryNav };
 
@@ -312,8 +305,7 @@
     const page = routeName();
     if (['my-greywake','mind','inbox'].includes(page)) render();
   });
-  window.addEventListener('hashchange', () => setTimeout(render, 0));
-  window.addEventListener('popstate', () => setTimeout(render, 0));
+  window.GreywakeNavigation.register('portal', render);
   document.addEventListener('DOMContentLoaded', render);
   setTimeout(render, 140);
   render();

@@ -16,15 +16,16 @@ function routeFor(name){
  const fullGM=document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
  return (fullGM?'#/gm-world/record/':'#/record/')+encodeURIComponent(name)
 }
+function safeRecordName(value){try{return decodeURIComponent(value)}catch{return ''}}
 function currentRoute(){
  const h=location.hash||'';
  if(h==='#/brain')return{type:'brain'};
- if(h.startsWith('#/gm-world/record/'))return{type:'record',name:decodeURIComponent(h.slice('#/gm-world/record/'.length))};
- if(h.startsWith('#/record/'))return{type:'record',name:decodeURIComponent(h.slice(9))};
+ if(h.startsWith('#/gm-world/record/'))return{type:'record',name:safeRecordName(h.slice('#/gm-world/record/'.length))};
+ if(h.startsWith('#/record/'))return{type:'record',name:safeRecordName(h.slice(9))};
  if(APP_EXTERNAL_ROUTES.has(h))return{type:'external'};
  return{type:'home'};
 }
-function go(route){if(location.hash===route){renderRoute();return}location.hash=route}
+function go(route){window.GreywakeNavigation.navigate(route)}
 
 function searchableText(name){
  if(SEARCH_INDEX.has(name))return SEARCH_INDEX.get(name);
@@ -76,7 +77,7 @@ function buildNav(filter=''){
 function renderDiscoveries(){
  const grid=document.getElementById('discoveryGrid');if(!grid)return;grid.innerHTML='';
  DISC.forEach(d=>{
-   const b=document.createElement('button');b.className='discovery-card text-only';b.onclick=()=>go(routeFor(d.note));
+   const b=document.createElement('button');b.className='discovery-card text-only';b.dataset.note=d.note;b.onclick=()=>go(routeFor(d.note));
    b.innerHTML=`<div><small>${d.kind}</small><strong>${d.title}</strong><p>${d.text}</p><em>${d.when}</em></div>`;
    grid.appendChild(b);
  });
@@ -167,7 +168,11 @@ function expandActiveNav(name){
  const subgroup=active.closest('.nav-subgroup');subgroup?.classList.remove('is-collapsed');subgroup?.querySelector('.nav-subtoggle')?.setAttribute('aria-expanded','true');
 }
 function showNote(name){
- if(!DATA[name]){go('#/');return}
+ if(!DATA[name]){
+ home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
+ article.innerHTML=`${articleNav()}<h1>Record unavailable</h1><p>This record is not available in your current view. Return to the archive to choose a known record.</p>`;
+ wireArticleLinks();document.getElementById('crumb').textContent='Greywake / Record unavailable';return;
+}
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
  if(name==='Known People'&&window.GREYWAKE_RENDER_PEOPLE_BROWSER){
    window.GREYWAKE_RENDER_PEOPLE_BROWSER(article);
@@ -208,7 +213,7 @@ document.addEventListener('keydown',event=>{
  event.preventDefault();searchInput.focus();searchInput.select();
 });
 document.querySelectorAll('[data-note]').forEach(x=>x.onclick=()=>go(routeFor(x.dataset.note)));
-window.addEventListener('hashchange',renderRoute);
+window.GreywakeNavigation.register('archive', renderRoute);
 
 function drawGraph(){
  const host=document.getElementById('graph'),W=1200,H=650,svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);host.innerHTML='';host.appendChild(svg);

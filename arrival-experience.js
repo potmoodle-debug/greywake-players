@@ -21,6 +21,7 @@
   const threads = document.getElementById('currentThreads');
   if (!home || !hero || !goals || !threads) return;
   let lastSignature = '';
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   function isPlayerFacing() {
     if (!document.body.dataset.role) return false;
@@ -117,7 +118,7 @@
     const intro = copy.querySelector(':scope > p');
     const homeState = characterHomeState() || {};
     if (heading) heading.textContent = homeState.heading || `${characterName()}, what matters now?`;
-    if (intro) intro.textContent = 'Start with your live character sheet, pick up your own story, or follow whatever has caught your character’s attention.';
+    if (intro) intro.textContent = 'Pick up where you left off. Your character, your conversations, and the things you want to follow.';
     let orientation = document.getElementById('arrivalOrientation');
     if (!orientation) {
       orientation = document.createElement('div');
@@ -130,18 +131,18 @@
     orientation.innerHTML = `
       <div class="arrival-orientation-item">
         <small>WHERE YOU ARE NOW</small>
-        <strong>${homeState.location || 'Greywake'}</strong>
-        <span>${homeState.locationDetail || 'Your current position in the story.'}</span>
+        <strong>${esc(homeState.location || 'Greywake')}</strong>
+        <span>${esc(homeState.locationDetail || 'Your current position in the story.')}</span>
       </div>
       <a class="arrival-orientation-item" href="${homeState.chapterRoute || '#/campaign'}">
         <small>YOUR LAST CHAPTER</small>
-        <strong>${homeState.chapterTitle || 'Your story so far'}</strong>
-        <span>${homeState.chapterDetail || 'Review the most recent part of your character’s story.'}</span>
+        <strong>${esc(homeState.chapterTitle || 'Your story so far')}</strong>
+        <span>${esc(homeState.chapterDetail || 'Review the most recent part of your character’s story.')}</span>
       </a>
       <a class="arrival-orientation-item" href="#/possibilities">
         <small>WHAT IS MOVING NOW</small>
-        <strong>${homeState.currentTitle || 'Known possibilities'}</strong>
-        <span>${homeState.currentDetail || 'Things your character currently knows they could engage with.'}</span>
+        <strong>${esc(homeState.currentTitle || 'Known possibilities')}</strong>
+        <span>Open the leads and possibilities your character knows about.</span>
       </a>`;
 
     let actions = document.getElementById('arrivalActions');
@@ -156,8 +157,10 @@
 
     const name = characterName();
     const engagement = engagementSnapshot();
-    const mindCount = Math.min(engagement?.activeInterests ?? activeMindCount(), 12);
-    const pursuingCount = Math.min(engagement?.pursuing ?? pursuingMindCount(), 3);
+    const mindCount = engagement?.activeInterests ?? activeMindCount();
+    const pursuingLimit = window.GreywakeCardPriorities?.limits?.pursuing ?? 1;
+    const pursuingCount = Math.min(engagement?.pursuing ?? pursuingMindCount(), pursuingLimit);
+    const pursuit = goals.querySelector('.mind-tier-pursuing .player-mind-card h3')?.textContent?.trim() || '';
     const possibilities = possibilityCount();
     const q = engagement?.questions ?? questionCount();
     const replies = engagement?.replies ?? gmReplyCount();
@@ -165,28 +168,29 @@
     const characterImage = findImage(document.getElementById('characterSheet'));
     const worldImage = findImage(threads) || 'assets/tower-distant.jpg';
     const mindImage = findImage(goals.querySelector('.player-mind-view')) || worldImage;
-    const signature = JSON.stringify({name,mindCount,pursuingCount,possibilities,q,replies,latest,homeState,characterImage,worldImage,mindImage});
+    const signature = JSON.stringify({name,mindCount,pursuingCount,pursuingLimit,pursuit,possibilities,q,replies,latest,homeState,characterImage,worldImage,mindImage});
     const existingStatus = document.getElementById('arrivalStatus');
     if (lastSignature === signature && actions.isConnected && existingStatus?.isConnected) return;
     lastSignature = signature;
     actions.innerHTML = `
       <a class="arrival-action arrival-action-character" href="#/character">
-        <small>PLAY MY CHARACTER</small>
-        <strong>${name}</strong>
-        <span>Your live Daggerheart sheet. Everything you need to play ${name}.</span>
-        <em>Play ${name} →</em>
-      </a>
-      <a class="arrival-action arrival-action-world" href="#/possibilities">
-        <small>THE WORLD IS MOVING</small>
-        <strong>What's out there?</strong>
-        <span>${possibilities ? `${possibilities} known ${possibilities === 1 ? 'possibility' : 'possibilities'} the party could pursue.` : 'Known leads, rumours and situations the party could pursue.'}</span>
-        <em>See possibilities →</em>
+        <small>YOUR CHARACTER</small><strong>Play ${esc(name)}</strong>
+        <span>Rolls, abilities, resources and backpack.</span><em>Open character</em>
       </a>
       <a class="arrival-action arrival-action-mind" href="#/mind">
-        <small>MY PRIORITIES · ${pursuingCount}/3 PURSUING</small>
-        <strong>On my mind</strong>
-        <span>${mindCount}/12 active interests. Pursuing is your focused shortlist.</span>
-        <em>Review priorities →</em>
+        <small>YOUR PURSUIT · ${pursuingCount}/${pursuingLimit}</small>
+        <strong>${esc(pursuit || 'What matters to you?')}</strong>
+        <span>${pursuit ? 'Pick up this thread or review your other interests.' : 'Choose one thing you want to act on. You can change your mind.'}</span>
+        <em>${mindCount} ${mindCount === 1 ? 'interest' : 'interests'} · Review priorities</em>
+      </a>
+      <a class="arrival-action arrival-action-conversations" href="#/inbox">
+        <small>QUESTIONS & REPLIES</small><strong>Talk to the GM</strong>
+        <span>${q ? `${q} open ${q === 1 ? 'question' : 'questions'}. ` : 'Ask about something you have encountered. '}${replies ? `${replies} GM ${replies === 1 ? 'reply' : 'replies'} in active conversations.` : ''}</span>
+        <em>Open conversations</em>
+      </a>
+      <a class="arrival-action arrival-action-world" href="#/greywake">
+        <small>PEOPLE, PLACES & DISCOVERIES</small><strong>Explore Greywake</strong>
+        <span>Follow the map, revisit a familiar face, or find a known lead.</span><em>Open the world</em>
       </a>`;
 
     const characterCard = actions.querySelector('.arrival-action-character');
@@ -204,9 +208,9 @@
       actions.insertAdjacentElement('afterend', status);
     }
     status.innerHTML = `
-      <a href="#/inbox"><strong>${replies || q}</strong><span>${replies ? `GM ${replies === 1 ? 'reply' : 'replies'}` : q ? `open ${q === 1 ? 'question' : 'questions'}` : 'questions & replies'}</span></a>
-      ${latest.title ? `<div class="arrival-latest"><small>LATEST DISCOVERY</small><span>${latest.title}</span></div>` : ''}
-      <a class="arrival-explore-link" href="#/explore">Explore Greywake →</a>`;
+      ${latest.title && latest.note ? `<a class="arrival-latest" href="#/record/${encodeURIComponent(latest.note)}"><small>LATEST RECAP</small><span>${esc(latest.title)}</span></a>` : ''}
+      <a class="arrival-explore-link" href="#/possibilities">${possibilities ? `${possibilities} known possibilities` : 'Known possibilities'}</a>`;
+
   }
 
   document.addEventListener('DOMContentLoaded', build);
