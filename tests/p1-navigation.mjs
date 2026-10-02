@@ -22,7 +22,7 @@ for (const renderer of ['renderMyGreywake','renderGreywake','renderCampaign']) {
 }
 if (!portal.includes("['my-greywake','mind','inbox']")) fail('Mind and Inbox must remain subordinate to My Greywake.');
 if (!portal.includes("['campaign','possibilities']")) fail('Possibilities must remain subordinate to Campaign.');
-if (!portal.includes("['greywake','brain','record']")) fail('Records and Player Brain must remain subordinate to Greywake.');
+if (!portal.includes("['greywake','map','brain','record']")) fail('Records and Player Brain must remain subordinate to Greywake.');
 if (!index.includes('id="brainBtn"') || !index.includes('p1-legacy-route')) fail('Legacy Player Brain hook must remain available to app.js without being top-level UI.');
 if (!css.includes('.primary-nav') || !css.includes('.player-portal-my-greywake') || !css.includes('.player-portal-campaign')) fail('P1 hierarchy styling is incomplete.');
 

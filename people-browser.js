@@ -153,6 +153,7 @@
             <button type="button" data-reveal-npc="party">Party</button>
             <button type="button" data-reveal-npc="marek">Marek</button>
             <button type="button" data-reveal-npc="odie">Odie</button>
+            <button type="button" data-reveal-npc="velmira">Velmira</button>
           </div>
         </div>`:'';
 

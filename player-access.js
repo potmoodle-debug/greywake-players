@@ -70,21 +70,31 @@
 
   function playerRouteFromGM(hash = location.hash || '') {
     const routeMap = {
-      '#/gm-players': '#/mind',
+      '#/gm-players': '#/my-greywake',
+      '#/gm-prep': '#/',
+      '#/gm-between': '#/',
+      '#/gm-update': '#/',
+      '#/gm-world': '#/greywake',
+      '#/gm-archive': '#/greywake',
+      '#/gm-inbox': '#/inbox',
       '#/gm-greywake': '#/greywake',
       '#/gm-campaign': '#/campaign',
       '#/gm-cockpit': '#/',
       '#/gm-session': '#/',
       '#/gm_session': '#/'
     };
-    return routeMap[hash] || hash || '#/';
+    if (hash.startsWith('#/gm-world/record/')) return '#/record/' + hash.slice('#/gm-world/record/'.length);
+    return routeMap[hash] || (hash.startsWith('#/gm-') ? '#/' : hash) || '#/';
   }
 
   function gmRouteFromPlayer(hash = location.hash || '') {
-    if (['#/mind', '#/my-greywake', '#/inbox'].includes(hash)) return '#/gm-players';
-    if (['#/campaign', '#/possibilities'].includes(hash)) return '#/gm-campaign';
-    if (hash === '#/greywake') return '#/gm-greywake';
-    return hash || '#/';
+    if (hash === '#/inbox') return '#/gm-inbox';
+    if (['#/mind', '#/my-greywake'].includes(hash)) return '#/gm-players';
+    if (['#/campaign', '#/possibilities'].includes(hash)) return '#/gm-prep';
+    if (hash === '#/greywake') return '#/gm-world';
+    if (hash.startsWith('#/record/')) return '#/gm-world/record/' + hash.slice('#/record/'.length);
+    if (['#/brain', '#/map', '#/explore'].includes(hash)) return '#/gm-world';
+    return hash.startsWith('#/gm-') ? hash : '#/gm-session';
   }
 
   function reloadAt(hash) {

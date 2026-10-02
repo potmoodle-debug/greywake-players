@@ -19,13 +19,13 @@
     D['Clay'].category = 'Archived Characters';
     D['Clay'].html = `<p>Clay was Martin's Ridgeborne Ranger during Sessions One to Three. He was a Great-Shell handler, caravan scout and practical judge of desert risk, travelling with Hopkins, his giant kangaroo-rat companion.</p><p>Clay is retired from active play. His actions during the Kestrel Return remain historical canon and are not reassigned to Marek.</p>`;
   }
-  C['Player Characters'] = ['Marek','Odie'];
+  C['Player Characters'] = ['Marek','Odie','Velmira'];
   C['Archived Characters'] = ['Clay'];
   if (D['Velmira']) {
-    D['Velmira'].category = 'People';
-    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She was formerly a player character and is now an NPC in Greywake. Her established history, relationships and knowledge remain part of the campaign.</p>`;
+    D['Velmira'].category = 'Player Characters';
+    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She is Carla's active player character in Greywake. Her established history, relationships and knowledge remain part of the campaign.</p>`;
   }
-  C['People'] = [...new Set([...(C['People'] || []), 'Velmira'])];
+  C['People'] = (C['People'] || []).filter(name => name !== 'Velmira');
 
   D['Jessa Vale'] = {
     title: 'Jessa Vale',
@@ -204,7 +204,7 @@
     velmira: {
       heading: 'Velmira, what matters now?',
       location: 'Greywake',
-      locationDetail: 'Velmira remains in Greywake as a background character and is not assumed to be present at the blocked Digger way.',
+      locationDetail: 'Velmira is in Greywake. Carla decides her next action; her return to active play does not move her to the Digger way.',
       chapterTitle: 'Kestrel Return',
       chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake after the cacklemaw attack and the longer return route.',
       chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
@@ -219,8 +219,8 @@
   window.GREYWAKE_GM_STATE = {
     session: 'Two days after Kestrel Return',
     partyLocation: 'Greywake and the buried ways: Marek below Greywake · Odie returning with Spencer · Velmira in Greywake',
-    activeParty: ['Marek','Odie'],
-    backgroundParty: ['Velmira'],
+    activeParty: ['Marek','Odie','Velmira'],
+    backgroundParty: [],
     situationTitle: 'Greywake has reacted',
     situationDetail: 'Two days have passed since Kestrel Return reached Greywake. The rescue is no longer fresh news: accounts are circulating, losses are being counted, Ash-Plate remains out of normal work, the Cistern Plate is under controlled attention, Digger crews are guarding route knowledge more tightly, and the altered-marker and closure questions remain unresolved.',
     sceneTitle: 'Between scenes — Day 2',
@@ -250,8 +250,8 @@
         {
           name: 'Velmira',
           location: 'Greywake',
-          detail: 'Velmira is now an NPC and remains in Greywake. No additional private move is assumed unless play brings her into one.',
-          status: 'NPC'
+          detail: 'Velmira is Carla’s active player character and remains in Greywake. Her next action is for Carla to choose.',
+          status: 'ACTIVE PC'
         }
       ],
       likelyScenes: [
@@ -315,13 +315,6 @@
           decision: 'Compare accounts rather than repeat the loudest version.',
           next: 'Notice contradictions, repeated details and claims that outrun the evidence.',
           certainty: 'OFF-SCREEN MOVE'
-        },
-        {
-          name: 'Velmira',
-          knowledge: 'No new private off-screen information has been established for her since becoming an NPC.',
-          decision: 'No current NPC decision established.',
-          next: 'Use her only if events in Greywake naturally involve her.',
-          certainty: 'OPEN'
         }
       ],
       evidence: [
