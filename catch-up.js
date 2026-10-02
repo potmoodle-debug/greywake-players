@@ -26,6 +26,7 @@
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let character='',state=null,storageKey='',previousVisit=null,queued=false,filter='all',lastRoute=null,available={};
   const slug=()=>String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();
+  const playerName=()=>({marek:'Marek',odie:'Odie',velmira:'Velmira'})[slug()]||'your character';
   const playerFacing=()=>['marek','odie','velmira'].includes(slug()) && (document.body.dataset.role!=='gm'||document.body.dataset.gmPreview==='true');
   const preview=()=>document.body.dataset.gmPreview==='true';
   function load(){
@@ -101,11 +102,11 @@
       lastRoute=route;
     }
     const panel=ensureUI(),items=unread(),count=items.length;
-    document.getElementById('homeCatchup').innerHTML=`<span class="catchup-seal" aria-hidden="true">${count||'✦'}</span><span><small>SINCE YOUR LAST VISIT</small><strong>${count?`${count} ${count===1?'update is':'updates are'} waiting for you`:'You’re caught up'}</strong><span>${count?'Discoveries, changed records and conversations. Pick up what matters.':previousVisit?'Nothing new to review. Revisit your latest discoveries.':'Your trail starts here. Future changes will be waiting when you return.'}</span></span><b>Open updates</b>`;
-    const nav=document.getElementById('updatesNav');nav.textContent=count?`Updates · ${count}`:'Updates';nav.setAttribute('aria-label',count?`Updates, ${count} not reviewed`:'Updates');nav.classList.toggle('has-updates',count>0);nav.toggleAttribute('aria-current',location.hash==='#/updates');if(location.hash==='#/updates')nav.setAttribute('aria-current','page');
+    document.getElementById('homeCatchup').innerHTML=`<span class="catchup-seal" aria-hidden="true">${count||'✦'}</span><span><small>${esc(playerName().toUpperCase())} · SINCE YOUR LAST VISIT</small><strong>${count?`${count} ${count===1?'update is':'updates are'} waiting for you`:'You’re caught up'}</strong><span>${count?'Discoveries, changed records and conversations. Pick up where you left off.':previousVisit?'Nothing new to review. Revisit your latest discoveries.':'Your trail starts here. Future changes will be waiting when you return.'}</span></span><b>Open updates</b>`;
+    const nav=document.getElementById('updatesNav');nav.textContent=count?`${playerName()} · ${count}`:`${playerName()} · Updates`;nav.setAttribute('aria-label',count?`${playerName()} updates, ${count} not reviewed`:`${playerName()} updates`);nav.classList.toggle('has-updates',count>0);nav.toggleAttribute('aria-current',location.hash==='#/updates');if(location.hash==='#/updates')nav.setAttribute('aria-current','page');
     if(location.hash!=='#/updates'){panel.classList.add('hidden');return;}
     for(const id of ['home','brainView','article','playerPortal','characterPageView','gmOperationsView'])document.getElementById(id)?.classList.add('hidden');panel.classList.remove('hidden');
-    document.getElementById('crumb').textContent='Greywake / Since your last visit';document.title='Since your last visit — Greywake';
+    document.getElementById('crumb').textContent=`Greywake / ${playerName()} / Since your last visit`;document.title=`Since your last visit, ${playerName()} — Greywake`;
     document.querySelectorAll('[data-primary-section]').forEach(node=>{node.classList.remove('active');node.removeAttribute('aria-current');});
     const selected=items.filter(x=>filter==='all'||(filter==='replies'?x.kind==='GM reply':filter==='personal'?x.source==='personal':x.source!=='personal'&&x.kind!=='GM reply'));
     const first=!previousVisit;
@@ -114,11 +115,11 @@
     const signature=JSON.stringify([character,previousVisit,filter,items,latest]);
     if(panel.dataset.signature===signature){if(entered)panel.querySelector('h1')?.focus({preventScroll:true});return;}
     panel.dataset.signature=signature;
-    panel.innerHTML=`<header class="catchup-head"><a href="#/">Home</a><div class="eyebrow">${esc(slug())} · YOUR TRAIL THROUGH GREYWAKE</div><h1 tabindex="-1">Since your last visit</h1><p>${first?'This visit starts your record. Updates will stay here until you open them or mark them reviewed.':`Last visit: ${esc(time(previousVisit))}. Updates stay here until you open them or mark them reviewed.`}</p></header>
+    panel.innerHTML=`<header class="catchup-head"><a href="#/">Home</a><div class="eyebrow">${esc(playerName().toUpperCase())} · YOUR TRAIL THROUGH GREYWAKE</div><h1 tabindex="-1">Since your last visit, ${esc(playerName())}</h1><p>${first?`This is the beginning of ${esc(playerName())}'s record here. Updates will stay until you open them or mark them reviewed.`:`Last visit: ${esc(time(previousVisit))}. This is ${esc(playerName())}'s personal trail through Greywake; updates stay here until you open them or mark them reviewed.`}</p></header>
       <div class="catchup-tools"><nav aria-label="Filter updates">${[['all','All'],['world','World'],['personal','Personal'],['replies','GM replies']].map(([key,label])=>`<button type="button" data-update-filter="${key}" aria-pressed="${filter===key}">${label}</button>`).join('')}</nav>${count?'<button type="button" data-update-all>Mark all reviewed</button>':''}</div>
       ${count?`<p class="catchup-count" role="status">${selected.length} of ${count} updates</p><div class="catchup-grid">${selected.length?selected.map(card).join(''):'<div class="catchup-empty"><h2>Nothing in this view</h2><p>Choose All to see your other updates.</p></div>'}</div>`:`<div class="catchup-empty"><div aria-hidden="true">✦</div><h2>${first?'A fresh page in your story':'You’re caught up'}</h2><p>${first?'We’ll remember the records available to you now. Future changes will appear here without marking the whole archive as new.':'There are no unreviewed changes in the information available to your character.'}</p><a href="#/greywake">Explore Greywake</a></div>`}
       ${!count&&latest.length?`<section class="catchup-recent"><h2>Where we left off</h2><p>Your latest known discoveries, ready to revisit.</p><div class="catchup-grid">${latest.map(card).join('')}</div></section>`:''}
-      <footer class="catchup-foot">Remembered on this browser for ${esc(slug())}${preview()?' · GM preview has its own history':''}. First visits on another device start a separate record.</footer>`;
+      <footer class="catchup-foot">Remembered on this browser for ${esc(playerName())}${preview()?' · GM preview has its own history':''}. First visits on another device start a separate record.</footer>`;
     if(entered)panel.querySelector('h1')?.focus({preventScroll:true});
     panel.querySelectorAll('[data-update-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.updateFilter;render();}));
     panel.querySelectorAll('[data-update-open]').forEach(b=>b.addEventListener('click',()=>{const item=state.pending[b.dataset.updateOpen];if(item)openItem(item);}));
