@@ -3,6 +3,31 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const source = readFileSync(new URL('../player-access.js', import.meta.url), 'utf8');
+const registry = vm.runInNewContext("(" + source.match(/const USERS = (\{[\s\S]*?\n  \});/)[1] + ")");
+for (const [, key] of source.matchAll(/data-user="([^"]+)"/g)) {
+  assert.ok(registry[key], `Visible login choice ${key} must have an identity`);
+}
+assert.equal(registry.carla.character, 'Velmira');
+assert.equal(registry.carla.role, 'player');
+// Exercise Carla's actual gate selection and submit handlers in an isolated DOM.
+const node = () => ({ classList: { toggle() {}, remove() {} }, addEventListener(type, fn) { this[type] = fn; }, focus() {}, select() {}, remove() {} });
+const buttons = Object.keys(registry).map(key => ({ ...node(), dataset: { user: key } }));
+const elements = Object.fromEntries(['playerCodeForm', 'chosenPlayer', 'playerCode', 'codeError'].map(id => [id, node()]));
+const shell = { setAttribute() {}, removeAttribute() {} };
+const gate = { ...node(), setAttribute() {}, querySelectorAll() { return buttons; }, querySelector() { return buttons[0]; } };
+let entered;
+const gateContext = vm.createContext({
+  USERS: registry,
+  document: { querySelector() { return shell; }, createElement() { return gate; }, body: { appendChild() {} }, getElementById(id) { return elements[id]; } },
+  setCurrent(key) { entered = key; },
+});
+vm.runInContext(source.slice(source.indexOf('  function showGate()'), source.indexOf('  function boot()')), gateContext);
+gateContext.showGate();
+buttons.find(b => b.dataset.user === 'carla').click();
+assert.equal(elements.chosenPlayer.textContent, 'Carla · Velmira');
+elements.playerCode.value = registry.carla.code;
+elements.playerCodeForm.submit({ preventDefault() {} });
+assert.equal(entered, 'carla');
 const start = source.indexOf('  function playerRouteFromGM(');
 const end = source.indexOf('  function reloadAt(', start);
 const context = vm.createContext({ location: { hash: '#/' } });
