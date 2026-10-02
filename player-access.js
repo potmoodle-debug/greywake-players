@@ -57,7 +57,8 @@
     localStorage.setItem(STORAGE_KEY, key);
     sessionStorage.removeItem(PREVIEW_KEY);
     gmPreviewKey = null;
-    applyView({ key, ...USERS[key] });
+    // Start each newly selected identity at Home with a fresh player view.
+    reloadAt('#/');
   }
 
   function clearCurrent() {
@@ -107,7 +108,7 @@
   function enterGMPreview(key) {
     if (!ownerIsGM() || !USERS[key] || USERS[key].role !== 'player') return;
     sessionStorage.setItem(PREVIEW_KEY, key);
-    reloadAt(playerRouteFromGM());
+    reloadAt('#/');
   }
 
   function returnToGM() {

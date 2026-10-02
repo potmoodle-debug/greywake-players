@@ -28,6 +28,16 @@ assert.equal(elements.chosenPlayer.textContent, 'Carla · Velmira');
 elements.playerCode.value = registry.carla.code;
 elements.playerCodeForm.submit({ preventDefault() {} });
 assert.equal(entered, 'carla');
+const entryContext = vm.createContext({
+  STORAGE_KEY: 'test-player', PREVIEW_KEY: 'test-preview', USERS: registry, localStorage: { setItem() {} }, sessionStorage: { removeItem() {}, setItem() {} },
+  ownerIsGM: () => true, reloadAt: route => { entered = route; },
+});
+vm.runInContext('let gmPreviewKey; ' + source.slice(source.indexOf('  function setCurrent('), source.indexOf('  function clearCurrent(')) + source.slice(source.indexOf('  function enterGMPreview('), source.indexOf('  function returnToGM(')), entryContext);
+entryContext.setCurrent('carla');
+assert.equal(entered, '#/', 'Selecting Carla should open Home');
+entered = null;
+entryContext.enterGMPreview('carla');
+assert.equal(entered, '#/', 'Previewing Carla should open Home');
 const start = source.indexOf('  function playerRouteFromGM(');
 const end = source.indexOf('  function reloadAt(', start);
 const context = vm.createContext({ location: { hash: '#/' } });
