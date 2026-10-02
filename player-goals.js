@@ -332,8 +332,15 @@
           const resolvedCards = resolved.length ? `<details class="resolved-goals"><summary>Played / resolved (${resolved.length})</summary><div class="interest-thread-list">${resolved.map(goal => gmThreadCard(goal, messages)).join('')}</div></details>` : '';
           return `<section class="gm-goal-group"><div class="eyebrow">${CHARACTER_NAMES[key].toUpperCase()}</div><h3>${CHARACTER_NAMES[key]}'s questions & interests</h3><div class="engagement-counts"><span>? ${counts.questions} questions</span><span>★ ${counts.interests} interests</span><span>→ ${counts.pursuing} pursuing</span></div>${currentCards}${resolvedCards}</section>`;
         }).join('');
-        host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">PLAYER-DIRECTED PREP</div><h2>Player Questions & Interests</h2></div><p>Questions capture curiosity without turning it into a quest. Interested means the character cares about it. Pursuing means this is the one thing that player currently wants to act on in play.</p></div><div class="interest-legend"><span>QUESTION</span><span>PLAYER INTEREST</span><span>PURSUING</span><span>PLAY AT TABLE</span><span>PLAYED / RESOLVED</span></div>${grouped}`;
-        attachSourceActions(host); attachStatusActions(host, user); attachGMReplyActions(host, user); return;
+        host.innerHTML = `<div class="section-head player-goals-head"><div><div class="eyebrow">PLAYER-DIRECTED PREP</div><h2>Player Questions & Interests</h2></div><p>Questions capture curiosity without turning it into a quest. Interested means the character cares about it. Pursuing means this is the one thing that player currently wants to act on in play.</p></div><form id="gmAskForm" class="goal-form gm-ask-form"><label for="gmAskCharacter">Ask a player a question</label><div class="goal-input-row"><select id="gmAskCharacter" aria-label="Player to ask"><option value="marek">Marek</option><option value="velmira">Velmira</option><option value="odie">Odie</option></select><input id="gmAskInput" maxlength="${MAX_LENGTH}" placeholder="e.g. What does Marek do when the Foldling returns?"><button type="submit">Ask player</button></div><div class="goal-hint">This appears in that character's Questions & Interests as a GM question.</div></form><div class="interest-legend"><span>QUESTION</span><span>PLAYER INTEREST</span><span>PURSUING</span><span>PLAY AT TABLE</span><span>PLAYED / RESOLVED</span></div>${grouped}`;
+        attachSourceActions(host); attachStatusActions(host, user); attachGMReplyActions(host, user);
+        document.getElementById('gmAskForm')?.addEventListener('submit', async event => {
+          event.preventDefault(); const form=event.currentTarget, target=document.getElementById('gmAskCharacter').value, input=document.getElementById('gmAskInput'), submit=form.querySelector('button[type="submit"]'), value=input.value.trim().replace(/\s+/g,' ');
+          if(value.length<3)return; submit.disabled=true;
+          try { await request(user,'POST',{goal:value.slice(0,MAX_LENGTH),entry_kind:'question',character_slug:target}); await render(user); }
+          catch(error){submit.disabled=false;alert(error.message);}
+        });
+        return;
       }
 
       const key = characterKey(user);
