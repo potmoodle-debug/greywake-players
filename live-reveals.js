@@ -135,7 +135,7 @@
     try {
       const data = await request('GET');
       const items = Array.isArray(data.reveals) ? data.reveals : [];
-      const signature = items.map(x=>x.id).join(',');
+      const signature = JSON.stringify(items.map(x=>[x.id,x.title,x.body,x.source_route,x.audience]));
       if (signature === lastSignature) return;
       const firstLoad = lastSignature === '';
       lastSignature = signature;

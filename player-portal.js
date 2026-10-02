@@ -26,6 +26,7 @@
 
   function routeName() {
     const hash = location.hash || '#/';
+    if (hash === '#/updates') return 'updates';
     if (hash === '#/my-greywake') return 'my-greywake';
     if (hash === '#/greywake' || hash === '#/explore') return 'greywake';
     if (hash === '#/map') return 'map';

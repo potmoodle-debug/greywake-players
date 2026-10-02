@@ -9,7 +9,7 @@ const LOCATION_GROUPS=[
  {label:'Kestrel Return route',names:['High Shelf','Old Marker Wash','Old Marker Line','Failed Marker','Wrong Lower Line','Ash-Plate Groundfall','Broken Runnels',"Joric's Runnel",'Stone-Lip Hollow']},
  {label:'Other known places',names:['Split Rock Shade']}
 ];
-const APP_EXTERNAL_ROUTES=new Set(['#/character','#/my-greywake','#/greywake','#/campaign','#/map','#/possibilities','#/mind','#/inbox','#/explore']);
+const APP_EXTERNAL_ROUTES=new Set(['#/updates','#/character','#/my-greywake','#/greywake','#/campaign','#/map','#/possibilities','#/mind','#/inbox','#/explore']);
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
 function routeFor(name){

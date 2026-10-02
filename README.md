@@ -15,3 +15,5 @@ Brannic Hale now uses the same standard `assets/*.jpg` image path pattern as Gre
 Run `node tests/smoke.mjs` before publishing. It checks that navigation categories, relationships, discoveries, media, and files referenced by `index.html` still point to valid records and assets.
 
 Navigation regression check: `node tests/navigation-lifecycle.mjs` verifies Character return, return after refresh, Back/Forward event handling and repeated navigation.
+
+Player catch-up: Home and Updates remember reviewed changes per character on this browser. First visits establish a baseline; preview history is separate. Verify with `node tests/catch-up.mjs`.

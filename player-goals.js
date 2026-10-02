@@ -296,7 +296,12 @@
       activeInterests: current.filter(goal => !isQuestion(goal)).length,
       pursuing: counts.pursuing,
       questions: counts.questions,
-      replies
+      replies,
+      replyUpdates: messages.filter(message => message.author_role === 'gm' && activeIds.has(Number(message.goal_id))).map(message => ({
+        id: message.id, goalId: message.goal_id, body: message.message_text,
+        title: current.find(goal => Number(goal.id) === Number(message.goal_id))?.goal_text || 'The GM replied',
+        createdAt: message.created_at
+      }))
     };
     window.dispatchEvent(new CustomEvent('greywake:goals-rendered', { detail: window.GreywakeGoalSnapshot }));
   }
