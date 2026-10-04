@@ -73,7 +73,7 @@ try:
     assert "spencer-digger.png?v=spencer4" in spencer_img.get_attribute("src"), "GM RUN must use Spencer's restored Obsidian portrait"
 
     driver.execute_script("location.hash = '#/gm-players'")
-    wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 2)
+    wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 3)
 
     resources = driver.execute_script("return performance.getEntriesByType('resource').map(e => e.name)")
     legacy_loaded = [name for name in DELETED if any(name in url for url in resources)]
