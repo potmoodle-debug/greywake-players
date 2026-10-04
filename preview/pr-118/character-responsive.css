@@ -1,0 +1,322 @@
+/* Greywake character sheet responsive authority.
+   Loaded after all character presentation/live-play layers so layout behaviour
+   has one final source of truth across desktop, tablet and phone sizes. */
+
+#characterSheet,
+#characterSheet .pro-dossier,
+#characterSheet .character-sheet-hero,
+#characterSheet .character-sheet-identity,
+#characterSheet .character-sheet-body,
+#characterSheet .sheet-group,
+#characterSheet .sheet-grid,
+#characterSheet .sheet-card,
+#characterSheet .active-actions-panel,
+#characterSheet .active-actions-zone,
+#characterSheet .active-action-detail,
+#characterSheet .live-resource-board,
+#characterSheet .live-resource-row,
+#characterSheet .pro-resource-board,
+#characterSheet #traitRollPanel {
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+#characterSheet{
+  width:100%;
+  overflow-x:clip;
+}
+
+#characterSheet .pro-dossier{
+  width:100%;
+}
+
+#characterSheet .character-sheet-identity > *{
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+#characterSheet .sheet-card>summary,
+#characterSheet .live-resource-copy,
+#characterSheet .live-resource-controls{
+  min-width:0;
+}
+
+#characterSheet .sheet-card h4,
+#characterSheet .sheet-card .sheet-value,
+#characterSheet .character-sheet-subtitle,
+#characterSheet .character-sheet-note,
+#characterSheet .active-action-detail-copy,
+#characterSheet .live-resource-copy > *{
+  overflow-wrap:anywhere;
+}
+
+#characterSheet .sheet-card .sheet-value{
+  max-width:58%;
+  white-space:normal;
+  text-align:right;
+}
+
+#characterSheet .pro-pips,
+#characterSheet .live-resource-pips{
+  min-width:0;
+  flex-wrap:wrap;
+}
+
+#characterSheet .pro-resource{
+  grid-template-columns:minmax(0,138px) minmax(0,1fr);
+}
+
+#characterSheet .character-page-tabs,
+.character-page-tabs{
+  max-width:100%;
+}
+
+/* Tablet / small laptop: preserve the designed dossier look, but let the
+   portrait and content shrink fluidly instead of snapping to fixed sizes. */
+@media(max-width:900px){
+  #characterSheet .pro-dossier .character-sheet-hero{
+    display:grid;
+    grid-template-columns:clamp(118px,23vw,190px) minmax(0,1fr);
+    min-height:0;
+    gap:0;
+  }
+
+  #characterSheet .pro-portrait-frame{
+    float:none;
+    width:auto;
+    height:auto;
+    min-width:0;
+    align-self:start;
+    margin:.9rem 0 .9rem .9rem;
+    padding:6px 6px 26px;
+    aspect-ratio:4/5;
+  }
+
+  #characterSheet .pro-portrait-frame .character-sheet-portrait,
+  #characterSheet .pro-portrait-frame .character-sheet-monogram{
+    width:100%;
+    height:100%;
+    min-height:0;
+    aspect-ratio:auto;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-identity{
+    min-width:0;
+    min-height:0;
+    padding:1.15rem 1rem 1rem;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-identity h2{
+    font-size:clamp(2rem,6.7vw,3.35rem);
+    overflow-wrap:anywhere;
+  }
+
+  #characterSheet .pro-resource-board,
+  #characterSheet .pro-dossier .character-stat-strip{
+    width:100%;
+    max-width:none;
+  }
+
+  #characterSheet .sheet-grid.traits{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+
+  #characterSheet .active-actions-zone{
+    grid-template-columns:minmax(190px,.75fr) minmax(0,1.25fr);
+  }
+}
+
+/* Narrow tablets and large phones: keep the identity beside the portrait,
+   while all interactive play panels are allowed to use the available width. */
+@media(max-width:700px){
+  .character-page-view{
+    width:100%;
+    max-width:100%;
+    padding-left:.6rem;
+    padding-right:.6rem;
+    box-sizing:border-box;
+    overflow-x:clip;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-hero{
+    display:grid;
+    grid-template-columns:clamp(96px,28vw,128px) minmax(0,1fr);
+  }
+
+  #characterSheet .pro-portrait-frame{
+    width:auto;
+    height:auto;
+    margin:.75rem 0 .75rem .75rem;
+    padding:5px 5px 23px;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-identity{
+    padding:.9rem .75rem .85rem;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-identity h2{
+    font-size:clamp(1.75rem,8vw,2.55rem);
+    line-height:.94;
+  }
+
+  #characterSheet .pro-identity-ribbon{
+    gap:.3rem;
+    font-size:.54rem;
+  }
+
+  #characterSheet .pro-identity-ribbon b{
+    max-width:100%;
+    white-space:normal;
+  }
+
+  #characterSheet .pro-resource-board,
+  #characterSheet .pro-dossier .character-stat-strip{
+    clear:none;
+    width:100%;
+    margin-left:0;
+    padding-left:.65rem;
+    padding-right:.65rem;
+  }
+
+  #characterSheet .pro-resource{
+    grid-template-columns:minmax(72px,104px) minmax(0,1fr);
+    gap:.55rem;
+  }
+
+  #characterSheet .sheet-grid.traits{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  #characterSheet .active-actions-zone,
+  #characterSheet .active-action-detail{
+    grid-template-columns:1fr;
+  }
+
+  #characterSheet .live-resource-board{
+    width:100%;
+    grid-template-columns:1fr;
+  }
+
+  #characterSheet .live-resource-hope,
+  #characterSheet .live-resource-stress,
+  #characterSheet .live-resource-hp,
+  #characterSheet .live-resource-armor,
+  #characterSheet .live-resource-water{
+    grid-column:1;
+  }
+
+  #characterSheet .p10-field-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .character-page-tabs button{
+    min-width:clamp(96px,28vw,112px);
+  }
+}
+
+/* Phone: stack the portrait above the identity. This avoids the previous
+   float + fixed-width combination that squeezed controls and forced overflow. */
+@media(max-width:480px){
+  .character-page-view{
+    padding-left:.4rem;
+    padding-right:.4rem;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-hero{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+  }
+
+  #characterSheet .pro-portrait-frame{
+    float:none;
+    width:min(42vw,142px);
+    height:auto;
+    justify-self:start;
+    margin:.7rem .7rem .15rem;
+    padding:5px 5px 24px;
+    aspect-ratio:4/5;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-identity{
+    min-height:0;
+    padding:.65rem .7rem .8rem;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-identity h2{
+    margin-top:.05rem;
+    padding-top:0;
+    font-size:clamp(1.9rem,11vw,2.55rem);
+  }
+
+  #characterSheet .pro-dossier .character-sheet-subtitle{
+    font-size:.66rem;
+  }
+
+  #characterSheet .pro-resource-board,
+  #characterSheet .pro-dossier .character-stat-strip{
+    clear:none;
+    width:100%;
+    margin-left:0;
+  }
+
+  #characterSheet .pro-resource{
+    grid-template-columns:1fr;
+    gap:.3rem;
+  }
+
+  #characterSheet .pro-pips{
+    padding:.12rem .2rem .2rem;
+  }
+
+  #characterSheet .sheet-card>summary{
+    flex-wrap:wrap;
+  }
+
+  #characterSheet .sheet-card .sheet-value{
+    max-width:70%;
+  }
+
+  #characterSheet .sheet-grid.traits{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  #characterSheet .p10-field-actions{
+    grid-template-columns:1fr;
+  }
+
+  #characterSheet .live-resource-controls{
+    grid-template-columns:32px minmax(0,1fr) 32px;
+    gap:5px;
+  }
+
+  #characterSheet .live-resource-armor .live-resource-pips{
+    flex-wrap:wrap;
+  }
+
+  .character-page-toolbar{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:.5rem;
+  }
+
+  .character-page-toolbar h1{
+    overflow-wrap:anywhere;
+  }
+}
+
+@media(max-width:360px){
+  #characterSheet .sheet-grid.traits{
+    grid-template-columns:1fr;
+  }
+
+  #characterSheet .pro-dossier .character-sheet-body{
+    padding-left:.7rem;
+    padding-right:.7rem;
+  }
+
+  .character-page-tabs button{
+    min-width:92px;
+    padding-left:.45rem;
+    padding-right:.45rem;
+  }
+}
