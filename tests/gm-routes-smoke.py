@@ -3,6 +3,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import StaleElementReferenceException
 
 BASE = os.environ.get("GREYWAKE_SMOKE_BASE", "http://127.0.0.1:8765/index.html")
 DELETED = [
@@ -55,8 +56,14 @@ try:
     for route, (heading, marker) in ROUTES.items():
         driver.execute_script("location.hash = arguments[0]", route)
         wait.until(lambda d: d.current_url.endswith(route))
-        wait.until(lambda d: d.find_elements(By.CSS_SELECTOR, "#gmOperationsView:not(.hidden) .gm-page-head h1"))
-        actual = driver.find_element(By.CSS_SELECTOR, "#gmOperationsView .gm-page-head h1").text.strip()
+        def current_heading(d):
+            try:
+                el = d.find_element(By.CSS_SELECTOR, "#gmOperationsView:not(.hidden) .gm-page-head h1")
+                value = el.text.strip()
+                return value if value == heading else False
+            except StaleElementReferenceException:
+                return False
+        actual = wait.until(current_heading)
         assert actual == heading, f"{route}: expected heading {heading!r}, got {actual!r}"
         wait.until(lambda d: d.find_elements(By.CSS_SELECTOR, marker))
         assert driver.find_element(By.CSS_SELECTOR, marker).is_displayed(), f"{route}: marker not visible: {marker}"
