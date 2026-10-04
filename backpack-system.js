@@ -1,8 +1,8 @@
 (() => {
   const CODES={marek:'MAREK',velmira:'VELMIRA',odie:'ODIE'};
-  const FILTERS=[['all','All'],['weapon','Weapons'],['armor','Armor'],['consumable','Consumables'],['gear','Gear']];
+  const FILTERS=[['all','All'],['weapon','Weapons'],['armor','Armor'],['consumable','Consumables'],['gear','Gear'],['story','Story Items']];
   const COMMON_GEAR={
-    marek:['Torch','50 ft Rope','Basic Supplies','Small Bag of Rocks and Bones'],
+    marek:['Torch','50 ft Rope','Basic Supplies','Small Bag of Rocks and Bones','Pale Thread Membrane Sample'],
     velmira:['Torch','50 ft Rope','Basic Supplies','Nomadic Pack','Book being translated','Leather Satchel'],
     odie:['Torch','50 ft Rope','Basic Supplies','Grappling Hook','Salvage-built Prosthetic Arm','Oldwork Finger · separate and unfitted']
   };
@@ -10,6 +10,29 @@
     marek:['Torch','50 ft Rope','Basic Supplies'],
     velmira:['Torch','50 ft Rope','Basic Supplies'],
     odie:['Torch','50 ft Rope','Basic Supplies']
+  };
+  const ITEM_VISUALS={
+    'Shortstaff':{image:'assets/items/marek-shortstaff.webp',meta:'Plain hardwood fighting staff'},
+    'Round Shield':{image:'assets/items/marek-round-shield.webp',meta:'Wood and hide, sun-worn'},
+    'Gambeson Armor':{image:'assets/items/marek-gambeson.webp',meta:'Quilted protection'},
+    'Greatstaff':{image:'assets/items/velmira-greatstaff.webp',meta:'Long balanced striking staff'},
+    'Whip':{image:'assets/items/velmira-whip.webp',meta:'Flexible reach weapon'},
+    'Leather Armor':{image:'assets/items/velmira-leather-armor.webp',meta:'Light protective wear'},
+    'Spear':{image:'assets/items/odie-spear.webp',meta:'Reliable reach weapon'},
+    'Small Dagger':{image:'assets/items/odie-small-dagger.webp',meta:'Compact backup blade'},
+    'Torch':{image:'assets/items/torch.webp',meta:'Travel light'},
+    '50 ft Rope':{image:'assets/items/rope-50ft.webp',meta:'Coiled field rope'},
+    'Basic Supplies':{image:'assets/items/basic-supplies.webp',meta:'Rations, wraps, and small necessities'},
+    'Leather Satchel':{image:'assets/items/velmira-satchel.webp',meta:'Carried papers and essentials'},
+    'Grappling Hook':{image:'assets/items/odie-grappling-hook.webp',meta:'Climbing and retrieval tool'},
+    'Minor Health Potion':{image:'assets/items/minor-health-potion.webp',meta:'Wound-mending draught'},
+    'Minor Stamina Potion':{image:'assets/items/minor-stamina-potion.webp',meta:'Restorative draught'},
+    'Small Bag of Rocks and Bones':{image:'assets/items/marek-rocks-bones.webp',meta:'Collected natural curiosities',story:true},
+    'Pale Thread Membrane Sample':{image:'assets/items/marek-pale-thread.webp',meta:'Recovered specimen',story:true},
+    'Nomadic Pack':{image:'assets/items/velmira-nomadic-pack.webp',meta:"Traveller's practical kit",story:true},
+    'Book being translated':{image:'assets/items/velmira-book.webp',meta:'Annotated working text',story:true},
+    'Salvage-built Prosthetic Arm':{image:'assets/items/odie-prosthetic.webp',meta:'Repaired mechanical limb',story:true},
+    'Oldwork Finger · separate and unfitted':{image:'assets/items/odie-oldwork-finger.webp',meta:'Recovered relic fragment · separate and unfitted',story:true}
   };
   let activeFilter='all',libraryOpen=false,customPanelOpen=false,lastStatus=null,actionInProgress=false;
 
@@ -33,7 +56,8 @@
       .p7-backpack-dialog{border:1px solid #7f6a3c;background:#11110d;color:#e8dec2;width:min(94vw,940px);max-height:88vh;padding:0;box-shadow:0 30px 90px rgba(0,0,0,.7)}.p7-backpack-dialog::backdrop{background:rgba(0,0,0,.74)}.p7-backpack-shell{display:grid;grid-template-rows:auto 1fr;max-height:88vh}.p7-backpack-head{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 20px;border-bottom:1px solid rgba(202,179,111,.22);background:linear-gradient(180deg,#242016,#17150f)}.p7-backpack-head-title{display:flex;gap:12px;align-items:center}.p7-backpack-head-title svg{width:34px;height:34px;color:#d3b86c}.p7-backpack-head span{font-size:8px;letter-spacing:.16em;color:#a99c78;font-weight:900}.p7-backpack-head h2{margin:3px 0 0;font:26px Georgia,serif;color:#f1e5c5}.p7-backpack-close{border:0;background:transparent;color:#c8b98e;font-size:28px;cursor:pointer}.p7-backpack-body{overflow:auto;padding:18px 20px 24px}.p7-backpack-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}.p7-backpack-toolbar p{margin:0;color:#9e967f;font-size:11px}.p7-backpack-add{border:1px solid #9a7f43;background:#302616;color:#ffe097;padding:10px 13px;font-weight:900;cursor:pointer}
       .p7-backpack-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:0 0 14px;padding:9px 10px;border:1px solid rgba(202,179,111,.2);background:#15140f}.p7-backpack-filters>span{font-size:8px;letter-spacing:.14em;color:#8e8774;font-weight:900;margin-right:3px}.p7-backpack-filter{display:inline-flex;align-items:center;gap:6px;border:1px solid #504a37;background:#1b1912;color:#b9ad8c;padding:7px 9px;cursor:pointer;font-size:9px;font-weight:800}.p7-backpack-filter:hover,.p7-backpack-filter:focus-visible{border-color:#8d7949;color:#e4d39e}.p7-backpack-filter[aria-pressed="true"]{border-color:#9a7f43;background:#302616;color:#ffe29b}.p7-backpack-filter b{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:rgba(0,0,0,.28);font-size:8px;color:inherit}
       .backpack-use-note{margin:0 0 12px;padding:10px 12px;border:1px solid rgba(205,187,121,.24);background:#17150f;color:#9f9782;font-size:10px;line-height:1.45}.backpack-use-note strong{color:#e6d39a}.backpack-status{margin:0 0 14px;padding:12px 14px;border:1px solid;font-size:11px;line-height:1.45;box-shadow:0 7px 20px rgba(0,0,0,.2)}.backpack-status[data-tone="success"]{border-color:rgba(121,185,105,.72);background:linear-gradient(180deg,#1b321c,#122414);color:#ddf5d5;box-shadow:inset 3px 0 0 #79b969,0 7px 20px rgba(0,0,0,.2)}.backpack-status[data-tone="error"]{border-color:rgba(194,105,88,.68);background:linear-gradient(180deg,#351d18,#271512);color:#ffd8cf;box-shadow:inset 3px 0 0 #c26958,0 7px 20px rgba(0,0,0,.2)}.backpack-status strong{display:block;margin-bottom:2px;font-size:9px;letter-spacing:.13em;text-transform:uppercase}
-      .p7-backpack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.p7-pack-card{position:relative;min-height:170px;border:1px solid #5b5239;background:linear-gradient(180deg,#29251b 0 36%,#171610 36% 100%);box-shadow:0 10px 26px rgba(0,0,0,.25);overflow:hidden}.p7-pack-card[hidden]{display:none!important}.p7-pack-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(210,187,117,.18);pointer-events:none}.p7-pack-art{height:70px;display:grid;place-items:center;background:radial-gradient(circle at 50% 20%,rgba(173,143,74,.3),rgba(21,20,15,.2) 60%),linear-gradient(135deg,#373023,#211e16);color:#c4ae6a}.p7-pack-content{position:relative;padding:12px 13px 13px}.p7-pack-type{font-size:7px;letter-spacing:.14em;color:#a99b76;font-weight:900}.p7-pack-card h3{margin:5px 0 7px;font:17px Georgia,serif;color:#f1e4c2}.p7-pack-card p{margin:0;color:#9d9580;font-size:10px;line-height:1.45}.p7-pack-filter-empty,.p7-pack-empty{grid-column:1/-1;border:1px dashed #504a37;padding:24px;text-align:center;color:#8f8874}
+      .p7-backpack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.p7-pack-card{position:relative;min-height:170px;border:1px solid #5b5239;background:linear-gradient(180deg,#29251b 0 36%,#171610 36% 100%);box-shadow:0 10px 26px rgba(0,0,0,.25);overflow:hidden}.p7-pack-card[hidden]{display:none!important}.p7-pack-card:before{content:"";position:absolute;inset:5px;border:1px solid rgba(210,187,117,.18);pointer-events:none}.p7-pack-art{height:70px;display:grid;place-items:center;background:radial-gradient(circle at 50% 20%,rgba(173,143,74,.3),rgba(21,20,15,.2) 60%),linear-gradient(135deg,#373023,#211e16);color:#c4ae6a}.p7-pack-art.has-image{height:132px;display:block;overflow:hidden;background:#171610}.p7-pack-art.has-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.78) contrast(1.03)}.p7-pack-card[data-pack-kind="story"]{border-color:#79683f;background:linear-gradient(180deg,#2d281d 0 52%,#171610 52% 100%)}.p7-pack-card[data-pack-kind="story"] .p7-pack-type{color:#d4bb76}.p7-pack-card[data-pack-kind="story"]:after{content:"STORY";position:absolute;top:9px;right:9px;padding:4px 6px;background:#1b1810d9;border:1px solid #8d7848;color:#e3c982;font-size:7px;letter-spacing:.14em;font-weight:900}
+      .p7-pack-content{position:relative;padding:12px 13px 13px}.p7-pack-type{font-size:7px;letter-spacing:.14em;color:#a99b76;font-weight:900}.p7-pack-card h3{margin:5px 0 7px;font:17px Georgia,serif;color:#f1e4c2}.p7-pack-card p{margin:0;color:#9d9580;font-size:10px;line-height:1.45}.p7-pack-filter-empty,.p7-pack-empty{grid-column:1/-1;border:1px dashed #504a37;padding:24px;text-align:center;color:#8f8874}
       .p9-card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.p9-item-action,.backpack-gear-use{flex:1;border:1px solid #8e7640;background:#322716;color:#ffe29b;padding:8px 10px;font-weight:800;cursor:pointer}.p9-item-action:disabled,.backpack-gear-use:disabled{opacity:.5;cursor:default}.backpack-remove{border-color:#6d5e39;background:#201a11;color:#d9bf7c}.backpack-count{align-self:center;padding:7px 9px;border:1px solid rgba(205,187,121,.25);color:#d8c582;font-weight:900;font-size:10px}
       .p7-add-panel{display:none;margin:0 0 16px;border:1px solid rgba(202,179,111,.26);background:#18160f;padding:14px}.p7-add-panel.open{display:block}.p7-add-panel label{display:block;font-size:9px;letter-spacing:.12em;color:#b7a873;font-weight:900;margin-bottom:6px}.p7-add-row-new{display:flex;gap:8px}.p7-add-row-new input{flex:1;min-width:0;background:#0f0f0c;border:1px solid #665b3d;color:#eee1bd;padding:11px}.p7-add-row-new button{border:1px solid #8e7640;background:#322716;color:#ffe29b;padding:10px 13px;font-weight:900;cursor:pointer}.p7-backpack-note{margin-top:14px;color:#77705f;font-size:9px}
       .p9-library{margin:0 0 16px;padding:14px;border:1px solid rgba(205,187,121,.3);background:#15140f}.p9-library[hidden]{display:none}.p9-library-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;margin-bottom:12px}.p9-library-head strong{display:block;font:20px Georgia,serif;color:#f0e2bd}.p9-library-head small{color:#9e967f}.p9-library-search{width:100%;box-sizing:border-box;background:#0e0e0b;border:1px solid #62583b;color:#eee1bd;padding:10px 11px;margin-bottom:10px}.p9-library-filters{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}.p9-library-filters button{border:1px solid #5b5239;background:#1b1912;color:#b9ad8c;padding:7px 9px;cursor:pointer}.p9-library-filters button.active{border-color:#9a7f43;color:#ffe29b;background:#302616}.p9-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.p9-library-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 11px;border:1px solid #4f4935;background:#1b1912}.p9-library-item span{display:block;font-size:8px;letter-spacing:.13em;text-transform:uppercase;color:#b8a66f}.p9-library-item strong{display:block;margin:3px 0;color:#eee1bd}.p9-library-item small{display:block;color:#938c79;line-height:1.35}.p9-library-item button{border:1px solid #8e7640;background:#322716;color:#ffe29b;padding:8px 10px;font-weight:800;cursor:pointer}.p9-library-item button:disabled{opacity:.45;cursor:default}.p9-library-note{margin:10px 0 0;color:#817a68;font-size:9px}.p9-library-status{margin-top:9px;color:#d8c582;font-size:10px;line-height:1.4}
@@ -42,7 +66,7 @@
     `;document.head.appendChild(s);
   }
 
-  function categoryIcon(kind){return({weapon:'⚔',armor:'⬡',consumable:'✦',gear:'⌁',custom:'◇'})[kind]||'◇';}
+  function categoryIcon(kind){return({weapon:'⚔',armor:'⬡',consumable:'✦',gear:'⌁',story:'✧',custom:'◇'})[kind]||'◇';}
   function weaponMeta(w){return `${w.trait} · ${w.range} · ${w.damage} ${w.damageType}${w.feature&&w.feature!=='—'?` · ${w.feature}`:''}`;}
   function armorMeta(a){return `${Number.isFinite(Number(a.major))?`Thresholds ${a.major}/${a.severe} · `:''}Armor Score ${a.score}${a.feature&&a.feature!=='—'?` · ${a.feature}`:''}`;}
   function removed(kind,id){return Boolean(equipment()?.isItemRemoved?.(kind,id));}
@@ -58,15 +82,15 @@
   function carriedItems(){
     const api=equipment(),state=api?.getState?.()||{},maps=mechanicalMaps(),items=[],seen=new Set();
     const add=item=>{const key=`${item.kind}:${item.id||item.title}`;if(seen.has(key))return;seen.add(key);items.push(item);};
-    [state.activePrimary,state.activeSecondary].filter(Boolean).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:true,image:w.image||'',greywake:Boolean(w.greywake),trait:w.trait,range:w.range,damage:w.damage,damageType:w.damageType,feature:w.feature,burden:w.burden});});
-    (state.inventoryWeapons||[]).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:false,image:w.image||'',greywake:Boolean(w.greywake),trait:w.trait,range:w.range,damage:w.damage,damageType:w.damageType,feature:w.feature,burden:w.burden});});
+    [state.activePrimary,state.activeSecondary].filter(Boolean).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:true,image:w.image||ITEM_VISUALS[w.name]?.image||'',greywake:Boolean(w.greywake),trait:w.trait,range:w.range,damage:w.damage,damageType:w.damageType,feature:w.feature,burden:w.burden});});
+    (state.inventoryWeapons||[]).forEach(id=>{const w=maps.weapons.get(id);if(w&&!removed('weapons',id))add({kind:'weapon',id,title:w.name,meta:weaponMeta(w),active:false,image:w.image||ITEM_VISUALS[w.name]?.image||'',greywake:Boolean(w.greywake),trait:w.trait,range:w.range,damage:w.damage,damageType:w.damageType,feature:w.feature,burden:w.burden});});
     const activeArmor=state.activeArmor;
     if(activeArmor&&!removed('armor',activeArmor)){
-      const a=maps.armors.get(activeArmor)||api?.armor?.(activeArmor);if(a)add({kind:'armor',id:activeArmor,title:a.name,meta:armorMeta(a),active:true});
+      const a=maps.armors.get(activeArmor)||api?.armor?.(activeArmor);if(a)add({kind:'armor',id:activeArmor,title:a.name,meta:armorMeta(a),active:true,image:ITEM_VISUALS[a.name]?.image||''});
     }
-    (state.ownedArmor||[]).filter(id=>id&&id!==activeArmor).forEach(id=>{const a=maps.armors.get(id)||api?.armor?.(id);if(a&&!removed('armor',id))add({kind:'armor',id,title:a.name,meta:armorMeta(a),active:false,stored:true});});
-    maps.consumables.forEach((c,id)=>{const count=Number(state.consumables?.[id]||0);if(count>0)add({kind:'consumable',id,title:c.name,meta:`${c.effect} · ${count}/5 carried.`,count,image:c.image||'',greywake:Boolean(c.greywake),effect:c.effect,description:c.description||''});});
-    (COMMON_GEAR[characterKey()]||[]).forEach(title=>{if(!removed('gear',title))add({kind:'gear',id:title,title,meta:'',active:false});});
+    (state.ownedArmor||[]).filter(id=>id&&id!==activeArmor).forEach(id=>{const a=maps.armors.get(id)||api?.armor?.(id);if(a&&!removed('armor',id))add({kind:'armor',id,title:a.name,meta:armorMeta(a),active:false,stored:true,image:ITEM_VISUALS[a.name]?.image||''});});
+    maps.consumables.forEach((c,id)=>{const count=Number(state.consumables?.[id]||0);if(count>0)add({kind:'consumable',id,title:c.name,meta:`${c.effect} · ${count}/5 carried.`,count,image:c.image||ITEM_VISUALS[c.name]?.image||'',greywake:Boolean(c.greywake),effect:c.effect,description:c.description||''});});
+    (COMMON_GEAR[characterKey()]||[]).forEach(title=>{if(!removed('gear',title)){const visual=ITEM_VISUALS[title]||{};add({kind:'gear',id:title,title,meta:visual.meta||'',active:false,image:visual.image||'',story:Boolean(visual.story)});}});
     loadState().items.forEach((title,index)=>add({kind:'custom',id:`custom:${index}`,title,meta:'Player-added carried item',custom:true,index}));
     return items;
   }
@@ -82,7 +106,7 @@
   }
 
   function renderCard(item){
-    const viewKind=item.kind==='custom'?'gear':item.kind;
+    const viewKind=item.story?'story':item.kind==='custom'?'gear':item.kind;
     if(item.kind==='weapon'&&item.greywake){
       const feature=String(item.feature||'—'),parts=feature.split(': '),featureName=parts.length>1?parts.shift():'Weapon feature',featureBody=parts.length?parts.join(': '):feature;
       const stateLabel=item.active?'READY':'IN PACK';
@@ -119,7 +143,7 @@
         </div>
       </article>`;
     }
-    const type=item.custom?'BACKPACK ITEM':item.stored?'STORED ARMOR · NOT CARRIED':item.kind.toUpperCase();
+    const type=item.story?'STORY ITEM':item.custom?'BACKPACK ITEM':item.stored?'STORED ARMOR · NOT CARRIED':item.kind.toUpperCase();
     const art=item.image?`<div class="p7-pack-art has-image"><img src="${esc(item.image)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="p7-pack-art" aria-hidden="true"><span style="font-size:34px">${categoryIcon(item.kind)}</span></div>`;
     return `<article class="p7-pack-card" data-pack-kind="${viewKind}">${art}<div class="p7-pack-content"><span class="p7-pack-type">${type}</span><h3>${esc(item.title)}</h3>${item.meta?`<p>${esc(item.meta)}</p>`:''}${actionMarkup(item)}</div></article>`;
   }
