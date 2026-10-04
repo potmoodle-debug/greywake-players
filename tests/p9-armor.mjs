@@ -9,6 +9,6 @@ for(const needle of ['data-filter="armor"','armorCatalog','isArmorEquipped','isA
   if(!library.includes(needle)) throw new Error(`Missing current Backpack armor-library marker: ${needle}`);
 }
 if(!html.includes('p9-armor.js?v=p9armor2')) throw new Error('Armor integration script is not loaded with current cache version');
-if(!html.includes('backpack-system.js?v=backpack5')) throw new Error('Current Backpack system is not loaded');
+if(!html.includes('backpack-system.js?v=backpack6')) throw new Error('Current Backpack system is not loaded');
 if(armor.includes('MutationObserver')) throw new Error('Armor integration must remain event-driven');
 console.log('P9 armor ownership/equip smoke test passed');
