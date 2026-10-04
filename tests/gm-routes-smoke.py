@@ -60,7 +60,7 @@ try:
             try:
                 el = d.find_element(By.CSS_SELECTOR, "#gmOperationsView:not(.hidden) .gm-page-head h1")
                 value = el.text.strip()
-                return value if value else False
+                return value if value == heading else False
             except StaleElementReferenceException:
                 return False
         actual = wait.until(current_heading)
