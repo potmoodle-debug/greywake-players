@@ -33,7 +33,7 @@
     'minor-stamina':{name:'Minor Stamina Potion',effect:'Clear 1d4 Stress',kind:'stress',image:'assets/consumables/minor-stamina-potion.webp',greywake:true,description:'Cloudy amber tonic in a reused pale ceramic vial, sealed with waxed cloth and cord.'}
   };
   const CONFIG={
-    marek:{name:'Marek',spellcast:true,armor:'gambeson',gear:['Torch','50 ft Rope','Basic Supplies','Small Bag of Rocks and Bones'],base:{activePrimary:'shortstaff',activeSecondary:'round-shield',inventoryWeapons:[],ownedWeapons:['shortstaff','round-shield'],consumables:{'minor-stamina':1,'minor-health':0}}},
+    marek:{name:'Marek',spellcast:true,armor:'gambeson',gear:['Torch','50 ft Rope','Basic Supplies','Small Bag of Rocks and Bones','Pale Thread Membrane Sample'],base:{activePrimary:'shortstaff',activeSecondary:'round-shield',inventoryWeapons:[],ownedWeapons:['shortstaff','round-shield'],consumables:{'minor-stamina':1,'minor-health':0}}},
     velmira:{name:'Velmira',spellcast:true,armor:'leather-armor',gear:['Torch','50 ft Rope','Basic Supplies','Nomadic Pack','Book being translated','Leather Satchel'],base:{activePrimary:'greatstaff',activeSecondary:null,inventoryWeapons:['whip'],ownedWeapons:['greatstaff','whip'],consumables:{'minor-stamina':1,'minor-health':0}}},
     odie:{name:'Odie',spellcast:false,armor:'gambeson',gear:['Torch','50 ft Rope','Basic Supplies','Grappling Hook','Salvage-built Prosthetic Arm','Oldwork Finger · separate and unfitted'],base:{activePrimary:'spear',activeSecondary:null,inventoryWeapons:['small-dagger'],ownedWeapons:['spear','small-dagger'],consumables:{'minor-health':1,'minor-stamina':0}}}
   };
