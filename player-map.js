@@ -15,6 +15,7 @@
 
   function mount(root){
     if(!root) return;
+    root._greywakeMapCleanup?.();
     root.innerHTML = `
       <section class="gw-map-shell" aria-label="Interactive player map of Greywake">
         <div class="gw-map-toolbar" aria-label="Map controls">
@@ -111,7 +112,10 @@
     root.querySelector('[data-map-action="reset"]')?.addEventListener('click',fit);
 
     const ro=new ResizeObserver(()=>fit());ro.observe(viewport);
-    root._greywakeMapCleanup=()=>ro.disconnect();
+    root._greywakeMapCleanup=()=>{
+      ro.disconnect();
+      root._greywakeMapCleanup=null;
+    };
   }
 
   window.GreywakePlayerMap={mount};

@@ -14,6 +14,24 @@
     document.body.classList.remove('lightbox-open');
   }
 
+  function wireImageFallback(img){
+    let notice=null;
+    img.addEventListener('error',()=>{
+      img.hidden=true;
+      if(notice)return;
+      notice=document.createElement('p');
+      notice.className='media-image-unavailable';
+      notice.setAttribute('role','status');
+      notice.textContent='Artwork is currently unavailable.';
+      img.insertAdjacentElement('afterend',notice);
+    });
+    img.addEventListener('load',()=>{
+      img.hidden=false;
+      notice?.remove();
+      notice=null;
+    });
+  }
+
   function openLightbox(src,alt,caption){
     closeLightbox();
     const lightbox=document.createElement('div');
@@ -29,6 +47,7 @@
     close.textContent='×';
 
     const img=document.createElement('img');
+    wireImageFallback(img);
     img.src=src;
     img.alt=alt||'';
     img.decoding='async';
@@ -80,6 +99,7 @@
       const figure=document.createElement('figure');
       if(item.layout)figure.classList.add(`media-${item.layout}`);
       const img=document.createElement('img');
+      wireImageFallback(img);
       img.alt=item.caption||name;
       img.loading='lazy';
       img.decoding='async';

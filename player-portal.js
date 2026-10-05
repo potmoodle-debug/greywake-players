@@ -252,6 +252,8 @@
   }
 
   function render() {
+    // Each route render replaces or hides the map's viewport.
+    document.getElementById('playerPortalContent')?._greywakeMapCleanup?.();
     const page = routeName();
     document.body.dataset.playerRoute = page;
     syncPrimaryNav(page);

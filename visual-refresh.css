@@ -91,6 +91,8 @@ nav{margin-top:16px}.nav-group{margin:0;border-top:1px solid rgba(73,73,55,.52);
 .article-media figure.media-reference img{aspect-ratio:4/5;object-fit:contain;background:#0b0c09}
 .article-media figure.media-wide{grid-column:1/-1}.article-media figure.media-wide img{aspect-ratio:4/3;object-fit:contain;background:#0b0c09}
 .article-media figcaption{padding:11px 13px;color:#a49c86}
+.media-image-unavailable{padding:16px;color:#a49c86;font-size:12px}
+.article-media img[hidden],.image-lightbox img[hidden]{display:none}
 .related-card{min-height:124px;padding:17px}.related-card:hover{transform:translateY(-2px)}
 .article:has(.record-directory) .related-records{display:none}
 .location-directory-intro{max-width:68ch;color:#aaa995!important}

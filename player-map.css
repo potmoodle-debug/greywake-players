@@ -1,5 +1,5 @@
 .player-portal-map .player-portal-content{max-width:none;padding:0}
-.player-portal-map .player-portal-topbar{position:relative;z-index:8}
+.player-portal-map .player-portal-topbar{position:relative;top:auto;z-index:8}
 .gw-map-shell{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:calc(100dvh - 112px);min-height:560px;background:#17130f;color:#eee4d0}
 .gw-map-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;border-bottom:1px solid rgba(232,218,190,.14);background:#211b14}
 .gw-map-toolbar strong{display:block;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
