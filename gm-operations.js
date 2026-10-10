@@ -38,7 +38,7 @@
   function updateCapture(id,patch){saveCaptures(readCaptures().map(x=>x.id===id?{...x,...patch}:x));render()}
   function removeCapture(id){saveCaptures(readCaptures().filter(x=>x.id!==id));render()}
 
-  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dm3';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
+  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dm4';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
   function restoreInboxThreads(){
@@ -138,7 +138,8 @@
     const snapshot=window.GreywakeGMGoalSnapshot||{};
     const players=[
       ['marek','Marek','assets/canon/characters/marek-canon.jpg'],
-      ['odie','Odie','assets/canon/characters/odie-canon.webp']
+      ['odie','Odie','assets/canon/characters/odie-canon.webp'],
+      ['velmira','Velmira','assets/canon/characters/velmira-poster.webp']
     ];
     const cards=players.map(([key,name,image])=>{
       const item=snapshot[key];
@@ -147,9 +148,10 @@
       return `<article data-character="${key}"><img src="${image}" alt=""><div><strong>${name}</strong><span>${esc(text)}</span><em class="gm-live-goal-state ${item?.status==='pursuing'?'pursuing':''}">${state}</em></div></article>`;
     }).join('');
 
-    const checklist=(prep.checklist||[]).map((x,i)=>`<article class="gm-prep-evidence"><b>${esc(x.status||'PREP')}</b><span><strong>${String(i+1).padStart(2,'0')} · ${esc(x.label)}</strong> — ${esc(x.detail)}</span></article>`).join('')||'<div class="gm-empty">No prep checklist loaded.</div>';
+    const checklist=(prep.checklist||[]).map((x,i)=>`<article class="gm-prep-check"><span class="gm-prep-check-num">${String(i+1).padStart(2,'0')}</span><div><strong>${esc(x.label)}</strong><p>${esc(x.detail)}</p><small>${esc(x.status||'PREP')}</small></div></article>`).join('')||'<div class="gm-empty">No prep checklist loaded.</div>';
 
-    const positions=(prep.startingPositions||[]).map(x=>`<article class="gm-prep-position"><div><small>${esc(x.status||'CURRENT')}</small><strong>${esc(x.name)}</strong><em>${esc(x.location)}</em></div><p>${esc(x.detail)}</p></article>`).join('')||'<div class="gm-empty">No starting positions loaded.</div>';
+    const portraits={'Marek':'assets/canon/characters/marek-canon.jpg','Odie':'assets/canon/characters/odie-canon.webp','Velmira':'assets/canon/characters/velmira-poster.webp'};
+    const positions=(prep.startingPositions||[]).map(x=>`<article class="gm-prep-position"><div class="gm-prep-position-image"><img src="${portraits[x.name]||''}" alt="${esc(x.name)} portrait" loading="lazy"></div><div class="gm-prep-position-info"><small>${esc(x.status||'CURRENT')}</small><strong>${esc(x.name)}</strong><em>${esc(x.location)}</em><p>${esc(x.detail)}</p></div></article>`).join('')||'<div class="gm-empty">No starting positions loaded.</div>';
 
     const scenes=(prep.likelyScenes||[]).map((x,i)=>{
       const links=(x.records||[]).filter(recordExists).map(n=>`<button class="gm-prep-link" data-gm-record="${esc(n)}">${esc(n)} →</button>`).join('');
@@ -165,9 +167,9 @@
     return`${authority()}${head('PREP','If we play right now.','Current starting positions, likely scenes, established NPC actions, evidence boundaries and only the assets that may actually matter.')}${status()}
       <div class="gm-ops-grid gm-prep-grid">
         <section class="gm-panel full gm-prep-start"><small>STARTING POSITIONS</small><h2>Where play actually resumes</h2><p>No assumed regrouping and no invented off-screen actions.</p><div class="gm-prep-position-grid">${positions}</div></section>
-        <section class="gm-panel full"><small>SESSION READINESS</small><h2>What needs to be ready before play</h2><p>Operational checks and GM-only boundaries; not a predetermined sequence of scenes.</p><div class="gm-prep-evidence-list">${checklist}</div></section>
+        <section class="gm-panel full"><small>SESSION READINESS</small><h2>What needs to be ready before play</h2><p>Operational checks and GM-only boundaries; not a predetermined sequence of scenes.</p><div class="gm-prep-check-grid">${checklist}</div></section>
         <section class="gm-panel full"><small>LIKELY NEXT SCENES</small><h2>Prepare possibilities, not an order</h2><p>These are the scenes the current state makes immediately available. Player choices decide which one becomes play.</p><div class="gm-prep-scenes">${scenes}</div></section>
-        <section class="gm-panel full"><small>PLAYER INTENTIONS</small><h2>What Marek and Odie are signalling</h2><p>One active pursuit can guide preparation without becoming a required path.</p><div class="gm-player-cards">${cards}</div></section>
+        <section class="gm-panel full"><small>PLAYER INTENTIONS</small><h2>What each player may pursue</h2><p>Player interests guide preparation, not a required path.</p><div class="gm-player-cards">${cards}</div></section>
         <section class="gm-panel wide"><small>NPC MOVES</small><h2>What people are actually about to do</h2><p>Established actions only. An open entry is permission not to invent an off-screen move.</p><div class="gm-prep-npc-list">${moves}</div></section>
         <section class="gm-panel"><small>KNOWLEDGE BOUNDARY</small><h2>GM truth · player facts · unresolved</h2><p>The GM view may show hidden truth. Only genuinely undecided material is marked unresolved.</p><div class="gm-prep-evidence-list">${evidence}</div></section>
         <section class="gm-panel wide"><small>ASSETS TO HAVE READY</small><h2>Only load what might hit the table</h2><div class="gm-prep-assets">${assets}</div></section>
