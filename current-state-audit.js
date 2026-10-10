@@ -254,6 +254,16 @@
           status: 'ACTIVE PC'
         }
       ],
+      checklist: [
+        {label:'Confirm live starting resources', detail:'Read Hope, Fear, Stress, HP, Armor and Water from current sheets/session state; do not copy old PDF values.', status:'CHECK AT TABLE'},
+        {label:'Opening spotlight', detail:'Marek below Greywake in Foldling form; Odie travelling with Spencer toward the reopened blockage; Velmira in Greywake. Ask each player what they do next; do not force a reunion.', status:'READY'},
+        {label:'Spencer inspection evidence', detail:'Have original packing/bracing versus reopening damage ready. Offer physical observations first; do not reveal the Tower Watch order from tool marks alone.', status:'PREP'},
+        {label:'Velmira entry and relationships', detail:'Ask Carla what Velmira is doing as the session begins. Keep Nemi (Stage 2 Stilling), Tavi and the Faithful available without dragging her into a different PC’s scene.', status:'PREP'},
+        {label:'Three independent closure chains', detail:'GM-only: Jessa sighting → Brannic/Tower Watch ordered two safety closures; Syndicate separately ordered one commercial closure. Odie’s informer suspicion is not a proven fact.', status:'GM ONLY'},
+        {label:'Evidence and knowledge permissions', detail:'Marek personally met the Foldling and learned it fled disturbance south. Odie has not automatically received that information. Neither the public nor Velmira knows unless told in play.', status:'GM ONLY'},
+        {label:'Ready locations and NPCs', detail:'Reopened southern passage, buried service spaces, Spencer, Jessa Vale, Brannic Hale, Gate corridor and relevant Greywake social areas. Use established visuals only.', status:'PREP'},
+        {label:'Live capture and player site', detail:'Test GM capture, player questions/updates, site navigation and the two-chat update handoff before starting. Stage new discoveries; never auto-promote to canon.', status:'TEST'}
+      ],
       likelyScenes: [
         {
           title: 'Spencer inspects the reopened blockage',
@@ -272,6 +282,12 @@
           detail: 'The Kestrel Return story has spread into ordinary life. Caravan workers are discussing losses and route safety, Diggers are sharing less route information, Ash-Plate is visibly unavailable for work, and the Plate is no longer a casual object anyone can simply handle.',
           readiness: 'AMBIENT',
           records: ['Cistern Plate','Ash-Plate','Maela Rusk','Selka Marr']
+        },
+        {
+          title: 'Velmira chooses her next move',
+          detail: 'Carla decides Velmira’s immediate action in Greywake. Her social network, Nemi’s Stage 2 Stilling and Tavi’s growing Faithful connection are credible ways into play. She does not automatically know Marek’s Foldling encounter or the closure culprits.',
+          readiness: 'PLAYER CHOICE',
+          records: ['Nemi','The Faithful','The Closing Ways']
         },
         {
           title: 'Regroup or stay split',
@@ -327,9 +343,10 @@
         {kind:'GM STATE', text:'Over the two days, the Kestrel Return account has spread, the Caravan Syndicate has begun loss accounting and route review, Keepers have tightened control around the Cistern Plate, and Digger crews have become more guarded about concealed route knowledge.'},
         {kind:'GM STATE', text:'The abandoned freight has not automatically been recovered. Its continued exposure creates pressure around ownership, salvage cost and whether another expedition is worth the risk.'},
         {kind:'GM STATE', text:'The Foldling discovery has not become general Greywake knowledge unless Marek or Odie shares it. Rumours may describe something moving through the southern ways without naming it correctly.'},
-        {kind:'UNRESOLVED', text:'Who altered the route markers, what caused the deeper southern disturbance, who is behind every closure, whether all closures share one cause, what the Cistern Plate ultimately does, and whether the abandoned freight has changed hands remain unresolved.'},
+        {kind:'UNRESOLVED', text:'Who altered the route markers, what caused the deeper southern disturbance, the precise original closure labour, what the Cistern Plate ultimately does, and whether the abandoned freight has changed hands remain unresolved. GM-only responsibility for the three prepared closures IS established and separate.'},
         {kind:'GM ONLY', text:'The reopened southern blockage is Tower Watch closure #1. Jessa Vale saw the Foldling emerge through this concealed access; Brannic Hale then authorised it to be sealed from the Greywake side for containment and public safety.'},
         {kind:'GM ONLY', text:'There are two established Tower Watch closures caused by Jessa revealing accesses, plus a separate third closure by the Caravan Syndicate after it inferred another route and acted for commercial advantage by redirecting movement through Caravan Gate.'},
+        {kind:'GM ONLY', text:'The Cistern Plate is Oldwork, recovered from an abandoned route cistern. Its construction resembles Odie’s Oldwork finger, suggesting related craftsmanship without proving the same civilisation. Greywake can recognise and use the Plate, not manufacture it.'},
         {kind:'GM ONLY', text:'The buried southern disturbance displaced the Foldling northward. That displacement led to Jessa witnessing it use concealed Digger accesses. The exact nature of the deeper disturbance remains unrevealed and not fully defined.'}
       ],
       assets: [
@@ -339,7 +356,9 @@
         {label:'Cistern Plate', type:'OBJECT / PRESSURE', status:'CONTROLLED ACCESS'},
         {label:'Ash-Plate', type:'CREATURE / CONSEQUENCE', status:'INJURED — OUT OF WORK'},
         {label:'Foldling reference', type:'CREATURE', status:'READY IF MAREK CONTINUES'},
-        {label:'The Closing Ways', type:'HANDOUT / RECORD', status:'READY'}
+        {label:'The Closing Ways', type:'HANDOUT / RECORD', status:'READY'},
+        {label:'Jessa Vale and Brannic Hale', type:'NPC / WITNESS', status:'GM ONLY — IF INVESTIGATED'},
+        {label:'Velmira: Nemi and Tavi', type:'CHARACTER THREADS', status:'AVAILABLE — PLAYER CHOICE'}
       ]
     }
   };
