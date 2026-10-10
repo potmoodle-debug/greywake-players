@@ -147,6 +147,8 @@
       return `<article data-character="${key}"><img src="${image}" alt=""><div><strong>${name}</strong><span>${esc(text)}</span><em class="gm-live-goal-state ${item?.status==='pursuing'?'pursuing':''}">${state}</em></div></article>`;
     }).join('');
 
+    const checklist=(prep.checklist||[]).map((x,i)=>`<article class="gm-prep-evidence"><b>${esc(x.status||'PREP')}</b><span><strong>${String(i+1).padStart(2,'0')} · ${esc(x.label)}</strong> — ${esc(x.detail)}</span></article>`).join('')||'<div class="gm-empty">No prep checklist loaded.</div>';
+
     const positions=(prep.startingPositions||[]).map(x=>`<article class="gm-prep-position"><div><small>${esc(x.status||'CURRENT')}</small><strong>${esc(x.name)}</strong><em>${esc(x.location)}</em></div><p>${esc(x.detail)}</p></article>`).join('')||'<div class="gm-empty">No starting positions loaded.</div>';
 
     const scenes=(prep.likelyScenes||[]).map((x,i)=>{
@@ -163,6 +165,7 @@
     return`${authority()}${head('PREP','If we play right now.','Current starting positions, likely scenes, established NPC actions, evidence boundaries and only the assets that may actually matter.')}${status()}
       <div class="gm-ops-grid gm-prep-grid">
         <section class="gm-panel full gm-prep-start"><small>STARTING POSITIONS</small><h2>Where play actually resumes</h2><p>No assumed regrouping and no invented off-screen actions.</p><div class="gm-prep-position-grid">${positions}</div></section>
+        <section class="gm-panel full"><small>SESSION READINESS</small><h2>What needs to be ready before play</h2><p>Operational checks and GM-only boundaries; not a predetermined sequence of scenes.</p><div class="gm-prep-evidence-list">${checklist}</div></section>
         <section class="gm-panel full"><small>LIKELY NEXT SCENES</small><h2>Prepare possibilities, not an order</h2><p>These are the scenes the current state makes immediately available. Player choices decide which one becomes play.</p><div class="gm-prep-scenes">${scenes}</div></section>
         <section class="gm-panel full"><small>PLAYER INTENTIONS</small><h2>What Marek and Odie are signalling</h2><p>One active pursuit can guide preparation without becoming a required path.</p><div class="gm-player-cards">${cards}</div></section>
         <section class="gm-panel wide"><small>NPC MOVES</small><h2>What people are actually about to do</h2><p>Established actions only. An open entry is permission not to invent an off-screen move.</p><div class="gm-prep-npc-list">${moves}</div></section>
