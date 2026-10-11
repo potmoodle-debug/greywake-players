@@ -59,9 +59,13 @@
     edges.forEach(([a,b])=>{if(a===name&&data[b])found.push(b);else if(b===name&&data[a])found.push(a)});
     return [...new Set(found)].filter(n=>n!==name);
   };
-  const summaryFor=r=>stripHTML(r.html).split(/(?<=[.!?])\s+/)[0]||'Known person in Greywake.';
+  const safePeopleBody=r=>{
+    const gm=document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
+    return gm ? (r.html||'') : (r.playerHidden ? (r.playerHtml||'') : (r.playerHtml||r.html||''));
+  };
+  const summaryFor=r=>stripHTML(safePeopleBody(r)).split(/(?<=[.!?])\s+/)[0]||'Known person in Greywake.';
   const detailText=(r,label)=>{
-    const box=document.createElement('div');box.innerHTML=r.html||'';
+    const box=document.createElement('div');box.innerHTML=safePeopleBody(r);
     const heads=[...box.querySelectorAll('h2,h3,strong')];
     const hit=heads.find(h=>h.textContent.trim().toLowerCase().includes(label.toLowerCase()));
     if(hit){
@@ -120,7 +124,7 @@
         if(faction.value && (r.faction||'')!==faction.value)return false;
         if(affiliation.value && (r.affiliation||'')!==affiliation.value)return false;
         if(!q)return true;
-        return [r.title,r.name,r.faction,r.affiliation,stripHTML(r.html)].filter(Boolean).join(' ').toLowerCase().includes(q);
+        return [r.title,r.name,r.faction,r.affiliation,stripHTML(safePeopleBody(r))].filter(Boolean).join(' ').toLowerCase().includes(q);
       });
     };
 
@@ -135,11 +139,11 @@
       const summary=summaryFor(r);
       const factionText=r.faction&&r.faction!=='Not established'?r.faction:'Not established';
       const affiliationText=r.affiliation||'Not established';
-      const connections=connectedNames(r.name);
+      const connections=gmMode?connectedNames(r.name):[];
       const relationshipText=connections.length?connections.slice(0,8).map(n=>window.GREYWAKE_DATA[n]?.title||n).join(' · '):'No connected record established.';
-      const portrayal=detailText(r,'play')||detailText(r,'portray')||'No specific portrayal note is recorded yet.';
-      const knows=detailText(r,'know')||'Use only the information established in this record and current campaign state.';
-      const want=detailText(r,'want')||detailText(r,'goal')||'No current want is recorded yet.';
+      const portrayal=gmMode?(detailText(r,'play')||detailText(r,'portray')||'No specific portrayal note is recorded yet.'):'';
+      const knows=gmMode?(detailText(r,'know')||'Use only the information established in this record and current campaign state.'):'Only information established to your character is available.';
+      const want=gmMode?(detailText(r,'want')||detailText(r,'goal')||'No current want is recorded yet.'):'Not established to your character.';
       const tags=[factionText!=='Not established'?factionText:'',r.affiliation||''].filter(Boolean).map(t=>`<span class="people-browser-tag">${esc(t)}</span>`).join('');
       const fullButton=gmMode?'':`<button type="button" id="peopleOpenRecord">Open full record →</button>`;
       const portrait=portraitFor(r.name);
