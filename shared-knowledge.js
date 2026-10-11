@@ -24,17 +24,6 @@ addKnown("Digger Ways","Locations",`
     <div class="digger-hero-text"><span>GREYWAKE FIELD GUIDE · KNOWN TO LOCALS</span><h2>Beneath the streets.</h2><p>A thousand repairs above. A patchwork of passages below.</p></div>
   </header>
   <div class="digger-lede"><span class="digger-dropcap">W</span><p>Greywake stands upon older ruins. Beneath its streets and around its edges are buried rooms, collapsed corridors and passages left behind by structures that no longer stand. For generations, Diggers have cleared and joined some of these spaces into the working routes now called the <strong>Digger Ways</strong>.</p></div>
-  <figure class="digger-cutaway" aria-label="Illustrative cross-section showing older buried passages and newer Digger-made connecting tunnels. This is not an actual route map.">
-    <div class="digger-diagram-head"><span>BELOW GREYWAKE</span><strong>How the Ways fit together</strong><small>Illustration only · not a known route map</small></div>
-    <div class="digger-ground"><div class="digger-building a"></div><div class="digger-building b"></div><div class="digger-building c"></div><span>SURFACE · PATCHED STREETS AND BUILDINGS</span></div>
-    <div class="digger-earth">
-      <div class="digger-ruin ruin-one"><span>01</span> Older buried passage</div>
-      <div class="digger-join"><span>02</span> Newer Digger-made link</div>
-      <div class="digger-ruin ruin-two"><span>03</span> Reused buried structure</div>
-      <div class="digger-rubble"></div>
-    </div>
-    <figcaption><span><b>01</b> Old spaces</span><span><b>02</b> Dug connections</span><span><b>03</b> Reused ruins</span></figcaption>
-  </figure>
   <div class="digger-quickfacts">
     <div><span>01 / PURPOSE</span><strong>Salvage & passage</strong><p>Recover useful material and move it without always using the public gates.</p></div>
     <div><span>02 / KNOWLEDGE</span><strong>No master map</strong><p>Different crews know different stretches; a useful entrance is valuable knowledge.</p></div>
