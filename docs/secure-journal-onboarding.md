@@ -10,8 +10,8 @@ Keep the existing Greywake entrance exactly unchanged: same player selection, sa
 - A separate database table `public.greywake_character_journal` has been created in the existing GREYWAKE Supabase project, with public access revoked and RLS enabled.
 - Browser UI calls the intended `/functions/v1/character-journal` endpoint.
 
-## Blocking work before publishing
-**The `character-journal` Edge Function has not been deployed. The attempted deployment was blocked; consequently notes cannot currently be loaded or saved.** Do not merge or publish this branch until the endpoint has been successfully implemented and tested.
+## Backend implementation and verification
+The `character-journal` Edge Function was deployed on 11 October 2026 (version 1). The database accepted an INSERT inside a rolled-back test transaction. Live browser round-trip and cross-player HTTP tests were not possible from this tool environment.
 
 The intended server function should:
 1. Validate the supplied existing character code and character name on every request.
