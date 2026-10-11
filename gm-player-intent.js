@@ -63,7 +63,7 @@
       shortcut.className='gm-intent-shortcut';
       shortcut.dataset.primarySection='gm-intent';
       shortcut.textContent='Player Intent';
-      shortcut.addEventListener('click',()=>{location.hash='#/gm-players';setTimeout(()=>document.getElementById('gmPlayerIntent')?.scrollIntoView({behavior:'smooth',block:'start'}),130);});
+      shortcut.addEventListener('click',()=>{location.hash='#/gm-inbox';const focus=()=>{const panel=document.getElementById('gmPlayerIntent');if(panel && panel.getClientRects().length){panel.scrollIntoView({behavior:'smooth',block:'start'});return true;}return false;};if(!focus()){let attempts=0;const check=setInterval(()=>{if(focus()||++attempts>=20)clearInterval(check);},100);}});
       const nav=document.getElementById('primaryNav');
       nav?.appendChild(shortcut);
     }
