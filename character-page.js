@@ -129,7 +129,10 @@
   }
 
   function groupTitle(group) {
-    return group.querySelector('.sheet-group-head h3')?.textContent.trim() || '';
+    const heading = group.querySelector('.sheet-group-head h3');
+    // Help controls are inserted into headings after initial render. Read only
+    // the original text node so added help labels never invalidate tab matching.
+    return heading?.firstChild?.textContent?.trim() || heading?.textContent?.trim() || '';
   }
 
   function tabHasContent(tab) {
