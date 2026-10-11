@@ -74,12 +74,12 @@ function buildNav(filter=''){
  nav.innerHTML='';
  const terms=filter.trim().toLowerCase().split(/\s+/).filter(Boolean);let resultCount=0;
  for(const [cat,names] of Object.entries(CATS)){
-   const m=names.filter(n=>DATA[n]&&terms.every(term=>searchableText(n).includes(term)));
+   const m=names.filter(n=>DATA[n]&&(gmRecordAccess()||!DATA[n].playerHidden)&&terms.every(term=>searchableText(n).includes(term)));
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat==='Locations'?'Places & Routes':cat}</h3>`;
    if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
    // Keep discovered creature records directly available from the left navigation.
-   if(cat==='Flora & Fauna' && !terms.length && DATA.Foldling && !m.includes('Foldling')) g.appendChild(navLink('Foldling'));
+   if(cat==='Flora & Fauna' && !terms.length && DATA.Foldling && (gmRecordAccess()||!DATA.Foldling.playerHidden) && !m.includes('Foldling')) g.appendChild(navLink('Foldling'));
    nav.appendChild(g);resultCount+=m.length;
  }
  if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
@@ -97,7 +97,7 @@ function renderDiscoveries(){
 
 function autoLinkHTML(html,current){
  const wrap=document.createElement('div');wrap.innerHTML=html;
- const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain').sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
+ const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain'&&(gmRecordAccess()||!DATA[n].playerHidden)).sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
  const walker=document.createTreeWalker(wrap,NodeFilter.SHOW_TEXT);
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
  nodes.forEach(node=>{
@@ -133,7 +133,7 @@ function autoLinkHTML(html,current){
 function categoryDirectoryHTML(name){
  const directories={'Known Flora and Fauna':'Flora & Fauna','Known Locations':'Locations','Known People':'People'};
  const category=directories[name];if(!category)return'';
- const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]);
+ const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]&&(gmRecordAccess()||!DATA[n].playerHidden));
  if(!names.length)return'';
  if(category==='Locations'){
    const groups=groupedLocations(names);
@@ -155,7 +155,7 @@ function categoryDirectoryHTML(name){
 
 function relatedFor(name){
  const found=[];
- EDGES.forEach(([a,b])=>{if(a===name&&DATA[b])found.push(b);else if(b===name&&DATA[a])found.push(a)});
+ EDGES.forEach(([a,b])=>{if(a===name&&DATA[b]&&(gmRecordAccess()||!DATA[b].playerHidden))found.push(b);else if(b===name&&DATA[a]&&(gmRecordAccess()||!DATA[a].playerHidden))found.push(a)});
  return [...new Set(found)].filter(n=>n!==name).sort((a,b)=>(DATA[a].category||'').localeCompare(DATA[b].category||'')||(DATA[a].title||a).localeCompare(DATA[b].title||b));
 }
 function relatedHTML(name){
