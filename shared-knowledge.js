@@ -16,19 +16,34 @@ addKnown("White Tower","Locations",`<p>The impossibly old white Tower stands at 
 addKnown("Valve Court","Locations",`<p>The controlled public point where Greywake's rationed water is distributed. The Cistern Keepers manage access, measurements, queues and the valves used in ordinary distribution.</p><p>For most people, this is where Greywake's water system becomes visible: not as a reservoir, but as rules, containers, records and carefully measured allotments.</p>`);
 addKnown("Great-Shell Pens","Locations",`<p>Working pens in Greater Greywake where Great-Shells are handled, rested, harnessed and prepared for caravan work. They sit outside the maintained inner settlement where there is room for large beasts, loads and movement.</p>`);
 addKnown("Digger Yards","Locations",`<p>Working salvage yards in Greater Greywake where recovered material is sorted, assessed and reused. Diggers bring back useful ceramics, metal, tools, fittings and Oldwork fragments rather than treasure in the heroic sense.</p>`);
-addKnown("Digger Ways","Locations",`<p>Greywake is built upon the remains of something much older. Beneath its streets, buildings and surrounding ruins lie buried rooms, collapsed corridors, old foundations and passages that have survived long after the structures above them disappeared.</p>
-<p>Over generations, Diggers have explored these spaces, cleared obstructions and sometimes excavated new passages to connect one place to another. The result is what people call <strong>the Digger Tunnels</strong>, or <strong>the Digger Ways</strong>.</p>
-<p>They are not a single network built to one grand design. They are a patchwork of older passages and newer links, from cramped crawlspaces to corridors through buried structures.</p>
-<h2>Why do Diggers use them?</h2>
-<p>Greywake survives by repairing and reusing things. Metal, ceramics, fittings, tools and useful pieces of old machinery can be worth the effort and danger of recovering them.</p>
-<p>The Ways allow Diggers to reach buried places and move recovered material, sometimes without passing through the main gates. The Caravan Syndicate controls much of the organised trade through those entrances, and using another way can help a Digger keep control of a hard-won salvage claim instead of immediately negotiating a share or inviting unwanted attention.</p>
-<h2>Who knows where they go?</h2>
-<p>No one is assumed to have a complete map. Individual Diggers and crews know particular entrances, passages and connections. Some are familiar working routes; others are known to very few people. Knowing a useful way can be almost as valuable as knowing what lies at the other end.</p>
-<h2>Are they safe?</h2>
-<p>Not necessarily. Some passages are braced and used regularly; others cross unstable ground and old construction. A way that was passable before may become blocked or unsafe. Underground travel avoids some dangers of the open desert but brings others.</p>
-<h2>Why does closing a way matter?</h2>
-<p>A blocked tunnel is not merely a hole filled with rocks. It may cut someone off from useful salvage, force a longer and more dangerous journey, or stop repairs and work that other people depend on. For some Diggers, losing a way means losing their livelihood.</p>
-<p>Several concealed entrances have recently been deliberately blocked. Just who is doing it, why, and how they found particular hidden entrances remain unanswered questions.</p>`);
+addKnown("Digger Ways","Locations",`
+<div class="digger-guide">
+  <header class="digger-hero">
+    <img src="assets/generated-scenes/digger-yards.webp" alt="The Digger Yards: a place where useful salvage returns to Greywake" loading="lazy" decoding="async">
+    <div class="digger-hero-shade"></div>
+    <div class="digger-hero-text"><span>GREYWAKE FIELD GUIDE · KNOWN TO LOCALS</span><h2>Beneath the streets.</h2><p>A thousand repairs above. A patchwork of passages below.</p></div>
+  </header>
+  <div class="digger-lede"><span class="digger-dropcap">W</span><p>Greywake stands upon older ruins. Beneath its streets and around its edges are buried rooms, collapsed corridors and passages left behind by structures that no longer stand. For generations, Diggers have cleared and joined some of these spaces into the working routes now called the <strong>Digger Ways</strong>.</p></div>
+  <figure class="digger-cutaway" aria-label="Illustrative cross-section showing older buried passages and newer Digger-made connecting tunnels. This is not an actual route map.">
+    <div class="digger-diagram-head"><span>BELOW GREYWAKE</span><strong>How the Ways fit together</strong><small>Illustration only · not a known route map</small></div>
+    <div class="digger-ground"><div class="digger-building a"></div><div class="digger-building b"></div><div class="digger-building c"></div><span>SURFACE · PATCHED STREETS AND BUILDINGS</span></div>
+    <div class="digger-earth">
+      <div class="digger-ruin ruin-one"><span>01</span> Older buried passage</div>
+      <div class="digger-join"><span>02</span> Newer Digger-made link</div>
+      <div class="digger-ruin ruin-two"><span>03</span> Reused buried structure</div>
+      <div class="digger-rubble"></div>
+    </div>
+    <figcaption><span><b>01</b> Old spaces</span><span><b>02</b> Dug connections</span><span><b>03</b> Reused ruins</span></figcaption>
+  </figure>
+  <div class="digger-quickfacts">
+    <div><span>01 / PURPOSE</span><strong>Salvage & passage</strong><p>Recover useful material and move it without always using the public gates.</p></div>
+    <div><span>02 / KNOWLEDGE</span><strong>No master map</strong><p>Different crews know different stretches; a useful entrance is valuable knowledge.</p></div>
+    <div><span>03 / DANGER</span><strong>Ground that shifts</strong><p>Braced routes can fail; older rooms may be unstable or blocked.</p></div>
+  </div>
+  <section class="digger-story"><div class="digger-story-number">I</div><div><h2>Why they matter</h2><p>Greywake survives by keeping broken things useful. Metal, ceramic, fittings, tools and fragments of old machinery may keep a home, cart or piece of infrastructure working. The Digger Ways help workers reach buried places and bring those finds back.</p><p>Much organised trade passes through the gates, where the Caravan Syndicate has influence. Concealed ways can let a Digger retain control of their own finds and avoid unwanted scrutiny.</p></div></section>
+  <section class="digger-story"><div class="digger-story-number">II</div><div><h2>What the Ways are not</h2><p>They are <strong>not one planned underground tunnel system</strong>. Some stretches were built long before Greywake; others were cleared, cut or connected much later. There is no universally known map. These are working routes, not treasure-filled dungeons.</p></div></section>
+  <aside class="digger-closure"><div class="digger-closure-mark" aria-hidden="true">✕</div><div><span>WHAT HAS CHANGED</span><h2>Some of the Ways have been deliberately closed.</h2><p>A blocked entrance may cut someone off from salvage, make a journey longer and more dangerous, or end a crew's work. Several concealed entrances have recently been blocked. <strong>Who did it, why, and how they knew where to find them are still unknown.</strong></p></div></aside>
+</div>`);
 
 addKnown("Cistern Keepers","Factions",`<p>The people who control Greywake's water distribution, valves, ration records and cistern maintenance. Their authority is practical and immediate because every household depends on the system continuing to work.</p>`);
 addKnown("Caravan Syndicate","Factions",`<p>The organisation that coordinates long-distance trade, caravan movement, Great-Shell transport, supply contracts and route logistics. It does not need to rule Greywake to matter: it controls much of what can still move in and out.</p>`);
