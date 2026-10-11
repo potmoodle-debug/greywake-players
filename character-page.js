@@ -8,7 +8,8 @@
     overview: ['Traits', 'Experiences'],
     abilities: ['Features', 'Domain cards'],
     gear: ['Weapons, armor & inventory'],
-    story: ['Character details', 'Background', 'Connections']
+    story: ['Character details', 'Background', 'Connections'],
+    journal: []
   };
 
   function isCharacterRoute() {
@@ -132,6 +133,7 @@
   }
 
   function tabHasContent(tab) {
+    if (tab === 'journal') return true;
     const allowed = TAB_RULES[tab] || [];
     return characterGroups().some(group => allowed.includes(groupTitle(group)));
   }
@@ -139,8 +141,8 @@
   function buildTabs() {
     const nav = ensureTabs();
     if (!nav) return;
-    const labels = { overview: 'Overview', abilities: 'Abilities', gear: 'Gear', story: 'Story' };
-    const icons = { overview: '◇', abilities: '✦', gear: '⌁', story: '≋' };
+    const labels = { overview: 'Overview', abilities: 'Abilities', gear: 'Gear', story: 'Story', journal: 'Journal' };
+    const icons = { overview: '◇', abilities: '✦', gear: '⌁', story: '≋', journal: '✎' };
     const wanted = Object.keys(TAB_RULES)
       .filter(tabHasContent)
       .map(tab => `${tab}:${labels[tab]}`)
@@ -176,6 +178,8 @@
     });
     const body = document.querySelector('#characterSheet .character-sheet-body');
     if (body) body.dataset.activeSection = activeTab;
+    if (activeTab === 'journal') window.GreywakeJournal?.render();
+    else window.GreywakeJournal?.hide();
   }
 
   function ensureCharacterButton() {
