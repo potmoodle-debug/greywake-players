@@ -1,38 +1,34 @@
-# Secure Greywake player-journal onboarding
+# Greywake journal — unchanged player login
 
-Implemented on branch `feature/secure-journal-20261011`, not deployed.
+## Fixed user requirement
+Keep the existing Greywake entrance exactly unchanged: same player selection, same character passwords, no email, no added PIN, no second sign-in. This branch does **not** modify `player-access.js`.
 
-The live player gate in `player-access.js` uses public, hardcoded character-name codes and localStorage. **It is not authentication.** The journal therefore uses a separate Supabase email one-time-code session. All journal records are protected by database row-level security, not by client filtering.
+## In-progress work
+- Character sheets gain a Journal tab.
+- Journal UI uses `window.GreywakePlayer` for the existing character selection.
+- Notes are grouped by Velmira, Odie, and Marek; GM can select and read all three; player edits remain restricted to the selected character at the API layer.
+- A separate database table `public.greywake_character_journal` has been created in the existing GREYWAKE Supabase project, with public access revoked and RLS enabled.
+- Browser UI calls the intended `/functions/v1/character-journal` endpoint.
 
-Backend: existing GREYWAKE Supabase project `tmqxxgzqiccclcjagdsh`.
-Tables created by migration `greywake_secure_player_journals`:
-- `greywake_journal_members`: only administrators can assign trusted user UUIDs to roles/characters
-- `greywake_journal_notes`: players can write their own, GM reads all, no peer reading.
+## Blocking work before publishing
+**The `character-journal` Edge Function has not been deployed. The attempted deployment was blocked; consequently notes cannot currently be loaded or saved.** Do not merge or publish this branch until the endpoint has been successfully implemented and tested.
 
-## Required account setup before publishing
-1. Ask Carla, Ritchie, Martin and the GM to sign in with their preferred email using the journal sign-in screen. They will initially see "Account not yet connected".
-2. The GM or database administrator must confirm each email address and assign the exact Auth user ID to exactly one character/GM role; **never infer role from an unverified email or the client-supplied character code**.
-3. In the Supabase SQL editor, after checking identity, run one statement per person:
+The intended server function should:
+1. Validate the supplied existing character code and character name on every request.
+2. Never accept a player-selected alternate character slug for reads or writes.
+3. Allow the verified GM code to read all three journals, never edit them.
+4. Perform all database access server-side using a service credential that is never sent to the browser.
+5. Limit text lengths, validate UUIDs, filter UPDATE/DELETE by both ID and owner character, and use only allowed methods.
+6. Rate-limit access attempts and avoid accidental exposure through caching or logs.
+7. Test cross-player access including direct HTTP requests, not just hidden UI controls.
 
-```sql
-insert into public.greywake_journal_members (user_id, character_slug)
-values ('REPLACE-WITH-VERIFIED-AUTH-USER-UUID'::uuid, 'velmira');
--- Repeat for 'odie', 'marek' and 'gm' with their respective verified UUIDs.
-```
+### Known security tradeoff
+The existing site defines its character codes in browser-delivered JavaScript. They are not secret from someone who inspects the source. Therefore server checks using those same codes offer **trust-based separation, not strong access control**. The user explicitly prioritised unchanged player login over upgrading authentication. Do not advertise the journals as secure against malicious player impersonation under this model.
 
-Do not put people's real emails or tokens in the repo. Users can sign out of journal authentication without signing out of the existing Greywake player gate.
-
-## Verification required
-- Run local JS syntax check and site navigation/regression tests before merge.
-- Confirm email OTP delivery, session refresh and journal rendering.
-- As Velmira, create, edit and delete note; refresh and verify persistence.
-- Verify HTTP API attempts with the Velmira JWT cannot read, update, or delete Odie/Marek notes or membership records.
-- Verify the GM JWT can SELECT notes from all player characters but cannot modify them.
-- Confirm no login/notes in GM preview bypass player authentication.
-- Verify character sheet tabs, responsive layout, saved state, and existing play resource syncing.
-- Do not merge until the authenticated users have been assigned and tested.
-
-## Known limits
-- The original player gate remains insecure for existing player-facing material; this change secures **journal records only**.
-- Linked notes currently use a text label, not an inline affordance inside each spell/item card.
-- No automatic promotion of player-written notes into campaign canon.
+## Verification
+- Confirm the original entry screen and password behaviour are unchanged.
+- Confirm the Journal tab appears on all three sheets and no email form appears anywhere.
+- Check note create, refresh, edit and delete on a real device.
+- Check GM can read each character's notes but cannot edit them.
+- Verify direct API access rejects another character with a mismatched code, and confirm no unauthenticated anonymous database reads.
+- Verify original character stats, ability rendering and all tab navigation still work.
