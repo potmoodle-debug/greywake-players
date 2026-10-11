@@ -42,28 +42,35 @@
   }
   function form() {
     if(!root)return;
+    const oldStatus=status;
+    const paintStatus=()=>{ status=document.createElement('p');status.className='journal-status';status.setAttribute('role','status');root.prepend(status);if(oldStatus?.textContent)msg(oldStatus.textContent,oldStatus.dataset.error==='true'); };
     if(!getClient()) {
-      root.innerHTML='<p class="journal-message">Journal sign-in is unavailable. No notes have been saved.</p>';return;
+      root.innerHTML='<p class="journal-message">Journal sign-in is unavailable. No notes have been saved.</p>';paintStatus();return;
     }
     if(!session){
       root.innerHTML=`<div class="journal-paper"><h3>Your journal</h3><p class="journal-note">Your notes are visible to the GM, but not to other players. Sign in with your email to keep them secure across devices.</p><form id="journalSignIn"><label>Email address<input type="email" name="email" required autocomplete="email" placeholder="you@example.com"></label><button type="submit">Send sign-in code</button></form><form id="journalVerify" hidden><label>Code from your email<input name="code" required inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code"></label><button type="submit">Confirm code</button></form></div>`;
+      paintStatus();
       root.querySelector('#journalSignIn').onsubmit=async e=>{e.preventDefault(); const email=e.target.elements.namedItem('email').value.trim(); msg('Sending sign-in code…'); const {error}=await getClient().auth.signInWithOtp({email,options:{shouldCreateUser:true}});if(error)return msg(error.message,true); root.querySelector('#journalVerify').hidden=false;root.dataset.pendingEmail=email;msg('Check your email for the sign-in code.');};
       root.querySelector('#journalVerify').onsubmit=async e=>{e.preventDefault();msg('Verifying…');const {error}=await getClient().auth.verifyOtp({email:root.dataset.pendingEmail,token:e.target.elements.namedItem('code').value.trim(),type:'email'});if(error)return msg(error.message,true);await refresh();};
       return;
     }
     if(!member){
       root.innerHTML='<div class="journal-paper"><h3>Account not yet connected</h3><p class="journal-note">Your email is signed in, but the GM must assign this account to your character before journal notes can be opened. No notes are shared or saved until that is done.</p><button type="button" id="journalRefresh">Check access again</button><button type="button" id="journalSignOut">Sign out</button></div>';
+      paintStatus();
       root.querySelector('#journalRefresh').onclick=refresh;
       root.querySelector('#journalSignOut').onclick=signOut;
       return;
     }
     const gm=isGM(), slug=selectedSlug();
+    const sheetSlug=String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();
+    if(!gm && sheetSlug!==slug){ root.innerHTML='<div class="journal-paper"><h3>Character mismatch</h3><p>This signed-in journal belongs to a different character. Sign out and ask the GM to check your account.</p><button type="button" id="journalSignOut">Sign out</button></div>';paintStatus();root.querySelector('#journalSignOut').onclick=signOut;return; }
     root.innerHTML=`<div class="journal-paper">
       <div class="journal-heading"><div><span class="journal-overline">${gm?'GM READING ROOM':'PERSONAL FIELD NOTES'}</span><h3>${gm?'Player journals':esc(slug.charAt(0).toUpperCase()+slug.slice(1))+'’s Journal'}</h3><p class="journal-note">${gm?'Read-only notes, kept by each player.':'Visible to you and the GM; hidden from other players. Your words do not change official rules or canon.'}</p></div><button id="journalSignOut" type="button" class="journal-quiet">Sign out</button></div>
       ${gm?`<label class="journal-filter">Character <select id="journalCharacter">${characters.map(c=>`<option value="${c}" ${slug===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}</select></label>`:''}
       ${gm?'':`<form id="journalNew" class="journal-compose"><label>Heading<input name="title" maxlength="160" placeholder="Something I want to remember" required></label><label>Type<select name="category">${categories.map(c=>`<option>${c}</option>`).join('')}</select></label><label>My notes<textarea name="body" rows="5" maxlength="20000" placeholder="What happened? What do I think it means?" required></textarea></label><button type="submit">Save entry</button></form>`}
       <div class="journal-list">${notes.length?notes.map(n=>`<article class="journal-entry" data-id="${esc(n.id)}"><div class="journal-entry-top"><span>${esc(n.category||'Session')} · ${new Date(n.updated_at).toLocaleDateString('en-GB')}</span>${gm?'':`<button type="button" class="journal-quiet" data-edit="${esc(n.id)}">Edit</button><button type="button" class="journal-quiet" data-delete="${esc(n.id)}">Delete</button>`}</div><h4>${esc(n.title)}</h4><p>${esc(n.body)}</p>${n.linked_entity_id?`<small>Related to: ${esc(n.linked_entity_id)}</small>`:''}</article>`).join(''):'<p class="journal-empty">No entries yet.</p>'}</div>
     </div>`;
+    paintStatus();
     root.querySelector('#journalSignOut').onclick=signOut;
     root.querySelector('#journalCharacter')?.addEventListener('change',async e=>{selected=e.target.value;await refresh();});
     root.querySelector('#journalNew')?.addEventListener('submit',async e=>{
