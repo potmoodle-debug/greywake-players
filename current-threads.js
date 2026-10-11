@@ -175,7 +175,7 @@
       known: 'The two PCs met from opposite sides of the same deliberate closure and reopened it together. Loose stone and shifted bracing make the reopening obvious. Other concealed ways remain part of the unresolved pattern; the party has not established one shared cause or one responsible actor.',
       relevance: {
         marek: 'You have additional private creature discoveries from later in Session Four. They are not automatically shared with Odie or the party.',
-        velmira: 'You are an active player character with your own choices in Greywake. You did not witness the reopening or later investigation unless someone tells you about it during play.',
+        velmira: 'Velmira is currently a background NPC. She did not witness the reopening or Marek’s later investigation unless that information is established for her in play.',
         odie: 'You established that final packing was done from the Greywake side and asked Spencer to inspect the original closure work. You ended the session travelling back toward the reopened way with him; that inspection has not yet been played.'
       }
     },
@@ -196,7 +196,7 @@
     }
   ];
 
-  const ACTIVE_CHARACTERS = ['marek', 'velmira', 'odie'];
+  const ACTIVE_CHARACTERS = ['marek', 'odie'];
   const partyVisible = item => item.visibility.includes('party');
 
   function characterKey(user) {
@@ -208,7 +208,7 @@
 
   const visibleTo = (item, user) => {
     const key = characterKey(user);
-    return user?.role === 'gm' || partyVisible(item) || (key && item.visibility.includes(key));
+    return user?.role === 'gm' || (!!key && (partyVisible(item) || item.visibility.includes(key)));
   };
 
   function relevanceFor(item, user) {
