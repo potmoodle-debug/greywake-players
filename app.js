@@ -68,6 +68,8 @@ function buildNav(filter=''){
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat==='Locations'?'Places & Routes':cat}</h3>`;
    if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
+   // Keep discovered creature records directly available from the left navigation.
+   if(cat==='Flora & Fauna' && !terms.length && DATA.Foldling && !m.includes('Foldling')) g.appendChild(navLink('Foldling'));
    nav.appendChild(g);resultCount+=m.length;
  }
  if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
