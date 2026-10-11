@@ -24,7 +24,11 @@
     return data;
   }
   function shell(){
-    const area=document.querySelector('#characterSheet .character-sheet-body');
+    let area=document.querySelector('#characterSheet .character-sheet-body');
+    if(!area && gm()) {
+      const sheet=document.getElementById('characterSheet');
+      if(sheet){area=document.createElement('div');area.className='character-sheet-body';sheet.appendChild(area);}
+    }
     if(!area)return false;
     if(!root){root=document.createElement('section');root.id='greywakeJournal';root.className='greywake-journal';area.appendChild(root);}
     root.hidden=false;
