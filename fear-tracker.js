@@ -52,7 +52,7 @@
     const style = document.createElement('style');
     style.id = 'greywake-fear-styles';
     style.textContent = `
-      .greywake-fear-display{display:flex;align-items:center;gap:9px;border:1px solid #6d5736;background:#18130f;padding:6px 9px;min-width:128px;color:#d7c59b;box-shadow:0 0 0 1px #17110b inset}
+      .greywake-fear-strip{display:flex;justify-content:flex-end;align-items:center;padding:5px clamp(15px,3vw,34px);background:#12120f;border-bottom:1px solid #363426;min-height:43px;position:relative;z-index:2}\n      .greywake-fear-display{display:flex;align-items:center;gap:9px;border:1px solid #6d5736;background:#18130f;padding:6px 9px;min-width:128px;color:#d7c59b;box-shadow:0 0 0 1px #17110b inset}
       .greywake-fear-display .fear-label{display:grid;line-height:1}.greywake-fear-display .fear-label small{font-size:7px;letter-spacing:.12em;font-weight:900;color:#937f59}.greywake-fear-display .fear-label strong{font-size:12px;color:#f0d991}
       .greywake-fear-display .fear-count{font:900 20px/1 system-ui,sans-serif;color:#f0d991;min-width:31px;text-align:right}.greywake-fear-display .fear-count span{font-size:8px;color:#82745c;font-weight:800}
       .greywake-fear-pips{display:grid;grid-template-columns:repeat(6,7px);gap:3px}.greywake-fear-pip{width:7px;height:7px;border:1px solid #4b4130;background:#0c0d0a;padding:0}.greywake-fear-pip.on{background:#c29a4b;border-color:#dbba72;box-shadow:0 0 5px rgba(194,154,75,.45)}
@@ -80,11 +80,19 @@
 
   function renderPlayer() {
     if (!isPlayer()) {
+      document.getElementById('sharedFearStrip')?.remove();
       document.getElementById('sharedFearDisplay')?.remove();
       return;
     }
     const topbar = document.querySelector('.topbar');
     if (!topbar) return;
+    let strip = document.getElementById('sharedFearStrip');
+    if (!strip) {
+      strip = document.createElement('div');
+      strip.id = 'sharedFearStrip';
+      strip.className = 'greywake-fear-strip';
+      topbar.insertAdjacentElement('afterend', strip);
+    }
     let node = document.getElementById('sharedFearDisplay');
     if (!node) {
       node = document.createElement('div');
@@ -92,9 +100,9 @@
       node.className = 'greywake-fear-display';
       node.setAttribute('aria-live','polite');
       node.setAttribute('title','GM Fear pool — visible to players in Daggerheart');
-      const identityNode = document.getElementById('playerIdentity');
-      identityNode ? topbar.insertBefore(node, identityNode) : topbar.appendChild(node);
+      strip.appendChild(node);
     }
+    if (node.parentElement !== strip) strip.appendChild(node);
     node.innerHTML = `<div class="fear-label"><small>GM FEAR</small><strong>LIVE</strong></div><div class="fear-count">${ready ? fear : '—'}<span>/12</span></div><div class="greywake-fear-pips">${ready ? pips() : ''}</div>`;
   }
 
