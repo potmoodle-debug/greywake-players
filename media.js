@@ -79,6 +79,9 @@ window.GREYWAKE_MEDIA = {
   "Session 03 — Player Recap": [
     {"src":"assets/canon/sessions/session-03.webp","caption":"The Kestrel Return survivors on the road home."}
   ],
+  "Foldling": [
+    {"src":"assets/canon/fauna/foldling-full-body.png","caption":"Foldling — approved full-body moving reference from the Greywake archive.","layout":"wide","backdrop":false}
+  ],
   "Great-Shell": [
     {"src":"assets/canon/fauna/great-shell.webp","caption":"Great-Shell — canon visual reference.","layout":"wide","backdrop":false}
   ],
