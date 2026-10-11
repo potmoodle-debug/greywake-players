@@ -27,10 +27,20 @@ function currentRoute(){
 }
 function go(route){window.GreywakeNavigation.navigate(route)}
 
+function gmRecordAccess(){return document.body.dataset.role==='gm' && document.body.dataset.gmPreview!=='true'}
+function playerRecordAllowed(name){
+ const e=DATA[name];
+ return !!e && (gmRecordAccess() || !e.playerHidden || typeof e.playerHtml==='string');
+}
+function safeEntryHTML(name){
+ const e=DATA[name]||{};
+ if(gmRecordAccess())return e.html||'';
+ return e.playerHidden ? (e.playerHtml||'') : (e.playerHtml||e.html||'');
+}
 function searchableText(name){
  if(SEARCH_INDEX.has(name))return SEARCH_INDEX.get(name);
  const entry=DATA[name]||{};
- const text=document.createElement('div');text.innerHTML=entry.html||'';
+ const text=document.createElement('div');text.innerHTML=safeEntryHTML(name);
  const value=`${entry.title||name} ${name} ${entry.category||''} ${text.textContent||''}`.toLowerCase();SEARCH_INDEX.set(name,value);return value;
 }
 function groupedLocations(names){
@@ -170,7 +180,7 @@ function expandActiveNav(name){
  const subgroup=active.closest('.nav-subgroup');subgroup?.classList.remove('is-collapsed');subgroup?.querySelector('.nav-subtoggle')?.setAttribute('aria-expanded','true');
 }
 function showNote(name){
- if(!DATA[name]){
+ if(!playerRecordAllowed(name)){
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
  article.innerHTML=`${articleNav()}<h1>Record unavailable</h1><p>This record is not available in your current view. Return to the archive to choose a known record.</p>`;
  wireArticleLinks();document.getElementById('crumb').textContent='Greywake / Record unavailable';return;
@@ -183,7 +193,7 @@ function showNote(name){
    scrollToTop();document.querySelector('.sidebar').classList.remove('open');focusRouteHeading(article);
    return;
  }
- const body=autoLinkHTML(DATA[name].html,name);
+ const body=autoLinkHTML(safeEntryHTML(name),name);
  article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  wireArticleLinks();
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
