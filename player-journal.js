@@ -47,8 +47,8 @@
     }
     if(!session){
       root.innerHTML=`<div class="journal-paper"><h3>Your journal</h3><p class="journal-note">Your notes are visible to the GM, but not to other players. Sign in with your email to keep them secure across devices.</p><form id="journalSignIn"><label>Email address<input type="email" name="email" required autocomplete="email" placeholder="you@example.com"></label><button type="submit">Send sign-in code</button></form><form id="journalVerify" hidden><label>Code from your email<input name="code" required inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code"></label><button type="submit">Confirm code</button></form></div>`;
-      root.querySelector('#journalSignIn').onsubmit=async e=>{e.preventDefault(); const email=e.target.email.value.trim(); msg('Sending sign-in code…'); const {error}=await getClient().auth.signInWithOtp({email,options:{shouldCreateUser:true}});if(error)return msg(error.message,true); root.querySelector('#journalVerify').hidden=false;root.dataset.pendingEmail=email;msg('Check your email for the sign-in code.');};
-      root.querySelector('#journalVerify').onsubmit=async e=>{e.preventDefault();msg('Verifying…');const {error}=await getClient().auth.verifyOtp({email:root.dataset.pendingEmail,token:e.target.code.value.trim(),type:'email'});if(error)return msg(error.message,true);await refresh();};
+      root.querySelector('#journalSignIn').onsubmit=async e=>{e.preventDefault(); const email=e.target.elements.namedItem('email').value.trim(); msg('Sending sign-in code…'); const {error}=await getClient().auth.signInWithOtp({email,options:{shouldCreateUser:true}});if(error)return msg(error.message,true); root.querySelector('#journalVerify').hidden=false;root.dataset.pendingEmail=email;msg('Check your email for the sign-in code.');};
+      root.querySelector('#journalVerify').onsubmit=async e=>{e.preventDefault();msg('Verifying…');const {error}=await getClient().auth.verifyOtp({email:root.dataset.pendingEmail,token:e.target.elements.namedItem('code').value.trim(),type:'email'});if(error)return msg(error.message,true);await refresh();};
       return;
     }
     if(!member){
@@ -68,7 +68,7 @@
     root.querySelector('#journalCharacter')?.addEventListener('change',async e=>{selected=e.target.value;await refresh();});
     root.querySelector('#journalNew')?.addEventListener('submit',async e=>{
       e.preventDefault();const submit=e.target.querySelector('[type=submit]');submit.disabled=true;msg('Saving…');
-      const entry={owner_user_id:session.user.id,character_slug:slug,title:e.target.title.value.trim(),body:e.target.body.value,category:e.target.category.value};
+      const entry={owner_user_id:session.user.id,character_slug:slug,title:e.target.elements.namedItem('title').value.trim(),body:e.target.elements.namedItem('body').value,category:e.target.elements.namedItem('category').value};
       const {error}=await getClient().from('greywake_journal_notes').insert(entry);
       if(error){submit.disabled=false;return msg('Save failed: '+error.message,true);}
       await refresh();msg('Entry saved.');
@@ -83,10 +83,10 @@
       const entry=notes.find(n=>n.id===b.dataset.edit), card=b.closest('.journal-entry');
       if(!entry||!card)return;
       card.innerHTML=`<form class="journal-compose"><label>Heading<input name="title" maxlength="160" required value="${esc(entry.title)}"></label><label>My notes<textarea name="body" rows="6" maxlength="20000" required>${esc(entry.body)}</textarea></label><button type="submit">Save changes</button><button type="button" data-cancel>Cancel</button></form>`;
-      card.querySelector('[data-cancel]').onclick=form;
+      card.querySelector('[data-cancel]').onclick=()=>form();
       card.querySelector('form').onsubmit=async e=>{
         e.preventDefault();msg('Saving changes…');
-        const {error}=await getClient().from('greywake_journal_notes').update({title:e.target.title.value,body:e.target.body.value,updated_at:new Date().toISOString()}).eq('id',entry.id);
+        const {error}=await getClient().from('greywake_journal_notes').update({title:e.target.elements.namedItem('title').value,body:e.target.elements.namedItem('body').value,updated_at:new Date().toISOString()}).eq('id',entry.id);
         if(error)return msg('Update failed: '+error.message,true);
         await refresh();msg('Changes saved.');
       };
