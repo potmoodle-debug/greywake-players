@@ -1,0 +1,43 @@
+/* Spoiler-safe Digger Ways field guide. Diagram is schematic, not a route map. */
+.digger-guide{max-width:1080px;margin:auto;color:#e5ddc8}
+.digger-hero{height:clamp(260px,36vw,420px);position:relative;overflow:hidden;border:1px solid #655638}
+.digger-hero img{width:100%;height:100%;object-fit:cover;filter:saturate(.65) contrast(1.08)}
+.digger-hero-shade{position:absolute;inset:0;background:linear-gradient(0deg,#13120e 1%,#13120e44 65%),linear-gradient(90deg,#10100bc5,transparent 90%)}
+.digger-hero-text{position:absolute;left:clamp(18px,5%,48px);bottom:30px;max-width:650px}
+.digger-hero-text span,.digger-diagram-head>span,.digger-closure span,.digger-quickfacts span{display:block;color:#d4b778;font-size:11px;font-weight:800;letter-spacing:.18em}
+.digger-hero-text h2{font:clamp(34px,5vw,64px)/1.03 Georgia,serif!important;margin:12px 0!important;color:#fff5dd}
+.digger-hero-text p{font-size:16px;color:#e4d8bb;max-width:460px}
+.digger-lede{display:flex;gap:14px;align-items:start;padding:30px 8px 24px;max-width:900px}
+.digger-lede p{margin:0;font-size:17px;line-height:1.7;color:#d5ccb7}
+.digger-dropcap{font:66px/1 Georgia,serif;color:#d3b77b}
+.digger-cutaway{margin:20px 0 34px;border:1px solid #655637;background:#1a1913;overflow:hidden}
+.digger-diagram-head{padding:20px 25px;background:#252218;display:grid;gap:5px}
+.digger-diagram-head strong{font:25px Georgia,serif;color:#f3dfaf}
+.digger-diagram-head small{color:#bcb097;font-size:11px}
+.digger-ground{height:92px;position:relative;background:linear-gradient(#89714d,#6e5838);border-bottom:6px solid #a3875b;display:flex;align-items:end;gap:8%;padding:0 9% 0}
+.digger-ground>span{position:absolute;top:7px;right:15px;color:#f8e6b6;font-size:10px;letter-spacing:.08em}
+.digger-building{height:42px;width:15%;background:repeating-linear-gradient(0deg,#534a38 0 11px,#64563d 12px 14px);border:3px solid #363324;border-bottom:0;position:relative}
+.digger-building:before{content:"";position:absolute;left:-8%;bottom:100%;width:116%;height:8px;background:#494133;transform:skew(-8deg)}
+.digger-building.b{height:63px;width:19%}.digger-building.c{height:33px}
+.digger-earth{height:245px;position:relative;overflow:hidden;background:repeating-linear-gradient(170deg,#352a20 0 21px,#392e23 22px 25px,#30271e 26px 45px)}
+.digger-earth:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 20% 20%,#8a68432e,transparent 45%),radial-gradient(ellipse at 80% 90%,#15110b44,transparent 50%)}
+.digger-ruin,.digger-join{position:absolute;z-index:1;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;color:#f3e1bc;font-size:12px;font-weight:700;padding:10px}
+.digger-ruin{background:#181914;border:10px solid #777565;box-shadow:inset 0 0 25px #050503,0 0 0 5px #342d25}
+.digger-ruin span,.digger-join span{border:1px solid #e2b971;border-radius:50%;width:25px;height:25px;display:inline-grid;place-items:center;font-size:10px;flex:none}
+.ruin-one{top:35px;left:7%;width:35%;height:105px}.ruin-two{top:108px;right:5%;width:34%;height:100px}
+.digger-join{top:106px;left:39%;width:32%;height:42px;background:#3c3227;border-top:7px dashed #cfaa6b;border-bottom:7px dashed #cfaa6b;transform:rotate(12deg);font-size:11px}
+.digger-rubble{position:absolute;bottom:13px;left:18%;width:24%;height:12px;box-shadow:14px 0 #71614b,25px -8px #4d4437,58px -2px #8b7050,85px -15px #69553b}
+.digger-cutaway figcaption{display:flex;flex-wrap:wrap;gap:12px 24px;padding:15px 24px;color:#c5b897;font-size:12px;border-top:1px solid #57452e}
+.digger-cutaway figcaption b{color:#e4c380;margin-right:7px}
+.digger-quickfacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:24px 0 34px}
+.digger-quickfacts>div{padding:22px;background:#242219;border:1px solid #514731}
+.digger-quickfacts strong{display:block;font:23px Georgia,serif;margin:12px 0;color:#f0dfbe}
+.digger-quickfacts p{font-size:14px;line-height:1.6;color:#c6bda7;margin:0}
+.digger-story{display:grid;grid-template-columns:70px 1fr;gap:20px;border-top:1px solid #5b4a30;padding:24px 7px}
+.digger-story-number{font:48px Georgia,serif;color:#a68d58}
+.digger-story h2,.digger-closure h2{font:30px Georgia,serif!important;margin:0 0 12px!important;color:#f0ddb7}
+.digger-story p,.digger-closure p{line-height:1.7;font-size:15px;color:#d0c6ae}
+.digger-closure{display:flex;gap:24px;background:#302820;border-left:5px solid #c19c63;padding:30px 25px;margin:20px 0 40px}
+.digger-closure-mark{font:42px Georgia,serif;color:#d1a46b}
+.digger-closure h2{margin-top:10px!important}
+@media(max-width:700px){.digger-quickfacts{grid-template-columns:1fr}.digger-story{grid-template-columns:35px 1fr;gap:10px}.digger-story-number{font-size:35px}.digger-ground>span{font-size:8px}.digger-ruin,.digger-join{font-size:9px;padding:3px}.digger-ruin span,.digger-join span{display:none}.digger-hero-text{bottom:17px}.digger-lede p{font-size:15px}.digger-earth{height:210px}.digger-closure{padding:20px 15px;gap:12px}}
