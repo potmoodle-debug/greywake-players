@@ -19,13 +19,14 @@
     D['Clay'].category = 'Archived Characters';
     D['Clay'].html = `<p>Clay was Martin's Ridgeborne Ranger during Sessions One to Three. He was a Great-Shell handler, caravan scout and practical judge of desert risk, travelling with Hopkins, his giant kangaroo-rat companion.</p><p>Clay is retired from active play. His actions during the Kestrel Return remain historical canon and are not reassigned to Marek.</p>`;
   }
-  C['Player Characters'] = ['Marek','Odie','Velmira'];
+  C['Player Characters'] = ['Marek','Odie'];
   C['Archived Characters'] = ['Clay'];
   if (D['Velmira']) {
-    D['Velmira'].category = 'Player Characters';
-    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She is Carla's active player character in Greywake. Her established history, relationships and knowledge remain part of the campaign.</p>`;
+    D['Velmira'].category = 'People';
+    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She is currently a background NPC. Her established history, relationships and knowledge remain canon, but she does not take active-PC spotlight or solve current player problems off-screen.</p>`;
   }
-  C['People'] = (C['People'] || []).filter(name => name !== 'Velmira');
+  C['People'] = C['People'] || [];
+  if (!C['People'].includes('Velmira')) C['People'].push('Velmira');
 
   D['Jessa Vale'] = {
     title: 'Jessa Vale',
@@ -202,14 +203,14 @@
       currentDetail: 'You established that the Opening Blockage was finally packed from the Greywake side and reopened it with Marek. The route is passable but visibly disturbed. Spencer’s inspection has not yet been played.'
     },
     velmira: {
-      heading: 'Velmira, what matters now?',
+      heading: 'Velmira — background character',
       location: 'Greywake',
-      locationDetail: 'Velmira is in Greywake. Carla decides her next action; her return to active play does not move her to the Digger way.',
+      locationDetail: 'Velmira remains in Greywake as a background NPC. Her established history and relationships remain canon, but she is not an active player spotlight.',
       chapterTitle: 'Kestrel Return',
-      chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake after the cacklemaw attack and the longer return route.',
+      chapterDetail: 'Velmira helped bring the surviving caravan crew and the Cistern Plate back to Greywake after the cacklemaw attack and the longer return route.',
       chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
-      currentTitle: 'The Closing Ways',
-      currentDetail: 'The route closure is deliberate, but who is exposing the concealed ways, who is closing them and why remain unresolved.'
+      currentTitle: 'Background continuity',
+      currentDetail: 'Do not advance Velmira through active-PC choices off-screen. Her existing Nemi, Tavi, Faithful and relationship pressures remain available as NPC continuity.'
     }
   };
 
@@ -218,11 +219,11 @@
   // GM views should read this object rather than maintaining a second hand-written snapshot.
   window.GREYWAKE_GM_STATE = {
     session: 'Two days after Kestrel Return',
-    partyLocation: 'Greywake and the buried ways: Marek below Greywake · Odie returning with Spencer · Velmira in Greywake',
-    activeParty: ['Marek','Odie','Velmira'],
-    backgroundParty: [],
+    partyLocation: 'Split: Marek below Greywake · Odie returning with Spencer · Velmira remains in Greywake as background',
+    activeParty: ['Marek','Odie'],
+    backgroundParty: ['Velmira'],
     situationTitle: 'Greywake has reacted',
-    situationDetail: 'Two days have passed since Kestrel Return reached Greywake. The rescue is no longer fresh news: accounts are circulating, losses are being counted, Ash-Plate remains out of normal work, the Cistern Plate is under controlled attention, Digger crews are guarding route knowledge more tightly, and the altered-marker and closure questions remain unresolved.',
+    situationDetail: 'Two days have passed since Kestrel Return reached Greywake. The rescue is no longer fresh news: accounts are circulating, losses are being counted, Ash-Plate remains out of normal work, the Cistern Plate is under controlled attention, Digger crews are guarding route knowledge more tightly, at least one additional concealed entrance has been found closed, and the altered-marker and closure questions remain unresolved.',
     sceneTitle: 'Between scenes — Day 2',
     sceneDetail: 'Session Four left Marek beneath Greywake and Odie travelling back toward the reopened southern blockage with Spencer. Around them, Greywake has had time to react to the return without solving the underlying mysteries.',
     pressures: [
@@ -231,7 +232,8 @@
       ['→ High','Cistern Plate custody and examination'],
       ['→','Altered route markers under renewed scrutiny'],
       ['→','Ash-Plate out of normal hauling work'],
-      ['→','Abandoned freight still exposed east of Greywake']
+      ['→','Abandoned freight still exposed east of Greywake'],
+      ['→','Additional concealed closure found; cause and connection unresolved']
     ],
     prep: {
       startingPositions: [
@@ -250,15 +252,15 @@
         {
           name: 'Velmira',
           location: 'Greywake',
-          detail: 'Velmira is Carla’s active player character and remains in Greywake. Her next action is for Carla to choose.',
-          status: 'ACTIVE PC'
+          detail: 'Velmira is a background NPC. Preserve her established relationships and pressures, but do not give her active-PC spotlight or resolve current problems for Marek or Odie.',
+          status: 'BACKGROUND NPC'
         }
       ],
       checklist: [
         {label:'Confirm live starting resources', detail:'Read Hope, Fear, Stress, HP, Armor and Water from current sheets/session state; do not copy old PDF values.', status:'CHECK AT TABLE'},
-        {label:'Opening spotlight', detail:'Marek below Greywake in Foldling form; Odie travelling with Spencer toward the reopened blockage; Velmira in Greywake. Ask each player what they do next; do not force a reunion.', status:'READY'},
+        {label:'Opening spotlight', detail:'Marek is below Greywake in Foldling form; Odie is travelling with Spencer toward the reopened blockage. Ask Martin and Ritchie what they do next; do not force a reunion.', status:'READY'},
         {label:'Spencer inspection evidence', detail:'Have original packing/bracing versus reopening damage ready. Offer physical observations first; do not reveal the Tower Watch order from tool marks alone.', status:'PREP'},
-        {label:'Velmira entry and relationships', detail:'Ask Carla what Velmira is doing as the session begins. Keep Nemi (Stage 2 Stilling), Tavi and the Faithful available without dragging her into a different PC’s scene.', status:'PREP'},
+        {label:'Velmira background continuity', detail:'Velmira remains in Greywake as a background NPC. Keep Nemi (Stage 2 Stilling), Tavi and the Faithful available as world continuity, but do not use Velmira to solve active-PC problems off-screen.', status:'PREP'},
         {label:'Three independent closure chains', detail:'GM-only: Jessa sighting → Brannic/Tower Watch ordered two safety closures; Syndicate separately ordered one commercial closure. Odie’s informer suspicion is not a proven fact.', status:'GM ONLY'},
         {label:'Evidence and knowledge permissions', detail:'Marek personally met the Foldling and learned it fled disturbance south. Odie has not automatically received that information. Neither the public nor Velmira knows unless told in play.', status:'GM ONLY'},
         {label:'Ready locations and NPCs', detail:'Reopened southern passage, buried service spaces, Spencer, Jessa Vale, Brannic Hale, Gate corridor and relevant Greywake social areas. Use established visuals only.', status:'PREP'},
