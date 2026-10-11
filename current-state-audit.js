@@ -218,14 +218,31 @@
   // Single GM-facing owner for the current operational campaign state.
   // GM views should read this object rather than maintaining a second hand-written snapshot.
   window.GREYWAKE_GM_STATE = {
-    session: 'Two days after Kestrel Return',
+    session: 'Session Four · ended early · Fear 6',
     partyLocation: 'Split: Marek below Greywake · Odie returning with Spencer · Velmira remains in Greywake as background',
     activeParty: ['Marek','Odie'],
     backgroundParty: ['Velmira'],
-    situationTitle: 'Greywake has reacted',
+    situationTitle: 'The Closing Ways · one passage reopened',
     situationDetail: 'Two days have passed since Kestrel Return reached Greywake. The rescue is no longer fresh news: accounts are circulating, losses are being counted, Ash-Plate remains out of normal work, the Cistern Plate is under controlled attention, Digger crews are guarding route knowledge more tightly, at least one additional concealed entrance has been found closed, and the altered-marker and closure questions remain unresolved.',
-    sceneTitle: 'Between scenes — Day 2',
-    sceneDetail: 'Session Four left Marek beneath Greywake and Odie travelling back toward the reopened southern blockage with Spencer. Around them, Greywake has had time to react to the return without solving the underlying mysteries.',
+    lastPlayed: [
+      ['OPENING BLOCKAGE', 'Odie and Marek reopened the deliberately braced southern access. Odie established the final packing came from the Greywake side. The way is passable, but disturbed stone and bracing make the reopening obvious.'],
+      ['MAREK · PRIVATE DISCOVERY', 'Marek encountered a living Foldling, studied its evasive, vibration-sensitive behaviour and adopted its form using standard Agile Scout mechanics. Through Nature’s Tongue he learned it fled repeated danger or disturbance from buried places south of Greywake. Odie has not automatically learned this.'],
+      ['ODIE · CISTERN PLATE', 'Odie escorted the Oldwork Cistern Plate to the Inner Cistern Court. He memorised significant geometry from a restricted lower-draw sectional. A record keeper noticed; no fit or consequence is confirmed.']
+    ],
+    parked: [
+      ['ODIE + SPENCER', 'Travelling back to the reopened way. Spencer’s inspection is not yet played.'],
+      ['MAREK', 'In Foldling-form Agile Scout beneath Greywake; the actual Foldling remains alive and separate.'],
+      ['GM FEAR', '6 at the end of Session Four. Confirm current live resources before play.']
+    ],
+    openConsequences: [
+      'Spencer’s unplayed inspection and physical closure evidence',
+      'Who notices or responds to the visible reopening',
+      'Restricted Keeper record-keeper / Varn response',
+      'Cistern Plate compatibility and practical benefit',
+      'Deeper southern disturbance and any further displaced Foldlings'
+    ],
+    sceneTitle: 'Resume after Session Four · split positions',
+    sceneDetail: 'Odie is returning with Spencer to inspect the visibly reopened southern Digger way; the inspection is not yet played. Marek remains in Foldling-form Agile Scout beneath Greywake after leaving the real Foldling alive. Do not force a reunion or advance either scene off-screen.',
     pressures: [
       ['→ High','The Closing Ways'],
       ['→ High','Disturbance south of Greywake'],
@@ -286,9 +303,9 @@
           records: ['Cistern Plate','Ash-Plate','Maela Rusk','Selka Marr']
         },
         {
-          title: 'Velmira chooses her next move',
-          detail: 'Carla decides Velmira’s immediate action in Greywake. Her social network, Nemi’s Stage 2 Stilling and Tavi’s growing Faithful connection are credible ways into play. She does not automatically know Marek’s Foldling encounter or the closure culprits.',
-          readiness: 'PLAYER CHOICE',
+          title: 'Velmira background continuity',
+          detail: 'Velmira remains a background NPC in Greywake. Preserve Nemi’s Stage 2 Stilling and Tavi’s Faithful connection without moving her into the PCs’ scenes or granting her private discoveries.',
+          readiness: 'BACKGROUND',
           records: ['Nemi','The Faithful','The Closing Ways']
         },
         {
