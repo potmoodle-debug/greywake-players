@@ -4,7 +4,7 @@
   const KEY = 'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const characters = ['velmira','odie','marek'];
-  const categories = ['Session','People','Places','Clues','To remember','Character thoughts'];
+  const categories = ['Session','People','Places','Clues','To remember','Character thoughts','In my words'];
   let client, session, member, notes=[], selected='velmira', requestId=0;
   let root, status, subscription;
   const getClient = () => {
@@ -67,7 +67,7 @@
     root.innerHTML=`<div class="journal-paper">
       <div class="journal-heading"><div><span class="journal-overline">${gm?'GM READING ROOM':'PERSONAL FIELD NOTES'}</span><h3>${gm?'Player journals':esc(slug.charAt(0).toUpperCase()+slug.slice(1))+'’s Journal'}</h3><p class="journal-note">${gm?'Read-only notes, kept by each player.':'Visible to you and the GM; hidden from other players. Your words do not change official rules or canon.'}</p></div><button id="journalSignOut" type="button" class="journal-quiet">Sign out</button></div>
       ${gm?`<label class="journal-filter">Character <select id="journalCharacter">${characters.map(c=>`<option value="${c}" ${slug===c?'selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`).join('')}</select></label>`:''}
-      ${gm?'':`<form id="journalNew" class="journal-compose"><label>Heading<input name="title" maxlength="160" placeholder="Something I want to remember" required></label><label>Type<select name="category">${categories.map(c=>`<option>${c}</option>`).join('')}</select></label><label>My notes<textarea name="body" rows="5" maxlength="20000" placeholder="What happened? What do I think it means?" required></textarea></label><button type="submit">Save entry</button></form>`}
+      ${gm?'':`<form id="journalNew" class="journal-compose"><label>Heading<input name="title" maxlength="160" placeholder="Something I want to remember" required></label><label>Type<select name="category">${categories.map(c=>`<option>${c}</option>`).join('')}</select></label><label>Related spell, item or place (optional)<input name="related" maxlength="160" placeholder="e.g. Strange Patterns"></label><label>My notes<textarea name="body" rows="5" maxlength="20000" placeholder="What happened? What do I think it means?" required></textarea></label><button type="submit">Save entry</button></form>`}
       <div class="journal-list">${notes.length?notes.map(n=>`<article class="journal-entry" data-id="${esc(n.id)}"><div class="journal-entry-top"><span>${esc(n.category||'Session')} · ${new Date(n.updated_at).toLocaleDateString('en-GB')}</span>${gm?'':`<button type="button" class="journal-quiet" data-edit="${esc(n.id)}">Edit</button><button type="button" class="journal-quiet" data-delete="${esc(n.id)}">Delete</button>`}</div><h4>${esc(n.title)}</h4><p>${esc(n.body)}</p>${n.linked_entity_id?`<small>Related to: ${esc(n.linked_entity_id)}</small>`:''}</article>`).join(''):'<p class="journal-empty">No entries yet.</p>'}</div>
     </div>`;
     paintStatus();
@@ -75,7 +75,7 @@
     root.querySelector('#journalCharacter')?.addEventListener('change',async e=>{selected=e.target.value;await refresh();});
     root.querySelector('#journalNew')?.addEventListener('submit',async e=>{
       e.preventDefault();const submit=e.target.querySelector('[type=submit]');submit.disabled=true;msg('Saving…');
-      const entry={owner_user_id:session.user.id,character_slug:slug,title:e.target.elements.namedItem('title').value.trim(),body:e.target.elements.namedItem('body').value,category:e.target.elements.namedItem('category').value};
+      const entry={owner_user_id:session.user.id,character_slug:slug,title:e.target.elements.namedItem('title').value.trim(),body:e.target.elements.namedItem('body').value,category:e.target.elements.namedItem('category').value,linked_entity_type:e.target.elements.namedItem('related').value.trim()?'personal_reference':null,linked_entity_id:e.target.elements.namedItem('related').value.trim()||null};
       const {error}=await getClient().from('greywake_journal_notes').insert(entry);
       if(error){submit.disabled=false;return msg('Save failed: '+error.message,true);}
       await refresh();msg('Entry saved.');
