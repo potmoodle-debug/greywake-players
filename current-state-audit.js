@@ -19,14 +19,14 @@
     D['Clay'].category = 'Archived Characters';
     D['Clay'].html = `<p>Clay was Martin's Ridgeborne Ranger during Sessions One to Three. He was a Great-Shell handler, caravan scout and practical judge of desert risk, travelling with Hopkins, his giant kangaroo-rat companion.</p><p>Clay is retired from active play. His actions during the Kestrel Return remain historical canon and are not reassigned to Marek.</p>`;
   }
-  C['Player Characters'] = ['Marek','Odie'];
+  C['Player Characters'] = ['Marek','Odie','Velmira'];
   C['Archived Characters'] = ['Clay'];
   if (D['Velmira']) {
-    D['Velmira'].category = 'People';
-    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She is currently a background NPC. Her established history, relationships and knowledge remain canon, but she does not take active-PC spotlight or solve current player problems off-screen.</p>`;
+    D['Velmira'].category = 'Player Characters';
+    D['Velmira'].html = `<p>Velmira is a Wanderborne Human Wizard of the School of Knowledge, a trader of practical goods and a well-connected local in Greywake.</p><p>She is an active player character. During Session Five she investigated the Foldling sightings with Jessa Vale, spoke to Captain Brannic Hale and joined Marek and Odie on the southern Thirst-Marrow search.</p>`;
   }
   C['People'] = C['People'] || [];
-  if (!C['People'].includes('Velmira')) C['People'].push('Velmira');
+  C['People'] = C['People'].filter(name => name !== 'Velmira');
 
   D['Jessa Vale'] = {
     title: 'Jessa Vale',
@@ -179,205 +179,108 @@
   link('Ash-Plate Groundfall','Session 01 — Player Recap');
   link('Ash-Plate Groundfall','Session 03 — Player Recap');
 
-  // Player Home is character-perspective state, not a single shared campaign camera.
-  // Shared history may be known without being presented as something this character personally lived through.
+  // Session Six resume: source of truth is the played Session Five record.
   window.GREYWAKE_HOME_STATE = {
     marek: {
-      heading: 'Marek, what matters now?',
-      location: 'Buried Ways Beneath Greywake',
-      locationDetail: 'You ended Session Four in Foldling-form Agile Scout in buried spaces beneath Greywake after leaving the real Foldling alive.',
-      chapterTitle: 'The Pale Thread',
-      chapterDetail: 'Your southern creature trail led through the reopened Digger way and onward to a direct encounter with a Foldling beneath Greywake.',
-      chapterRoute: '#/my-greywake',
-      currentTitle: 'The Closing Ways',
-      currentDetail: 'You know the Foldling is primarily evasive, vibration-sensitive and adapted to enclosed ruins. Through Nature’s Tongue you learned it fled north from repeated danger or disturbance in buried places to the south. Separately, your own investigation into Flickerflies produced a lead: stories tend to come from travellers returning from south of Greywake, and a recently returned Digger is said to have brought back a thin translucent wing fragment that someone thought might be from a Flickerfly. Neither the fragment nor an exact Flickerfly location is confirmed.'
+      heading:'Marek, what matters now?', location:'The Stripped Yards',
+      locationDetail:'You are travelling with Odie and Velmira through the abandoned southern outskirts, seeking Thirst-Marrow for Meren.',
+      chapterTitle:'The Southern Ways', chapterDetail:'Your Foldling Beastform experience, conversation with Meren and bargain with Mara Vell brought you to this southern expedition.',
+      chapterRoute:'#/record/' + encodeURIComponent('Session 05 — Player Recap'),
+      currentTitle:'Thirst-Marrow search', currentDetail:'Velmira recalled a credible southern lead, but no plant has yet been located. Mara owes you one information favour.'
     },
     odie: {
-      heading: 'Odie, what matters now?',
-      location: 'Returning to the Reopened Digger Way',
-      locationDetail: 'You ended Session Four travelling with Spencer back toward the reopened southern blockage so he can inspect the original closure work.',
-      chapterTitle: 'Kestrel Return',
-      chapterDetail: 'You helped bring the surviving caravan crew and the Cistern Plate back to Greywake, then escorted the Plate into the Inner Cistern Court before joining the Closing Ways investigation.',
-      chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
-      currentTitle: 'The Closing Ways',
-      currentDetail: 'You established that the Opening Blockage was finally packed from the Greywake side and reopened it with Marek. The route is passable but visibly disturbed. Spencer’s inspection has not yet been played.'
+      heading:'Odie, what matters now?', location:'The Stripped Yards',
+      locationDetail:'You are with Marek and Velmira south of Greywake, near the Old South Road.',
+      chapterTitle:'The Southern Ways', chapterDetail:'You inspected the reopened passage with Spencer, concealed yourself and overheard two workers examining the closure.',
+      chapterRoute:'#/record/' + encodeURIComponent('Session 05 — Player Recap'),
+      currentTitle:'Southern journey', currentDetail:'You are searching for Thirst-Marrow with the others. Your Cistern Plate reconstruction sketch remains incomplete at one quarter.'
     },
     velmira: {
-      heading: 'Velmira — background character',
-      location: 'Greywake',
-      locationDetail: 'Velmira remains in Greywake as a background NPC. Her established history and relationships remain canon, but she is not an active player spotlight.',
-      chapterTitle: 'Kestrel Return',
-      chapterDetail: 'Velmira helped bring the surviving caravan crew and the Cistern Plate back to Greywake after the cacklemaw attack and the longer return route.',
-      chapterRoute: '#/record/' + encodeURIComponent('Session 03 — Player Recap'),
-      currentTitle: 'Background continuity',
-      currentDetail: 'Do not advance Velmira through active-PC choices off-screen. Her existing Nemi, Tavi, Faithful and relationship pressures remain available as NPC continuity.'
+      heading:'Velmira, what matters now?', location:'The Stripped Yards',
+      locationDetail:'You are an active PC travelling with Marek and Odie in the abandoned southern outskirts.',
+      chapterTitle:'The Southern Ways', chapterDetail:'You met Jessa Vale, accompanied her to Captain Brannic Hale and helped change the Watch response to the Foldling.',
+      chapterRoute:'#/record/' + encodeURIComponent('Session 05 — Player Recap'),
+      currentTitle:'A lead to the south', currentDetail:'You recalled a promising, unconfirmed Thirst-Marrow lead and joined the expedition. You know what Captain Hale agreed to, but have not automatically told the others.'
     }
   };
 
-
-  // Single GM-facing owner for the current operational campaign state.
-  // GM views should read this object rather than maintaining a second hand-written snapshot.
   window.GREYWAKE_GM_STATE = {
-    session: 'Session Four · ended early · Fear 6',
-    partyLocation: 'Split: Marek below Greywake · Odie returning with Spencer · Velmira remains in Greywake as background',
-    activeParty: ['Marek','Odie'],
-    backgroundParty: ['Velmira'],
-    situationTitle: 'The Closing Ways · one passage reopened',
-    situationDetail: 'Two days have passed since Kestrel Return reached Greywake. The rescue is no longer fresh news: accounts are circulating, losses are being counted, Ash-Plate remains out of normal work, the Cistern Plate is under controlled attention, Digger crews are guarding route knowledge more tightly, at least one additional concealed entrance has been found closed, and the altered-marker and closure questions remain unresolved.',
-    lastPlayed: [
-      ['OPENING BLOCKAGE', 'Odie and Marek reopened the deliberately braced southern access. Odie established the final packing came from the Greywake side. The way is passable, but disturbed stone and bracing make the reopening obvious.'],
-      ['MAREK · PRIVATE DISCOVERY', 'Marek encountered a living Foldling, studied its evasive, vibration-sensitive behaviour and adopted its form using standard Agile Scout mechanics. Through Nature’s Tongue he learned it fled repeated danger or disturbance from buried places south of Greywake. Odie has not automatically learned this.'],
-      ['ODIE · CISTERN PLATE', 'Odie escorted the Oldwork Cistern Plate to the Inner Cistern Court. He memorised significant geometry from a restricted lower-draw sectional. A record keeper noticed; no fit or consequence is confirmed.']
+    session:'Session Five complete · Session Six next · Fear 12',
+    partyLocation:'Stripped Yards (hex 0,-1) · Old South Road · western Open Houses / eastern Old Haul Yard',
+    activeParty:['Marek','Odie','Velmira'], backgroundParty:[],
+    situationTitle:'The Stripped Yards · the road south',
+    situationDetail:'All three PCs travelled south from Greywake in search of Thirst-Marrow for Meren. The search lead is credible but unconfirmed. Animal tracks enter abandoned houses; an unexplained stone-striking sound came twice from the western ruins. No cactus has been found.',
+    lastPlayed:[
+      ['ODIE','Inspected the reopened blockage with Spencer, watched while concealed and overheard two labourers discuss another Watch closure. Their identities and the second location remain unknown.'],
+      ['MAREK','Experienced Foldling Beastform instincts, consulted Meren and traded firsthand Foldling information to Mara Vell for one future information favour.'],
+      ['VELMIRA','Met Jessa Vale and accompanied her to Captain Brannic Hale. He halted new Foldling-related closures pending evidence. She protected Marek as an unnamed witness.'],
+      ['PARTY','Rested, collected water at Valve Court, reunited and set out south to find Thirst-Marrow. The Stripped Yards closing sound remains unexplained.']
     ],
-    parked: [
-      ['ODIE + SPENCER', 'Travelling back to the reopened way. Spencer’s inspection is not yet played.'],
-      ['MAREK', 'In Foldling-form Agile Scout beneath Greywake; the actual Foldling remains alive and separate.'],
-      ['GM FEAR', '6 at the end of Session Four. Confirm current live resources before play.']
+    parked:[
+      ['PARTY','Together in the Stripped Yards. Do not return them to the underground split scene.'],
+      ['THIRST-MARROW','Not located or harvested. Velmira has only a general southern lead.'],
+      ['GM FEAR','12 at end of Session Five.']
     ],
-    openConsequences: [
-      'Spencer’s unplayed inspection and physical closure evidence',
-      'Who notices or responds to the visible reopening',
-      'Restricted Keeper record-keeper / Varn response',
-      'Cistern Plate compatibility and practical benefit',
-      'Deeper southern disturbance and any further displaced Foldlings'
+    openConsequences:[
+      'Unidentified stone-on-stone sound from the western Open Houses',
+      'Unusual animal tracks entering abandoned dwellings',
+      'Thirst-Marrow location and safe collection unconfirmed',
+      'Mara Vell owes Marek one unredeemed information favour',
+      'Identity of the two closure workers and their other inspection',
+      'Brannic Hale wants firsthand Foldling testimony; existing Watch closures remain under review',
+      'Odie Cistern Plate reconstruction is 1/4 complete',
+      'Nemi Stilling, eastern route markers, Ash-Plate recovery and abandoned freight remain unresolved'
     ],
-    sceneTitle: 'Resume after Session Four · split positions',
-    sceneDetail: 'Odie is returning with Spencer to inspect the visibly reopened southern Digger way; the inspection is not yet played. Marek remains in Foldling-form Agile Scout beneath Greywake after leaving the real Foldling alive. Do not force a reunion or advance either scene off-screen.',
-    pressures: [
-      ['→ High','The Closing Ways'],
-      ['→ High','Disturbance south of Greywake'],
-      ['→ High','Cistern Plate custody and examination'],
-      ['→','Altered route markers under renewed scrutiny'],
-      ['→','Ash-Plate out of normal hauling work'],
-      ['→','Abandoned freight still exposed east of Greywake'],
-      ['→','Additional concealed closure found; cause and connection unresolved']
+    sceneTitle:'Session Six opening · the Stripped Yards',
+    sceneDetail:'Marek, Odie and Velmira are together on or near the Old South Road in the Stripped Yards. The western Open Houses produced two stone-striking sounds. Let the players choose whether to investigate, continue the cactus search or take another action. No source of the sound or encounter has been established.',
+    pressures:[
+      ['→ High','Unknown sound in the western Open Houses'],
+      ['→ High','Thirst-Marrow search south of Greywake'],
+      ['→','Altered animal shelter patterns'],
+      ['→','Watch passage closures under review'],
+      ['→','Mara Vell information favour outstanding'],
+      ['→','Cistern Plate reconstruction and controlled custody'],
+      ['→','Nemi Stilling, Ash-Plate recovery and abandoned eastern freight']
     ],
-    prep: {
-      startingPositions: [
-        {
-          name: 'Marek',
-          location: 'Beneath Greywake',
-          detail: 'Session Four ended with Marek below Greywake after the Foldling encounter. He is separated from Odie and knows the Foldling fled repeated danger or disturbance from buried places farther south.',
-          status: 'ACTIVE PC'
-        },
-        {
-          name: 'Odie',
-          location: 'Returning to the southern Digger way',
-          detail: 'Odie is travelling back with Spencer so the deliberately packed and braced closure can be inspected. The reopened access is now visibly disturbed rather than an untouched scene.',
-          status: 'ACTIVE PC'
-        },
-        {
-          name: 'Velmira',
-          location: 'Greywake',
-          detail: 'Velmira is a background NPC. Preserve her established relationships and pressures, but do not give her active-PC spotlight or resolve current problems for Marek or Odie.',
-          status: 'BACKGROUND NPC'
-        }
+    prep:{
+      startingPositions:[
+        {name:'Marek',location:'The Stripped Yards · Old South Road',detail:'With Odie and Velmira, searching for Thirst-Marrow for Meren. The sound came from the western ruins. Mara owes him one information favour.',status:'ACTIVE PC'},
+        {name:'Odie',location:'The Stripped Yards · Old South Road',detail:'Travelling with Marek and Velmira. Previously overheard two labourers checking a passage closure. Cistern Plate sketch progress: 1/4.',status:'ACTIVE PC'},
+        {name:'Velmira',location:'The Stripped Yards · Old South Road',detail:'Travelling with Marek and Odie. Recalled an unconfirmed southern Thirst-Marrow lead. Knows Brannic agreed to halt new Foldling closures.',status:'ACTIVE PC'}
       ],
-      checklist: [
-        {label:'Confirm live starting resources', detail:'Read Hope, Fear, Stress, HP, Armor and Water from current sheets/session state; do not copy old PDF values.', status:'CHECK AT TABLE'},
-        {label:'Opening spotlight', detail:'Marek is below Greywake in Foldling form; Odie is travelling with Spencer toward the reopened blockage. Ask Martin and Ritchie what they do next; do not force a reunion.', status:'READY'},
-        {label:'Spencer inspection evidence', detail:'Have original packing/bracing versus reopening damage ready. Offer physical observations first; do not reveal the Tower Watch order from tool marks alone.', status:'PREP'},
-        {label:'Velmira background continuity', detail:'Velmira remains in Greywake as a background NPC. Keep Nemi (Stage 2 Stilling), Tavi and the Faithful available as world continuity, but do not use Velmira to solve active-PC problems off-screen.', status:'PREP'},
-        {label:'Three independent closure chains', detail:'GM-only: Jessa sighting → Brannic/Tower Watch ordered two safety closures; Syndicate separately ordered one commercial closure. Odie’s informer suspicion is not a proven fact.', status:'GM ONLY'},
-        {label:'Evidence and knowledge permissions', detail:'Marek personally met the Foldling and learned it fled disturbance south. Odie has not automatically received that information. Neither the public nor Velmira knows unless told in play.', status:'GM ONLY'},
-        {label:'Ready locations and NPCs', detail:'Reopened southern passage, buried service spaces, Spencer, Jessa Vale, Brannic Hale, Gate corridor and relevant Greywake social areas. Use established visuals only.', status:'PREP'},
-        {label:'Live capture and player site', detail:'Test GM capture, player questions/updates, site navigation and the two-chat update handoff before starting. Stage new discoveries; never auto-promote to canon.', status:'TEST'}
+      checklist:[
+        {label:'Confirm live resources',detail:'GM Fear 12. Each spent 1 Water on the previous Long Rest and collected a daily ration; confirm exact Water, Hope, HP, Stress and Armor from sheets.',status:'CHECK AT TABLE'},
+        {label:'Opening spotlight',detail:'All three PCs are together. The stone-striking sound came twice from western abandoned buildings; source unestablished. Ask what they do.',status:'READY'},
+        {label:'Stripped Yards geography',detail:'Old South Road north-south, Open Houses west, Old Haul Yard east, abandoned claim southwest and the Break farther south. No forced encounter.',status:'READY'},
+        {label:'Thirst-Marrow lead',detail:'Velmira recalled a credible scavenger description, not an exact location. Searching and harvesting remain to be played.',status:'READY'},
+        {label:'Knowledge separation',detail:'Velmira knows Hale decision; others do not automatically. Mara knows only what Marek traded. Do not expose GM-only Foldling cause.',status:'GM ONLY'},
+        {label:'Site and live capture',detail:'Check player view, questions, capture and updates before play; do not publish GM-only facts.',status:'TEST'}
       ],
-      likelyScenes: [
-        {
-          title: 'Spencer inspects the reopened blockage',
-          detail: 'Odie is bringing Spencer back specifically to examine the original closure work. The physical scene has been altered by reopening, so Spencer can distinguish some original work from later disturbance but cannot recover evidence that no longer exists.',
-          readiness: 'READY',
-          records: ['Spencer Digger','The Closing Ways']
-        },
-        {
-          title: 'Marek follows the Foldling question',
-          detail: 'Marek knows the Foldling came from buried places to the south and was driven north by repeated danger or disturbance. The cause remains unknown. His current practical next steps include questioning Diggers about the affected worksite or pursuing the southern evidence himself.',
-          readiness: 'READY',
-          records: ['The Closing Ways']
-        },
-        {
-          title: 'Greywake after two days of reaction',
-          detail: 'The Kestrel Return story has spread into ordinary life. Caravan workers are discussing losses and route safety, Diggers are sharing less route information, Ash-Plate is visibly unavailable for work, and the Plate is no longer a casual object anyone can simply handle.',
-          readiness: 'AMBIENT',
-          records: ['Cistern Plate','Ash-Plate','Maela Rusk','Selka Marr']
-        },
-        {
-          title: 'Velmira background continuity',
-          detail: 'Velmira remains a background NPC in Greywake. Preserve Nemi’s Stage 2 Stilling and Tavi’s Faithful connection without moving her into the PCs’ scenes or granting her private discoveries.',
-          readiness: 'BACKGROUND',
-          records: ['Nemi','The Faithful','The Closing Ways']
-        },
-        {
-          title: 'Regroup or stay split',
-          detail: 'There is no assumed reunion. If either player turns back, pushes deeper or seeks the other, let that choice determine the next connection between scenes.',
-          readiness: 'CHOICE',
-          records: []
-        }
+      likelyScenes:[
+        {title:'Investigate the western sound',detail:'The players may examine the Open Houses and the stone-striking sound. Its source is not yet established.',readiness:'PLAYER CHOICE',records:['The Stripped Yards']},
+        {title:'Search for Thirst-Marrow',detail:'Follow Velmira general lead and decide how to survey the neglected southern ground. No exact patch has been confirmed.',readiness:'PLAYER CHOICE',records:['Thirst-Marrow','The Stripped Yards']},
+        {title:'Explore the old haul grounds',detail:'The eastern Old Haul Yard provides a different route and visibility from the narrow western Open Houses.',readiness:'OPTION',records:['The Stripped Yards']}
       ],
-      npcMoves: [
-        {
-          name: 'Spencer Digger',
-          knowledge: 'A southern access was deliberately packed and braced, and Odie has brought him back to inspect the original work after the way was reopened.',
-          decision: 'Return with Odie and inspect the closure.',
-          next: 'Separate original packing and bracing from the later disturbance caused by reopening, then report only what the remaining evidence supports.',
-          certainty: 'ESTABLISHED'
-        },
-        {
-          name: 'Maela Rusk',
-          knowledge: 'She survived Kestrel Return and can give a firsthand account of the failed route, groundfall, losses and rescue.',
-          decision: 'Give an honest account of what happened rather than leave the return to rumour.',
-          next: 'Her version becomes one of the main accounts people in Greywake compare, without fixing blame that has not been established.',
-          certainty: 'OFF-SCREEN MOVE'
-        },
-        {
-          name: 'Selka Marr',
-          knowledge: 'Kestrel Return lost freight, transport capacity and confidence in an eastern route after deliberately altered markers were found.',
-          decision: 'Begin practical loss accounting and route-safety review.',
-          next: 'Press for clarity over abandoned freight and whether another caravan can safely use the same route.',
-          certainty: 'OFF-SCREEN MOVE'
-        },
-        {
-          name: 'High Keeper Varn',
-          knowledge: 'The Cistern Plate reached Greywake intact and may have practical value to the waterworks, but its exact function and compatibility are not fully established.',
-          decision: 'Keep access controlled while examination proceeds cautiously.',
-          next: 'Limit casual handling, record who is examining it and avoid installation until there is enough evidence to justify the risk.',
-          certainty: 'OFF-SCREEN MOVE'
-        },
-        {
-          name: 'Mara Vell',
-          knowledge: 'Several versions of the Kestrel Return story are circulating, with different people emphasising markers, freight, the groundfall or the recovered Plate.',
-          decision: 'Compare accounts rather than repeat the loudest version.',
-          next: 'Notice contradictions, repeated details and claims that outrun the evidence.',
-          certainty: 'OFF-SCREEN MOVE'
-        }
+      npcMoves:[
+        {name:'Mara Vell',knowledge:'Marek provided firsthand Foldling details but withheld the reason it came north.',decision:'Accepted a deferred trade for one information favour.',next:'Owes Marek one answer or lead she knows or can reasonably obtain; not automatically redeemed.',certainty:'ESTABLISHED'},
+        {name:'Brannic Hale',knowledge:'Jessa and Velmira described the Foldling as frightened rather than aggressive.',decision:'Halted NEW Foldling-related passage closures pending evidence.',next:'Existing Watch seals remain under review; firsthand witness welcome.',certainty:'ESTABLISHED'},
+        {name:'Spencer Digger',knowledge:'Inspected deliberate packing and tool marks in the reopened passage.',decision:'Ask discreet questions about tools, timber and paid closure work.',next:'No confirmed new lead from his inquiries has been played.',certainty:'OPEN'}
       ],
-      evidence: [
-        {kind:'PLAYER FACT', text:'Two days have passed since Kestrel Return reached Greywake.'},
-        {kind:'PLAYER FACT', text:'Ash-Plate returned alive but remains injured and unavailable for normal hauling work.'},
-        {kind:'PLAYER FACT', text:'Significant freight remains abandoned at the Groundfall east of Greywake unless play establishes otherwise.'},
-        {kind:'PLAYER FACT', text:'At least two eastern route markers were deliberately altered; culprit and purpose remain unresolved.'},
-        {kind:'PLAYER FACT', text:'The southern Digger way was deliberately packed and braced, and Odie and Marek reopened it. The route is passable but visibly disturbed.'},
-        {kind:'PLAYER FACT', text:'Marek encountered a Foldling below Greywake and learned that it fled repeated danger or disturbance from buried places farther south.'},
-        {kind:'GM STATE', text:'Over the two days, the Kestrel Return account has spread, the Caravan Syndicate has begun loss accounting and route review, Keepers have tightened control around the Cistern Plate, and Digger crews have become more guarded about concealed route knowledge.'},
-        {kind:'GM STATE', text:'The abandoned freight has not automatically been recovered. Its continued exposure creates pressure around ownership, salvage cost and whether another expedition is worth the risk.'},
-        {kind:'GM STATE', text:'The Foldling discovery has not become general Greywake knowledge unless Marek or Odie shares it. Rumours may describe something moving through the southern ways without naming it correctly.'},
-        {kind:'UNRESOLVED', text:'Who altered the route markers, what caused the deeper southern disturbance, the precise original closure labour, what the Cistern Plate ultimately does, and whether the abandoned freight has changed hands remain unresolved. GM-only responsibility for the three prepared closures IS established and separate.'},
-        {kind:'GM ONLY', text:'The reopened southern blockage is Tower Watch closure #1. Jessa Vale saw the Foldling emerge through this concealed access; Brannic Hale then authorised it to be sealed from the Greywake side for containment and public safety.'},
-        {kind:'GM ONLY', text:'There are two established Tower Watch closures caused by Jessa revealing accesses, plus a separate third closure by the Caravan Syndicate after it inferred another route and acted for commercial advantage by redirecting movement through Caravan Gate.'},
-        {kind:'GM ONLY', text:'The Cistern Plate is Oldwork, recovered from an abandoned route cistern. Its construction resembles Odie’s Oldwork finger, suggesting related craftsmanship without proving the same civilisation. Greywake can recognise and use the Plate, not manufacture it.'},
-        {kind:'GM ONLY', text:'The buried southern disturbance displaced the Foldling northward. That displacement led to Jessa witnessing it use concealed Digger accesses. The exact nature of the deeper disturbance remains unrevealed and not fully defined.'}
+      evidence:[
+        {kind:'PLAYER FACT',text:'All three PCs are together in the Stripped Yards (0,-1), seeking Thirst-Marrow.'},
+        {kind:'PLAYER FACT',text:'Tracks lead into abandoned houses; stone struck stone twice among the western ruins. Cause unknown.'},
+        {kind:'PLAYER FACT',text:'Mara owes Marek one information favour. Odie Plate sketch is 1/4 complete.'},
+        {kind:'PLAYER FACT',text:'Velmira and Jessa persuaded Brannic to halt new Foldling-related closures.'},
+        {kind:'UNRESOLVED',text:'Thirst-Marrow patch, western sound source, labourers and second inspection remain unknown.'},
+        {kind:'GM ONLY',text:'Two Watch closures stem from Jessa Foldling reports; the Syndicate gate-side closure has a separate trade motive.'},
+        {kind:'GM ONLY',text:'Foldling was displaced by an unidentified disturbance farther south. Do not connect it automatically to Stilling, Oldwork or Tower.'}
       ],
-      assets: [
-        {label:'Southern Digger way', type:'SCENE / MAP', status:'USE IF PLAY GOES THERE'},
-        {label:'Spencer Digger', type:'NPC / PORTRAIT', status:'READY'},
-        {label:'Kestrel Return aftermath', type:'GM STATE', status:'UPDATED — DAY 2'},
-        {label:'Cistern Plate', type:'OBJECT / PRESSURE', status:'CONTROLLED ACCESS'},
-        {label:'Ash-Plate', type:'CREATURE / CONSEQUENCE', status:'INJURED — OUT OF WORK'},
-        {label:'Foldling reference', type:'CREATURE', status:'READY IF MAREK CONTINUES'},
-        {label:'The Closing Ways', type:'HANDOUT / RECORD', status:'READY'},
-        {label:'Jessa Vale and Brannic Hale', type:'NPC / WITNESS', status:'GM ONLY — IF INVESTIGATED'},
-        {label:'Velmira: Nemi and Tavi', type:'CHARACTER THREADS', status:'AVAILABLE — PLAYER CHOICE'}
+      assets:[
+        {label:'The Stripped Yards',type:'LOCATION / MAP',status:'OPENING AREA'},
+        {label:'Open Houses and Old Haul Yard',type:'LOCATION / OPTIONS',status:'READY'},
+        {label:'Thirst-Marrow',type:'FLORA / SEARCH',status:'NOT YET FOUND'},
+        {label:'Marek, Odie, Velmira',type:'ACTIVE PCS',status:'ALL PRESENT'},
+        {label:'Mara Vell and Brannic Hale',type:'NPC / CONSEQUENCES',status:'REFERENCES'}
       ]
     }
   };
