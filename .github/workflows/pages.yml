@@ -27,6 +27,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Validate campaign-state consistency before publishing
+        run: python3 tests/campaign-state-consistency.py
+
       - name: Build direct image assets
         shell: bash
         run: |
