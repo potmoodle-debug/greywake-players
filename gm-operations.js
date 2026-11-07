@@ -1,5 +1,5 @@
 (() => {
-  const ROUTES={run:'#/gm-session',prep:'#/gm-prep',update:'#/gm-update',world:'#/gm-world',inbox:'#/gm-inbox',players:'#/gm-players'};
+  const ROUTES={run:'#/gm-session',prep:'#/gm-prep',update:'#/gm-update',world:'#/gm-world',inbox:'#/gm-inbox',players:'#/gm-players',whiteboard:'#/gm-whiteboard'};
   const CAPTURE_KEY='greywake-gm-captures-v1';
   const CAPTURE_TYPES=[['fact','Fact established'],['npc','NPC decision'],['discovery','Player discovery'],['promise','Player promise'],['rumour','New rumour'],['faction','Faction change'],['resource','Item / resource change'],['question','New question'],['canon','Canon candidate']];
   const STAGES=['captured','proposed','canonised','revealed','resolved'];
@@ -29,6 +29,7 @@
     if(h===ROUTES.world||h==='#/gm-archive')return{type:'world'};
     if(h===ROUTES.inbox)return{type:'inbox'};
     if(h===ROUTES.players)return{type:'players'};
+    if(h===ROUTES.whiteboard)return{type:'whiteboard'};
     return{type:'run'};
   }
   function navigate(hash){window.GreywakeNavigation.navigate(hash)}
@@ -60,10 +61,11 @@
     const nav=document.getElementById('primaryNav');if(!nav||!fullGM())return;rememberNav();
     const defs=[['RUN',ROUTES.run],['PREP',ROUTES.prep],['UPDATE',ROUTES.update],['WORLD',ROUTES.world],['INBOX',ROUTES.inbox]];
     PLAYER_NAV_IDS.forEach((id,i)=>{const b=document.getElementById(id);if(!b)return;b.textContent=defs[i][0];b.dataset.gmRoute=defs[i][1];b.removeAttribute('onclick');b.removeAttribute('data-primary-section')});
+    let white=document.getElementById('gmWhiteboardNav');if(!white){white=document.createElement('button');white.id='gmWhiteboardNav';nav.appendChild(white)}white.type='button';white.textContent='WHITEBOARD';white.dataset.gmRoute=ROUTES.whiteboard;
     let extra=document.getElementById('gmPlayersNav');if(!extra){extra=document.createElement('button');extra.id='gmPlayersNav';nav.appendChild(extra)}extra.type='button';extra.textContent='PLAYERS';extra.dataset.gmRoute=ROUTES.players;
   }
   function restoreNav(){
-    document.getElementById('gmPlayersNav')?.remove();
+    document.getElementById('gmPlayersNav')?.remove();document.getElementById('gmWhiteboardNav')?.remove();
     PLAYER_NAV_IDS.forEach(id=>{const b=document.getElementById(id);if(!b||!b.dataset.gmOriginalSaved)return;b.textContent=b.dataset.gmOriginalText||'';const oc=b.dataset.gmOriginalOnclick||'';if(oc)b.setAttribute('onclick',oc);else b.removeAttribute('onclick');const sec=b.dataset.gmOriginalSection||'';if(sec)b.dataset.primarySection=sec;delete b.dataset.gmRoute})
     restoreSidebar();
   }
@@ -84,6 +86,7 @@
           <button type="button" data-gm-side-route="${ROUTES.world}"><span>WORLD</span><small>GM records and campaign state</small></button>
           <button type="button" data-gm-side-route="${ROUTES.inbox}"><span>INBOX</span><small>Player questions and interests</small></button>
           <button type="button" data-gm-side-route="${ROUTES.players}"><span>PLAYERS</span><small>Preview what each player sees</small></button>
+          <button type="button" data-gm-side-route="${ROUTES.whiteboard}"><span>WHITEBOARD</span><small>Interactive Daggerheart cards</small></button>
         </div>
         <div class="gm-sidebar-record-label"><small>GREYWAKE RECORDS</small><span>People, places, creatures, factions and session records</span></div>`;
       nav.parentNode.insertBefore(gmNav,nav);
@@ -221,11 +224,12 @@
     workspace.querySelector('#gmRunUpdate')?.addEventListener('click',copyUpdatePacket);workspace.querySelector('#gmCopyObsidian')?.addEventListener('click',copyObsidian);
     const peopleHost=workspace.querySelector('#gmPeopleBrowserHost');if(peopleHost&&window.GREYWAKE_RENDER_PEOPLE_BROWSER)window.GREYWAKE_RENDER_PEOPLE_BROWSER(peopleHost,{gm:true});
   }
+  function renderWhiteboard(){return `${head('GM WHITEBOARD','The campaign on the table.','Search Greywake records, arrange Daggerheart-style cards and connect the evidence. Boards are saved in this browser, not in Obsidian.')}<iframe title="Greywake GM interactive whiteboard" src="gm-whiteboard.html?embedded=1" style="display:block;width:100%;height:clamp(570px,78vh,1150px);border:1px solid #5a5033;background:#14150f" loading="eager"></iframe>`}
   function render(){
     ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}
     if(!location.hash||location.hash==='#/'){location.hash=ROUTES.run;return}
     configureNav();ensureGMSidebar();ensureGMRecordSidebarRouting();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
-    workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():renderRun();
+    workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():r.type==='whiteboard'?renderWhiteboard():renderRun();
     workspace.classList.remove('hidden');wire(workspace);if(r.type==='inbox')mountInboxThreads();syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
   }
 
