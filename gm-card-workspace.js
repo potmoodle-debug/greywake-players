@@ -37,9 +37,9 @@ grid.insertAdjacentHTML('beforebegin',toolbar());
 const controls=grid.previousElementSibling;
 controls.addEventListener('click',event=>{
  if(event.target.closest('[data-gm-add-card]')){
-  const note={id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),title:'New card',text:''};state.notes.push(note);save();const el=custom(note);grid.appendChild(el);grid.dataset.gmCardsReady='';controls.remove();enhance();const next=grid.querySelector('[data-gm-card="custom-'+note.id+'"]');next?.querySelector('[data-note-edit]')?.click();next?.scrollIntoView({block:'center',behavior:'smooth'});
+  const note={id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),title:'New card',text:''};state.notes.push(note);save();const el=custom(note);grid.appendChild(el);el.dataset.gmCard='custom-'+note.id;const bar=grid.querySelector('.gm-custom-card .gm-card-tools')?.cloneNode(true);if(bar)el.prepend(bar);state.order=[...grid.querySelectorAll(':scope > [data-gm-card]')].map(x=>x.dataset.gmCard);save();window.location.reload();
  }else if(event.target.closest('[data-gm-restore-cards]')){state.hidden=[];save();grid.querySelectorAll('[data-gm-card]').forEach(el=>el.hidden=false)}
- else if(event.target.closest('[data-gm-reset-cards]')){if(!confirm('Reset card order and restore hidden cards? Your custom note cards will be kept.'))return;state.order=[];state.hidden=[];save();grid.dataset.gmCardsReady='';controls.remove();enhance()}
+ else if(event.target.closest('[data-gm-reset-cards]')){if(!confirm('Reset card order and restore hidden cards? Your custom note cards will be kept.'))return;state.order=[];state.hidden=[];save();window.location.reload()}
 });
 let dragged=null;
 grid.addEventListener('dragstart',e=>{const handle=e.target.closest('.gm-card-handle');if(!handle){e.preventDefault();return}dragged=handle.closest('[data-gm-card]');dragged.classList.add('gm-card-dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragged.dataset.gmCard)});
