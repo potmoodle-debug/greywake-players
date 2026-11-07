@@ -84,6 +84,7 @@
       '#/gm-campaign': '#/campaign',
       '#/gm-cockpit': '#/',
       '#/gm-session': '#/',
+      '#/gm-whiteboard': '#/',
       '#/gm_session': '#/'
     };
     if (hash.startsWith('#/gm-world/record/')) return '#/record/' + hash.slice('#/gm-world/record/'.length);
