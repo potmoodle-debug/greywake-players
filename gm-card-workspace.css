@@ -1,0 +1,12 @@
+/* GM RUN card arrangement */
+.gm-card-workspace-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:16px 0;padding:14px 16px;border:1px solid #71664c;border-radius:12px;background:#211f19;color:#e7d8b5}
+.gm-card-workspace-controls>span{font-size:.85rem;font-weight:800;letter-spacing:.08em}.gm-card-workspace-controls small{display:block;font-size:.72rem;letter-spacing:0;font-weight:400;opacity:.75;margin-top:4px}
+.gm-card-workspace-controls>div{display:flex;flex-wrap:wrap;gap:7px}.gm-card-workspace-controls button,.gm-card-tools button,.gm-card-edit button{cursor:pointer;border:1px solid #756b52;border-radius:6px;background:#343026;color:#f0e1bc;padding:6px 9px;font:inherit;font-size:.78rem}
+.gm-card-tools{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.gm-card-tools button{padding:4px 8px}.gm-card-tools .gm-card-handle{margin-right:auto;cursor:grab;touch-action:none}.gm-card-handle:active{cursor:grabbing}
+.gm-ops-grid>.gm-panel[hidden],.gm-card-edit[hidden]{display:none!important}
+.gm-ops-grid>.gm-panel.gm-card-dragging{opacity:.5;outline:2px dashed #c9a66c}
+.gm-custom-card .gm-card-note-text{white-space:pre-wrap;overflow-wrap:anywhere}
+.gm-card-edit{display:grid;gap:10px;margin-top:14px}.gm-card-edit label{display:grid;gap:5px;font-size:.8rem}.gm-card-edit input,.gm-card-edit textarea{width:100%;box-sizing:border-box;background:#181713;color:#eee2c7;border:1px solid #807357;border-radius:6px;padding:8px}
+.gm-card-tools button:focus-visible,.gm-card-workspace-controls button:focus-visible{outline:2px solid #efd28f;outline-offset:2px}
+@media(max-width:620px){.gm-card-workspace-controls{align-items:stretch}.gm-card-workspace-controls>div{width:100%}.gm-card-workspace-controls button{flex:1}}
