@@ -7,6 +7,7 @@
 <div id="app"><aside id="sidebar"><div class="search"><small>THE CAMPAIGN LIBRARY</small><input id="search" placeholder="Search people, creatures, places…" aria-label="Search cards"><select id="category"><option value="">All categories</option></select><button class="primary" id="customCard">+ Create GM note</button><span class="status" id="count"></span></div><div id="library"></div></aside><main id="canvas" aria-label="Interactive whiteboard"><div id="world"><svg id="edges" width="1" height="1"></svg><div id="cards"></div></div><div id="empty"><h2>Your campaign, on the table.</h2>Search the library and click a record to add its card.</div><div class="hint">Drag cards to arrange · Drag background to pan · Scroll to zoom · Select two cards then Link</div></main></div>
 <div id="modal" class="modal" role="dialog" aria-modal="true"><div class="dialog"><h2 id="modalTitle"></h2><div id="modalContent"></div><div style="display:flex;gap:8px;justify-content:flex-end"><button id="modalCancel">Close</button><button id="modalSave" class="primary">Save</button></div></div></div><input type="file" id="fileInput" accept=".json,application/json" hidden>
 <script src="data.js?v=foldling2"></script>
+<script src="flora-extra.js"></script><script src="locations-extra.js"></script><script src="npc-extra.js"></script><script src="reference-extra.js"></script><script src="shared-knowledge.js"></script><script src="rumour-locations.js"></script><script src="spencer-digger.js"></script><script src="session03.js"></script><script src="session04.js"></script><script src="session05.js"></script><script src="jobs.js"></script><script src="inventory-extra.js"></script><script src="media.js"></script>
 <script>
 (()=>{
 'use strict';
@@ -15,7 +16,7 @@ if(localStorage.getItem(OWNER)!=='gm'){document.body.innerHTML='<main style="pad
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const raw=window.GREYWAKE_DATA||{};
 const records=Object.entries(raw).map(([key,v])=>({key,title:v.title||key,category:v.category||'Record',html:v.html||''})).filter(r=>r.title);
-const images={'Marek':'assets/marek-canon.jpg','Odie':'assets/odie-canon.webp','Velmira':'assets/velmira-poster.webp','Greywake':'assets/tower-distant.jpg','Spencer Digger':'assets/npcs/hq-v3/spencer-digger.png','Mara Vell':'assets/npcs/hq-v3/mara-vell.webp','Brannic Hale':'assets/npcs/hq-v3/brannic-hale.webp','Selka Marr':'assets/npcs/hq-v3/selka-marr.webp','Maela Rusk':'assets/npcs/hq-v3/maela-rusk.webp'};
+const images=Object.fromEntries(Object.entries(window.GREYWAKE_MEDIA||{}).filter(([k,v])=>Array.isArray(v)&&v[0]?.src).map(([k,v])=>[k,v[0].src]));
 const initial=()=>({active:'session',boards:[{id:'session',name:'Current Session',cards:[],links:[],pan:{x:130,y:90,z:1}}],notes:[]});
 let state;try{state=JSON.parse(localStorage.getItem(KEY)||'null')||initial();if(!Array.isArray(state.boards)||!state.boards.length)state=initial()}catch{state=initial()}
 let selected=[],drag=null,saveError=false;
