@@ -50,6 +50,8 @@
       .gm-adversary-feature p{margin:0;color:#98907d;font-size:9px;line-height:1.45}
       .gm-adversary-guidance{grid-column:1/-1;padding:10px 12px;border-top:1px solid #39362b;background:#211d13;color:#b7ab8e;font-size:9px;line-height:1.5}
       .gm-adversary-guidance b{color:#f0d98d}
+      .gm-adversary-library-toggle{margin:12px 0;background:#272519;border:1px solid #6b5a38;color:#e4d2a1;padding:10px 14px;cursor:pointer;font-size:11px;font-weight:700}
+      .gm-adversary-list[hidden]{display:none}
       .gm-adversary-empty{padding:14px;border:1px dashed #494433;color:#8d8572;text-align:center;font-size:10px}
       @media(max-width:900px){.gm-adversary-top{grid-template-columns:1fr 1fr 1fr}.gm-adversary-title{grid-column:1/-1}.gm-adversary-stat{border-top:1px solid #39362b}.gm-adversary-body{grid-template-columns:1fr}.gm-adversary-quick{border-right:0;border-bottom:1px solid #39362b}.gm-adversary-features{grid-template-columns:1fr}.gm-adversary-reference-head{align-items:flex-start;flex-direction:column}.gm-adversary-reference-head p{text-align:left}}
     `;
@@ -118,7 +120,7 @@
 
     const section = document.createElement('section');
     section.className = 'gm-adversary-reference';
-    section.innerHTML = `<div class="gm-adversary-reference-head"><div><small>LIVE ADVERSARY REFERENCE</small><h2>At-the-table cards</h2></div><p>GM-only mechanics loaded from the campaign database. Obsidian remains canon authority.</p></div><div class="gm-adversary-list"><div class="gm-adversary-empty">Loading adversary cards…</div></div>`;
+    section.innerHTML = `<div class="gm-adversary-reference-head"><div><small>LIVE ADVERSARY REFERENCE</small><h2>At-the-table cards</h2></div><p>Only prepared or current encounters appear first. Other creature references are available on demand; Obsidian remains canon authority.</p></div><div class="gm-adversary-list"><div class="gm-adversary-empty">Loading adversary cards…</div></div>`;
 
     const quickCapture = [...grid.children].find(el => el.querySelector?.('#gmQuickCaptureForm'));
     if (quickCapture) grid.insertBefore(section, quickCapture);
@@ -127,7 +129,33 @@
     const list = section.querySelector('.gm-adversary-list');
     const loadedCards = await loadCards();
     if (!section.isConnected || !list) return;
-    list.innerHTML = loadedCards.length ? loadedCards.map(renderCard).join('') : '<div class="gm-adversary-empty">No active GM adversary cards.</div>';
+    const selected = window.GREYWAKE_GM_STATE?.prep?.activeAdversaries || [];
+    const activeCards = loadedCards.filter(card => selected.some(name =>
+      String(name).toLowerCase() === String(card.slug || '').toLowerCase() ||
+      String(name).toLowerCase() === String(card.name || '').toLowerCase()));
+    const otherCards = loadedCards.filter(card => !activeCards.includes(card));
+    list.innerHTML = activeCards.length
+      ? activeCards.map(renderCard).join('')
+      : '<div class="gm-adversary-empty">No creature encounter is established for the current scene. Prepare creatures only if play makes them relevant.</div>';
+    if (otherCards.length) {
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'gm-adversary-library-toggle';
+      toggle.textContent = 'Open other creature references (' + otherCards.length + ')';
+      toggle.setAttribute('aria-expanded', 'false');
+      const library = document.createElement('div');
+      library.className = 'gm-adversary-list';
+      library.hidden = true;
+      library.innerHTML = otherCards.map(renderCard).join('');
+      toggle.addEventListener('click', () => {
+        library.hidden = !library.hidden;
+        toggle.setAttribute('aria-expanded', String(!library.hidden));
+        toggle.textContent = library.hidden
+          ? 'Open other creature references (' + otherCards.length + ')'
+          : 'Hide other creature references';
+      });
+      section.append(toggle, library);
+    }
   }
 
   function schedule() {
