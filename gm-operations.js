@@ -158,6 +158,11 @@
       return `<article class="gm-prep-scene"><div class="gm-prep-scene-num">${String(i+1).padStart(2,'0')}</div><div><small>${esc(x.readiness||'POSSIBLE')}</small><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p>${links?`<div class="gm-prep-links">${links}</div>`:''}</div></article>`;
     }).join('')||'<div class="gm-empty">No likely scenes loaded.</div>';
 
+    const threads=(prep.unresolvedThreads||[]).map(x=>{
+      const links=(x.records||[]).filter(recordExists).map(n=>`<button class="gm-prep-link" data-gm-record="${esc(n)}">${esc(n)} →</button>`).join('');
+      return `<article class="gm-prep-scene"><div><small>${esc(x.status||'UNRESOLVED')}</small><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p><p><strong>IF PLAYERS PURSUE IT:</strong> ${esc(x.choices)}</p>${links?`<div class="gm-prep-links">${links}</div>`:''}</div></article>`;
+    }).join('')||'<div class="gm-empty">No unresolved threads selected for this session.</div>';
+
     const moves=(prep.npcMoves||[]).map(x=>`<article class="gm-prep-npc-move"><header><strong>${esc(x.name)}</strong><span>${esc(x.certainty||'CURRENT')}</span></header><dl><div><dt>KNOWS</dt><dd>${esc(x.knowledge)}</dd></div><div><dt>DECISION</dt><dd>${esc(x.decision)}</dd></div><div><dt>NEXT</dt><dd>${esc(x.next)}</dd></div></dl>${recordExists(x.name)?`<button class="gm-prep-link" data-gm-record="${esc(x.name)}">Open record →</button>`:''}</article>`).join('')||'<div class="gm-empty">No NPC moves established.</div>';
 
     const evidence=(prep.evidence||[]).map(x=>`<article class="gm-prep-evidence ${String(x.kind||'').toLowerCase()}"><b>${esc(x.kind||'NOTE')}</b><span>${esc(x.text)}</span></article>`).join('')||'<div class="gm-empty">No evidence loaded.</div>';
@@ -169,6 +174,7 @@
         <section class="gm-panel full gm-prep-start"><small>STARTING POSITIONS</small><h2>Where play actually resumes</h2><p>No assumed regrouping and no invented off-screen actions.</p><div class="gm-prep-position-grid">${positions}</div></section>
         <section class="gm-panel full"><small>SESSION READINESS</small><h2>What needs to be ready before play</h2><p>Operational checks and GM-only boundaries; not a predetermined sequence of scenes.</p><div class="gm-prep-check-grid">${checklist}</div></section>
         <section class="gm-panel full"><small>LIKELY NEXT SCENES</small><h2>Prepare possibilities, not an order</h2><p>These are the scenes the current state makes immediately available. Player choices decide which one becomes play.</p><div class="gm-prep-scenes">${scenes}</div></section>
+        <section class="gm-panel full"><small>UNRESOLVED STORY THREADS</small><h2>Prepare connections, not encounters</h2><p>These threads may matter if the party follows them. They do not establish what is present in the opening scene.</p><div class="gm-prep-scenes">${threads}</div></section>
         <section class="gm-panel full"><small>PLAYER INTENTIONS</small><h2>What each player may pursue</h2><p>Player interests guide preparation, not a required path.</p><div class="gm-player-cards">${cards}</div></section>
         <section class="gm-panel wide"><small>NPC MOVES</small><h2>What people are actually about to do</h2><p>Established actions only. An open entry is permission not to invent an off-screen move.</p><div class="gm-prep-npc-list">${moves}</div></section>
         <section class="gm-panel"><small>KNOWLEDGE BOUNDARY</small><h2>GM truth · player facts · unresolved</h2><p>The GM view may show hidden truth. Only genuinely undecided material is marked unresolved.</p><div class="gm-prep-evidence-list">${evidence}</div></section>
