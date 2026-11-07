@@ -261,6 +261,11 @@
         {title:'Search for Thirst-Marrow',detail:'Follow Velmira general lead and decide how to survey the neglected southern ground. No exact patch has been confirmed.',readiness:'PLAYER CHOICE',records:['Thirst-Marrow','The Stripped Yards']},
         {title:'Explore the old haul grounds',detail:'The eastern Old Haul Yard provides a different route and visibility from the narrow western Open Houses.',readiness:'OPTION',records:['The Stripped Yards']}
       ],
+      unresolvedThreads:[
+        {title:'The Foldling and the disturbance to the south',status:'UNRESOLVED · NOT AN ENCOUNTER',detail:'Marek encountered a Foldling beneath Greywake and learned through Nature’s Tongue that repeated danger or disturbance drove it north from buried southern places. The cause and exact location remain unknown. Marek wants to ask Diggers what changed at the worksite; that inquiry has not yet been played.',choices:'If players pursue the Digger ways or ask about southern ruins, prepare conversations, physical traces and conflicting accounts. Do not place another Foldling in the Stripped Yards or identify the western sound as one without play establishing it.',records:['Foldling','Digger Ways']},
+        {title:'The Watch closures',status:'OPEN CONSEQUENCE',detail:'Velmira and Jessa persuaded Brannic Hale to halt new Foldling-related closures pending evidence. Existing closures are under review; the two labourers and the other inspection remain unidentified.',choices:'Bring this forward if players revisit the Watch, Spencer, or the reopened passages. Do not advance the investigation off-screen.',records:['The Closing Ways','Foldling']}
+      ],
+      activeAdversaries:[],
       npcMoves:[
         {name:'Mara Vell',knowledge:'Marek provided firsthand Foldling details but withheld the reason it came north.',decision:'Accepted a deferred trade for one information favour.',next:'Owes Marek one answer or lead she knows or can reasonably obtain; not automatically redeemed.',certainty:'ESTABLISHED'},
         {name:'Brannic Hale',knowledge:'Jessa and Velmira described the Foldling as frightened rather than aggressive.',decision:'Halted NEW Foldling-related passage closures pending evidence.',next:'Existing Watch seals remain under review; firsthand witness welcome.',certainty:'ESTABLISHED'},
