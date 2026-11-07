@@ -39,7 +39,7 @@
   function updateCapture(id,patch){saveCaptures(readCaptures().map(x=>x.id===id?{...x,...patch}:x));render()}
   function removeCapture(id){saveCaptures(readCaptures().filter(x=>x.id!==id));render()}
 
-  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dm4';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
+  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=whiteboard-sidebar2';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
   function restoreInboxThreads(){
@@ -88,6 +88,7 @@
           <button type="button" data-gm-side-route="${ROUTES.players}"><span>PLAYERS</span><small>Preview what each player sees</small></button>
           <button type="button" data-gm-side-route="${ROUTES.whiteboard}"><span>WHITEBOARD</span><small>Interactive Daggerheart cards</small></button>
         </div>
+        <section id="gmWhiteboardLibrary" class="gm-whiteboard-library" hidden><small>WHITEBOARD CARD LIBRARY</small><label for="gmWhiteboardSearch">Find a card</label><input type="search" id="gmWhiteboardSearch" placeholder="NPC, creature, location…" autocomplete="off"><select id="gmWhiteboardCategory" aria-label="Filter card category"><option value="">All categories</option></select><div id="gmWhiteboardResults" class="gm-whiteboard-results"></div><small class="gm-whiteboard-help">Select a record to place it on the canvas.</small></section>
         <div class="gm-sidebar-record-label"><small>GREYWAKE RECORDS</small><span>People, places, creatures, factions and session records</span></div>`;
       nav.parentNode.insertBefore(gmNav,nav);
       gmNav.addEventListener('click',e=>{const b=e.target.closest('[data-gm-side-route]');if(!b)return;navigate(b.dataset.gmSideRoute);document.querySelector('.sidebar')?.classList.remove('open')});
@@ -224,13 +225,58 @@
     workspace.querySelector('#gmRunUpdate')?.addEventListener('click',copyUpdatePacket);workspace.querySelector('#gmCopyObsidian')?.addEventListener('click',copyObsidian);
     const peopleHost=workspace.querySelector('#gmPeopleBrowserHost');if(peopleHost&&window.GREYWAKE_RENDER_PEOPLE_BROWSER)window.GREYWAKE_RENDER_PEOPLE_BROWSER(peopleHost,{gm:true});
   }
-  function renderWhiteboard(){return `${head('GM WHITEBOARD','The campaign on the table.','Search Greywake records, arrange Daggerheart-style cards and connect the evidence. Boards are saved in this browser, not in Obsidian.')}<iframe title="Greywake GM interactive whiteboard" src="gm-whiteboard.html?embedded=1" style="display:block;width:100%;height:clamp(570px,78vh,1150px);border:1px solid #5a5033;background:#14150f" loading="eager"></iframe>`}
+  function renderWhiteboard(){return `${head('GM WHITEBOARD','The campaign on the table.','Search Greywake records, arrange Daggerheart-style cards and connect the evidence. Boards are saved in this browser, not in Obsidian.')}<iframe id="gmWhiteboardFrame" title="Greywake GM interactive whiteboard" src="gm-whiteboard.html?embedded=2" style="display:block;width:100%;height:clamp(570px,78vh,1150px);border:1px solid #5a5033;background:#14150f" loading="eager"></iframe>`}
+  function enhanceRecordNav(){
+    const root=document.getElementById('nav');
+    if(!root||!fullGM())return;
+    const searching=!!document.getElementById('searchInput')?.value.trim();
+    root.querySelectorAll(':scope > .nav-group').forEach((group,i)=>{
+      if(group.dataset.gmAccordion==='1')return;
+      group.dataset.gmAccordion='1';
+      const h=group.querySelector(':scope > h3');if(!h)return;
+      const label=h.textContent.trim();
+      const key='greywake.gm.menu.'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const open=searching||sessionStorage.getItem(key)==='open'||(!sessionStorage.getItem(key)&&i===0);
+      const btn=document.createElement('button');btn.type='button';btn.className='gm-record-toggle';btn.setAttribute('aria-expanded',String(open));btn.textContent=label+' ('+group.querySelectorAll('.nav-link').length+')';
+      const content=document.createElement('div');content.className='gm-record-group-content';
+      while(h.nextSibling)content.appendChild(h.nextSibling);
+      h.replaceWith(btn);group.appendChild(content);content.hidden=!open;
+      btn.addEventListener('click',()=>{const next=btn.getAttribute('aria-expanded')!=='true';btn.setAttribute('aria-expanded',String(next));content.hidden=!next;sessionStorage.setItem(key,next?'open':'closed')});
+    });
+  }
+  let navObserver;
+  function initGMNavEnhancements(){
+    const root=document.getElementById('nav');if(!root)return;
+    if(!navObserver){navObserver=new MutationObserver(()=>{if(!fullGM())return;requestAnimationFrame(enhanceRecordNav)});navObserver.observe(root,{childList:true})}
+    enhanceRecordNav();
+  }
+  const whiteboardRecords=()=>Object.entries(window.GREYWAKE_DATA||{}).map(([key,r])=>({key,title:r.title||key,category:r.category||'Record'})).sort((a,b)=>a.title.localeCompare(b.title));
+  function whiteboardLibrary(){
+    const area=document.getElementById('gmWhiteboardLibrary');if(!area)return;
+    area.hidden=location.hash!==ROUTES.whiteboard||!fullGM();if(area.hidden)return;
+    const search=document.getElementById('gmWhiteboardSearch'),category=document.getElementById('gmWhiteboardCategory'),results=document.getElementById('gmWhiteboardResults');
+    if(!search||!category||!results)return;
+    const records=whiteboardRecords();
+    if(!area.dataset.ready){
+      area.dataset.ready='1';
+      const categories=[...new Set(records.map(r=>r.category))].sort();
+      category.innerHTML='<option value="">All categories</option>'+categories.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');
+      const update=()=>{
+        const q=search.value.trim().toLowerCase();
+        const matches=records.filter(r=>(!category.value||r.category===category.value)&&(!q||(r.title+' '+r.category).toLowerCase().includes(q)));
+        results.innerHTML=matches.slice(0,120).map(r=>'<button type="button" data-add-whiteboard="'+esc(r.key)+'"><small>'+esc(r.category)+'</small><span>'+esc(r.title)+'</span></button>').join('')||'<p>No matching records.</p>';
+      };
+      search.addEventListener('input',update);category.addEventListener('change',update);
+      results.addEventListener('click',e=>{const btn=e.target.closest('[data-add-whiteboard]');if(!btn)return;const frame=document.getElementById('gmWhiteboardFrame');frame?.contentWindow?.postMessage({type:'greywake:whiteboard:add',key:btn.dataset.addWhiteboard},location.origin);if(matchMedia('(max-width:850px)').matches){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('menuBtn')?.setAttribute('aria-expanded','false')}});
+      update();
+    }
+  }
   function render(){
     ensureStyles();const workspace=ensureWorkspace();if(!fullGM()){workspace.classList.add('hidden');restoreNav();return}
     if(!location.hash||location.hash==='#/'){location.hash=ROUTES.run;return}
     configureNav();ensureGMSidebar();ensureGMRecordSidebarRouting();const r=route();restoreInboxThreads();['home','brainView','article','playerPortal','characterPageView'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
     workspace.innerHTML=r.type==='prep'?renderPrep():r.type==='update'?renderUpdate():r.type==='world'?renderWorld():r.type==='record'?renderRecord(r.name):r.type==='inbox'?renderInbox():r.type==='players'?renderPlayers():r.type==='whiteboard'?renderWhiteboard():renderRun();
-    workspace.classList.remove('hidden');wire(workspace);if(r.type==='inbox')mountInboxThreads();syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
+    workspace.classList.remove('hidden');wire(workspace);initGMNavEnhancements();whiteboardLibrary();if(r.type==='inbox')mountInboxThreads();syncNav(r.type);const crumb=document.getElementById('crumb');if(crumb)crumb.textContent=`Greywake / ${r.type==='record'?r.name:r.type.toUpperCase()}`;
   }
 
   document.addEventListener('click',e=>{if(!fullGM())return;const b=e.target.closest('#primaryNav [data-gm-route]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();navigate(b.dataset.gmRoute)},true);
