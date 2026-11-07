@@ -218,7 +218,17 @@ function renderRoute(){const r=currentRoute();if(r.type==='record')showNote(r.na
 document.getElementById('brainBtn').onclick=()=>go('#/brain');
 document.getElementById('heroBrain').onclick=()=>go('#/brain');
 document.getElementById('fieldBrain').onclick=()=>go('#/brain');
-document.getElementById('menuBtn').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
+const menuToggle=document.getElementById('menuBtn');
+const sideMenu=document.getElementById('sidebar');
+function setMenuOpen(open){
+  sideMenu?.classList.toggle('open',Boolean(open));
+  menuToggle?.setAttribute('aria-expanded',String(Boolean(open)));
+  document.body.classList.toggle('sidebar-modal-open',Boolean(open));
+}
+menuToggle.onclick=()=>setMenuOpen(!sideMenu.classList.contains('open'));
+document.getElementById('sidebarClose')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setMenuOpen(false)});
+document.getElementById('navBackdrop')?.addEventListener('click',()=>setMenuOpen(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sideMenu.classList.contains('open'))setMenuOpen(false)});
 searchInput.addEventListener('input',e=>buildNav(e.target.value));
 document.addEventListener('keydown',event=>{
  if(event.key!=='/'||event.ctrlKey||event.metaKey||event.altKey||/input|textarea|select/i.test(event.target.tagName))return;
