@@ -1,16 +1,16 @@
 {
   "schema": 1,
-  "reportedAt": "2026-11-25T15:00:26.473Z",
-  "vaultHead": "0ac27b0ef6dd6e94f9a60ee0b64bff6c61823416",
-  "outcome": "unknown",
+  "reportedAt": "2026-11-25T15:16:16.707Z",
+  "vaultHead": "69f57f817f993af2b806b42f29e2c2f1f648deb4",
+  "outcome": "partial",
   "lastVerifiedAt": null,
   "lastVerifiedCommit": null,
-  "obsidianSync": "unknown",
+  "obsidianSync": "pending",
   "obsidianCheckedAt": null,
   "openDecisions": null,
   "assetPending": 0,
   "assetValidation": "passed",
-  "assetCheckedAt": "2026-11-25T14:54:22Z",
+  "assetCheckedAt": "2026-11-25T15:14:34.137Z",
   "openErrors": null,
   "privacy": "warning"
 }
