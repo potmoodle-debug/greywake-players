@@ -183,3 +183,19 @@ body[data-role="gm"][data-gm-preview="false"] #sidebar.gm-sidebar-active button:
 #gmDynamicScene .gw-live-card[data-kind="adversary"]{border-color:#a26b4c}
 #gmDynamicScene .gw-live-card[data-kind="hazard"]{border-color:#9b8052}
 @media(max-width:650px){.gw-scene-hero{min-height:400px}.gw-hero-overlay{padding:20px}.gw-party{gap:9px}.gw-party-member img{width:35px;height:35px}.gw-art-caption{font-size:9px}}
+
+/* Ready to RUN: prominent launch cards, not a mandatory sequence. */
+.gm-ready-run{border-color:#9c824b!important;background:linear-gradient(135deg,#211e14,#14150f)!important}
+.gm-ready-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.gm-ready-card{display:flex;flex-direction:column;overflow:hidden;min-width:0;border:1px solid #76613c;background:#12130e}
+.gm-ready-art{height:clamp(130px,15vw,220px);position:relative;background:#252219}
+.gm-ready-art img{width:100%;height:100%;object-fit:cover}
+.gm-ready-art span{position:absolute;bottom:0;right:0;background:#12130edb;padding:5px 8px;color:#e4d6b7;font-size:10px}
+.gm-ready-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:8px}
+.gm-ready-body h3{font:700 23px/1.2 Georgia,serif;color:#f0e2c7;margin:0}
+.gm-ready-body p{font-size:13px!important;line-height:1.6!important;color:#c9bda5!important;margin:0 0 6px!important}
+.gm-ready-body>small{font-weight:800;color:#d1af66;letter-spacing:.12em}
+.gm-ready-activate{margin-top:auto;display:block;width:100%;padding:13px 12px;min-height:44px;border:1px solid #d5b46d;background:#b9944f;color:#14120d;font:800 13px system-ui;cursor:pointer;text-align:center}
+.gm-ready-activate:hover,.gm-ready-activate:focus-visible{background:#ebcc8c;outline:2px solid #f2dcaa;outline-offset:2px}
+@media(max-width:1050px){.gm-ready-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.gm-ready-grid{grid-template-columns:1fr}.gm-ready-art{height:190px}}
