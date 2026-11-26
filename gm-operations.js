@@ -39,7 +39,7 @@
   function updateCapture(id,patch){saveCaptures(readCaptures().map(x=>x.id===id?{...x,...patch}:x));render()}
   function removeCapture(id){saveCaptures(readCaptures().filter(x=>x.id!==id));render()}
 
-  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=whiteboard-sidebar2';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
+  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=records-prep-20261126';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
   function restoreInboxThreads(){
@@ -260,7 +260,7 @@
       const h=group.querySelector(':scope > h3');if(!h)return;
       const label=h.textContent.trim();
       const key='greywake.gm.menu.'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-      const open=searching||sessionStorage.getItem(key)==='open'||(!sessionStorage.getItem(key)&&i===0);
+      const open=searching||sessionStorage.getItem(key)!=='closed';
       const btn=document.createElement('button');btn.type='button';btn.className='gm-record-toggle';btn.setAttribute('aria-expanded',String(open));btn.textContent=label+' ('+group.querySelectorAll('.nav-link').length+')';
       const content=document.createElement('div');content.className='gm-record-group-content';
       while(h.nextSibling)content.appendChild(h.nextSibling);
