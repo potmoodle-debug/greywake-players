@@ -150,3 +150,5 @@ body[data-role="gm"][data-gm-preview="false"] #sidebar.gm-sidebar-active button:
 /* Single-content preparation cards must not occupy the narrow number column. */
 .gm-prep-scene > div:only-child { grid-column: 1 / -1; min-width: 0; overflow-wrap: anywhere; }
 .gm-prep-grid > .gm-panel { min-width: 0; }
+
+#gmDynamicScene{margin:0 0 16px;padding:22px;min-width:0}#gmDynamicScene h2{font-size:28px}#gmDynamicScene h3{font-size:17px;color:#e9dfc8;margin:16px 0 8px}#gmDynamicScene p,#gmDynamicScene li{font-size:13px;line-height:1.55;overflow-wrap:anywhere}#gmDynamicScene details{margin-top:12px;padding:10px;border:1px solid #51472f}#gmDynamicScene summary{cursor:pointer;color:#d6bf80}.gw-live-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px}.gw-live-card{padding:14px;border:1px solid #60513a;background:#12130f;min-width:0}.gw-live-card small{color:#b69c5b;text-transform:uppercase}#gmDynamicScene button{border:1px solid #74623b;background:#251f14;color:#ead493;padding:7px 10px;cursor:pointer}
