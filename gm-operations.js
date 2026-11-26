@@ -39,7 +39,7 @@
   function updateCapture(id,patch){saveCaptures(readCaptures().map(x=>x.id===id?{...x,...patch}:x));render()}
   function removeCapture(id){saveCaptures(readCaptures().filter(x=>x.id!==id));render()}
 
-  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=cinematic-run-20261126';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
+  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=ready-run-20261126';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
   function restoreInboxThreads(){
@@ -160,7 +160,9 @@
 
     const scenes=(prep.likelyScenes||[]).map((x,i)=>{
       const links=(x.records||[]).filter(recordExists).map(n=>`<button class="gm-prep-link" data-gm-record="${esc(n)}">${esc(n)} →</button>`).join('');
-      return `<article class="gm-prep-scene"><div class="gm-prep-scene-num">${String(i+1).padStart(2,'0')}</div><div><small>${esc(x.readiness||'POSSIBLE')}</small><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p><button type="button" class="gm-prep-link" data-prep-activate="${esc(x.title)}">Add to RUN</button>${links?`<div class="gm-prep-links">${links}</div>`:''}</div></article>`;
+      const art=/thirst.marrow/i.test(x.title)?'assets/canon/flora/thirst-marrow.webp':/haul/i.test(x.title)?'assets/generated-scenes/digger-yards.webp':'assets/generated-scenes/the-wastes-route.webp';
+      const artLabel=/thirst.marrow/i.test(x.title)?'Thirst-Marrow reference':'Atmospheric reference';
+      return `<article class="gm-ready-card"><div class="gm-ready-art"><img src="${art}" alt="${artLabel}" loading="lazy"><span>${artLabel}</span></div><div class="gm-ready-body"><small>${esc(x.readiness||'POSSIBLE')}</small><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p>${links?`<div class="gm-prep-links">${links}</div>`:''}<button type="button" class="gm-ready-activate" data-prep-activate="${esc(x.title)}">+ Add to RUN</button></div></article>`;
     }).join('')||'<div class="gm-empty">No likely scenes loaded.</div>';
 
     const threads=(prep.unresolvedThreads||[]).map(x=>{
@@ -176,9 +178,10 @@
 
     return`${authority()}${head('PREP','If we play right now.','Current starting positions, likely scenes, established NPC actions, evidence boundaries and only the assets that may actually matter.')}${status()}
       <div class="gm-ops-grid gm-prep-grid">
+        <section class="gm-panel full gm-ready-run"><small>READY TO RUN</small><h2>What could happen next?</h2><p>Choose only when play makes it relevant. Add a card to the current scene without advancing the story or revealing player knowledge.</p><div class="gm-prep-scenes gm-ready-grid">${scenes}</div></section>
         <section class="gm-panel full gm-prep-start"><small>STARTING POSITIONS</small><h2>Where play actually resumes</h2><p>No assumed regrouping and no invented off-screen actions.</p><div class="gm-prep-position-grid">${positions}</div></section>
         <section class="gm-panel full"><small>SESSION READINESS</small><h2>What needs to be ready before play</h2><p>Operational checks and GM-only boundaries; not a predetermined sequence of scenes.</p><div class="gm-prep-check-grid">${checklist}</div></section>
-        <section class="gm-panel full"><small>LIKELY NEXT SCENES</small><h2>Prepare possibilities, not an order</h2><p>These are the scenes the current state makes immediately available. Player choices decide which one becomes play.</p><div class="gm-prep-scenes">${scenes}</div></section>
+        
         <section class="gm-panel full"><small>UNRESOLVED STORY THREADS</small><h2>Prepare connections, not encounters</h2><p>These threads may matter if the party follows them. They do not establish what is present in the opening scene.</p><div class="gm-prep-scenes">${threads}</div></section>
         <section class="gm-panel full"><small>PLAYER INTENTIONS</small><h2>What each player may pursue</h2><p>Player interests guide preparation, not a required path.</p><div class="gm-player-cards">${cards}</div></section>
         <section class="gm-panel wide"><small>NPC MOVES</small><h2>What people are actually about to do</h2><p>Established actions only. An open entry is permission not to invent an off-screen move.</p><div class="gm-prep-npc-list">${moves}</div></section>
