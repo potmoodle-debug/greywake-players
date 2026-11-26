@@ -160,7 +160,7 @@
 
     const scenes=(prep.likelyScenes||[]).map((x,i)=>{
       const links=(x.records||[]).filter(recordExists).map(n=>`<button class="gm-prep-link" data-gm-record="${esc(n)}">${esc(n)} →</button>`).join('');
-      return `<article class="gm-prep-scene"><div class="gm-prep-scene-num">${String(i+1).padStart(2,'0')}</div><div><small>${esc(x.readiness||'POSSIBLE')}</small><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p>${links?`<div class="gm-prep-links">${links}</div>`:''}</div></article>`;
+      return `<article class="gm-prep-scene"><div class="gm-prep-scene-num">${String(i+1).padStart(2,'0')}</div><div><small>${esc(x.readiness||'POSSIBLE')}</small><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p><button type="button" class="gm-prep-link" data-prep-activate="${esc(x.title)}">Add to RUN</button>${links?`<div class="gm-prep-links">${links}</div>`:''}</div></article>`;
     }).join('')||'<div class="gm-empty">No likely scenes loaded.</div>';
 
     const threads=(prep.unresolvedThreads||[]).map(x=>{
