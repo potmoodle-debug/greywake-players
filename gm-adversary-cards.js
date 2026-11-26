@@ -90,7 +90,7 @@
     const guidance = Array.isArray(card.running_guidance) ? card.running_guidance : [];
     return `<article class="gm-adversary-card" data-adversary="${esc(card.slug)}">
       <div class="gm-adversary-top">
-        <div class="gm-adversary-title"><strong>${esc(card.name)}</strong><span>Tier ${esc(card.tier)} · ${esc(card.role)}</span></div>
+        <div class="gm-adversary-title"><strong>${esc(card.name)}</strong><span>Tier ${esc(card.tier)} · ${esc(card.role)}</span><button type="button" data-run-adversary="${esc(card.slug)}" data-name="${esc(card.name)}">Add to RUN</button></div>
         ${stat('Difficulty', card.difficulty)}
         ${stat('Thresholds', card.thresholds)}
         ${stat('HP', card.hp)}
@@ -120,7 +120,7 @@
 
     const section = document.createElement('section');
     section.className = 'gm-adversary-reference';
-    section.innerHTML = `<div class="gm-adversary-reference-head"><div><small>LIVE ADVERSARY REFERENCE</small><h2>At-the-table cards</h2></div><p>Only prepared or current encounters appear first. Other creature references are available on demand; Obsidian remains canon authority.</p></div><div class="gm-adversary-list"><div class="gm-adversary-empty">Loading adversary cards…</div></div>`;
+    section.innerHTML = `<div class="gm-adversary-reference-head"><div><small>ADVERSARY LIBRARY</small><h2>Available creature references</h2></div><p>Open references or activate a creature. Active encounter controls are on RUN cards.</p></div><div class="gm-adversary-list"><div class="gm-adversary-empty">Loading adversary cards…</div></div>`;
 
     const quickCapture = [...grid.children].find(el => el.querySelector?.('#gmQuickCaptureForm'));
     if (quickCapture) grid.insertBefore(section, quickCapture);
@@ -136,7 +136,7 @@
     const otherCards = loadedCards.filter(card => !activeCards.includes(card));
     list.innerHTML = activeCards.length
       ? activeCards.map(renderCard).join('')
-      : '<div class="gm-adversary-empty">No creature encounter is established for the current scene. Prepare creatures only if play makes them relevant.</div>';
+      : '<div class="gm-adversary-empty">Choose a reference below when you need another creature.</div>';
     if (otherCards.length) {
       const toggle = document.createElement('button');
       toggle.type = 'button';
