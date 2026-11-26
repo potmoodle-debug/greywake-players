@@ -7,7 +7,8 @@ const character = fs.readFileSync(new URL('../character-page.js', import.meta.ur
 const close = character.slice(character.indexOf('  function closeCharacterPage()'), character.indexOf('  function renderCharacterRoute()'));
 function fixture(hash = '#/', returnTo) {
   const frames = [], events = {}, calls = [], entries = [];
-  const context = {location: {hash}, document: {querySelector: () => null, getElementById: () => null}, requestAnimationFrame: fn => frames.push(fn)};
+  const sidebar = new Set(), body = new Set(), menu = {expanded:'false',setAttribute(name,value){if(name==='aria-expanded')this.expanded=value;}};
+  const context = {location: {hash}, document: {querySelector: () => ({classList:{remove:key=>sidebar.delete(key)}}), getElementById: () => menu, body:{classList:{remove:key=>body.delete(key)}}}, requestAnimationFrame: fn => frames.push(fn)};
   context.window = {addEventListener: (name, fn) => {events[name] = fn;}};
   context.history = {state: returnTo ? {greywakeReturn: returnTo} : null,
     pushState(state, _, route) {this.state = state; context.location.hash = route; entries.push(route);},
@@ -17,7 +18,7 @@ function fixture(hash = '#/', returnTo) {
   for (const name of ['archive','portal','character','gm']) api.register(name, () => calls.push(name));
   const flush = () => {while (frames.length) frames.shift()();};
   flush(); calls.length = 0;
-  return {context, api, calls, entries, events, flush};
+  return {context, api, calls, entries, events, flush, sidebar, body, menu};
 }
 for (const record of ['#/record/Stone-Lip%20Hollow', '#/my-greywake', '#/campaign', '#/brain']) {
   const f = fixture(record);
@@ -42,3 +43,23 @@ for (const event of ['hashchange','popstate']) {
 }
 assert(!character.includes('if (isCharacterRoute()) closeCharacterPage();'), 'Character navigation must not toggle closed');
 console.log('Navigation lifecycle passed: record return, reload return, history events, batching and repeated destinations.');
+
+const modal = fixture('#/gm-session');
+function openSidebar() {
+  modal.sidebar.add('open');
+  modal.body.add('sidebar-modal-open');
+  modal.menu.expanded = 'true';
+}
+function assertClosed() {
+  assert.equal(modal.sidebar.has('open'), false);
+  assert.equal(modal.body.has('sidebar-modal-open'), false);
+  assert.equal(modal.menu.expanded, 'false');
+}
+openSidebar();
+modal.api.navigate('#/gm-whiteboard');
+modal.flush();
+assertClosed();
+openSidebar();
+modal.api.closeSidebar();
+assertClosed();
+console.log('Sidebar modal state closes consistently on navigation and direct close.');
