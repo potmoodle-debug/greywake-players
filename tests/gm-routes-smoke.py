@@ -25,11 +25,12 @@ DELETED = [
     "gm-visual-cockpit.js",
 ]
 ROUTES = {
-    "#/gm-session": ("At the table.", ".gm-run-hero"),
+    "#/gm-session": ("At the table.", "#gmDynamicScene"),
     "#/gm-prep": ("If we play right now.", ".gm-player-cards"),
-    "#/gm-update": ("Update Greywake.", "#gmRunUpdate"),
+    "#/gm-update": ("Pipeline health.", "#gmPipelineHealthHost"),
     "#/gm-world": ("Browse Greywake.", ".gm-world-grid"),
     "#/gm-inbox": ("What needs you?", "#gmInboxHost #playerGoals"),
+    "#/gm-whiteboard": ("The campaign on the table.", "#gmWhiteboardFrame"),
     "#/gm-players": ("See exactly what they see.", ".gm-player-preview-cards"),
 }
 
@@ -49,7 +50,7 @@ try:
     wait.until(lambda d: d.find_element(By.TAG_NAME, "body").get_attribute("data-role") == "gm")
     wait.until(lambda d: d.find_element(By.TAG_NAME, "body").get_attribute("data-gm-preview") == "false")
 
-    expected_nav = ["RUN", "PREP", "UPDATE", "WORLD", "INBOX", "PLAYERS"]
+    expected_nav = ["RUN", "PREP", "UPDATE", "WORLD", "INBOX", "WHITEBOARD", "PLAYERS"]
     nav = [x.text.strip() for x in driver.find_elements(By.CSS_SELECTOR, "#primaryNav button") if x.is_displayed()]
     assert nav == expected_nav, f"GM navigation mismatch: {nav}"
 
@@ -70,14 +71,8 @@ try:
 
     driver.execute_script("location.hash = '#/gm-session'")
     wait.until(lambda d: d.current_url.endswith("#/gm-session"))
-    wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, ".gm-live-npc")) >= 1)
-    spencer = next((card for card in driver.find_elements(By.CSS_SELECTOR, ".gm-live-npc") if "Spencer Digger" in card.text), None)
-    assert spencer is not None, "RUN page is missing the Spencer Digger card"
-    spencer_img = spencer.find_element(By.TAG_NAME, "img")
-    wait.until(lambda d: d.execute_script("return arguments[0].complete", spencer_img))
-    natural_width = driver.execute_script("return arguments[0].naturalWidth", spencer_img)
-    assert natural_width > 0, f"Spencer Digger portrait failed to load: {spencer_img.get_attribute('src')}"
-    assert "spencer-digger.png?v=spencer4" in spencer_img.get_attribute("src"), "GM RUN must use Spencer's restored Obsidian portrait"
+    wait.until(lambda d: d.find_element(By.ID, "gmDynamicScene").is_displayed())
+    assert driver.find_element(By.ID, "gmCapturePanel").is_displayed(), "RUN must retain Quick Capture"
 
     driver.execute_script("location.hash = '#/gm-players'")
     wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "[data-preview-player]")) == 3)
