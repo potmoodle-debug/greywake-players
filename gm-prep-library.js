@@ -10,6 +10,26 @@ const prepHexById={'s6-western-sound':'0,-1','s6-haul-grounds':'0,-1','s6-examin
 const hexLabels={'0,0':'Greywake','0,-1':'Stripped Yards','1,0':'Old Marker Wash','2,0':'Grey Seep Fields','2,-1':'Pale Tracts','2,-3':'Sunken Relay','0,-2':'Digger Ruin','1,-2':'Traveller preparation','0,-4':'Regional preparation','1,-4':'Glasswind'};
 let selectedHex='all';
 
+let localMaps={},localArea='C',localMapOpen=false;
+function parseLocalMaps(note){
+ const m=(note||'').match(/^\x60\x60\x60json\s*\n([\s\S]*?)^\x60\x60\x60\s*$/m);if(!m)return {};
+ try{const parsed=JSON.parse(m[1]),out={};for(const [key,v] of Object.entries(parsed)){if(!/^-?\d+,-?\d+$/.test(key)||!v||typeof v.title!=='string'||!Array.isArray(v.areas)||v.areas.length!==7)continue;const keys=new Set(['N','NE','E','S','SW','W','C']);if(!v.areas.every(a=>a&&keys.delete(a.key)&&typeof a.title==='string'&&typeof a.terrain==='string'&&Array.isArray(a.cards)&&a.cards.every(id=>typeof id==='string'&&prepHexById[id]===key)))continue;out[key]=v;}return out;}catch{return {};}
+}
+function localMapHtml(){
+ const map=fullGM()?localMaps[selectedHex]:null;
+ const title=map?.title||localHexLabel(selectedHex);
+ const labels={N:'North',NE:'North-east',E:'East',S:'South',SW:'South-west',W:'West',C:'Centre'};
+ const pts={N:[250,84],NE:[374,155],E:[374,298],S:[250,369],SW:[126,298],W:[126,155],C:[250,226]};
+ const area=map?.areas.find(a=>a.key===localArea);
+ const findCard=id=>cards?.find(c=>c.id===id);
+ const buttons=ids=>ids.map(findCard).filter(Boolean).map(c=>'<button type="button" data-view-prep="'+esc(c.id)+'" style="padding:10px 14px;border:1px solid #a58c58;background:#302b20;color:#ead9b1;text-align:left;cursor:pointer">'+esc(shownTitle(c))+' ↗</button>').join('');
+ const svg=map?'<svg viewBox="0 0 500 450" style="width:100%;max-height:480px" aria-label="Seven local exploration areas">'+map.areas.map(a=>{const [x,y]=pts[a.key],active=a.key===localArea;const words=a.title.split(' ');const lines=words.length>1?[words.slice(0,-1).join(' '),words.at(-1)]:words;return '<g role="button" tabindex="0" aria-label="'+esc(a.title)+'" aria-pressed="'+active+'" data-local-area="'+esc(a.key)+'" transform="translate('+x+','+y+')" style="cursor:pointer"><polygon points="0,-82.7 71.6,-41.35 71.6,41.35 0,82.7 -71.6,41.35 -71.6,-41.35" transform="rotate(30)" fill="'+(active?'#655438':a.cards.length?'#444a36':'#2c342c')+'" stroke="'+(active?'#efca78':'#827656')+'" stroke-width="'+(active?3:1.5)+'"/><text y="-28" text-anchor="middle" font-size="11" fill="#d2c5a4">'+esc(labels[a.key])+'</text>'+lines.map((l,i)=>'<text y="'+(i*16-5)+'" text-anchor="middle" font-size="12" fill="#f3e9cf">'+esc(l)+'</text>').join('')+(a.cards.length?'<circle cy="33" r="9" fill="#d8b36b"/><text y="37" font-size="10" text-anchor="middle" fill="#231d13">'+a.cards.length+'</text>':'')+'</g>';}).join('')+'</svg>':'';
+ return '<div style="border:1px solid #82724b;border-radius:8px;background:#181b16;padding:16px;margin:12px 0"><button type="button" data-local-back style="background:#30291c;color:#e8d098;border:1px solid #8a7440;padding:10px 14px;cursor:pointer">← Regional map</button><h2 style="margin:16px 0 6px">'+esc(title)+' <small>('+esc(selectedHex)+')</small></h2><p>Local exploration · six-mile parent hex · browsing only</p>'+(map?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px;align-items:center">'+svg+'<div style="border:1px solid #62563a;background:#25291f;padding:16px"><small>PROVISIONAL AREA</small><h3>'+esc(area?.title||'Select an area')+'</h3><p>'+esc(area?.terrain||'')+'</p><div style="display:grid;gap:8px">'+(buttons(area?.cards||[])||'<p>No fixed preparation card here. Explore freely if play leads here.</p>')+'</div></div></div><p style="color:#c9b894">Seven navigation areas, not seven extra travel units. Internal placement and distances are not surveyed.</p>'+(map.connections||[]).filter(x=>x&&typeof x.hex==='string'&&localMaps[x.hex]).map(x=>'<div style="border-top:1px solid #62563a;padding-top:10px"><button type="button" data-local-neighbour="'+esc(x.hex)+'">'+esc(x.label)+' ↗</button><p>'+esc(x.note)+'</p></div>').join('')+((map.conditional||[]).length?'<h3>Conditional discoveries</h3><p>Not fixed map markers; use only when the fiction supports them.</p><div style="display:grid;gap:8px">'+buttons(map.conditional)+'</div>':''):'<p>No detailed local layout loaded for this hex. '+(vaultHandle?'Pull the latest vault notes and reload them, or use the preparation below.':'Connect the private vault to load available local layouts.')+'</p>')+'</div>';
+}
+document.addEventListener('click',e=>{if(!gm())return;const b=e.target.closest('[data-local-back],[data-local-area],[data-local-neighbour]');if(!b)return;if(b.hasAttribute('data-local-back')){localMapOpen=false;selectedHex='all';}else if(b.dataset.localArea){localArea=b.dataset.localArea;}else if(b.dataset.localNeighbour){selectedHex=b.dataset.localNeighbour;localArea='C';}mount();});
+document.addEventListener('keydown',e=>{const b=e.target.closest('g[data-local-area]');if(b&&gm()&&(e.key==='Enter'||e.key===' ')){e.preventDefault();localArea=b.dataset.localArea;mount();}});
+
+
 let vaultHandle=null, privateNotes={}, privateVersion=0, privateMessage='', privateBusy=false, privateEpoch=0;
 const fullGM=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
 
@@ -47,7 +67,7 @@ function privateCard(c){
 }
 const shownTitle=c=>privateCard(c)?.title||c.title;
 function localHexLabel(k){if(fullGM()&&k==='0,-4'&&privateNotes.west)return noteHeading(privateNotes.west);if(fullGM()&&k==='1,-2'&&privateNotes.traveller)return noteHeading(privateNotes.traveller).split(' — ')[0];return hexLabels[k]||'Uncharted';}
-function clearPrivate(){privateEpoch++;revokeArt();localRun.clear();document.querySelectorAll('[data-private-related],[data-private-run],[data-private-art]').forEach(el=>el.remove());vaultHandle=null;privateNotes={};privateVersion++;privateMessage='Private notes cleared.';privateBusy=false;document.getElementById('gwPrepDetail')?.close();document.querySelectorAll('[data-private-vault]').forEach(el=>el.remove());mount();}
+function clearPrivate(){privateEpoch++;localMaps={};localMapOpen=false;localArea='C';revokeArt();localRun.clear();document.querySelectorAll('[data-private-related],[data-private-run],[data-private-art]').forEach(el=>el.remove());vaultHandle=null;privateNotes={};privateVersion++;privateMessage='Private notes cleared.';privateBusy=false;document.getElementById('gwPrepDetail')?.close();document.querySelectorAll('[data-private-vault]').forEach(el=>el.remove());mount();}
 async function findLocalNotes(dir,accept){
  const result={};for await(const [name,h] of dir.entries()){if(h.kind!=='file'||!name.endsWith('.md'))continue;const f=await h.getFile();if(f.size>2000000)continue;const s=await f.text();const key=accept(name,s);if(key&&!result[key])result[key]=s;}return result;
 }
@@ -65,7 +85,7 @@ async function loadPrivate(pick){
   try{const creatures=await h.getDirectoryHandle('06 Creatures and Beasts');const tracks=sectionNamed(n.session,2,'Examine the animal tracks');Object.assign(n,await findLocalNotes(creatures,(name,s)=>tracks?.body.includes('[['+name.slice(0,-3)+']]')?'creature':null));}catch{}
   if(epoch!==privateEpoch||!fullGM())return;
   if(!n.session||!n.west||!n.east)throw Error('Required session or regional notes missing. Pull the latest vault updates and select the Greywake root folder.');
-  const art=await resolveArt(h,n);if(epoch!==privateEpoch||!fullGM()){Object.values(art).forEach(u=>URL.revokeObjectURL(u));return;}revokeArt();localArt=art;vaultHandle=h;privateNotes=n;privateMessage='Private vault loaded locally · '+Object.keys(n).length+' source notes · no upload.';
+  let mapData={};try{const f=await(await gmDir.getFileHandle('Local Hex Maps — Prototype.md')).getFile();mapData=parseLocalMaps(await f.text());}catch{}const art=await resolveArt(h,n);if(epoch!==privateEpoch||!fullGM()){Object.values(art).forEach(u=>URL.revokeObjectURL(u));return;}revokeArt();localArt=art;localMaps=mapData;vaultHandle=h;privateNotes=n;privateMessage='Private vault loaded locally · '+Object.keys(n).length+' source notes · no upload.';
  }catch(e){if(epoch===privateEpoch)privateMessage=e.name==='AbortError'?'Folder selection cancelled.':String(e.message||e);}
  finally{if(epoch===privateEpoch){privateBusy=false;privateVersion++;mount();}}
 }
@@ -86,14 +106,15 @@ function renderHexBrowser(grid){
  let panel=grid.parentElement.querySelector('[data-prep-hex-browser]');
  if(!panel){panel=document.createElement('section');panel.dataset.prepHexBrowser='1';grid.before(panel);}
  const counts={};for(const c of cards||[]){const k=prepHexById[c.id]||'unassigned';counts[k]=(counts[k]||0)+1;}
- const sig=JSON.stringify([selectedHex,counts,privateVersion]);if(panel.dataset.sig===sig)return;panel.dataset.sig=sig;
+ const sig=JSON.stringify([selectedHex,counts,privateVersion,localMapOpen,localArea]);if(panel.dataset.sig===sig)return;panel.dataset.sig=sig;
+ if(localMapOpen&&selectedHex!=='all'&&selectedHex!=='unassigned'){panel.innerHTML=localMapHtml();return;}
  const cells=[];for(let r=1;r>=-4;r--)for(let q=-2;q<=2;q++){const k=q+','+r;const x=195+q*82+r*41,y=60+(1-r)*71;cells.push({k,x,y,label:localHexLabel(k)});}
  const fmt=k=>k.split(',').map(n=>Number(n)>0?'+'+n:n).join(', ');
  const polygons=cells.map(h=>{const active=selectedHex===h.k,party=h.k==='0,-1',count=counts[h.k]||0,lines=h.label.split(' '),split=lines.length>1?[lines.slice(0,-1).join(' '),lines.at(-1)]:lines;return '<g role="button" tabindex="0" aria-label="'+esc(fmt(h.k)+' '+h.label)+'" aria-pressed="'+active+'" data-prep-hex="'+esc(h.k)+'" transform="translate('+h.x+','+h.y+')" style="cursor:pointer"><polygon points="0,-47.3 41,-23.65 41,23.65 0,47.3 -41,23.65 -41,-23.65" fill="'+(active?'#69532a':party?'#49432a':hexLabels[h.k]?'#30372d':'#222620')+'" stroke="'+(active?'#f4cc76':party?'#bfa15b':'#5d6250')+'" stroke-width="'+(active?2.5:1)+'"/><text y="-23" text-anchor="middle" font-size="10" fill="#d0c8b3">'+esc(fmt(h.k))+'</text>'+split.map((t,i)=>'<text y="'+(i*12-4)+'" text-anchor="middle" font-size="10" font-weight="600" fill="#f0e5ca">'+esc(t)+'</text>').join('')+'<text y="30" text-anchor="middle" font-size="9" fill="#e1bc70">'+(party?'PARTY · '+count+' cards':count?count+' cards':'')+'</text></g>';}).join('');
  const label=selectedHex==='all'?'All preparation':selectedHex==='unassigned'?'Unassigned cards':localHexLabel(selectedHex)+' ('+fmt(selectedHex)+')';
  panel.innerHTML='<div style="border:1px solid #62563a;background:#181b16;padding:12px;margin:12px 0;border-radius:8px"><h3>Regional hex browser</h3><p>Browse preparation without moving the party. Six miles per hex; party marker is the Session Six starting position.</p><div style="overflow:auto"><svg viewBox="-185 0 650 470" style="width:100%;min-width:430px;max-height:520px" aria-label="Regional hex preparation selector">'+polygons+'</svg></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" data-prep-hex="all" style="background:#30291c;color:#e8d098;border:1px solid #8a7440;padding:8px 12px;border-radius:4px;cursor:pointer">All cards ('+(cards||[]).length+')</button>'+(counts.unassigned?'<button type="button" data-prep-hex="unassigned">Unassigned ('+counts.unassigned+')</button>':'')+'<a style="color:#e8d098" href="obsidian://open?vault=Greywake&amp;file='+encodeURIComponent('04 Locations/Greywake Canon Hex Map')+'">Open canonical map in Obsidian ↗</a></div><p><strong>Viewing: '+esc(label)+'</strong></p></div>';
 }
-function chooseHex(k){selectedHex=k;mount();}
+function chooseHex(k){selectedHex=k;localArea='C';localMapOpen=k!=='all'&&k!=='unassigned';mount();}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-prep-hex]');if(b&&gm())chooseHex(b.dataset.prepHex);});
 document.addEventListener('keydown',e=>{const b=e.target.closest('g[data-prep-hex]');if(b&&gm()&&(e.key==='Enter'||e.key===' ')){e.preventDefault();chooseHex(b.dataset.prepHex);}});
 
