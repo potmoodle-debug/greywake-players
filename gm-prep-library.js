@@ -4,6 +4,26 @@ const gm=()=>document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safe=v=>typeof v==='string'&&/^assets\/[a-zA-Z0-9_./-]+\.(png|jpe?g|webp)$/i.test(v)&&!v.includes('..');
 let cards=null,session='',error='',busy=false,queued=false;
+
+// Regional browsing is local UI state only; it never changes the live scene.
+const prepHexById={'s6-western-sound':'0,-1','s6-haul-grounds':'0,-1','s6-examine-tracks':'0,-1','s6-assess-masonry':'0,-1','s6-survey-south':'0,-1','s6-traveller':'1,-2','s6-pack-animal':'1,-2','s6-route-exchange':'1,-2'};
+const hexLabels={'0,0':'Greywake','0,-1':'Stripped Yards','1,0':'Old Marker Wash','2,0':'Grey Seep Fields','2,-1':'Pale Tracts','2,-3':'Sunken Relay','0,-2':'Digger Ruin','1,-2':'Traveller preparation','0,-4':'Regional preparation','1,-4':'Glasswind'};
+let selectedHex='all';
+function renderHexBrowser(grid){
+ let panel=grid.parentElement.querySelector('[data-prep-hex-browser]');
+ if(!panel){panel=document.createElement('section');panel.dataset.prepHexBrowser='1';grid.before(panel);}
+ const counts={};for(const c of cards||[]){const k=prepHexById[c.id]||'unassigned';counts[k]=(counts[k]||0)+1;}
+ const sig=JSON.stringify([selectedHex,counts]);if(panel.dataset.sig===sig)return;panel.dataset.sig=sig;
+ const cells=[];for(let r=1;r>=-4;r--)for(let q=-2;q<=2;q++){const k=q+','+r;const x=195+q*82+r*41,y=60+(1-r)*71;cells.push({k,x,y,label:hexLabels[k]||'Uncharted'});}
+ const fmt=k=>k.split(',').map(n=>Number(n)>0?'+'+n:n).join(', ');
+ const polygons=cells.map(h=>{const active=selectedHex===h.k,party=h.k==='0,-1',count=counts[h.k]||0,lines=h.label.split(' '),split=lines.length>1?[lines.slice(0,-1).join(' '),lines.at(-1)]:lines;return '<g role="button" tabindex="0" aria-label="'+esc(fmt(h.k)+' '+h.label)+'" aria-pressed="'+active+'" data-prep-hex="'+esc(h.k)+'" transform="translate('+h.x+','+h.y+')" style="cursor:pointer"><polygon points="0,-47.3 41,-23.65 41,23.65 0,47.3 -41,23.65 -41,-23.65" fill="'+(active?'#69532a':party?'#49432a':hexLabels[h.k]?'#30372d':'#222620')+'" stroke="'+(active?'#f4cc76':party?'#bfa15b':'#5d6250')+'" stroke-width="'+(active?2.5:1)+'"/><text y="-23" text-anchor="middle" font-size="10" fill="#d0c8b3">'+esc(fmt(h.k))+'</text>'+split.map((t,i)=>'<text y="'+(i*12-4)+'" text-anchor="middle" font-size="10" font-weight="600" fill="#f0e5ca">'+esc(t)+'</text>').join('')+'<text y="30" text-anchor="middle" font-size="9" fill="#e1bc70">'+(party?'PARTY BASELINE':count?count+' cards':'')+'</text></g>';}).join('');
+ const label=selectedHex==='all'?'All preparation':selectedHex==='unassigned'?'Unassigned cards':(hexLabels[selectedHex]||'Uncharted')+' ('+fmt(selectedHex)+')';
+ panel.innerHTML='<div style="border:1px solid #62563a;background:#181b16;padding:12px;margin:12px 0;border-radius:8px"><h3>Regional hex browser</h3><p>Browse preparation without moving the party. Six miles per hex; party marker is the Session Six starting position.</p><div style="overflow:auto"><svg viewBox="-100 0 560 470" style="width:100%;min-width:430px;max-height:520px" aria-label="Regional hex preparation selector">'+polygons+'</svg></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" data-prep-hex="all">All cards ('+(cards||[]).length+')</button>'+(counts.unassigned?'<button type="button" data-prep-hex="unassigned">Unassigned ('+counts.unassigned+')</button>':'')+'<a style="color:#e8d098" href="obsidian://open?vault=Greywake&amp;file='+encodeURIComponent('04 Locations/Greywake Canon Hex Map')+'">Open canonical map in Obsidian ↗</a></div><p><strong>Viewing: '+esc(label)+'</strong></p></div>';
+}
+function chooseHex(k){selectedHex=k;mount();}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-prep-hex]');if(b&&gm())chooseHex(b.dataset.prepHex);});
+document.addEventListener('keydown',e=>{const b=e.target.closest('g[data-prep-hex]');if(b&&gm()&&(e.key==='Enter'||e.key===' ')){e.preventDefault();chooseHex(b.dataset.prepHex);}});
+
 function mount(){
  if(!gm())return;
  const grid=document.querySelector('.gm-ready-run .gm-ready-grid');if(!grid)return;
@@ -13,8 +33,10 @@ function mount(){
  const message=error?'Preparation feed unavailable — '+(cards?'showing last successful load.':'showing bundled fallback.') :cards?'Shared preparation library · '+session+' · '+cards.length+' ready':'Connecting to preparation library…';
  if(status.textContent!==message)status.textContent=message;
  if(!cards)return;
- const sig=JSON.stringify(cards);if(grid.dataset.prepSignature===sig)return;grid.dataset.prepSignature=sig;
- grid.innerHTML=cards.map(c=>'<article class="gm-ready-card" data-prep-id="'+esc(c.id)+'"><div class="gm-ready-art">'+(safe(c.image)?'<img src="'+esc(c.image)+'" alt="'+esc(c.image_label||c.title)+'" loading="lazy">':'<div class="gw-card-symbol">◇</div>')+'<span>'+esc(c.image_label||c.kind)+'</span></div><div class="gm-ready-body"><small>'+esc(c.readiness)+' · '+esc(c.kind)+'</small><h3>'+esc(c.title)+'</h3><p>'+esc(c.detail)+'</p>'+(c.record&&window.GREYWAKE_DATA?.[c.record]?'<button class="gm-prep-link" data-gm-record="'+esc(c.record)+'">'+esc(c.record)+' →</button>':'')+'<button type="button" class="gm-prep-link gw-prep-view" data-view-prep="'+esc(c.id)+'" style="display:block;width:100%;min-height:40px;border:1px solid #82724b;margin:4px 0 8px;padding:9px;text-align:center;background:#29251a;color:#e7d6ae;cursor:pointer">View preparation ↗</button><button type="button" class="gm-ready-activate" data-dynamic-prep="'+esc(c.id)+'">+ Add to RUN</button></div></article>').join('')||'<p>No ready preparation cards for this session.</p>';
+ renderHexBrowser(grid);
+ const visible=selectedHex==='all'?cards:cards.filter(c=>(prepHexById[c.id]||'unassigned')===selectedHex);
+ const sig=JSON.stringify([selectedHex,cards]);if(grid.dataset.prepSignature===sig)return;grid.dataset.prepSignature=sig;
+ grid.innerHTML=visible.map(c=>'<article class="gm-ready-card" data-prep-id="'+esc(c.id)+'"><div class="gm-ready-art">'+(safe(c.image)?'<img src="'+esc(c.image)+'" alt="'+esc(c.image_label||c.title)+'" loading="lazy">':'<div class="gw-card-symbol">◇</div>')+'<span>'+esc(c.image_label||c.kind)+'</span></div><div class="gm-ready-body"><small>'+esc(c.readiness)+' · '+esc(c.kind)+'</small><h3>'+esc(c.title)+'</h3><p>'+esc(c.detail)+'</p>'+(c.record&&window.GREYWAKE_DATA?.[c.record]?'<button class="gm-prep-link" data-gm-record="'+esc(c.record)+'">'+esc(c.record)+' →</button>':'')+'<button type="button" class="gm-prep-link gw-prep-view" data-view-prep="'+esc(c.id)+'" style="display:block;width:100%;min-height:40px;border:1px solid #82724b;margin:4px 0 8px;padding:9px;text-align:center;background:#29251a;color:#e7d6ae;cursor:pointer">View preparation ↗</button><button type="button" class="gm-ready-activate" data-dynamic-prep="'+esc(c.id)+'">+ Add to RUN</button></div></article>').join('')||'<p>No live preparation cards assigned to this selection. Consult the canonical map and private location records.</p>';
 }
 async function pull(){if(!gm()||busy)return;busy=true;try{const r=await fetch(endpoint,{headers:{apikey:'sb_publishable_zML4qGtgQgMALEXFJn501w_1imfz8wl','x-greywake-character':'gm','x-greywake-code':'GREYWAKE'},cache:'no-store'});const d=await r.json();if(!r.ok||!Array.isArray(d.cards))throw Error('Feed unavailable');cards=d.cards;session=d.session;error=''}catch(e){error=String(e.message)}finally{busy=false;mount()}}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-dynamic-prep]');if(!b||!gm())return;const c=cards?.find(x=>x.id===b.dataset.dynamicPrep);if(c)window.GreywakeRunCardDialog?.({kind:c.kind,title:c.title,record:c.record,adversary_slug:c.adversary_slug});});
