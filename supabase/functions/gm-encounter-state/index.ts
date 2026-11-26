@@ -1,13 +1,24 @@
 import {createClient} from "npm:@supabase/supabase-js@2.95.0";
-const headers={"Access-Control-Allow-Origin":"https://potmoodle-debug.github.io","Access-Control-Allow-Headers":"apikey,authorization,content-type,x-greywake-character,x-greywake-code","Access-Control-Allow-Methods":"GET,PATCH,OPTIONS","Content-Type":"application/json"};
+const headers={"Access-Control-Allow-Origin":"https://potmoodle-debug.github.io","Access-Control-Allow-Headers":"apikey,authorization,content-type,x-greywake-character,x-greywake-code","Access-Control-Allow-Methods":"GET,PATCH,POST,OPTIONS","Content-Type":"application/json"};
 const reply=(x:unknown,status=200)=>new Response(JSON.stringify(x),{status,headers});
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response(null,{headers});
  if(req.headers.get("x-greywake-character")!=="gm"||req.headers.get("x-greywake-code")!=="GREYWAKE")return reply({error:"GM access required"},403);
  const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,{auth:{persistSession:false}});
  try{
- const {data:display,error:de}=await db.from("live_scene_display").select("scene").eq("display_key","current").single();if(de)throw de;
+ const {data:display,error:de}=await db.from("live_scene_display").select("scene,revision").eq("display_key","current").single();if(de)throw de;
  const scene=display.scene,session=String(scene.session);
+ if(req.method==="POST"){
+ const b=await req.json();
+ if(b.revision!==display.revision)return reply({error:"Scene changed; refresh and retry."},409);
+ if(!["clue","location","npc","hazard","adversary"].includes(b.kind)||typeof b.title!=="string"||!b.title.trim()||b.title.length>120||typeof b.detail!=="string"||b.detail.length>800)return reply({error:"Invalid card"},400);
+ const card:Record<string,unknown>={id:crypto.randomUUID(),kind:b.kind,title:b.title.trim(),detail:b.detail.trim()};
+ if(b.kind==="adversary"){const {data,error}=await db.from("gm_adversary_cards").select("slug,name").eq("slug",b.adversary_slug).eq("active",true).maybeSingle();if(error)throw error;if(!data)return reply({error:"Approved adversary required"},400);card.adversary_slug=data.slug;card.record=data.name;}
+ else if(typeof b.record==="string"&&b.record.length<=120)card.record=b.record;
+ const next={...scene,cards:[...(Array.isArray(scene.cards)?scene.cards:[]),card]};
+ const {data,error}=await db.from("live_scene_display").update({scene:next,revision:display.revision+1,updated_at:new Date().toISOString()}).eq("display_key","current").eq("revision",display.revision).select("revision").maybeSingle();
+ if(error)throw error;if(!data)return reply({error:"Scene changed; retry."},409);return reply({revision:data.revision,card});
+ }
  const candidates=(Array.isArray(scene.cards)?scene.cards:[]).filter((c:any)=>c.kind==="adversary"&&typeof c.id==="string"&&typeof c.adversary_slug==="string");
  const active=[];
  for(const c of candidates){
