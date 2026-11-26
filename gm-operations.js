@@ -39,7 +39,7 @@
   function updateCapture(id,patch){saveCaptures(readCaptures().map(x=>x.id===id?{...x,...patch}:x));render()}
   function removeCapture(id){saveCaptures(readCaptures().filter(x=>x.id!==id));render()}
 
-  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=dynamic-scene-20261126';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
+  function ensureStyles(){if(document.querySelector('link[data-gm-shell-style]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='gm-shell.css?v=cinematic-run-20261126';l.dataset.gmShellStyle='true';document.head.appendChild(l)}
   function ensureWorkspace(){let el=document.getElementById('gmOperationsView');if(el)return el;el=document.createElement('section');el.id='gmOperationsView';el.className='gm-shell hidden';el.setAttribute('aria-label','Greywake GM workspace');document.getElementById('mainContent')?.appendChild(el);return el}
 
   function restoreInboxThreads(){
