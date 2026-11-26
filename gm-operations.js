@@ -91,7 +91,7 @@
         <section id="gmWhiteboardLibrary" class="gm-whiteboard-library" hidden><small>WHITEBOARD CARD LIBRARY</small><label for="gmWhiteboardSearch">Find a card</label><input type="search" id="gmWhiteboardSearch" placeholder="NPC, creature, location…" autocomplete="off"><select id="gmWhiteboardCategory" aria-label="Filter card category"><option value="">All categories</option></select><div id="gmWhiteboardResults" class="gm-whiteboard-results"></div><small class="gm-whiteboard-help">Select a record to place it on the canvas.</small></section>
         <div class="gm-sidebar-record-label"><small>GREYWAKE RECORDS</small><span>People, places, creatures, factions and session records</span></div>`;
       nav.parentNode.insertBefore(gmNav,nav);
-      gmNav.addEventListener('click',e=>{const b=e.target.closest('[data-gm-side-route]');if(!b)return;navigate(b.dataset.gmSideRoute);document.querySelector('.sidebar')?.classList.remove('open')});
+      gmNav.addEventListener('click',e=>{const b=e.target.closest('[data-gm-side-route]');if(!b)return;navigate(b.dataset.gmSideRoute);window.GreywakeNavigation.closeSidebar()});
     }
     sidebar.classList.add('gm-sidebar-active');
     const brand=sidebar.querySelector('.eyebrow');if(brand){if(!brand.dataset.gmOriginalText)brand.dataset.gmOriginalText=brand.textContent||'';brand.textContent='GM CONSOLE'}
@@ -116,7 +116,7 @@
       e.preventDefault();
       e.stopImmediatePropagation();
       navigate(gmRecordRoute(name));
-      document.querySelector('.sidebar')?.classList.remove('open');
+      window.GreywakeNavigation.closeSidebar();
     },true);
   }
   function syncNav(type){
@@ -291,7 +291,7 @@
         results.innerHTML=matches.slice(0,120).map(r=>'<button type="button" data-add-whiteboard="'+esc(r.key)+'"><small>'+esc(r.category)+'</small><span>'+esc(r.title)+'</span></button>').join('')||'<p>No matching records.</p>';
       };
       search.addEventListener('input',update);category.addEventListener('change',update);
-      results.addEventListener('click',e=>{const btn=e.target.closest('[data-add-whiteboard]');if(!btn)return;const frame=document.getElementById('gmWhiteboardFrame');frame?.contentWindow?.postMessage({type:'greywake:whiteboard:add',key:btn.dataset.addWhiteboard},location.origin);if(matchMedia('(max-width:850px)').matches){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('menuBtn')?.setAttribute('aria-expanded','false')}});
+      results.addEventListener('click',e=>{const btn=e.target.closest('[data-add-whiteboard]');if(!btn)return;const frame=document.getElementById('gmWhiteboardFrame');frame?.contentWindow?.postMessage({type:'greywake:whiteboard:add',key:btn.dataset.addWhiteboard},location.origin);if(matchMedia('(max-width:850px)').matches){window.GreywakeNavigation.closeSidebar()}});
       update();
     }
   }
