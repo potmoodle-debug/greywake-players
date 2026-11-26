@@ -13,8 +13,12 @@
       previous = route;
     }
     for (const renderer of renderers.values()) renderer();
+    closeSidebar();
+  }
+  function closeSidebar() {
     document.querySelector('.sidebar')?.classList.remove('open');
     document.getElementById('menuBtn')?.setAttribute('aria-expanded', 'false');
+    document.body?.classList.remove('sidebar-modal-open');
   }
   function schedule() {
     if (queued) return;
@@ -31,7 +35,7 @@
   }
   window.GreywakeNavigation = {
     register(name, renderer) { renderers.set(name, renderer); schedule(); },
-    navigate, render: schedule,
+    navigate, render: schedule, closeSidebar,
     returnRoute() { const route = history.state?.greywakeReturn; return route && route !== '#/character' ? route : '#/'; }
   };
   window.addEventListener('hashchange', schedule);
