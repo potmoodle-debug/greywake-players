@@ -25,7 +25,7 @@
     const next = Boolean(open);
     sidebar.classList.toggle('open', next);
     document.body.classList.toggle('nav-open', next);
-    document.body.classList.toggle('sidebar-modal-open', next);
+    document.body.classList.toggle('sidebar-modal-open', next && document.body.dataset.role !== 'player');
     menu.setAttribute('aria-expanded', String(next));
     menu.setAttribute('aria-label', next ? 'Close navigation' : 'Open navigation');
     if (next && focusClose) close?.focus({preventScroll:true});
