@@ -22,7 +22,7 @@ function currentRoute(){
  if(h==='#/brain')return{type:'brain'};
  if(h.startsWith('#/gm-world/record/'))return{type:'record',name:safeRecordName(h.slice('#/gm-world/record/'.length))};
  if(h.startsWith('#/record/'))return{type:'record',name:safeRecordName(h.slice(9))};
- if(APP_EXTERNAL_ROUTES.has(h))return{type:'external'};
+ if(APP_EXTERNAL_ROUTES.has(h)||h.startsWith('#/possibilities/'))return{type:'external'};
  return{type:'home'};
 }
 function go(route){window.GreywakeNavigation.navigate(route)}

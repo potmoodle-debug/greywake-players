@@ -94,7 +94,7 @@
   function gmRouteFromPlayer(hash = location.hash || '') {
     if (hash === '#/inbox') return '#/gm-inbox';
     if (['#/mind', '#/my-greywake'].includes(hash)) return '#/gm-players';
-    if (['#/campaign', '#/possibilities'].includes(hash)) return '#/gm-prep';
+    if (['#/campaign', '#/possibilities'].includes(hash) || hash.startsWith('#/possibilities/')) return '#/gm-prep';
     if (hash === '#/greywake') return '#/gm-world';
     if (hash.startsWith('#/record/')) return '#/gm-world/record/' + hash.slice('#/record/'.length);
     if (['#/brain', '#/map', '#/explore'].includes(hash)) return '#/gm-world';

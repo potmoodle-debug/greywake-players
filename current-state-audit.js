@@ -186,21 +186,21 @@
       locationDetail:'You are travelling with Odie and Velmira through the abandoned southern outskirts, seeking Thirst-Marrow for Meren.',
       chapterTitle:'The Southern Ways', chapterDetail:'Your Foldling Beastform experience, conversation with Meren and bargain with Mara Vell brought you to this southern expedition.',
       chapterRoute:'#/record/' + encodeURIComponent('Session 05 — Player Recap'),
-      currentTitle:'Thirst-Marrow search', currentDetail:'Velmira recalled a credible southern lead, but no plant has yet been located. Mara owes you one information favour.'
+      currentThreadId:'thirst-marrow-search', currentDetail:'Velmira recalled a credible southern lead, but no plant has yet been located. Mara owes you one information favour.'
     },
     odie: {
       heading:'Odie, what matters now?', location:'The Stripped Yards',
       locationDetail:'You are with Marek and Velmira south of Greywake, near the Old South Road.',
       chapterTitle:'The Southern Ways', chapterDetail:'You inspected the reopened passage with Spencer, concealed yourself and overheard two workers examining the closure.',
       chapterRoute:'#/record/' + encodeURIComponent('Session 05 — Player Recap'),
-      currentTitle:'Southern journey', currentDetail:'You are searching for Thirst-Marrow with the others. Your Cistern Plate reconstruction sketch remains incomplete at one quarter.'
+      currentThreadId:'thirst-marrow-search', currentDetail:'You are searching for Thirst-Marrow with the others. Your Cistern Plate reconstruction sketch remains incomplete at one quarter.'
     },
     velmira: {
       heading:'Velmira, what matters now?', location:'The Stripped Yards',
       locationDetail:'You are an active PC travelling with Marek and Odie in the abandoned southern outskirts.',
       chapterTitle:'The Southern Ways', chapterDetail:'You met Jessa Vale, accompanied her to Captain Brannic Hale and helped change the Watch response to the Foldling.',
       chapterRoute:'#/record/' + encodeURIComponent('Session 05 — Player Recap'),
-      currentTitle:'A lead to the south', currentDetail:'You recalled a promising, unconfirmed Thirst-Marrow lead and joined the expedition. You know what Captain Hale agreed to, but have not automatically told the others.'
+      currentThreadId:'thirst-marrow-search', currentDetail:'You recalled a promising, unconfirmed Thirst-Marrow lead and joined the expedition. You know what Captain Hale agreed to, but have not automatically told the others.'
     }
   };
 

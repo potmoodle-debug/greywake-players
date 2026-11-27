@@ -1,6 +1,18 @@
 (() => {
   const POSSIBILITIES = [
     {
+      id: 'thirst-marrow-search',
+      title: 'Thirst-Marrow search',
+      status: 'ACTIVE EXPEDITION',
+      direction: 'SOUTH ↓ · EXACT LOCATION UNKNOWN',
+      tone: 'open',
+      image: null,
+      visibility: ['party'],
+      summary: 'The party has travelled south into the Stripped Yards to search for Thirst-Marrow for Meren.',
+      known: 'Velmira recalled a credible but unconfirmed southern lead. No plant or exact patch has been located. The party decides where and how to search.',
+      relevance: {}
+    },
+    {
       id: 'something-moved-in',
       title: 'Something Moved In',
       status: 'RUMOUR / SELECTABLE EXPEDITION',
@@ -196,20 +208,36 @@
     }
   ];
 
-  const ACTIVE_CHARACTERS = ['marek', 'odie'];
   const partyVisible = item => item.visibility.includes('party');
 
   function characterKey(user) {
-    const bodyCharacter = (document.body.dataset.character || '').toLowerCase();
-    if (ACTIVE_CHARACTERS.includes(bodyCharacter)) return bodyCharacter;
-    const userCharacter = (user?.character || '').toLowerCase();
-    return ACTIVE_CHARACTERS.includes(userCharacter) ? userCharacter : null;
+    return String(user?.character || document.body.dataset.character || '').toLowerCase() || null;
   }
 
   const visibleTo = (item, user) => {
+    if (!user) return false;
     const key = characterKey(user);
-    return user?.role === 'gm' || (!!key && (partyVisible(item) || item.visibility.includes(key)));
+    const fullGM = user.role === 'gm' && document.body.dataset.gmPreview !== 'true';
+    return fullGM || (!!key && (partyVisible(item) || item.visibility.includes(key)));
   };
+
+  function visibleRecords(user = window.GreywakePlayer) {
+    return POSSIBILITIES.filter(item => visibleTo(item, user));
+  }
+
+  function getVisible(id, user = window.GreywakePlayer) {
+    return id ? visibleRecords(user).find(item => item.id === id) || null : null;
+  }
+
+  function href(id) {
+    return id ? '#/possibilities/' + encodeURIComponent(id) : '#/possibilities';
+  }
+
+  function routeId(hash = location.hash) {
+    const prefix = '#/possibilities/';
+    if (!hash.startsWith(prefix)) return '';
+    try { return decodeURIComponent(hash.slice(prefix.length)); } catch { return ''; }
+  }
 
   function relevanceFor(item, user) {
     const key = characterKey(user);
@@ -247,7 +275,7 @@
     const grid = document.getElementById('currentThreadsGrid');
     const count = document.getElementById('currentThreadsCount');
     if (!grid || !user) return;
-    const visible = POSSIBILITIES.filter(item => visibleTo(item, user));
+    const visible = visibleRecords(user);
     grid.innerHTML = visible.map(item => card(item, user)).join('');
     if (count) count.textContent = `${visible.length} known possibilit${visible.length === 1 ? 'y' : 'ies'}`;
 
@@ -260,7 +288,7 @@
     }
   }
 
-  window.GreywakeCurrentThreads = { render };
+  window.GreywakeCurrentThreads = { render, getVisible, visibleRecords, href, routeId };
   window.addEventListener('greywake:player-ready', event => render(event.detail));
   window.addEventListener('greywake:portal-live-mounted', event => {
     if (event.detail?.kind === 'threads') render(window.GreywakePlayer);

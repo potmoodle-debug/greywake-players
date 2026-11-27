@@ -117,6 +117,9 @@
     const heading = copy.querySelector('h2');
     const intro = copy.querySelector(':scope > p');
     const homeState = characterHomeState() || {};
+    const registry = window.GreywakeCurrentThreads;
+    const currentThread = registry?.getVisible(homeState.currentThreadId);
+    const currentHref = registry?.href(currentThread?.id) || '#/possibilities';
     if (heading) heading.textContent = homeState.heading || `${characterName()}, what matters now?`;
     if (intro) intro.textContent = 'Pick up where you left off. Your character, your conversations, and the things you want to follow.';
     let orientation = document.getElementById('arrivalOrientation');
@@ -139,10 +142,10 @@
         <strong>${esc(homeState.chapterTitle || 'Your story so far')}</strong>
         <span>${esc(homeState.chapterDetail || 'Review the most recent part of your character’s story.')}</span>
       </a>
-      <a class="arrival-orientation-item" href="#/possibilities">
+      <a class="arrival-orientation-item" href="${esc(currentHref)}">
         <small>WHAT IS MOVING NOW</small>
-        <strong>${esc(homeState.currentTitle || 'Known possibilities')}</strong>
-        <span>Open the leads and possibilities your character knows about.</span>
+        <strong>${esc(currentThread?.title || 'Known possibilities')}</strong>
+        <span>${currentThread ? 'Open this active lead.' : 'Open the leads and possibilities your character knows about.'}</span>
       </a>`;
 
     let actions = document.getElementById('arrivalActions');

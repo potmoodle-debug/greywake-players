@@ -31,7 +31,7 @@
     if (hash === '#/greywake' || hash === '#/explore') return 'greywake';
     if (hash === '#/map') return 'map';
     if (hash === '#/campaign') return 'campaign';
-    if (hash === '#/possibilities') return 'possibilities';
+    if (hash === '#/possibilities' || hash.startsWith('#/possibilities/')) return 'possibilities';
     if (hash === '#/mind') return 'mind';
     if (hash === '#/inbox') return 'inbox';
     if (hash === '#/character') return 'character';
@@ -175,6 +175,30 @@
     content.appendChild(threads);
     notifyLiveMounted('threads');
     document.title = "What's out there — Greywake";
+    const requestedRoute = location.hash;
+    if (!requestedRoute.startsWith('#/possibilities/')) return;
+    // The existing mount event renders the permitted cards on the next frame.
+    requestAnimationFrame(() => {
+      if (location.hash !== requestedRoute || !content.isConnected) return;
+      const registry = window.GreywakeCurrentThreads;
+      const id = registry?.routeId(requestedRoute);
+      const record = registry?.getVisible(id);
+      const target = record && [...threads.querySelectorAll('.thread-card[data-thread]')]
+        .find(card => card.dataset.thread === record.id);
+      if (!target) {
+        const notice = document.createElement('p');
+        notice.className = 'player-portal-intro';
+        notice.setAttribute('role', 'status');
+        notice.textContent = 'This possibility is no longer available in your view. Browse the known possibilities below.';
+        content.insertBefore(notice, threads);
+        return;
+      }
+      target.tabIndex = 0;
+      target.focus({preventScroll:true});
+      target.scrollIntoView({block:'center', behavior:'auto'});
+      target.classList.add('engagement-flash');
+      setTimeout(() => target.classList.remove('engagement-flash'), 1000);
+    });
   }
 
   function renderMind() {
