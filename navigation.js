@@ -15,10 +15,47 @@
     for (const renderer of renderers.values()) renderer();
     closeSidebar();
   }
-  function closeSidebar() {
-    document.querySelector('.sidebar')?.classList.remove('open');
-    document.getElementById('menuBtn')?.setAttribute('aria-expanded', 'false');
-    document.body?.classList.remove('sidebar-modal-open');
+  // The route lifecycle and every drawer control use one state transition.
+  function setSidebarOpen(open, {restoreFocus = false, focusClose = false} = {}) {
+    const sidebar = document.getElementById('sidebar');
+    const menu = document.getElementById('menuBtn');
+    const close = document.getElementById('sidebarClose');
+    if (!sidebar || !menu) return;
+    const wasOpen = sidebar.classList.contains('open');
+    const next = Boolean(open);
+    sidebar.classList.toggle('open', next);
+    document.body.classList.toggle('nav-open', next);
+    document.body.classList.toggle('sidebar-modal-open', next);
+    menu.setAttribute('aria-expanded', String(next));
+    menu.setAttribute('aria-label', next ? 'Close navigation' : 'Open navigation');
+    if (next && focusClose) close?.focus();
+    if (!next && wasOpen && restoreFocus) menu.focus();
+  }
+  function closeSidebar() { setSidebarOpen(false); }
+  function bindSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const menu = document.getElementById('menuBtn');
+    if (!sidebar || !menu) return;
+    menu.addEventListener('click', () => {
+      const open = !sidebar.classList.contains('open');
+      setSidebarOpen(open, {focusClose: open, restoreFocus: !open});
+    });
+    document.getElementById('sidebarClose')?.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      setSidebarOpen(false, {restoreFocus: true});
+    });
+    document.getElementById('navBackdrop')?.addEventListener('click', () => setSidebarOpen(false, {restoreFocus: true}));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+        event.preventDefault();
+        setSidebarOpen(false, {restoreFocus: true});
+      }
+    });
+    // Clear drawer state when switching to a persistent desktop sidebar.
+    window.addEventListener('resize', () => {
+      if (sidebar.classList.contains('open') && getComputedStyle(menu).display === 'none') closeSidebar();
+    });
   }
   function schedule() {
     if (queued) return;
@@ -38,6 +75,7 @@
     navigate, render: schedule, closeSidebar,
     returnRoute() { const route = history.state?.greywakeReturn; return route && route !== '#/character' ? route : '#/'; }
   };
+  bindSidebar();
   window.addEventListener('hashchange', schedule);
   window.addEventListener('popstate', schedule);
   window.addEventListener('greywake:player-ready', schedule);

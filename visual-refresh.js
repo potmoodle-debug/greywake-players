@@ -40,13 +40,6 @@
   }
 
   function setupNavigation(){
-    const sidebar=document.querySelector('.sidebar'),menu=document.getElementById('menuBtn'),close=document.getElementById('sidebarClose'),backdrop=document.getElementById('navBackdrop');
-    const sync=(moveFocus=false)=>{const open=sidebar?.classList.contains('open');document.body.classList.toggle('nav-open',!!open);menu?.setAttribute('aria-expanded',String(!!open));if(open&&moveFocus)requestAnimationFrame(()=>close?.focus())};
-    const closeNav=(restoreFocus=false)=>{const wasOpen=sidebar?.classList.contains('open');sidebar?.classList.remove('open');sync();if(wasOpen&&restoreFocus)menu?.focus()};
-    menu?.addEventListener('click',()=>queueMicrotask(()=>sync(true)));
-    close?.addEventListener('click',()=>closeNav(true));backdrop?.addEventListener('click',()=>closeNav(true));
-    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&sidebar?.classList.contains('open')){event.preventDefault();closeNav(true)}});
-    window.addEventListener('hashchange',()=>closeNav(false));
     document.getElementById('searchInput')?.addEventListener('input',()=>queueMicrotask(enhanceNav));
   }
 

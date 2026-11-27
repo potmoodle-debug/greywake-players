@@ -72,6 +72,10 @@ body.player-portal-enabled[data-player-route="home"] .shell{grid-template-column
 body.player-portal-enabled[data-player-route="home"] .sidebar{position:fixed;left:-320px;top:0;width:300px;height:100vh;transition:left .2s ease;z-index:30;box-shadow:18px 0 55px rgba(0,0,0,.38)}
 body.player-portal-enabled[data-player-route="home"] .sidebar.open{left:0}
 body.player-portal-enabled[data-player-route="home"] #menuBtn{display:block}
+/* Home is a drawer on desktop as well as mobile. Keep its dismissal controls visible. */
+body.player-portal-enabled[data-player-route="home"] .sidebar-close{display:block;min-width:44px;min-height:44px;flex-shrink:0}
+body.player-portal-enabled[data-player-route="home"].nav-open{overflow:hidden}
+body.player-portal-enabled[data-player-route="home"].nav-open .nav-backdrop{display:block}
 body.player-portal-enabled[data-player-route="home"] #home>.discoveries,
 body.player-portal-enabled[data-player-route="home"] #home>.field-note{display:none!important}
 body.player-portal-enabled[data-player-route="home"] #home .hero-ledger{display:none!important}
