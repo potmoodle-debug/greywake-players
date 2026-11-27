@@ -28,8 +28,8 @@
     document.body.classList.toggle('sidebar-modal-open', next);
     menu.setAttribute('aria-expanded', String(next));
     menu.setAttribute('aria-label', next ? 'Close navigation' : 'Open navigation');
-    if (next && focusClose) close?.focus();
-    if (!next && wasOpen && restoreFocus) menu.focus();
+    if (next && focusClose) close?.focus({preventScroll:true});
+    if (!next && wasOpen && restoreFocus) menu.focus({preventScroll:true});
   }
   function closeSidebar() { setSidebarOpen(false); }
   function bindSidebar() {
