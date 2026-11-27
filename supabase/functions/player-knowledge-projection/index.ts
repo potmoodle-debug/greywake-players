@@ -5,14 +5,23 @@ const SECTION='Player knowledge projection v1';
 const CORS={'Access-Control-Allow-Origin':'https://potmoodle-debug.github.io','Access-Control-Allow-Methods':'GET, OPTIONS','Access-Control-Allow-Headers':'apikey, authorization, content-type, x-greywake-character, x-greywake-code','Cache-Control':'no-store','Vary':'Origin','Content-Type':'application/json'};
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:CORS});
 const isText=v=>typeof v==='string'&&v.trim().length>0;
+const categories=new Set(["World","Locations","Factions","People","Flora & Fauna","Caravans","Sessions","Objects","Personal Knowledge"]);
+const safeKey=v=>isText(v)&&v.length<=180&&!/[<>"\u0000-\u001f]/.test(v)&&!Object.prototype.hasOwnProperty.call(Object.prototype,v)&&v!=='prototype';
+const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v);
 const kinds=new Set(['common','party','personal','selective']);
 const sources=new Set(['common','witnessed','investigated','practical','reported','rumour','inferred','insider','unknown']);
 const certainties=new Set(['established','reported','rumour','inferred','belief','unknown']);
-function projectRows(rows,character){
+function projectRows(rows,character,version=1){
  const latest=new Map();
  for(const row of rows){
   if(row.section!==SECTION||!['private','party'].includes(row.visibility))throw Error('Unexpected projection source');
   const c=JSON.parse(row.body);
+  // Old cached clients only know the pilot registry. V2 rows are opt-in.
+  if(version===1&&c.category!==undefined)continue;
+  if(c.category!==undefined&&(!categories.has(c.category)||!safeKey(c.recordKey)||!safeKey(c.title)))throw Error('Invalid subject category or title');
+  if(c.kind!==undefined&&!['flora','fauna'].includes(c.kind))throw Error('Invalid field-guide kind');
+  if(c.discovered!==undefined&&!validDate(c.discovered))throw Error('Invalid discovery date');
+  if(c.links!==undefined&&(!Array.isArray(c.links)||c.links.some(k=>!safeKey(k))))throw Error('Invalid known relationship');
   if(c.format!=='greywake-player-claim-v1'||!isText(c.id)||!Number.isSafeInteger(c.revision)||c.revision<1||
      !isText(c.recordKey)||!isText(c.title)||!isText(c.subjectId)||!isText(c.body)||!kinds.has(c.visibility)||!sources.has(c.acquisition)||
      !certainties.has(c.certainty)||!Number.isInteger(c.tier)||c.tier<1||c.tier>4||!Array.isArray(c.recaps)||
@@ -24,11 +33,15 @@ function projectRows(rows,character){
   if(prior&&(prior.c.recordKey!==c.recordKey||prior.c.subjectId!==c.subjectId))throw Error('Changed subject');
   if(!prior||prior.c.revision<c.revision)latest.set(c.id,{row,c});
  }
- const records=new Map();
+ const records=new Map(),candidateLinks=[];
  function add(meta,claim){
   if(!isText(meta.recordKey)||!isText(meta.id)||!isText(meta.title))throw Error('Invalid subject metadata');
   const r=records.get(meta.recordKey)||{recordKey:meta.recordKey,id:meta.id,title:meta.title,claims:[]};
   if(r.id!==meta.id||r.title!==meta.title)throw Error('Conflicting record metadata');
+  if(version===2){
+   if(meta.category!==undefined){if(!categories.has(meta.category)||!safeKey(meta.recordKey)||!safeKey(meta.title)||r.category&&r.category!==meta.category)throw Error('Conflicting category');r.category=meta.category;}
+   if(meta.kind!==undefined){if(!['flora','fauna'].includes(meta.kind)||r.kind&&r.kind!==meta.kind)throw Error('Conflicting field kind');r.kind=meta.kind;}
+  }
   if(!r.claims.some(x=>x.id===claim.id))r.claims.push(claim);
   records.set(meta.recordKey,r);
  }
@@ -36,10 +49,21 @@ function projectRows(rows,character){
   if(row.status!=='active')continue;
   if(c.visibility!=='common'&&!row.knowledge_entry_characters.some(g=>g.character_slug===character))continue;
   const claim={id:c.id,revision:c.revision,body:c.body,visibility:c.visibility,acquisition:c.acquisition,certainty:c.certainty,tier:c.tier};
-  add({recordKey:c.recordKey,id:c.subjectId,title:c.title},claim);
+  if(version===2&&c.discovered)claim.discovered=c.discovered;
+  add({recordKey:c.recordKey,id:c.subjectId,title:c.title,category:c.category,kind:c.kind},claim);
   for(const recap of c.recaps)add(recap,claim);
+  if(version===2)for(const k of c.links||[])candidateLinks.push([c.recordKey,k]);
  }
- return {characterId:character,records:[...records.values()]};
+ const result={characterId:character,records:[...records.values()]};
+ if(version===2){
+  const seen=new Set();
+  result.relationships=candidateLinks.filter(([a,b])=>{
+   if(a===b||!records.has(a)||!records.has(b))return false;
+   const key=JSON.stringify([a,b].sort());if(seen.has(key))return false;seen.add(key);return true;
+  });
+  result.version=2;
+ }
+ return result;
 }
 async function requestRows(table,params){
  const url=Deno.env.get('SUPABASE_URL'),key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -66,6 +90,7 @@ Deno.serve(async req=>{
    offset+=page.length;
    if(offset>=10000)throw Error('Projection exceeds safety limit');
   }
-  return reply(projectRows(rows,character));
+  const version=/(?:[?&])version=2(?:&|$)/.test(String(req.url||''))?2:1;
+  return reply(projectRows(rows,character,version));
  }catch(_error){return reply({error:'Knowledge provider unavailable'},503)}
 });
