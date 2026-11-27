@@ -6,7 +6,7 @@ const safe=v=>typeof v==='string'&&/^assets\/[a-zA-Z0-9_./-]+\.(png|jpe?g|webp)$
 let cards=null,session='',error='',busy=false,queued=false;
 
 // Regional browsing is local UI state only; it never changes the live scene.
-const prepHexById={'s6-western-sound':'0,-1','s6-haul-grounds':'0,-1','s6-examine-tracks':'0,-1','s6-assess-masonry':'0,-1','s6-survey-south':'0,-1','s6-traveller':'1,-2','s6-pack-animal':'1,-2','s6-route-exchange':'1,-2','s6-region-a1':'0,-4','s6-region-a2':'0,-4','s6-region-a3':'0,-4','s6-region-b1':'1,-4','s6-region-b2':'1,-4','s6-region-b3':'1,-4'};
+const prepHexById={'s6-abandoned-claim':'0,-1','s6-western-sound':'0,-1','s6-haul-grounds':'0,-1','s6-examine-tracks':'0,-1','s6-assess-masonry':'0,-1','s6-survey-south':'0,-1','s6-traveller':'1,-2','s6-pack-animal':'1,-2','s6-route-exchange':'1,-2','s6-region-a1':'0,-4','s6-region-a2':'0,-4','s6-region-a3':'0,-4','s6-region-b1':'1,-4','s6-region-b2':'1,-4','s6-region-b3':'1,-4'};
 const hexLabels={'0,0':'Greywake','0,-1':'Stripped Yards','1,0':'Old Marker Wash','2,0':'Grey Seep Fields','2,-1':'Pale Tracts','2,-3':'Sunken Relay','0,-2':'Digger Ruin','1,-2':'Traveller preparation','0,-4':'Regional preparation','1,-4':'Glasswind'};
 let selectedHex='all';
 
