@@ -1,36 +1,40 @@
-/* GM variants of the established Campaign possibility card design.
-   The player reference remains current-threads.css. Scoped to real GM workspaces. */
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-grid,
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-live-cards {
- display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;align-items:stretch;
-}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-card,.gw-live-card){
- position:relative;isolation:isolate;overflow:hidden;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;
- border:1px solid #3a3b2e;background:#171811;box-shadow:0 18px 48px #0003;
-}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card{min-height:420px;padding-top:145px}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card .gm-ready-art{
- position:absolute;inset:0;width:100%;height:100%;z-index:-2;background:radial-gradient(circle at 70% 22%,#4b4027,#171811 58%);
-}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card .gm-ready-art img{
- width:100%;height:100%;object-fit:cover;filter:saturate(.72) contrast(1.08) brightness(.78);
-}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card .gm-ready-art:after{
- content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0809060f 4%,#08090647 28%,#080906ed 64%,#080906 100%);pointer-events:none;
-}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-art span{position:absolute;top:12px;left:12px;bottom:auto;z-index:1;color:#e4d298;background:#15160fc9;border:1px solid #756a43;padding:5px 8px;font-size:10px}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-body,.gw-card-content){padding:20px;min-width:0;overflow-wrap:anywhere}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-body{background:linear-gradient(180deg,transparent,#080906ed 25%);flex:0 0 auto}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-body,.gw-card-content) h3{font:clamp(24px,2.3vw,32px)/1.08 Georgia,serif;color:#f0e7ce;margin:10px 0 12px;text-wrap:balance}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-body,.gw-card-content) small{color:#e2c878;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-body,.gw-card-content) p{color:#ded6c2;font-size:13px;line-height:1.6}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card .gm-ready-activate,
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-card-actions button{border:1px solid #756a43;background:#171712;color:#e3d7ad;padding:10px 13px;cursor:pointer}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card:hover{border-color:#9c8a55}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-card,.gw-live-card) button:focus-visible{outline:2px solid #e2c878;outline-offset:2px}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-live-card{justify-content:flex-start}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-live-card .gw-card-art{width:100%;height:140px;object-fit:cover;filter:saturate(.72) contrast(1.08) brightness(.85)}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-live-card .gw-card-content{flex:1}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-live-card h3{font-size:25px}
-body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gw-card-actions{display:flex;flex-wrap:wrap;gap:8px}
-@media(max-width:650px){body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView :is(.gm-ready-grid,.gw-live-cards){grid-template-columns:1fr}body[data-role="gm"]:not([data-gm-preview="true"]) #gmOperationsView .gm-ready-card{min-height:350px;padding-top:100px}}
+/* GM campaign card variants. The visual source is current-threads.css.
+   Separate GM class names prevent player interest/reveal hooks attaching to these cards. */
+#gmOperationsView .gm-ready-grid:has(.gw-campaign-prep){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch;grid-auto-flow:dense}
+#gmOperationsView .gw-campaign-card{position:relative;isolation:isolate;overflow:hidden;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid #3a3b2e;background:#171811;box-shadow:0 18px 48px #0003;transition:border-color .25s,box-shadow .25s}
+#gmOperationsView .gw-campaign-prep{min-height:390px;padding-top:145px}
+#gmOperationsView .gw-campaign-prep:first-child{grid-column:span 2}
+#gmOperationsView .gw-campaign-image{position:absolute;inset:0;z-index:-3;background:radial-gradient(circle at 70% 22%,#4b4027,#171811 58%);pointer-events:none}
+#gmOperationsView .gw-campaign-image img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.72) contrast(1.08) brightness(.78);transition:transform .5s,filter .5s}
+#gmOperationsView .gw-campaign-shade{position:absolute;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(180deg,rgba(8,9,6,.06) 4%,rgba(8,9,6,.28) 30%,rgba(8,9,6,.94) 65%,rgba(8,9,6,.99) 100%)}
+#gmOperationsView .gw-campaign-card:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(195,169,104,.06),transparent 45%)}
+#gmOperationsView .gw-campaign-card:hover{border-color:#9c8a55;box-shadow:0 24px 60px #0005}
+#gmOperationsView .gw-campaign-card:hover .gw-campaign-image img{transform:scale(1.04);filter:saturate(.86) contrast(1.05) brightness(.82)}
+#gmOperationsView .gw-campaign-content{padding:24px 24px 20px;min-width:0;overflow-wrap:anywhere;background:linear-gradient(180deg,transparent,#080906b8 32%,#080906ef)}
+#gmOperationsView .gw-campaign-topline{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-shadow:0 1px 8px #000}
+#gmOperationsView .gw-campaign-topline span:first-child{color:#e2c878}
+#gmOperationsView .gw-campaign-topline span:last-child{color:#aaa28f;text-align:right}
+#gmOperationsView .gw-campaign-tag{display:inline-block;margin-top:10px;padding:5px 8px;border:1px solid #d2be807a;background:#10110dc2;color:#e4d298;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+#gmOperationsView .gw-campaign-content h3{font:clamp(24px,2.3vw,32px)/1.08 Georgia,serif;margin:10px 0 12px;color:#f0e7ce;text-wrap:balance;text-shadow:0 2px 14px #000b}
+#gmOperationsView .gw-campaign-content p.gw-campaign-summary{max-width:58ch;margin:0;color:#ded6c2;font-size:13px;line-height:1.6;text-shadow:0 2px 12px #000b}
+#gmOperationsView .gw-campaign-content p.gw-campaign-caption{margin:8px 0;color:#aaa392;font-size:10px;font-style:italic}
+#gmOperationsView .gw-campaign-content details[data-inline-prep]{margin:12px 0 0;padding:10px 0;border-top:1px solid #ddca8e36;color:#e3d7ad;font-size:12px}
+#gmOperationsView .gw-campaign-content details summary{cursor:pointer;color:#e2c878;line-height:1.5}
+#gmOperationsView .gw-campaign-expanded{max-height:460px;overflow:auto;margin-top:8px;padding:4px 8px;background:#171811;overscroll-behavior:contain}
+#gmOperationsView .gw-campaign-expanded h3{font-size:19px}
+#gmOperationsView .gw-campaign-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+#gmOperationsView .gw-campaign-card button,#gmOperationsView .gw-card-actions button{border:1px solid #756a43;background:#171712;color:#e3d7ad;padding:9px 11px;font-size:11px;cursor:pointer}
+#gmOperationsView .gw-campaign-actions button[data-dynamic-prep]{background:#b99752;color:#171711;font-weight:700}
+#gmOperationsView .gw-campaign-actions button[data-private-pin]{border-color:#ad9457}
+#gmOperationsView .gw-campaign-actions p{font-size:11px;color:#c9b894;flex-basis:100%;margin:0}
+#gmOperationsView .gw-campaign-card button:focus-visible,#gmOperationsView .gw-campaign-card summary:focus-visible,#gmOperationsView .gw-card-actions button:focus-visible{outline:2px solid #e2c878;outline-offset:2px}
+#gmOperationsView .gw-live-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:14px;align-items:stretch}
+#gmOperationsView .gw-live-card{position:relative;isolation:isolate;overflow:hidden;min-width:0;display:flex;flex-direction:column;justify-content:flex-start;border:1px solid #3a3b2e;background:#171811;box-shadow:0 18px 48px #0003}
+#gmOperationsView .gw-live-card .gw-card-art{width:100%;height:140px;object-fit:cover;filter:saturate(.72) contrast(1.08) brightness(.85)}
+#gmOperationsView .gw-live-card .gw-card-content{padding:20px;min-width:0;overflow-wrap:anywhere;flex:1}
+#gmOperationsView .gw-live-card h3{font:25px/1.08 Georgia,serif;color:#f0e7ce;margin:10px 0 12px}
+#gmOperationsView .gw-live-card small{color:#e2c878;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+#gmOperationsView .gw-live-card p{color:#ded6c2;font-size:13px;line-height:1.6}
+#gmOperationsView .gw-card-actions{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:1120px){#gmOperationsView .gm-ready-grid:has(.gw-campaign-prep){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){#gmOperationsView .gm-ready-grid:has(.gw-campaign-prep){grid-template-columns:1fr}#gmOperationsView .gw-campaign-prep:first-child{grid-column:auto}#gmOperationsView .gw-campaign-prep{min-height:360px;padding-top:120px}#gmOperationsView .gw-campaign-content{padding:21px 20px 18px}}
