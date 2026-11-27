@@ -13,7 +13,7 @@
 
   function href(record){ return '#/record/' + encodeURIComponent(record); }
 
-  function mount(root,{embedded=false,recordAllowed=record=>Boolean(window.GREYWAKE_DATA?.[record]&&!window.GREYWAKE_DATA[record].playerHidden),recordHref=href}={}){
+  function mount(root,{embedded=false,recordAllowed=record=>window.GreywakeArchiveAccess?window.GreywakeArchiveAccess.listed(record):Boolean(window.GREYWAKE_DATA?.[record]&&!window.GREYWAKE_DATA[record].playerHidden),recordHref=href}={}){
     if(!root) return;
     root._greywakeMapCleanup?.();
     const spots=RECORDS.filter(spot=>recordAllowed(spot.record));

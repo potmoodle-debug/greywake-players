@@ -2,12 +2,18 @@
   const DATA=window.GREYWAKE_DATA||{},EDGES=window.GREYWAKE_EDGES||[],RELATIONS=window.GREYWAKE_RELATION_NOTES||{},host=document.getElementById('graph');
   if(!host)return;
   const NS='http://www.w3.org/2000/svg',W=1000,H=620,cx=500,cy=310,DURATION=440;
-  const names=Object.keys(DATA).filter(n=>n!=='Player Brain'),titleOf=n=>DATA[n]?.title||n,categoryOf=n=>DATA[n]?.category||'Other',routeFor=n=>'#/record/'+encodeURIComponent(n);
-  const connected={};names.forEach(n=>connected[n]=new Set());
-  EDGES.forEach(([a,b])=>{if(a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]){connected[a].add(b);connected[b].add(a)}});
-  const validEdgeCount=EDGES.filter(([a,b])=>a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]).length;
-  const sortedNames=[...names].sort((a,b)=>titleOf(a).localeCompare(titleOf(b)));
-  let current=(DATA.Greywake&&connected.Greywake?.size)?'Greywake':([...names].sort((a,b)=>(connected[b]?.size||0)-(connected[a]?.size||0))[0]||null),historyStack=[],animating=false,activeHover=null;
+  const titleOf=n=>DATA[n]?.title||n,categoryOf=n=>DATA[n]?.category||'Other',routeFor=n=>'#/record/'+encodeURIComponent(n);
+  let names=[],connected={},validEdgeCount=0,sortedNames=[],current=null,historyStack=[],animating=false,activeHover=null,graphRevision=0;
+  function refreshGraph(){
+    const gate=window.GreywakeArchiveAccess;
+    names=Object.keys(DATA).filter(n=>n!=='Player Brain'&&(!gate||gate.listed(n)));
+    connected=Object.fromEntries(names.map(n=>[n,new Set()]));
+    const edges=EDGES.filter(([a,b])=>a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]&&(!gate||gate.edgeAllowed(a,b)));
+    edges.forEach(([a,b])=>{connected[a].add(b);connected[b].add(a)});
+    validEdgeCount=edges.length;sortedNames=[...names].sort((a,b)=>titleOf(a).localeCompare(titleOf(b)));
+    if(!connected[current])current=(connected.Greywake?.size?'Greywake':([...names].sort((a,b)=>(connected[b]?.size||0)-(connected[a]?.size||0))[0]||null));
+    historyStack=historyStack.filter(n=>connected[n]);
+  }
   let svg,edgeLayer,nodeLayer,currentLayout=new Map(),nodeEls=new Map(),edgeEls=new Map();
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -119,7 +125,8 @@
   function ease(t){return 1-Math.pow(1-t,3)}
 
   function transitionTo(next,push=true){
-    if(animating||!DATA[next]||next===current)return;
+    if(animating||!connected[next]||next===current)return;
+    const revision=graphRevision;
     const oldCurrent=current,oldLayout=new Map(currentLayout),newScene=layoutFor(next),newLayout=newScene.layout;
     if(push&&oldCurrent)historyStack.push(oldCurrent);
     animating=true;clearHover();
@@ -147,6 +154,7 @@
     const duration=reduced()?0:DURATION,start=performance.now();
     requestAnimationFrame(()=>newNodes.forEach(g=>{g.style.opacity='1'}));
     function frame(now){
+      if(revision!==graphRevision)return;
       const raw=duration?Math.min(1,(now-start)/duration):1,t=ease(raw);
       tween.forEach((v,n)=>{
         const g=nodeEls.get(n);if(!g)return;
@@ -170,9 +178,9 @@
     host.querySelector('#brainBackFocus')?.addEventListener('click',()=>{if(animating)return;const prev=historyStack.pop();if(prev)transitionTo(prev,false)});
   }
   function render(){
-    if(!current)return;host.innerHTML=`<div class="brain-network-shell">${controlsHTML()}<div id="brainNetworkStage" class="brain-network-stage"></div><div id="brainHoverStatus" class="brain-network-status"></div></div>`;
+    graphRevision++;animating=false;refreshGraph();if(!current){host.textContent='No known relationships are available.';return;}host.innerHTML=`<div class="brain-network-shell">${controlsHTML()}<div id="brainNetworkStage" class="brain-network-stage"></div><div id="brainHoverStatus" class="brain-network-status"></div></div>`;
     const stage=host.querySelector('#brainNetworkStage');svg=svgEl('svg',{viewBox:`0 0 ${W} ${H}`,class:'brain-network-svg',role:'img','aria-label':'Greywake relationship map'});edgeLayer=svgEl('g',{class:'brain-network-edges'});nodeLayer=svgEl('g',{class:'brain-network-nodes'});svg.append(edgeLayer,nodeLayer);stage.appendChild(svg);nodeEls=new Map();edgeEls=new Map();activeHover=null;wireControls();wirePointerTracker();buildInitial();
     const nc=document.getElementById('nodeCount'),ec=document.getElementById('edgeCount');if(nc)nc.textContent=names.length;if(ec)ec.textContent=validEdgeCount;
   }
-  window.GREYWAKE_DRAW_BRAIN=render;window.addEventListener('hashchange',()=>{if(location.hash==='#/brain')setTimeout(render,0)});if(location.hash==='#/brain')render();
+  window.GREYWAKE_DRAW_BRAIN=render;window.addEventListener('greywake:knowledge-view-changed',()=>{if(location.hash==='#/brain')render()});window.addEventListener('hashchange',()=>{if(location.hash==='#/brain')setTimeout(render,0)});if(location.hash==='#/brain')render();
 })();

@@ -26,8 +26,8 @@
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let character='',state=null,storageKey='',previousVisit=null,queued=false,filter='all',lastRoute=null,available={};
   const slug=()=>String(window.GreywakePlayer?.character||document.body.dataset.character||'').toLowerCase();
-  const playerName=()=>({marek:'Marek',odie:'Odie',velmira:'Velmira'})[slug()]||'your character';
-  const playerFacing=()=>['marek','odie','velmira'].includes(slug()) && (document.body.dataset.role!=='gm'||document.body.dataset.gmPreview==='true');
+  const playerName=()=>window.GreywakePlayer?.character||'your character';
+  const playerFacing=()=>Boolean(slug())&&window.GreywakePlayer?.role==='player';
   const preview=()=>document.body.dataset.gmPreview==='true';
   function load(){
     if(!playerFacing())return false;
@@ -134,7 +134,7 @@
     panel.querySelector('[data-update-all]')?.addEventListener('click',()=>{state.pending={};save();render();});
     panel.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>img.remove(),{once:true}));
   }
-  function scanPage(){queued=false;if(!load())return;const at=new Date().toISOString();scan(state,'records',recordItems(),at);const personal=personalItems();if(personal){available.personal=new Set(personal.map(item=>item.id));scan(state,'personal',personal,at);}save();render();}
+  function scanPage(){queued=false;if(!load())return;const at=new Date().toISOString();if(!window.GREYWAKE_KNOWLEDGE_PROVIDER||window.GreywakeKnowledgeView?.ready)scan(state,'records',recordItems(),at);const personal=personalItems();if(personal){available.personal=new Set(personal.map(item=>item.id));scan(state,'personal',personal,at);}save();render();}
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(scanPage);}
   window.GreywakeCatchup={refresh:schedule,open:()=>window.GreywakeNavigation.navigate('#/updates')};
   window.GreywakeNavigation.register('catchup',render);

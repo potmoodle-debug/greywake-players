@@ -292,9 +292,9 @@
     return `<article class="personal-card${image?' has-image':''}">${image}<div class="personal-tag">${card.tag}</div><h4>${card.title}</h4><p>${card.body}</p></article>`;
   }
 
-  function profileHTML(profile) {
+  function profileHTML(profile, scoped=false) {
     return `<div class="section-head personal-head"><div><div class="eyebrow">${profile.kicker}</div><h2>${profile.title}</h2></div><p>${profile.intro}</p></div>` +
-      profile.groups.map(group => `<section class="personal-group"><h3>${group.title}</h3><div class="personal-grid">${group.cards.map(cardHTML).join('')}</div></section>`).join('');
+      profile.groups.map(group=>({...group,cards:group.cards.filter(card=>!scoped||!window.GREYWAKE_KNOWLEDGE_PROVIDER?.replacesLegacyCard(card.title))})).filter(group=>group.cards.length).map(group => `<section class="personal-group"><h3>${group.title}</h3><div class="personal-grid">${group.cards.map(cardHTML).join('')}</div></section>`).join('');
   }
 
   function hydrateEncodedImages(root) {
@@ -341,11 +341,30 @@
       return;
     }
     section.classList.remove('hidden');
-    section.innerHTML = profileHTML(profile);
+    section.innerHTML = profileHTML(profile,true);
+    const view=window.GreywakeKnowledgeView,config=window.GREYWAKE_KNOWLEDGE_PROVIDER;
+    if(view&&config){
+      const h=document.createElement('section');h.className='personal-group';
+      const title=document.createElement('h3');title.textContent='Current character knowledge';h.appendChild(title);
+      if(!view.ready){const p=document.createElement('p');p.textContent=view.status==='error'?'Character knowledge could not be loaded. Open a record to retry.':'Loading your character knowledge…';h.appendChild(p)}
+      else{
+        const grid=document.createElement('div');grid.className='related-grid';
+        for(const r of view.list().filter(r=>config.includePersonal(r.recordKey))){
+          const a=document.createElement('a');a.className='related-card';a.href='#/record/'+encodeURIComponent(r.recordKey);
+          const label=document.createElement('small');label.textContent=r.claims.some(c=>c.visibility==='personal'||c.visibility==='selective')?'Your knowledge':'Known record';
+          const name=document.createElement('strong');name.textContent=r.title;
+          const count=document.createElement('span');count.textContent=r.claims.length+' known '+(r.claims.length===1?'detail':'details')+' · Open record';
+          a.append(label,name,count);grid.appendChild(a);
+        }
+        h.appendChild(grid);
+      }
+      section.appendChild(h);
+    }
     hydrateEncodedImages(section);
   }
 
   window.addEventListener('greywake:player-ready', event => render(event.detail));
+  window.addEventListener('greywake:knowledge-view-changed',()=>{if(window.GreywakePlayer?.role==='player')render(window.GreywakePlayer)});
   document.addEventListener('DOMContentLoaded', () => {
     if (window.GreywakePlayer) render(window.GreywakePlayer);
   });

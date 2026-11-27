@@ -53,6 +53,7 @@
   function renderMedia(){
     const name=currentRecord();
     if(!name)return;
+    if(window.GreywakeArchiveAccess?.mediaAllowed(name)===false)return;
     const items=MEDIA[name]||[];
     if(!items.length)return;
     if(article.querySelector(`.obsidian-media[data-record="${CSS.escape(name)}"]`))return;

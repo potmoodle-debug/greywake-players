@@ -45,6 +45,7 @@
       .map(name=>({name,...window.GREYWAKE_DATA[name]}))
       .filter(r=>{
         if(gm)return true;
+        if(window.GreywakeKnowledgeView?.isManaged(r.name))return window.GreywakeKnowledgeView.allowed(r.name);
         if(revealed.has(r.name)||revealed.has(r.title))return true;
         const knownTo=Array.isArray(r.knownTo)?r.knownTo.map(x=>String(x).toLowerCase()):[];
         if(knownTo.includes(currentCharacter()))return true;
@@ -56,11 +57,12 @@
   const connectedNames=name=>{
     const edges=window.GREYWAKE_EDGES||[],data=window.GREYWAKE_DATA||{};
     const found=[];
-    edges.forEach(([a,b])=>{if(a===name&&data[b])found.push(b);else if(b===name&&data[a])found.push(a)});
+    edges.forEach(([a,b])=>{const gate=window.GreywakeArchiveAccess;if(gate&&(!gate.edgeAllowed(a,b)||!gate.listed(a)||!gate.listed(b)))return;if(a===name&&data[b])found.push(b);else if(b===name&&data[a])found.push(a)});
     return [...new Set(found)].filter(n=>n!==name);
   };
   const safePeopleBody=r=>{
     const gm=document.body.dataset.role==='gm'&&document.body.dataset.gmPreview!=='true';
+    if(!gm&&window.GreywakeKnowledgeView?.isManaged(r.name))return window.GreywakeKnowledgeView.html(r.name);
     return gm ? (r.html||'') : (r.playerHidden ? (r.playerHtml||'') : (r.playerHtml||r.html||''));
   };
   const summaryFor=r=>stripHTML(safePeopleBody(r)).split(/(?<=[.!?])\s+/)[0]||'Known person in Greywake.';

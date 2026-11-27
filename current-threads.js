@@ -63,6 +63,7 @@
     {
       id: 'cistern-plate',
       title: 'The Cistern Plate',
+      knowledgeRecord:'Cistern Plate',
       status: 'BACK IN GREYWAKE',
       direction: 'GREYWAKE',
       tone: 'active',
@@ -128,6 +129,7 @@
     },
     {
       id: 'foldling-disturbance',
+      knowledgeRecord:'Foldling',
       title: 'What Drove the Foldling North?',
       status: 'MAREK PRIVATE LEAD · OPEN',
       direction: 'SOUTH ↓ · EXACT ROUTE UNKNOWN',
@@ -220,7 +222,9 @@
     if (!user) return false;
     const key = characterKey(user);
     const fullGM = user.role === 'gm' && document.body.dataset.gmPreview !== 'true';
-    return fullGM || (!!key && (partyVisible(item) || item.visibility.includes(key)));
+    if(fullGM)return true;
+    if(item.knowledgeRecord&&window.GreywakeKnowledgeView?.isManaged(item.knowledgeRecord)&&!window.GreywakeKnowledgeView.allowed(item.knowledgeRecord))return false;
+    return !!key && (partyVisible(item) || item.visibility.includes(key));
   };
 
   function visibleRecords(user = window.GreywakePlayer) {
@@ -292,6 +296,7 @@
 
   window.GreywakeCurrentThreads = { render, getVisible, visibleRecords, href, routeId };
   window.addEventListener('greywake:player-ready', event => render(event.detail));
+  window.addEventListener('greywake:knowledge-view-changed',()=>render(window.GreywakePlayer));
   window.addEventListener('greywake:portal-live-mounted', event => {
     if (event.detail?.kind === 'threads') render(window.GreywakePlayer);
   });

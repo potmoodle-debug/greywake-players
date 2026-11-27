@@ -17,6 +17,7 @@
         notify();pending.then(notify);
       };
       root.addEventListener('greywake:player-ready',sync);
+      root.addEventListener('greywake:knowledge-retry',sync);
       root.addEventListener('pagehide',()=>view.clear());
       root.addEventListener('pageshow',e=>{if(e.persisted)sync()});
       sync();
@@ -31,13 +32,13 @@
   const own=(obj,k)=>Object.prototype.hasOwnProperty.call(obj,k);
   const normalize=v=>String(v||'').trim().toLowerCase();
   function create(){
-    let managed=new Set(),records=new Map(),identity='',epoch=0,ready=false,provider=null;
+    let managed=new Set(),records=new Map(),identity='',epoch=0,ready=false,provider=null,status='idle';
     function configure(config){
       if(!config||!Array.isArray(config.managedRecordKeys)||typeof config.load!=='function')throw Error('Invalid knowledge provider');
       if(config.managedRecordKeys.some(k=>!nonempty(k)))throw Error('Invalid record key');
-      managed=new Set(config.managedRecordKeys);provider=config.load;records=new Map();identity='';ready=false;epoch++;
+      managed=new Set(config.managedRecordKeys);provider=config.load;records=new Map();identity='';ready=false;status='idle';epoch++;
     }
-    function clear(){records=new Map();identity='';ready=false;epoch++}
+    function clear(){records=new Map();identity='';ready=false;status='idle';epoch++}
     function isManaged(key){return managed.has(key)}
     function validate(payload,expected){
       if(!payload||normalize(payload.characterId)!==expected||!Array.isArray(payload.records))throw Error('Mismatched knowledge perspective');
@@ -55,12 +56,12 @@
     }
     async function select(characterId){
       const selected=normalize(characterId);const request=++epoch;
-      records=new Map();identity=selected;ready=false;
+      records=new Map();identity=selected;ready=false;status=selected?'loading':'idle';
       if(!provider||!selected)return false;
       try{const payload=await provider(selected);
         if(request!==epoch)return false;
-        records=validate(payload,selected);ready=true;return true;
-      }catch(err){if(request===epoch){records=new Map();ready=false}return false}
+        records=validate(payload,selected);ready=true;status='ready';return true;
+      }catch(err){if(request===epoch){records=new Map();ready=false;status='error'}return false}
     }
     function get(key){return ready?records.get(key)||null:null}
     function allowed(key){return !isManaged(key)||Boolean(get(key))}
@@ -73,7 +74,7 @@
       }).join('');
     }
     function list(){return [...records.entries()].map(([recordKey,r])=>({recordKey,id:r.id,title:r.title,claims:r.claims.map(c=>({...c}))}))}
-    return {configure,clear,select,isManaged,allowed,get,text,html,list,get ready(){return ready},get identity(){return identity}};
+    return {configure,clear,select,isManaged,allowed,get,text,html,list,get ready(){return ready},get status(){return status},get identity(){return identity}};
   }
   return {create};
 });

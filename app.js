@@ -27,6 +27,12 @@ function playerRecordAllowed(name){
  if(!gmRecordAccess()&&window.GreywakeKnowledgeView?.isManaged(name))return !!e&&window.GreywakeKnowledgeView.allowed(name);
  return !!e && (gmRecordAccess() || !e.playerHidden || typeof e.playerHtml==='string');
 }
+function playerRecordListed(name){
+ const e=DATA[name];if(!e)return false;
+ if(gmRecordAccess())return true;
+ if(window.GreywakeKnowledgeView?.isManaged(name))return window.GreywakeKnowledgeView.allowed(name);
+ return !e.playerHidden;
+}
 function safeEntryHTML(name){
  const e=DATA[name]||{};
  if(gmRecordAccess())return e.html||'';
@@ -77,7 +83,7 @@ function buildNav(filter=''){
  nav.innerHTML='';
  const terms=filter.trim().toLowerCase().split(/\s+/).filter(Boolean);let resultCount=0;
  for(const [cat,names] of Object.entries(CATS)){
-   const m=names.filter(n=>playerRecordAllowed(n)&&terms.every(term=>searchableText(n).includes(term)));
+   const m=names.filter(n=>playerRecordListed(n)&&terms.every(term=>searchableText(n).includes(term)));
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat==='Locations'?'Places & Routes':cat}</h3>`;
    if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
@@ -98,7 +104,7 @@ function renderDiscoveries(){
 
 function autoLinkHTML(html,current){
  const wrap=document.createElement('div');wrap.innerHTML=html;
- const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain'&&playerRecordAllowed(n)).sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
+ const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain'&&playerRecordListed(n)).sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
  const walker=document.createTreeWalker(wrap,NodeFilter.SHOW_TEXT);
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
  nodes.forEach(node=>{
@@ -134,7 +140,7 @@ function autoLinkHTML(html,current){
 function categoryDirectoryHTML(name){
  const directories={'Known Flora and Fauna':'Flora & Fauna','Known Locations':'Locations','Known People':'People'};
  const category=directories[name];if(!category)return'';
- const names=[...new Set(CATS[category]||[])].filter(n=>n!==name&&playerRecordAllowed(n));
+ const names=[...new Set(CATS[category]||[])].filter(n=>n!==name&&playerRecordListed(n));
  if(!names.length)return'';
  if(category==='Locations'){
    const groups=groupedLocations(names);
@@ -146,9 +152,16 @@ function categoryDirectoryHTML(name){
 }
 
 function legacyEdgeAllowed(a,b){return gmRecordAccess()||(!window.GreywakeKnowledgeView?.isManaged(a)&&!window.GreywakeKnowledgeView?.isManaged(b))}
+function recordMediaAllowed(name){
+ if(gmRecordAccess())return true;
+ if(!window.GreywakeKnowledgeView?.isManaged(name))return playerRecordAllowed(name);
+ const r=window.GreywakeKnowledgeView.get(name);
+ return !!r&&window.GREYWAKE_KNOWLEDGE_PROVIDER?.mediaAllowed(name,r)===true;
+}
+window.GreywakeArchiveAccess={allowed:playerRecordAllowed,listed:playerRecordListed,html:safeEntryHTML,edgeAllowed:legacyEdgeAllowed,mediaAllowed:recordMediaAllowed};
 function relatedFor(name){
  const found=[];
- EDGES.forEach(([a,b])=>{if(!legacyEdgeAllowed(a,b))return;if(a===name&&DATA[b]&&playerRecordAllowed(b))found.push(b);else if(b===name&&DATA[a]&&playerRecordAllowed(a))found.push(a)});
+ EDGES.forEach(([a,b])=>{if(!legacyEdgeAllowed(a,b))return;if(a===name&&DATA[b]&&playerRecordListed(b))found.push(b);else if(b===name&&DATA[a]&&playerRecordListed(a))found.push(a)});
  return [...new Set(found)].filter(n=>n!==name).sort((a,b)=>(DATA[a].category||'').localeCompare(DATA[b].category||'')||(DATA[a].title||a).localeCompare(DATA[b].title||b));
 }
 function relatedHTML(name){
@@ -177,7 +190,9 @@ function showNote(name){
  cleanupArticleMap();
  if(!playerRecordAllowed(name)){
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
- article.innerHTML=`${articleNav()}<h1>Record unavailable</h1><p>This record is not available in your current view. Return to the archive to choose a known record.</p>`;
+ const status=window.GreywakeKnowledgeView?.isManaged(name)?window.GreywakeKnowledgeView.status:'';
+ article.innerHTML=status==='loading'?`${articleNav()}<h1>Loading your knowledge</h1><p>Your character's record is being retrieved.</p>`:status==='error'?`${articleNav()}<h1>Knowledge temporarily unavailable</h1><p>Your character's information could not be loaded. Previous or other-character records will not be substituted.</p><button id="retryKnowledge">Retry</button>`:`${articleNav()}<h1>Record unavailable</h1><p>This record is not available in your current view. Return to the archive to choose a known record.</p>`;
+ document.getElementById('retryKnowledge')?.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('greywake:knowledge-retry')));
  wireArticleLinks();document.getElementById('crumb').textContent='Greywake / Record unavailable';return;
 }
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
@@ -229,7 +244,7 @@ window.GreywakeNavigation.register('archive', renderRoute);
 
 function drawGraph(){
  const host=document.getElementById('graph'),W=1200,H=650,svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);host.innerHTML='';host.appendChild(svg);
- const names=Object.keys(DATA).filter(n=>n!=='Player Brain'&&playerRecordAllowed(n)),center={x:W/2,y:H/2,name:'Player Brain'},nodes={'Player Brain':center},rings={'Start':220,'World':220,'Locations':350,'People':350,'Flora & Fauna':350,'Sessions':275,'Player Characters':275,'Handouts':350,'Factions':420,'Caravans':310},slots={};
+ const names=Object.keys(DATA).filter(n=>n!=='Player Brain'&&playerRecordListed(n)),center={x:W/2,y:H/2,name:'Player Brain'},nodes={'Player Brain':center},rings={'Start':220,'World':220,'Locations':350,'People':350,'Flora & Fauna':350,'Sessions':275,'Player Characters':275,'Handouts':350,'Factions':420,'Caravans':310},slots={};
  names.forEach(n=>(slots[DATA[n].category]??=[]).push(n));
  Object.keys(slots).forEach((cat,ci,all)=>{const arr=slots[cat],base=(ci/all.length)*Math.PI*2;arr.forEach((n,i)=>{const a=base+(i-(arr.length-1)/2)*.20,r=rings[cat]||320;nodes[n]={x:center.x+Math.cos(a)*r,y:center.y+Math.sin(a)*r,name:n}})});
  function line(a,b){const l=document.createElementNS(svg.namespaceURI,'line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('class','edge');svg.appendChild(l)}
@@ -240,11 +255,11 @@ function drawGraph(){
 
 function updateSummary(){
  const records=document.getElementById('recordSummaryCount'),links=document.getElementById('linkSummaryCount'),sessions=document.getElementById('sessionSummaryCount');
- if(records)records.textContent=Object.keys(DATA).filter(playerRecordAllowed).length;if(links)links.textContent=EDGES.filter(([a,b])=>legacyEdgeAllowed(a,b)&&playerRecordAllowed(a)&&playerRecordAllowed(b)).length;if(sessions)sessions.textContent=String((CATS.Sessions||[]).filter(playerRecordAllowed).length).padStart(2,'0');
+ if(records)records.textContent=Object.keys(DATA).filter(playerRecordListed).length;if(links)links.textContent=EDGES.filter(([a,b])=>legacyEdgeAllowed(a,b)&&playerRecordListed(a)&&playerRecordListed(b)).length;if(sessions)sessions.textContent=String((CATS.Sessions||[]).filter(playerRecordAllowed).length).padStart(2,'0');
 }
 
 function refreshKnowledgeArchive(){
- SEARCH_INDEX.clear();buildNav(searchInput.value);renderDiscoveries();updateSummary();renderRoute();
+ SEARCH_INDEX.clear();buildNav(searchInput.value);renderDiscoveries();updateSummary();const route=currentRoute();if(route.type==='record'||route.type==='brain')renderRoute();
 }
 window.addEventListener('greywake:knowledge-view-changed',refreshKnowledgeArchive);
 buildNav();renderDiscoveries();updateSummary();renderRoute();

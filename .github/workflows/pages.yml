@@ -27,6 +27,13 @@ jobs:
       - name: Validate campaign-state consistency before publishing
         run: python3 tests/campaign-state-consistency.py
 
+      - name: Validate knowledge projection and view contracts
+        run: |
+          node tests/knowledge-projection.cjs
+          node tests/knowledge-view.cjs
+          node tests/knowledge-rehearsal-provider.cjs
+          node tests/knowledge-live-provider.cjs
+
       - name: Build direct image assets
         shell: bash
         run: |

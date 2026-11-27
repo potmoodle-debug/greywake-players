@@ -1,0 +1,26 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const {create}=require('../knowledge-view.js');
+(async()=>{
+ const data={},categories={};
+ const window={GREYWAKE_DATA:data,GREYWAKE_CATEGORIES:categories,GreywakePlayer:{role:'player',character:'Example',code:'EXAMPLE'}};
+ let calls=0,request;
+ const fetch=async(url,opts)=>{calls++;request={url,opts};return {ok:true,json:async()=>({characterId:'example',records:[]})}};
+ vm.runInNewContext(read('knowledge-provider.js'),{window,fetch});
+ const provider=window.GREYWAKE_KNOWLEDGE_PROVIDER;
+ assert(provider.managedRecordKeys.length>0);
+ assert(provider.managedRecordKeys.every(k=>data[k]&&categories[data[k].category].includes(k)));
+ const view=create();view.configure(provider);
+ assert(await view.select('example'));assert.equal(calls,1);
+ assert.equal(request.opts.method,'GET');assert.equal(request.opts.cache,'no-store');
+ assert.equal(request.opts.headers['x-greywake-character'],'example');
+ assert(provider.managedRecordKeys.every(k=>!view.allowed(k)));
+ await assert.rejects(()=>provider.load('other'));assert.equal(calls,1);
+ window.GreywakePlayer={role:'gm',character:'GM',code:'anything'};
+ await assert.rejects(()=>provider.load('gm'));assert.equal(calls,1);
+ const page=read('index.html');assert(page.indexOf('knowledge-provider.js')<page.indexOf('knowledge-view.js')&&page.indexOf('knowledge-view.js')<page.indexOf('app.js?v='));
+ for(const file of ['app.js','knowledge-provider.js','knowledge-view.js','people-browser.js','brain-enhanced.js','ecology-browser.js','personal-knowledge.js','catch-up.js','current-threads.js','player-portal.js','player-map.js'])new vm.Script(read(file),{filename:file});
+ assert(!/Nature's Tongue, the Foldling told you|Mara owes you one unclaimed information favour|SUPABASE_SERVICE_ROLE_KEY/.test(read('knowledge-provider.js')));
+ console.log('PASS: live provider contract, role mismatch, managed records fail closed, script order, syntax and no private claim payload');
+})().catch(e=>{console.error(e);process.exitCode=1});
