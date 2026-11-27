@@ -8,7 +8,7 @@
     const gate=window.GreywakeArchiveAccess;
     names=Object.keys(DATA).filter(n=>n!=='Player Brain'&&(!gate||gate.listed(n)));
     connected=Object.fromEntries(names.map(n=>[n,new Set()]));
-    const edges=EDGES.filter(([a,b])=>a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]&&(!gate||gate.edgeAllowed(a,b)));
+    const edges=(gate?.edges()||EDGES).filter(([a,b])=>a!=='Player Brain'&&b!=='Player Brain'&&connected[a]&&connected[b]&&(!gate||gate.edgeAllowed(a,b)));
     edges.forEach(([a,b])=>{connected[a].add(b);connected[b].add(a)});
     validEdgeCount=edges.length;sortedNames=[...names].sort((a,b)=>titleOf(a).localeCompare(titleOf(b)));
     if(!connected[current])current=(connected.Greywake?.size?'Greywake':([...names].sort((a,b)=>(connected[b]?.size||0)-(connected[a]?.size||0))[0]||null));
@@ -21,7 +21,7 @@
   const short=(s,n=24)=>String(s).length>n?String(s).slice(0,n-1).trimEnd()+'…':String(s);
   const wrap=(text,max=15)=>{const words=String(text).split(/\s+/),lines=[''];for(const word of words){const i=lines.length-1,next=(lines[i]+' '+word).trim();if(next.length<=max||!lines[i])lines[i]=next;else if(lines.length<3)lines.push(word);else lines[2]=(lines[2]+' '+word).trim()}if(lines[2]?.length>max+2)lines[2]=lines[2].slice(0,max-1).trimEnd()+'…';return lines.slice(0,3)};
   const pairKey=(a,b)=>a<b?`${a}|||${b}`:`${b}|||${a}`;
-  const relationNote=(a,b)=>RELATIONS[pairKey(a,b)]||'';
+  const relationNote=(a,b)=>document.body.dataset.role!=='gm'&&(window.GreywakeKnowledgeView?.isManaged(a)||window.GreywakeKnowledgeView?.isManaged(b))?'':RELATIONS[pairKey(a,b)]||'';
 
   function positionsFor(links){
     const pos=new Map(),n=links.length;if(!n)return pos;

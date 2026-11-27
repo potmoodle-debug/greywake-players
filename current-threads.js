@@ -14,6 +14,7 @@
     },
     {
       id: 'something-moved-in',
+      knowledgeRecord:"Old Ruin South of Greywake",
       title: 'Something Moved In',
       status: 'RUMOUR / SELECTABLE EXPEDITION',
       direction: 'SOUTH ↓',
@@ -30,6 +31,7 @@
     },
     {
       id: 'groundfall-freight',
+      knowledgeRecord:"Ash-Plate Groundfall",
       title: 'Freight at Ash-Plate Groundfall',
       status: 'SELECTABLE EXTERNAL OPPORTUNITY',
       direction: 'EAST →',
@@ -46,13 +48,14 @@
     },
     {
       id: 'route-markers',
+      knowledgeRecord:"Failed Marker",
       title: 'The Altered Route Markers',
       status: 'UNRESOLVED · ACT IN GREYWAKE',
       direction: 'GREYWAKE FIRST',
       tone: 'active',
       image: 'assets/canon/sessions/session-03.webp',
       visibility: ['party'],
-      summary: 'At least two route markers were deliberately altered. The party still does not know who did it, when, why, or whether the same person was responsible for both.',
+      summary: 'One marker sent Kestrel Return onto the wrong lower line; deliberate alteration was established at a second marker. The culprit, timing, motive and any connection remain unknown.',
       known: 'The physical evidence and surviving witnesses are back in Greywake. The party can begin by asking who recognises the work, who had access to the route, or who benefited from travellers being redirected.',
       relevance: {
         marek: 'A changed route affects animals, travellers and where danger concentrates, even before anyone knows the motive.',
@@ -79,6 +82,7 @@
     },
     {
       id: 'ash-plate-recovery',
+      knowledgeRecord:"Ash-Plate",
       title: "Ash-Plate's Recovery",
       status: 'RECOVERING',
       direction: 'GREYWAKE',
@@ -146,6 +150,7 @@
     },
     {
       id: 'earlier-stilling-case',
+      knowledgeRecord:"Nemi",
       title: 'An Earlier Stilling Case',
       status: 'VELMIRA PRIORITY · NOT SELECTABLE YET',
       direction: 'DIRECTION NOT YET ESTABLISHED',
@@ -164,6 +169,7 @@
     },
     {
       id: 'tavi-faithful',
+      knowledgeRecord:"Tavi",
       title: 'Tavi and the Faithful',
       status: 'YOUR UNFINISHED BUSINESS',
       direction: 'GREYWAKE',
@@ -179,6 +185,7 @@
     },
     {
       id: 'closing-ways',
+      knowledgeRecord:"The Closing Ways",
       title: 'The Closing Ways',
       status: 'ACTIVE · ONE WAY REOPENED',
       direction: 'GREYWAKE',
@@ -187,16 +194,17 @@
       imageNote: 'Greywake access imagery — the concealed Digger entrances remain hidden.',
       visibility: ['party'],
       proposedBy: 'Odie',
-      summary: 'Odie and Marek reopened one deliberately packed southern Digger way. The route is passable but visibly disturbed, and the wider Closing Ways problem remains unresolved.',
-      known: 'The two PCs met from opposite sides of the same deliberate closure and reopened it together. Loose stone and shifted bracing make the reopening obvious. Other concealed ways remain part of the unresolved pattern; the party has not established one shared cause or one responsible actor.',
+      summary: 'Concealed Digger routes are being closed. Your character has their own evidence, testimony or experience of the problem.',
+      known: 'The causes, responsible people and wider pattern remain unresolved. See the Closing Ways record for the information you have established.',
       relevance: {
-        marek: 'You have additional private creature discoveries from later in Session Four. They are not automatically shared with Odie or the party.',
-        velmira: 'Velmira is currently a background NPC. She did not witness the reopening or Marek’s later investigation unless that information is established for her in play.',
-        odie: 'You established that final packing was done from the Greywake side and asked Spencer to inspect the original closure work. You ended the session travelling back toward the reopened way with him; that inspection has not yet been played.'
+        marek: 'You reopened the passage with Odie and later exchanged information. Your individual creature discoveries remain separate unless shared.',
+        velmira: 'You spoke with Jessa and Brannic Hale, and know his decision about new Foldling-related closures. You did not personally witness the reopening.',
+        odie: 'You established that final packing was done from the Greywake side. Spencer has now inspected the reopening and you overheard workers checking the passage. Their employer and other site remain unidentified.'
       }
     },
     {
       id: 'white-tunnel',
+      knowledgeRecord:"White Door",
       title: 'The White Door',
       status: 'PRIVATE POSSIBILITY',
       direction: 'KNOWN PRIVATELY / NOT A WASTES CHOICE',
@@ -223,7 +231,7 @@
     const key = characterKey(user);
     const fullGM = user.role === 'gm' && document.body.dataset.gmPreview !== 'true';
     if(fullGM)return true;
-    if(item.knowledgeRecord&&window.GreywakeKnowledgeView?.isManaged(item.knowledgeRecord)&&!window.GreywakeKnowledgeView.allowed(item.knowledgeRecord))return false;
+    if(item.knowledgeRecord&&window.GREYWAKE_KNOWLEDGE_PROVIDER&&!window.GreywakeKnowledgeView?.get(item.knowledgeRecord))return false;
     return !!key && (partyVisible(item) || item.visibility.includes(key));
   };
 

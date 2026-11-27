@@ -261,9 +261,9 @@
     const content = showPortal('campaign', 'ACTIVE CAMPAIGN', 'Campaign');
     if (!content) return;
     content.appendChild(introBlock('WHAT IS HAPPENING NOW', 'Campaign', 'Browse the possibilities the party knows about and the record of what has already happened. Mark something Interested when it matters to your character; choose Pursue when you personally want to act on it in play.'));
-    const sessions = (window.GREYWAKE_CATEGORIES?.Sessions || []).filter(name => window.GREYWAKE_DATA?.[name]);
+    const sessions = (window.GREYWAKE_CATEGORIES?.Sessions || []).filter(name => window.GREYWAKE_DATA?.[name]&&(!window.GreywakeArchiveAccess||window.GreywakeArchiveAccess.listed(name)));
     const cards = [
-      ...sessions.map((name, index) => ({href:recordHref(name), kicker:`SESSION ${String(index + 1).padStart(2,'0')}`, title:window.GREYWAKE_DATA[name].title, copy:'Recap of what your character established or learned in play.', action:'Open recap →'})),
+      ...sessions.map(name => ({href:recordHref(name), kicker:(window.GREYWAKE_DATA[name].title.match(/^Session\s+\d+/i)?.[0]||'SESSION RECAP').toUpperCase(), title:window.GREYWAKE_DATA[name].title, copy:'Recap of what your character established or learned in play.', action:'Open recap →'})),
       {href:'#/brain', kicker:'RELATIONSHIPS', title:'Campaign connections', copy:'Use Player Brain when you specifically want to trace how known records connect.', action:'Open relationship view →'}
     ];
     content.appendChild(hubGrid(cards, 'player-campaign-links'));

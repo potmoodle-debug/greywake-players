@@ -55,7 +55,7 @@
   };
 
   const connectedNames=name=>{
-    const edges=window.GREYWAKE_EDGES||[],data=window.GREYWAKE_DATA||{};
+    const edges=window.GreywakeArchiveAccess?.edges()||window.GREYWAKE_EDGES||[],data=window.GREYWAKE_DATA||{};
     const found=[];
     edges.forEach(([a,b])=>{const gate=window.GreywakeArchiveAccess;if(gate&&(!gate.edgeAllowed(a,b)||!gate.listed(a)||!gate.listed(b)))return;if(a===name&&data[b])found.push(b);else if(b===name&&data[a])found.push(a)});
     return [...new Set(found)].filter(n=>n!==name);

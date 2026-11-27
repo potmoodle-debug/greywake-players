@@ -54,7 +54,7 @@
       if(window.GreywakeKnowledgeView?.isManaged(id)){
         const view=window.GreywakeKnowledgeView.get(id);if(!view)return[];
         const sections=view.claims.map(c=>c.body);
-        return [{id,title:view.title,kind:'Known record',route:'#/record/'+encodeURIComponent(id),sections,summary:sections[0]||'',image:'',publishedAt:''}];
+        return [{id,title:view.title,kind:r.category||'Known record',route:'#/record/'+encodeURIComponent(id),sections,summary:sections[0]||'',image:window.GreywakeArchiveAccess?.mediaAllowed(id)?media(id):'',publishedAt:view.claims.map(c=>c.discovered||'').sort().at(-1)||''}];
       }
       if(r.gmOnly||r.dmOnly||/^(GM|DM)(\b|[- ])/i.test(r.category||''))return[];
       const known=(r.knownTo||[]).map(x=>String(x).toLowerCase());
@@ -117,7 +117,7 @@
     const selected=items.filter(x=>filter==='all'||(filter==='replies'?x.kind==='GM reply':filter==='personal'?x.source==='personal':x.source!=='personal'&&x.kind!=='GM reply'));
     const first=!previousVisit;
     const allowed=new Set(recordItems().map(item=>item.id));
-    const latest=(window.GREYWAKE_DISCOVERIES||[]).filter(d=>allowed.has(d.note)).slice(0,3).map(d=>{
+    const latest=(window.GreywakeArchiveAccess?.discoveries()||window.GREYWAKE_DISCOVERIES||[]).filter(d=>allowed.has(d.note)).slice(0,3).map(d=>{
       const projection=window.GreywakeKnowledgeView?.isManaged(d.note)?window.GreywakeKnowledgeView.get(d.note):null;
       const summary=projection?(projection.claims.find(c=>c.visibility==='party')||projection.claims.find(c=>c.visibility!=='common')||projection.claims[0])?.body:d.text;
       return {title:d.title,kind:d.kind,route:'#/record/'+encodeURIComponent(d.note),summary:summary||'',label:'Known discovery',image:projection?'':media(d.note)||(/^(assets\/|https:\/\/)/.test(d.image||'')?d.image:'')};

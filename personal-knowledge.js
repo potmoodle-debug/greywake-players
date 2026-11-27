@@ -334,12 +334,7 @@
     }
 
     const key = user.character.toLowerCase();
-    const profile = PROFILES[key];
-    if (!profile) {
-      section.innerHTML = '';
-      section.classList.add('hidden');
-      return;
-    }
+    const profile = PROFILES[key]||{kicker:'PERSONAL KNOWLEDGE',title:'Your character knowledge',intro:'Information your character has learned in play.',groups:[]};
     section.classList.remove('hidden');
     section.innerHTML = profileHTML(profile,true);
     const view=window.GreywakeKnowledgeView,config=window.GREYWAKE_KNOWLEDGE_PROVIDER;
@@ -349,7 +344,7 @@
       if(!view.ready){const p=document.createElement('p');p.textContent=view.status==='error'?'Character knowledge could not be loaded. Open a record to retry.':'Loading your character knowledge…';h.appendChild(p);if(view.status==='error'){const retry=document.createElement('button');retry.type='button';retry.textContent='Retry';retry.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('greywake:knowledge-retry')));h.appendChild(retry)}}
       else{
         const grid=document.createElement('div');grid.className='related-grid';
-        for(const r of view.list().filter(r=>config.includePersonal(r.recordKey))){
+        for(const r of view.list().filter(r=>config.includePersonal(r.recordKey,r))){
           const a=document.createElement('a');a.className='related-card';a.href='#/record/'+encodeURIComponent(r.recordKey);
           const label=document.createElement('small');label.textContent=r.claims.some(c=>c.visibility==='personal'||c.visibility==='selective')?'Your knowledge':'Known record';
           const name=document.createElement('strong');name.textContent=r.title;

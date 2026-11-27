@@ -31,37 +31,58 @@
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const own=(obj,k)=>Object.prototype.hasOwnProperty.call(obj,k);
   const normalize=v=>String(v||'').trim().toLowerCase();
+  const safeKey=v=>nonempty(v)&&v.length<=180&&!/[<>"\u0000-\u001f]/.test(v)&&!Object.prototype.hasOwnProperty.call(Object.prototype,v)&&v!=='prototype';
   function create(){
-    let managed=new Set(),records=new Map(),identity='',epoch=0,ready=false,provider=null,status='idle';
-    function configure(config){
-      if(!config||!Array.isArray(config.managedRecordKeys)||typeof config.load!=='function')throw Error('Invalid knowledge provider');
-      if(config.managedRecordKeys.some(k=>!nonempty(k)))throw Error('Invalid record key');
-      managed=new Set(config.managedRecordKeys);provider=config.load;records=new Map();identity='';ready=false;status='idle';epoch++;
+    let baseManaged=new Set(),managed=new Set(),records=new Map(),edges=[],edgeKeys=new Set(),identity='',epoch=0,ready=false,config=null,status='idle';
+    const pair=(a,b)=>JSON.stringify([a,b].sort());
+    function reset(){
+      config?.resetVisible?.();managed=new Set(baseManaged);records=new Map();edges=[];edgeKeys=new Set();ready=false;
     }
-    function clear(){records=new Map();identity='';ready=false;status='idle';epoch++}
+    function configure(nextConfig){
+      if(!nextConfig||!Array.isArray(nextConfig.managedRecordKeys)||typeof nextConfig.load!=='function')throw Error('Invalid knowledge provider');
+      if(nextConfig.managedRecordKeys.some(k=>!safeKey(k)))throw Error('Invalid record key');
+      reset();config=nextConfig;baseManaged=new Set(config.managedRecordKeys);managed=new Set(baseManaged);identity='';status='idle';epoch++;
+    }
+    function clear(){reset();identity='';status='idle';epoch++}
     function isManaged(key){return managed.has(key)}
     function validate(payload,expected){
       if(!payload||normalize(payload.characterId)!==expected||!Array.isArray(payload.records))throw Error('Mismatched knowledge perspective');
-      const next=new Map();
+      const dynamic=config?.allowNewRecords===true;
+      if(dynamic&&(payload.version!==2||!Array.isArray(payload.relationships)))throw Error('Unsupported knowledge response');
+      const cats=new Set(config?.categories||[]),next=new Map(),keys=new Set(baseManaged);
       for(const r of payload.records){
-        if(!r||!managed.has(r.recordKey)||!nonempty(r.id)||!nonempty(r.title)||!Array.isArray(r.claims)||next.has(r.recordKey))throw Error('Malformed or unexpected knowledge record');
+        if(!r||!safeKey(r.recordKey)||!nonempty(r.id)||!safeKey(r.title)||!Array.isArray(r.claims)||next.has(r.recordKey))throw Error('Malformed knowledge record');
+        if(!keys.has(r.recordKey)){
+          if(!dynamic||!cats.has(r.category))throw Error('Unexpected knowledge record');
+          keys.add(r.recordKey);
+        }
+        if(r.category!==undefined&&dynamic&&!cats.has(r.category))throw Error('Invalid record category');
+        if(r.kind!==undefined&&!['flora','fauna'].includes(r.kind))throw Error('Invalid field-guide kind');
         const seen=new Set();
         const claims=r.claims.map(c=>{
           if(!c||!nonempty(c.id)||seen.has(c.id)||!Number.isSafeInteger(c.revision)||c.revision<1||!nonempty(c.body)||!own(kinds,c.visibility)||!own(source,c.acquisition)||!certainty.has(c.certainty)||!Number.isInteger(c.tier)||c.tier<1||c.tier>4)throw Error('Invalid player knowledge claim');
-          seen.add(c.id);return {id:c.id,revision:c.revision,body:c.body,visibility:c.visibility,acquisition:c.acquisition,certainty:c.certainty,tier:c.tier};
+          if(c.discovered!==undefined&&(typeof c.discovered!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(c.discovered)))throw Error('Invalid discovery date');
+          seen.add(c.id);return {id:c.id,revision:c.revision,body:c.body,visibility:c.visibility,acquisition:c.acquisition,certainty:c.certainty,tier:c.tier,...(c.discovered?{discovered:c.discovered}:{})};
         });
-        if(claims.length)next.set(r.recordKey,{id:r.id,title:r.title,claims});
+        if(claims.length)next.set(r.recordKey,{recordKey:r.recordKey,id:r.id,title:r.title,category:r.category,kind:r.kind,claims});
       }
-      return next;
+      const validEdges=[],seenPairs=new Set();
+      for(const e of dynamic?payload.relationships:[]){
+        if(!Array.isArray(e)||e.length!==2||e[0]===e[1]||!next.has(e[0])||!next.has(e[1]))throw Error('Relationship outside perspective');
+        const k=pair(...e);if(!seenPairs.has(k)){seenPairs.add(k);validEdges.push([...e]);}
+      }
+      return {next,keys,validEdges,seenPairs};
     }
     async function select(characterId){
-      const selected=normalize(characterId);const request=++epoch;
-      records=new Map();identity=selected;ready=false;status=selected?'loading':'idle';
-      if(!provider||!selected)return false;
-      try{const payload=await provider(selected);
-        if(request!==epoch)return false;
-        records=validate(payload,selected);ready=true;status='ready';return true;
-      }catch(err){if(request===epoch){records=new Map();ready=false;status='error'}return false}
+      const selected=normalize(characterId),request=++epoch;
+      reset();identity=selected;status=selected?'loading':'idle';
+      if(!config||!selected)return false;
+      try{
+        const payload=await config.load(selected);if(request!==epoch)return false;
+        const result=validate(payload,selected);
+        config.registerVisible?.([...result.next.values()]);
+        records=result.next;managed=result.keys;edges=result.validEdges;edgeKeys=result.seenPairs;ready=true;status='ready';return true;
+      }catch(err){if(request===epoch){reset();status='error'}return false}
     }
     function get(key){return ready?records.get(key)||null:null}
     function allowed(key){return !isManaged(key)||Boolean(get(key))}
@@ -73,8 +94,16 @@
         return '<section class="personal-group knowledge-view-section"><h2>'+esc(kinds[kind])+'</h2><div class="personal-grid">'+list.map(c=>'<article class="personal-card"><div class="personal-tag">'+esc(source[c.acquisition])+' · '+esc(c.certainty)+' · Tier '+c.tier+'</div><p>'+esc(c.body)+'</p></article>').join('')+'</div></section>';
       }).join('');
     }
-    function list(){return [...records.entries()].map(([recordKey,r])=>({recordKey,id:r.id,title:r.title,claims:r.claims.map(c=>({...c}))}))}
-    return {configure,clear,select,isManaged,allowed,get,text,html,list,get ready(){return ready},get status(){return status},get identity(){return identity}};
+    function list(){return [...records.values()].map(r=>({...r,claims:r.claims.map(c=>({...c}))}))}
+    function relationships(){return ready?edges.map(e=>[...e]):[]}
+    function relationshipAllowed(a,b){return ready&&edgeKeys.has(pair(a,b))}
+    function discoveries(){
+      return list().flatMap(r=>{
+        const c=r.claims.filter(c=>c.discovered).sort((a,b)=>b.discovered.localeCompare(a.discovered))[0];
+        return c?[{note:r.recordKey,title:r.title,kind:r.category||'Discovery',text:c.body,when:c.discovered}]:[];
+      }).sort((a,b)=>b.when.localeCompare(a.when));
+    }
+    return {configure,clear,select,isManaged,allowed,get,text,html,list,relationships,relationshipAllowed,discoveries,get ready(){return ready},get status(){return status},get identity(){return identity}};
   }
   return {create};
 });
