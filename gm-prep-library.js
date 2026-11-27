@@ -136,7 +136,7 @@ function privateRunCardHtml(c){
 function mountPrivateRun(){
  if(!runGM())return;const host=document.getElementById('gmDynamicScene');if(!host)return;ensurePrivateRunStyle();
  let panel=document.querySelector('[data-private-run]');if(!panel){panel=document.createElement('section');panel.dataset.privateRun='1';host.after(panel);}
- const sig=JSON.stringify([privateVersion,[...localRun],[...runCollapsed],runFocus,cards?.map(c=>c.id)]);
+ const sig=JSON.stringify([privateVersion,[...localRun],[...runCollapsed],runFocus,cards?.map(c=>c.id),privateBusy,privateMessage]);
  if(panel.dataset.sig===sig)return;panel.dataset.sig=sig;
  const selected=[...localRun].map(id=>cards?.find(c=>c.id===id)||{id,title:'Saved reference · '+id,readiness:'Waiting for source',kind:'reference'});
  panel.innerHTML='<div class="gw-private-run-board"><small>GM ONLY · LOCAL REFERENCE</small><h2>Private RUN preparation</h2><p>Read and run the pinned preparation here. These references do not change the shared scene, party position or canon.</p>'+(!Object.keys(privateNotes).length?'<p role="status">'+esc(privateMessage||'Reconnect vault to restore your preparation')+'</p><button type="button" data-vault-action="reconnect" '+(privateBusy?'disabled':'')+'>Reconnect vault to restore your preparation</button>':'')+(!selected.length?'<p>No private cards pinned. Open PREP and choose Pin private card to RUN.</p>':selected.map(privateRunCardHtml).join(''))+'</div>';
@@ -256,6 +256,7 @@ function viewPrep(c){
  d.querySelector('[data-close-prep]').onclick=()=>d.close();d.querySelector('[data-detail-activate]').onclick=()=>{d.close();window.GreywakeRunCardDialog?.({kind:c.kind,title:c.title,detail:c.detail,record:c.record,adversary_slug:c.adversary_slug});};d.addEventListener('close',()=>d.remove());document.body.append(d);d.showModal();
 }
 document.addEventListener('click',e=>{if(!gm())return;const b=e.target.closest('[data-view-prep]');const a=e.target.closest('[data-prep-id]');if(b){viewPrep(cards?.find(x=>x.id===b.dataset.viewPrep));return}if(a&&!e.target.closest('button,a,input,select,textarea'))viewPrep(cards?.find(x=>x.id===a.dataset.prepId));});
+window.GreywakeOpenPrepReference=async function(id){if(!fullGM()||!runGM())return;if(!cards)await pull();const card=cards?.find(c=>c.id===id);if(card)viewPrep(card);else window.alert('Preparation reference unavailable. Open PREP or reconnect the vault.');};
 function schedule(){if(!fullGM()&&(vaultHandle||Object.keys(privateNotes).length||privateBusy||pinSession)){clearPrivate();}if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;restoreVault();mount();mountPrivateRun()})}
 new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('hashchange',()=>{schedule();pull()});window.addEventListener('greywake:player-ready',pull);setInterval(pull,3500);setTimeout(pull,250);
 })();
