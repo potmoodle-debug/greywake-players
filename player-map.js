@@ -13,14 +13,17 @@
 
   function href(record){ return '#/record/' + encodeURIComponent(record); }
 
-  function mount(root){
+  function mount(root,{embedded=false,recordAllowed=record=>Boolean(window.GREYWAKE_DATA?.[record]&&!window.GREYWAKE_DATA[record].playerHidden),recordHref=href}={}){
     if(!root) return;
+    root._greywakeMapCleanup?.();
+    const spots=RECORDS.filter(spot=>recordAllowed(spot.record));
+    const esc=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     root.innerHTML = `
-      <section class="gw-map-shell" aria-label="Interactive player map of Greywake">
+      <section class="gw-map-shell${embedded?' gw-map-embedded':''}" aria-label="Interactive player map of Greywake">
         <div class="gw-map-toolbar" aria-label="Map controls">
           <div>
             <strong>Boundary and working grounds</strong>
-            <span>Drag to move · wheel or buttons to zoom · select a known place to open its record</span>
+            <span>Drag to move · ${embedded?'buttons':'wheel or buttons'} to zoom · select a known place to open its record</span>
           </div>
           <div class="gw-map-buttons">
             <button type="button" data-map-action="out" aria-label="Zoom out">−</button>
@@ -32,7 +35,7 @@
           <div class="gw-map-stage">
             <img class="gw-map-image" src="${IMAGE_SRC}" alt="Greywake boundary and working grounds player map" draggable="false">
             <div class="gw-map-hotspots" aria-label="Known locations">
-              ${RECORDS.map((spot,i)=>`<a class="gw-map-hotspot" style="--x:${spot.x}%;--y:${spot.y}%" href="${href(spot.record)}" title="${spot.label}" aria-label="Open ${spot.label}"><span>${spot.label}</span></a>`).join('')}
+              ${spots.map(spot=>`<a class="gw-map-hotspot" style="--x:${spot.x}%;--y:${spot.y}%" href="${esc(recordHref(spot.record))}" title="${esc(spot.label)}" aria-label="Open ${esc(spot.label)}"><span>${esc(spot.label)}</span></a>`).join('')}
             </div>
           </div>
           <div class="gw-map-loading">Loading player map…</div>
@@ -47,24 +50,28 @@
     if(!viewport||!stage||!img) return;
 
     let scale=1, fitScale=1, x=0, y=0;
+    let mapWidth=1,mapHeight=1;
     let dragging=false, moved=false, startX=0, startY=0, baseX=0, baseY=0;
-    const min=()=>Math.max(.2,fitScale*.72), max=()=>Math.max(4,fitScale*5);
+    const min=()=>fitScale*.72, max=()=>Math.max(1,fitScale*5);
 
     function apply(){
       stage.style.transform=`translate(${x}px,${y}px) scale(${scale})`;
     }
     function clamp(){
-      const w=1800*scale,h=1800*scale,vw=viewport.clientWidth,vh=viewport.clientHeight;
+      const w=mapWidth*scale,h=mapHeight*scale,vw=viewport.clientWidth,vh=viewport.clientHeight;
       const margin=70;
       if(w<=vw){x=(vw-w)/2}else{x=Math.min(margin,Math.max(vw-w-margin,x))}
       if(h<=vh){y=(vh-h)/2}else{y=Math.min(margin,Math.max(vh-h-margin,y))}
     }
     function fit(){
-      const vw=viewport.clientWidth||1,vh=viewport.clientHeight||1;
-      fitScale=Math.min(vw/1800,vh/1800);
+      const vw=viewport.clientWidth,vh=viewport.clientHeight;
+      if(!img.naturalWidth||!vw||!vh)return;
+      mapWidth=img.naturalWidth;mapHeight=img.naturalHeight;
+      stage.style.width=mapWidth+'px';stage.style.height=mapHeight+'px';
+      fitScale=Math.min(vw/mapWidth,vh/mapHeight);
       scale=fitScale;
-      x=(vw-1800*scale)/2;
-      y=(vh-1800*scale)/2;
+      x=(vw-mapWidth*scale)/2;
+      y=(vh-mapHeight*scale)/2;
       apply();
     }
     function zoom(next,cx=viewport.clientWidth/2,cy=viewport.clientHeight/2){
@@ -81,6 +88,7 @@
     if(img.complete && img.naturalWidth){loading?.remove();fit();}
 
     viewport.addEventListener('wheel',e=>{
+      if(embedded&&!e.ctrlKey&&!e.metaKey)return;
       e.preventDefault();
       const r=viewport.getBoundingClientRect();
       zoom(scale*(e.deltaY<0?1.14:.88),e.clientX-r.left,e.clientY-r.top);
@@ -111,7 +119,7 @@
     root.querySelector('[data-map-action="reset"]')?.addEventListener('click',fit);
 
     const ro=new ResizeObserver(()=>fit());ro.observe(viewport);
-    root._greywakeMapCleanup=()=>ro.disconnect();
+    root._greywakeMapCleanup=()=>{ro.disconnect();root._greywakeMapCleanup=null;};
   }
 
   window.GreywakePlayerMap={mount};

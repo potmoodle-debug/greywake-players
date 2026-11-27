@@ -120,6 +120,7 @@
     const portal = ensurePortal();
     const content = portal.querySelector('#playerPortalContent');
     parkLiveNodes();
+    content?._greywakeMapCleanup?.();
     content?.replaceChildren();
     portal.className = `player-portal player-portal-${page}`;
     setHeading(eyebrow, heading);
@@ -304,6 +305,7 @@
     if (page === 'mind') return renderMind();
     if (page === 'inbox') return renderInbox();
 
+    ensurePortal().querySelector('#playerPortalContent')?._greywakeMapCleanup?.();
     ensurePortal().classList.add('hidden');
     if (page === 'home') {
       home.classList.remove('hidden');

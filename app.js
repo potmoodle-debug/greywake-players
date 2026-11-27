@@ -44,14 +44,24 @@ function searchableText(name){
  const value=`${entry.title||name} ${name} ${entry.category||''} ${text.textContent||''}`.toLowerCase();SEARCH_INDEX.set(name,value);return value;
 }
 function groupedLocations(names){
- const remaining=new Set(names),groups=[];
+ const fallback='Other known places';
+ const groups=new Map();
+ const legacy=new Map();
  LOCATION_GROUPS.forEach(group=>{
-   const matches=group.names.filter(name=>remaining.has(name));
-   matches.forEach(name=>remaining.delete(name));
-   if(matches.length)groups.push({label:group.label,names:matches});
+   if(group.label!==fallback&&!groups.has(group.label))groups.set(group.label,[]);
+   group.names.forEach(name=>legacy.set(name,group.label));
  });
- if(remaining.size)groups.push({label:'Other known places',names:[...remaining].sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b))});
- return groups;
+ const sortNames=(a,b)=>(DATA[a]?.title||a).localeCompare(DATA[b]?.title||b);
+ for(const name of new Set(names)){
+   if(!DATA[name])continue;
+   const label=(typeof DATA[name].locationGroup==='string'&&DATA[name].locationGroup.trim())||legacy.get(name)||fallback;
+   const key=label.toLowerCase()===fallback.toLowerCase()?fallback:([...groups.keys()].find(k=>k.toLowerCase()===label.toLowerCase())||label);
+   if(!groups.has(key))groups.set(key,[]);
+   groups.get(key).push(name);
+ }
+ const result=[...groups].filter(([label,members])=>label!==fallback&&members.length).map(([label,names])=>({label,names}));
+ if(groups.get(fallback)?.length)result.push({label:fallback,names:groups.get(fallback).sort(sortNames)});
+ return result;
 }
 function navLink(name){
  const button=document.createElement('button');button.className='nav-link';button.textContent=DATA[name].title;button.dataset.note=name;button.onclick=()=>go(routeFor(name));return button;
@@ -133,20 +143,11 @@ function autoLinkHTML(html,current){
 function categoryDirectoryHTML(name){
  const directories={'Known Flora and Fauna':'Flora & Fauna','Known Locations':'Locations','Known People':'People'};
  const category=directories[name];if(!category)return'';
- const names=(CATS[category]||[]).filter(n=>n!==name&&DATA[n]&&(gmRecordAccess()||!DATA[n].playerHidden));
+ const names=[...new Set(CATS[category]||[])].filter(n=>n!==name&&DATA[n]&&(gmRecordAccess()||!DATA[n].playerHidden));
  if(!names.length)return'';
  if(category==='Locations'){
    const groups=groupedLocations(names);
-   const mapHotspots=[
-     ['Tangle Lanes',31,34,11,10],
-     ['White Tower',42,39,13,13],
-     ['Valve Court',66,52,10,11],
-     ['Caravan Gate',82,58,10,13],
-     ['Digger Yards',28,75,18,12],
-     ['Digger Yards',55,76,19,12],
-     ['Great-Shell Pens',52,88,18,9]
-   ].filter(([note])=>DATA[note]);
-   const mapHTML=`<section class="greywake-map-card" aria-labelledby="greywake-map-heading"><div class="greywake-map-head"><div><div class="related-kicker">CURRENT PLAYER MAP</div><h2 id="greywake-map-heading">Greywake settlement map</h2><p>The maintained settlement boundary, working gates, Digger Yards and familiar landmarks. Concealed Digger entrances and underground routes are intentionally not shown.</p></div><a class="greywake-map-full" href="assets/maps/greywake-v24-player-map.jpg" target="_blank" rel="noopener">Open map ↗</a></div><div class="greywake-map-stage"><img src="assets/maps/greywake-v24-player-map.jpg" width="1000" height="1000" alt="Top-down player map of Greywake showing the repaired boundary, gates, Tangle Lanes, White Tower precinct, Inner Cistern Court, Valve Court, Caravan Gate, Digger Yards and Great-Shell pens." loading="lazy" decoding="async">${mapHotspots.map(([note,left,top,width,height])=>`<a class="greywake-map-hotspot" href="${routeFor(note)}" data-note="${note.replace(/"/g,'&quot;')}" style="left:${left}%;top:${top}%;width:${width}%;height:${height}%" aria-label="Open ${DATA[note].title} record"><span>${DATA[note].title}</span></a>`).join('')}</div><p class="greywake-map-help">Click a highlighted known place to open its record. Use “Open map” for browser zoom and pan.</p></section>`;
+   const mapHTML='<section class="greywake-map-card" aria-label="Current player map"><div class="greywake-map-head"><div><div class="related-kicker">CURRENT PLAYER MAP</div><h2>Greywake settlement map</h2><p>Explore the known surface landmarks. Concealed entrances and underground routes are not shown.</p></div><a class="greywake-map-full" href="#/map">Open map →</a></div><div data-greywake-map-mount><p>Interactive map loading…</p></div></section>';
    return `${mapHTML}<section class="record-directory location-directory"><div class="related-kicker">PARTY-KNOWN REGIONS & ROUTES</div><h2>Explore known places</h2><p class="location-directory-intro">Places are grouped by the settlement, wider region or journey through which the party knows them. These groups describe the world naturally and do not imply a separate journey between every named landmark.</p>${groups.map(group=>`<details class="location-directory-group"><summary><strong>${group.label}</strong><span>${group.names.length} ${group.names.length===1?'place':'places'}</span></summary><div class="related-grid">${group.names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${group.label}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></details>`).join('')}</section>`;
  }
  names.sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
@@ -179,7 +180,9 @@ function expandActiveNav(name){
  const group=active.closest('.nav-group');group?.classList.remove('is-collapsed');group?.querySelector('.nav-toggle')?.setAttribute('aria-expanded','true');
  const subgroup=active.closest('.nav-subgroup');subgroup?.classList.remove('is-collapsed');subgroup?.querySelector('.nav-subtoggle')?.setAttribute('aria-expanded','true');
 }
+function cleanupArticleMap(){article.querySelector('[data-greywake-map-mount]')?._greywakeMapCleanup?.()}
 function showNote(name){
+ cleanupArticleMap();
  if(!playerRecordAllowed(name)){
  home.classList.add('hidden');brain.classList.add('hidden');article.classList.remove('hidden');
  article.innerHTML=`${articleNav()}<h1>Record unavailable</h1><p>This record is not available in your current view. Return to the archive to choose a known record.</p>`;
@@ -195,21 +198,27 @@ function showNote(name){
  }
  const body=autoLinkHTML(safeEntryHTML(name),name);
  article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
+ const mapRoot=article.querySelector('[data-greywake-map-mount]');
+ if(mapRoot&&window.GreywakePlayerMap?.mount)window.GreywakePlayerMap.mount(mapRoot,{embedded:true,recordAllowed:playerRecordAllowed,recordHref:routeFor});
+ else if(mapRoot)mapRoot.textContent='Interactive map unavailable. Use Open map to try again.';
  wireArticleLinks();
  document.getElementById('crumb').textContent=`Greywake / ${DATA[name].title}`;
  document.title=DATA[name].title==='Greywake'?'Greywake — Campaign Record':`${DATA[name].title} — Greywake`;expandActiveNav(name);
  scrollToTop();document.querySelector('.sidebar').classList.remove('open');focusRouteHeading(article);
 }
 function showBrain(){
+ cleanupArticleMap();
  home.classList.add('hidden');article.classList.add('hidden');brain.classList.remove('hidden');
  document.getElementById('crumb').textContent='Greywake / Player Brain';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));document.title='Player Brain — Greywake';scrollToTop();focusRouteHeading(brain);
  if(!window.GREYWAKE_DRAW_BRAIN&&!document.querySelector('#graph svg'))drawGraph();
 }
 function showHome(){
+ cleanupArticleMap();
  article.classList.add('hidden');brain.classList.add('hidden');home.classList.remove('hidden');
  document.getElementById('crumb').textContent='Greywake / Home';document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));document.title='Greywake — Player Guide';scrollToTop();focusRouteHeading(home);
 }
 function showExternal(){
+ cleanupArticleMap();
  home.classList.add('hidden');article.classList.add('hidden');brain.classList.add('hidden');
  document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('active'));
 }
