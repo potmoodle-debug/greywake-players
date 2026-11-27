@@ -1,0 +1,21 @@
+'use strict';
+const {create}=require('../knowledge-view.js');
+const assert=(x,m)=>{if(!x)throw Error(m)};
+const record=(visibility='personal',body='A private observation')=>({recordKey:'Existing record',id:'subject-1',title:'Example creature',claims:[{id:'claim-1',revision:1,body,visibility,acquisition:'witnessed',certainty:'established',tier:3}]});
+(async()=>{
+ const v=create();v.configure({managedRecordKeys:['Existing record'],load:async id=>({characterId:id,records:id==='a'?[record()]:[]})});
+ assert(!v.allowed('Existing record')&&v.allowed('legacy'),'managed record fails closed before load');
+ await v.select('a');assert(v.allowed('Existing record')&&v.html('Existing record').includes('Your personal knowledge'),'personal rendering');
+ const pending=v.select('b');assert(!v.allowed('Existing record')&&!v.text('Existing record'),'old perspective cleared immediately');
+ await pending;assert(!v.allowed('Existing record'),'nonrecipient excluded');
+ v.configure({managedRecordKeys:['Existing record'],load:async id=>({characterId:id,records:[record('gm')]})});
+ assert(!await v.select('a')&&!v.allowed('Existing record'),'GM scope rejected');
+ v.configure({managedRecordKeys:['Existing record'],load:async id=>({characterId:'wrong',records:[record()]})});
+ assert(!await v.select('a')&&!v.allowed('Existing record'),'wrong identity rejected');
+ v.configure({managedRecordKeys:['Existing record'],load:async id=>({characterId:id,records:[record('party','<script>bad</script>')]})});
+ await v.select('a');assert(v.html('Existing record').includes('Shared party knowledge')&&!v.html('Existing record').includes('<script>'),'party section and escaped text');
+ let finish;v.configure({managedRecordKeys:['Existing record'],load:id=>id==='a'?new Promise(r=>{finish=r}):Promise.resolve({characterId:id,records:[]})});
+ const first=v.select('a');await v.select('b');finish({characterId:'a',records:[record()]});await first;assert(v.identity==='b'&&!v.allowed('Existing record'),'stale async response discarded');
+ v.clear();assert(!v.ready&&!v.allowed('Existing record'),'logout clears view');
+ console.log('8 knowledge-view checks passed');
+})().catch(e=>{console.error(e);process.exitCode=1});

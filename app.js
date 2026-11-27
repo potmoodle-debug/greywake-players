@@ -24,14 +24,17 @@ function go(route){window.GreywakeNavigation.navigate(route)}
 function gmRecordAccess(){return document.body.dataset.role==='gm' && document.body.dataset.gmPreview!=='true'}
 function playerRecordAllowed(name){
  const e=DATA[name];
+ if(!gmRecordAccess()&&window.GreywakeKnowledgeView?.isManaged(name))return !!e&&window.GreywakeKnowledgeView.allowed(name);
  return !!e && (gmRecordAccess() || !e.playerHidden || typeof e.playerHtml==='string');
 }
 function safeEntryHTML(name){
  const e=DATA[name]||{};
  if(gmRecordAccess())return e.html||'';
+ if(window.GreywakeKnowledgeView?.isManaged(name))return window.GreywakeKnowledgeView.html(name);
  return e.playerHidden ? (e.playerHtml||'') : (e.playerHtml||e.html||'');
 }
 function searchableText(name){
+ if(!gmRecordAccess()&&window.GreywakeKnowledgeView?.isManaged(name))return window.GreywakeKnowledgeView.text(name).toLowerCase();
  if(SEARCH_INDEX.has(name))return SEARCH_INDEX.get(name);
  const entry=DATA[name]||{};
  const text=document.createElement('div');text.innerHTML=safeEntryHTML(name);
@@ -74,12 +77,12 @@ function buildNav(filter=''){
  nav.innerHTML='';
  const terms=filter.trim().toLowerCase().split(/\s+/).filter(Boolean);let resultCount=0;
  for(const [cat,names] of Object.entries(CATS)){
-   const m=names.filter(n=>DATA[n]&&(gmRecordAccess()||!DATA[n].playerHidden)&&terms.every(term=>searchableText(n).includes(term)));
+   const m=names.filter(n=>playerRecordAllowed(n)&&terms.every(term=>searchableText(n).includes(term)));
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat==='Locations'?'Places & Routes':cat}</h3>`;
    if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
    // Keep discovered creature records directly available from the left navigation.
-   if(cat==='Flora & Fauna' && !terms.length && DATA.Foldling && (gmRecordAccess()||!DATA.Foldling.playerHidden) && !m.includes('Foldling')) g.appendChild(navLink('Foldling'));
+   if(cat==='Flora & Fauna' && !terms.length && DATA.Foldling && playerRecordAllowed('Foldling') && !m.includes('Foldling')) g.appendChild(navLink('Foldling'));
    nav.appendChild(g);resultCount+=m.length;
  }
  if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
@@ -88,7 +91,7 @@ function buildNav(filter=''){
 
 function renderDiscoveries(){
  const grid=document.getElementById('discoveryGrid');if(!grid)return;grid.innerHTML='';
- DISC.forEach(d=>{
+ DISC.filter(d=>playerRecordAllowed(d.note)&& (gmRecordAccess()||!window.GreywakeKnowledgeView?.isManaged(d.note))).forEach(d=>{
    const b=document.createElement('button');b.className='discovery-card text-only';b.dataset.note=d.note;b.onclick=()=>go(routeFor(d.note));
    b.innerHTML=`<div><small>${d.kind}</small><strong>${d.title}</strong><p>${d.text}</p><em>${d.when}</em></div>`;
    grid.appendChild(b);
@@ -97,7 +100,7 @@ function renderDiscoveries(){
 
 function autoLinkHTML(html,current){
  const wrap=document.createElement('div');wrap.innerHTML=html;
- const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain'&&(gmRecordAccess()||!DATA[n].playerHidden)).sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
+ const names=Object.keys(DATA).filter(n=>n!==current&&n!=='Player Brain'&&playerRecordAllowed(n)).sort((a,b)=>(DATA[b].title||b).length-(DATA[a].title||a).length);
  const walker=document.createTreeWalker(wrap,NodeFilter.SHOW_TEXT);
  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
  nodes.forEach(node=>{
@@ -133,7 +136,7 @@ function autoLinkHTML(html,current){
 function categoryDirectoryHTML(name){
  const directories={'Known Flora and Fauna':'Flora & Fauna','Known Locations':'Locations','Known People':'People'};
  const category=directories[name];if(!category)return'';
- const names=[...new Set(CATS[category]||[])].filter(n=>n!==name&&DATA[n]&&(gmRecordAccess()||!DATA[n].playerHidden));
+ const names=[...new Set(CATS[category]||[])].filter(n=>n!==name&&playerRecordAllowed(n));
  if(!names.length)return'';
  if(category==='Locations'){
    const groups=groupedLocations(names);
@@ -146,7 +149,7 @@ function categoryDirectoryHTML(name){
 
 function relatedFor(name){
  const found=[];
- EDGES.forEach(([a,b])=>{if(a===name&&DATA[b]&&(gmRecordAccess()||!DATA[b].playerHidden))found.push(b);else if(b===name&&DATA[a]&&(gmRecordAccess()||!DATA[a].playerHidden))found.push(a)});
+ EDGES.forEach(([a,b])=>{if(a===name&&DATA[b]&&playerRecordAllowed(b))found.push(b);else if(b===name&&DATA[a]&&playerRecordAllowed(a))found.push(a)});
  return [...new Set(found)].filter(n=>n!==name).sort((a,b)=>(DATA[a].category||'').localeCompare(DATA[b].category||'')||(DATA[a].title||a).localeCompare(DATA[b].title||b));
 }
 function relatedHTML(name){
@@ -187,7 +190,7 @@ function showNote(name){
    return;
  }
  const body=autoLinkHTML(safeEntryHTML(name),name);
- article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / Party-known record</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
+ article.innerHTML=`${articleNav()}<div class="article-meta">${DATA[name].category} / ${!gmRecordAccess()&&window.GreywakeKnowledgeView?.isManaged(name)?'Your knowledge':'Party-known record'}</div><h1>${DATA[name].title}</h1>${body}${categoryDirectoryHTML(name)}${relatedHTML(name)}`;
  const mapRoot=article.querySelector('[data-greywake-map-mount]');
  if(mapRoot&&window.GreywakePlayerMap?.mount)window.GreywakePlayerMap.mount(mapRoot,{embedded:true,recordAllowed:playerRecordAllowed,recordHref:routeFor});
  else if(mapRoot)mapRoot.textContent='Interactive map unavailable. Use Open map to try again.';
@@ -227,7 +230,7 @@ window.GreywakeNavigation.register('archive', renderRoute);
 
 function drawGraph(){
  const host=document.getElementById('graph'),W=1200,H=650,svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);host.innerHTML='';host.appendChild(svg);
- const names=Object.keys(DATA).filter(n=>n!=='Player Brain'),center={x:W/2,y:H/2,name:'Player Brain'},nodes={'Player Brain':center},rings={'Start':220,'World':220,'Locations':350,'People':350,'Flora & Fauna':350,'Sessions':275,'Player Characters':275,'Handouts':350,'Factions':420,'Caravans':310},slots={};
+ const names=Object.keys(DATA).filter(n=>n!=='Player Brain'&&playerRecordAllowed(n)),center={x:W/2,y:H/2,name:'Player Brain'},nodes={'Player Brain':center},rings={'Start':220,'World':220,'Locations':350,'People':350,'Flora & Fauna':350,'Sessions':275,'Player Characters':275,'Handouts':350,'Factions':420,'Caravans':310},slots={};
  names.forEach(n=>(slots[DATA[n].category]??=[]).push(n));
  Object.keys(slots).forEach((cat,ci,all)=>{const arr=slots[cat],base=(ci/all.length)*Math.PI*2;arr.forEach((n,i)=>{const a=base+(i-(arr.length-1)/2)*.20,r=rings[cat]||320;nodes[n]={x:center.x+Math.cos(a)*r,y:center.y+Math.sin(a)*r,name:n}})});
  function line(a,b){const l=document.createElementNS(svg.namespaceURI,'line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('class','edge');svg.appendChild(l)}
@@ -241,4 +244,8 @@ function updateSummary(){
  if(records)records.textContent=Object.keys(DATA).length;if(links)links.textContent=EDGES.length;if(sessions)sessions.textContent=String((CATS.Sessions||[]).length).padStart(2,'0');
 }
 
+function refreshKnowledgeArchive(){
+ SEARCH_INDEX.clear();buildNav(searchInput.value);renderDiscoveries();updateSummary();renderRoute();
+}
+window.addEventListener('greywake:knowledge-view-changed',refreshKnowledgeArchive);
 buildNav();renderDiscoveries();updateSummary();renderRoute();

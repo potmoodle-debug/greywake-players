@@ -50,6 +50,12 @@
   function recordItems(){
     const revealed=new Set((window.GREYWAKE_LIVE_REVEALS||[]).filter(r=>!(r.audience||[]).length||(r.audience||[]).some(x=>x==='party'||x===slug())).map(r=>r.title));
     return Object.entries(window.GREYWAKE_DATA||{}).flatMap(([id,r])=>{
+      // Migrated records must never fall back to legacy paragraphs or summaries.
+      if(window.GreywakeKnowledgeView?.isManaged(id)){
+        const view=window.GreywakeKnowledgeView.get(id);if(!view)return[];
+        const sections=view.claims.map(c=>c.body);
+        return [{id,title:view.title,kind:'Known record',route:'#/record/'+encodeURIComponent(id),sections,summary:sections[0]||'',image:'',publishedAt:''}];
+      }
       if(r.gmOnly||r.dmOnly||/^(GM|DM)(\b|[- ])/i.test(r.category||''))return[];
       const known=(r.knownTo||[]).map(x=>String(x).toLowerCase());
       if(known.length&&!known.includes(slug())&&!revealed.has(id))return[];

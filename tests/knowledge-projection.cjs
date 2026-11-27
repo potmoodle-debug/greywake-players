@@ -1,10 +1,10 @@
 'use strict';
-const {project,publicExport,search,relationships}=require('../src/knowledge-projection.cjs');
+const {project,publicExport,search,relationships,legacyPlayerProjection}=require('../src/knowledge-projection.cjs');
 const assert=(x,msg)=>{if(!x)throw Error(msg)};
 const eq=(a,b,msg)=>assert(JSON.stringify(a)===JSON.stringify(b),msg);
 const throws=(f,msg)=>{let failed=false;try{f()}catch{failed=true}assert(failed,msg)};
 const claim=(id,over={})=>({id,revision:1,subjectId:'subject-a',subjectTitle:'Example creature',body:id,scope:'recipients',status:'approved',certainty:'established',tier:3,sourceRef:'PRIVATE SOURCE',...over});
-const grant=(claimId,characterId,over={})=>({claimId,revision:1,characterId,acquisition:'witnessed',tier:3,evidenceRef:'PRIVATE EVIDENCE',status:'approved',...over});
+const grant=(claimId,characterId,over={})=>({claimId,revision:1,characterId,acquisition:'witnessed',disclosure:'personal',tier:3,evidenceRef:'PRIVATE EVIDENCE',status:'approved',...over});
 const player=characterId=>({verified:true,role:'player',characterId});
 const gm={verified:true,role:'gm'};
 const ids=records=>records.flatMap(r=>r.claims.map(c=>c.id)).sort();
@@ -17,7 +17,7 @@ const claims=[
  claim('correction',{body:'Old statement'}),claim('correction',{revision:2,body:'Corrected statement',certainty:'reported'})
 ];
 const grants=[
- grant('firsthand','pc-a'),grant('selective','pc-a'),grant('selective','pc-b',{acquisition:'reported',tier:2}),
+ grant('firsthand','pc-a'),grant('selective','pc-a',{disclosure:'selective'}),grant('selective','pc-b',{acquisition:'reported',disclosure:'selective',tier:2}),
  grant('draft','pc-a'),grant('withdrawn','pc-a'),grant('rumour','pc-b',{acquisition:'rumour',tier:1}),
  grant('correction','pc-a'),grant('correction','pc-b',{revision:2,acquisition:'reported',tier:2})
 ];
@@ -38,4 +38,8 @@ test('new sharing event grants only the chosen recipient',()=>{const g=[...grant
 test('GM-only truth cannot be granted to player scope',()=>throws(()=>publicExport([...claims,claim('bad',{tier:5,scope:'public'})],grants),'tier 5 leaked'));
 test('missing classification or duplicate grant fails closed',()=>{throws(()=>project([...claims,claim('bad',{scope:undefined})],grants,gm),'bad scope');throws(()=>project(claims,[...grants,grants[0]],gm),'duplicate grant')});
 test('private maps and survey are never included in public output',()=>assert(!JSON.stringify(publicExport(claims,grants)).includes('Hidden survey'),'map leaked'));
+test('party-at-time-of-sharing never leaks to later roster',()=>{const g=[...grants,grant('missing-recipient','pc-a',{disclosure:'party'}),grant('missing-recipient','pc-b',{disclosure:'party',acquisition:'reported'})];const r=project(claims,g,player('pc-a')).flatMap(r=>r.claims).find(c=>c.id==='missing-recipient');assert(r.visibility==='party'&&!ids(project(claims,g,player('future-pc-50'))).includes('missing-recipient'),'party snapshot')});
+test('recipient wording may distinguish testimony from observation',()=>{const g=grants.map(x=>x.claimId==='selective'&&x.characterId==='pc-b'?{...x,playerBody:'A witness told you this.'}:x);const c=project(claims,g,player('pc-b')).flatMap(r=>r.claims).find(c=>c.id==='selective');eq([c.body,c.visibility],['A witness told you this.','selective'],'recipient wording')});
+test('legacy login selects a perspective but cannot project GM truth',()=>{eq(ids(legacyPlayerProjection(claims,grants,'pc-a')),ids(project(claims,grants,player('pc-a'))),'legacy selection');assert(!ids(legacyPlayerProjection(claims,grants,'gm')).includes('unrevealed'),'GM leak')});
+test('missing disclosure fails closed',()=>throws(()=>project(claims,grants.map((g,i)=>i?g:{...g,disclosure:undefined}),player('pc-a')),'missing disclosure'));
 console.log(passed+' synthetic knowledge projection tests passed');
