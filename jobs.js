@@ -12,9 +12,8 @@
       <p>These began with something one of the characters put at the front of their mind, then developed into a concrete lead the party could actually pursue. They are shared possibilities, not obligations.</p>
 
       <h3>Marek — Find a Flickerfly</h3>
-      <p><strong>Status:</strong> Player-discovered lead</p>
-      <p>Marek wants to find and study a flickerfly. Through his own investigation he learned that stories about them mostly seem to come from travellers returning from south of Greywake.</p>
-      <p>A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a flickerfly, but nobody is certain. Marek's next concrete lead is to identify that Digger and find out exactly where the fragment came from.</p>
+      <p><strong>Status:</strong> Personal interest; no actionable lead yet.</p>
+      <p>Marek wants to find and study a Flickerfly. No confirmed specimen, location, spoor find or direction has been established.</p>
 
       <h3>Velmira — An Earlier Stilling Case</h3>
       <p><strong>Status:</strong> Player proposal / known lead</p>

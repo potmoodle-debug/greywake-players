@@ -1,5 +1,6 @@
 window.GREYWAKE_LIVE_POSSIBILITIES = {
   version: '2026-09-20T15:10+01:00',
+  revisions: {'flickerfly-study':'2026-10-24-correction'},
   updates: {
     'something-moved-in': {
       marek: 'Latest for Marek: You now separately know a Foldling fled north after repeated danger or disturbance drove it from buried places to the south. The Digger rumour about Something Moved In is also southern, but you have no evidence that the two are connected. The ruin’s occupant and the Foldling’s deeper disturbance both remain unidentified.',
@@ -32,7 +33,7 @@ window.GREYWAKE_LIVE_POSSIBILITIES = {
       odie: 'Latest for Odie: Repairs and shortages remain ordinary Greywake pressure. When the needed part does not exist inside the settlement, practical work can still create reasons to go outward.'
     },
     'flickerfly-study': {
-      marek: 'Latest for Marek: Old Jerek recovered a translucent fragment at Glass Wind, south-east of Greywake, and can mark the exact spot on a route sketch. Nobody saw a Flickerfly, nest or carcass, so the identification remains uncertain.',
+      marek: 'Marek’s interest in finding and studying a Flickerfly remains. No specimen, location or actionable lead has been established.',
       velmira: 'Latest for Velmira: Marek’s interest remains real, but the group still needs a credible in-world lead before treating a Flickerfly location as established.',
       odie: 'Latest for Odie: Marek wants to study a Flickerfly. A reliable witness or recovered evidence would be enough to turn that interest into a practical lead.'
     },
@@ -76,12 +77,7 @@ window.GREYWAKE_LIVE_POSSIBILITIES = {
     },
     'flickerfly-study': {
       marek: {
-        status: 'MAREK LEAD · ACTIONABLE',
-        direction: 'SOUTH-EAST ↘',
-        summary: 'A possible Flickerfly wing fragment was found at Glass Wind, south-east of Greywake. Old Jerek can mark the exact place where his crew recovered it.',
-        known: 'Jerek’s crew found the translucent fragment caught beneath the edge of a collapsed stone slab in a shallow ruin after wind stripped away sand. They saw no creature, nest or carcass, so nobody has confirmed that Flickerflies are actually there. The next practical step is to get Jerek’s route sketch and decide whether to investigate Glass Wind.',
-        imageNote: 'No Flickerfly was seen. The lead is based on a possible wing fragment recovered at Glass Wind.',
-        next: 'Ask Old Jerek for his route sketch to Glass Wind, decide what you need for the south-east journey, then investigate the shallow ruin where the possible wing fragment was found.'
+        next: 'Seek credible information about Flickerflies through play before choosing an expedition.'
       }
     }
   }

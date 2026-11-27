@@ -67,6 +67,7 @@
 
   function enhanceCard(card, key) {
     const id = card.dataset.thread;
+    if (!window.GreywakeKnowledgePublication?.allowsUpdate(card.dataset.knowledgeRevision, liveData.revisions?.[id])) return;
     applyCardOverride(card, key);
     const update = liveData.updates?.[id]?.[key];
     if (!update) return;

@@ -111,17 +111,19 @@
     {
       id: 'flickerfly-study',
       title: 'Find a Flickerfly',
-      status: 'MAREK LEAD · INVESTIGATE IN GREYWAKE',
-      direction: 'SOUTH RUMOUR · EXACT LOCATION UNKNOWN',
+      status: 'PERSONAL INTEREST · NO ESTABLISHED LEAD',
+      direction: 'DIRECTION UNKNOWN',
+      knowledgeStatus: 'interest',
+      knowledgeRevision: '2026-10-24-correction',
       tone: 'personal',
       image: null,
-      imageNote: 'Marek has a lead, not a confirmed Flickerfly specimen or exact expedition location.',
+      imageNote: 'No confirmed specimen, location or actionable lead has been established.',
       visibility: ['marek'],
       proposedBy: 'Marek',
-      summary: 'Marek wants to find and study a Flickerfly. His investigation produced a real lead: stories about them mostly seem to come from travellers returning from south of Greywake.',
-      known: 'A Digger who returned recently is said to have brought back a thin translucent piece of wing caught among broken stone. Someone thought it might be from a Flickerfly, but nobody is certain. Marek can investigate by identifying that Digger and finding out where the fragment came from; no exact Flickerfly location is established yet.',
+      summary: 'Marek wants to find and study a Flickerfly.',
+      known: 'No confirmed specimen, location, spoor find or established direction is known. This is a personal interest, not an unlocked expedition.',
       relevance: {
-        marek: 'This information came from your own investigation through the Greywake site. It gives you a concrete person to find and question without pretending the rumour or wing fragment is already confirmed as a Flickerfly.'
+        marek: 'You can seek credible information through play, without assuming that a particular witness, location or specimen has already been discovered.'
       }
     },
     {
@@ -222,7 +224,7 @@
   };
 
   function visibleRecords(user = window.GreywakePlayer) {
-    return POSSIBILITIES.filter(item => visibleTo(item, user));
+    return POSSIBILITIES.filter(item => window.GreywakeKnowledgePublication?.isPublished(item) !== false && visibleTo(item, user));
   }
 
   function getVisible(id, user = window.GreywakePlayer) {
@@ -256,7 +258,7 @@
     const origin = item.proposedBy
       ? `<span class="thread-origin">PROPOSED BY ${item.proposedBy.toUpperCase()}</span>`
       : '';
-    return `<article class="thread-card thread-${item.tone}" data-thread="${item.id}">
+    return `<article class="thread-card thread-${item.tone}" data-thread="${item.id}" data-knowledge-revision="${item.knowledgeRevision || ''}">
       ${image}<div class="thread-card-shade"></div>
       <div class="thread-card-content">
         <div class="thread-topline"><span class="thread-status">${item.status}</span><span class="thread-scope">${partyVisible(item) ? 'KNOWN TO PARTY' : 'PERSONAL'}</span></div>
