@@ -23,3 +23,16 @@ If not, generalize the implementation or explicitly report the limitation before
 Test both the current workflow and an isolated hypothetical future session. Cover reuse, rollover, source resolution, privacy, and workspace persistence where affected. Run applicable existing regression tests. Distinguish code committed, tests executed, deployment verified and live acceptance verified. Never represent a commit alone as successful deployment.
 
 The private campaign operating protocol remains authoritative for private-source and publication workflows. Do not copy private content into this repository.
+
+## Permanent card design standard
+
+The existing player-facing Campaign → What could happen next possibility cards are the visual reference for Greywake cards. Apply this standard to Campaign, PREP, RUN and WORLD, across all future sessions.
+
+- Reuse the existing card styling and shared components wherever practical: artwork proportions, typography, colours, spacing, category/status labels, title, description and action placement. Inspect the actual reference implementation before changing it; avoid inventing competing card styles.
+- Use progressive disclosure: essential information first, with expandable context, guidance and related records. Avoid unnecessary scrolling and navigation during play.
+- Adapt density and actions to the workspace: Campaign supports player interest and pursuit; PREP is visually rich and exploratory, with private pinning and shared activation clearly distinct; RUN is a compact, practical variant with focus, encounter controls and resolution; WORLD supports reference browsing.
+- New content must inherit the design without session-specific code. Use approved artwork and meaningful placeholders when unavailable.
+- Preserve existing interaction behavior, accessibility, responsive layouts and information boundaries. GM-only content must never be included in player-facing payloads or exposed through shared components; client-side hiding is not authorization.
+- Review representative cards at desktop and narrow widths, including long text, missing art, expanded details and relevant controls. Verify visual consistency against the player reference and functionality independently before declaring completion.
+
+This is a standing design requirement, not authorization to rewrite existing cards or change campaign state.
