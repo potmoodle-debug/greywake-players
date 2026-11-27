@@ -73,7 +73,7 @@
   function revealItems(items){return items.filter(r=>!(r.audience||[]).length||(r.audience||[]).some(x=>x==='party'||x===slug())).map(r=>({id:String(r.id),title:r.title||'A new discovery',kind:'Discovery',route:safeRoute(r.source_route),sections:[String(r.body||'')],summary:String(r.body||''),image:r.title?media(r.title):'',publishedAt:r.created_at}));}
   function replyItems(items){return items.map(r=>({id:String(r.id),title:r.title||'The GM replied',kind:'GM reply',route:'#/inbox',goalId:r.goalId,sections:[r.body],summary:r.body,image:'',publishedAt:r.createdAt}));}
   function updateSource(source,items){if(!load())return;available[source]=new Set(items.map(item=>item.id));scan(state,source,items,new Date().toISOString());save();render();}
-  function unread(){const records=new Set(recordItems().map(item=>item.id));return Object.values(state?.pending||{}).filter(item=>item.source==='records'?records.has(item.id):available[item.source]?.has(item.id)).sort((a,b)=>b.detectedAt.localeCompare(a.detectedAt));}
+  function unread(){const records=new Map(recordItems().map(item=>[item.id,item]));return Object.values(state?.pending||{}).filter(item=>{if(item.source!=='records')return available[item.source]?.has(item.id);const current=records.get(item.id);if(!current)return false;if(!window.GreywakeKnowledgeView?.isManaged(item.id))return true;return item.revision===hash(JSON.stringify([current.title,current.sections,current.image,current.route,current.summary]));}).sort((a,b)=>b.detectedAt.localeCompare(a.detectedAt));}
   function acknowledge(key){if(!state)return;delete state.pending[key];save();render();}
   function openItem(item){
     acknowledge(item.key);
@@ -117,7 +117,7 @@
     const selected=items.filter(x=>filter==='all'||(filter==='replies'?x.kind==='GM reply':filter==='personal'?x.source==='personal':x.source!=='personal'&&x.kind!=='GM reply'));
     const first=!previousVisit;
     const allowed=new Set(recordItems().map(item=>item.id));
-    const latest=(window.GREYWAKE_DISCOVERIES||[]).filter(d=>allowed.has(d.note)).slice(0,3).map(d=>({title:d.title,kind:d.kind,route:'#/record/'+encodeURIComponent(d.note),summary:d.text,label:'Known discovery',image:media(d.note)||(/^(assets\/|https:\/\/)/.test(d.image||'')?d.image:'')}));
+    const latest=(window.GREYWAKE_DISCOVERIES||[]).filter(d=>allowed.has(d.note)&&!window.GreywakeKnowledgeView?.isManaged(d.note)).slice(0,3).map(d=>({title:d.title,kind:d.kind,route:'#/record/'+encodeURIComponent(d.note),summary:d.text,label:'Known discovery',image:media(d.note)||(/^(assets\/|https:\/\/)/.test(d.image||'')?d.image:'')}));
     const signature=JSON.stringify([character,previousVisit,filter,items,latest]);
     if(panel.dataset.signature===signature){if(entered)panel.querySelector('h1')?.focus({preventScroll:true});return;}
     panel.dataset.signature=signature;
@@ -139,6 +139,7 @@
   window.GreywakeCatchup={refresh:schedule,open:()=>window.GreywakeNavigation.navigate('#/updates')};
   window.GreywakeNavigation.register('catchup',render);
   window.addEventListener('greywake:player-ready',schedule);
+  window.addEventListener('greywake:knowledge-view-changed',schedule);
   window.addEventListener('greywake:live-reveals-updated',e=>{updateSource('discoveries',revealItems(e.detail?.items||[]));schedule();});
   window.addEventListener('greywake:goals-rendered',e=>{if(e.detail?.character===slug()&&Array.isArray(e.detail.replyUpdates))updateSource('replies',replyItems(e.detail.replyUpdates));});
   document.addEventListener('DOMContentLoaded',schedule);

@@ -4,7 +4,24 @@
 (function(root,factory){
   const api=factory();
   if(typeof module==='object'&&module.exports)module.exports=api;
-  else root.GreywakeKnowledgeView=api.create();
+  else {
+    const view=api.create();root.GreywakeKnowledgeView=view;
+    // Explicit opt-in only. No provider or private fixtures in the static site.
+    const config=root.GREYWAKE_KNOWLEDGE_PROVIDER;
+    if(config){
+      view.configure(config);
+      const notify=()=>root.dispatchEvent(new CustomEvent('greywake:knowledge-view-changed'));
+      const sync=()=>{
+        const user=root.GreywakePlayer;
+        const pending=view.select(user?.role==='player'?user.character:null);
+        notify();pending.then(notify);
+      };
+      root.addEventListener('greywake:player-ready',sync);
+      root.addEventListener('pagehide',()=>view.clear());
+      root.addEventListener('pageshow',e=>{if(e.persisted)sync()});
+      sync();
+    }
+  }
 })(typeof window==='object'?window:globalThis,function(){
   const kinds={common:'Common knowledge',party:'Shared party knowledge',personal:'Your personal knowledge',selective:'Knowledge shared with you'};
   const source={common:'Common knowledge',witnessed:'Witnessed',investigated:'Investigated',practical:'Practical experience',reported:'Reported',rumour:'Rumour',inferred:'Inference',insider:'Insider knowledge',unknown:'Unknown'};

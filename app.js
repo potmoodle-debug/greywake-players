@@ -81,8 +81,6 @@ function buildNav(filter=''){
    if(!m.length)continue;
    const g=document.createElement('div');g.className='nav-group';g.innerHTML=`<h3>${cat==='Locations'?'Places & Routes':cat}</h3>`;
    if(cat==='Locations')appendLocationNav(g,m,Boolean(terms.length));else m.forEach(name=>g.appendChild(navLink(name)));
-   // Keep discovered creature records directly available from the left navigation.
-   if(cat==='Flora & Fauna' && !terms.length && DATA.Foldling && playerRecordAllowed('Foldling') && !m.includes('Foldling')) g.appendChild(navLink('Foldling'));
    nav.appendChild(g);resultCount+=m.length;
  }
  if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
@@ -147,9 +145,10 @@ function categoryDirectoryHTML(name){
  return `<section class="record-directory"><div class="related-kicker">PARTY-KNOWN ${category.toUpperCase()}</div><h2>${category}</h2><div class="related-grid">${names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;
 }
 
+function legacyEdgeAllowed(a,b){return gmRecordAccess()||(!window.GreywakeKnowledgeView?.isManaged(a)&&!window.GreywakeKnowledgeView?.isManaged(b))}
 function relatedFor(name){
  const found=[];
- EDGES.forEach(([a,b])=>{if(a===name&&DATA[b]&&playerRecordAllowed(b))found.push(b);else if(b===name&&DATA[a]&&playerRecordAllowed(a))found.push(a)});
+ EDGES.forEach(([a,b])=>{if(!legacyEdgeAllowed(a,b))return;if(a===name&&DATA[b]&&playerRecordAllowed(b))found.push(b);else if(b===name&&DATA[a]&&playerRecordAllowed(a))found.push(a)});
  return [...new Set(found)].filter(n=>n!==name).sort((a,b)=>(DATA[a].category||'').localeCompare(DATA[b].category||'')||(DATA[a].title||a).localeCompare(DATA[b].title||b));
 }
 function relatedHTML(name){
@@ -234,14 +233,14 @@ function drawGraph(){
  names.forEach(n=>(slots[DATA[n].category]??=[]).push(n));
  Object.keys(slots).forEach((cat,ci,all)=>{const arr=slots[cat],base=(ci/all.length)*Math.PI*2;arr.forEach((n,i)=>{const a=base+(i-(arr.length-1)/2)*.20,r=rings[cat]||320;nodes[n]={x:center.x+Math.cos(a)*r,y:center.y+Math.sin(a)*r,name:n}})});
  function line(a,b){const l=document.createElementNS(svg.namespaceURI,'line');l.setAttribute('x1',a.x);l.setAttribute('y1',a.y);l.setAttribute('x2',b.x);l.setAttribute('y2',b.y);l.setAttribute('class','edge');svg.appendChild(l)}
- EDGES.forEach(([a,b])=>{if(nodes[a]&&nodes[b])line(nodes[a],nodes[b])});names.forEach(n=>{if(nodes[n]&&!EDGES.some(e=>e.includes('Player Brain')&&e.includes(n)))line(center,nodes[n])});
+ EDGES.forEach(([a,b])=>{if(legacyEdgeAllowed(a,b)&&nodes[a]&&nodes[b])line(nodes[a],nodes[b])});names.forEach(n=>{if(nodes[n]&&!EDGES.some(e=>legacyEdgeAllowed(...e)&&e.includes('Player Brain')&&e.includes(n)))line(center,nodes[n])});
  Object.values(nodes).forEach(nd=>{const g=document.createElementNS(svg.namespaceURI,'g');g.setAttribute('class','node'+(nd.name==='Player Brain'?' root':''));g.setAttribute('transform',`translate(${nd.x},${nd.y})`);const c=document.createElementNS(svg.namespaceURI,'circle');c.setAttribute('r',nd.name==='Player Brain'?38:25);g.appendChild(c);const t=document.createElementNS(svg.namespaceURI,'text');t.setAttribute('text-anchor','middle');t.setAttribute('y',nd.name==='Player Brain'?55:42);t.textContent=DATA[nd.name]?.title||nd.name;g.appendChild(t);g.onclick=()=>nd.name==='Player Brain'?go('#/brain'):go(routeFor(nd.name));svg.appendChild(g)});
- const nodeCount=document.getElementById('nodeCount'),edgeCount=document.getElementById('edgeCount');if(nodeCount)nodeCount.textContent=Object.keys(nodes).length;if(edgeCount)edgeCount.textContent=EDGES.length;
+ const nodeCount=document.getElementById('nodeCount'),edgeCount=document.getElementById('edgeCount');if(nodeCount)nodeCount.textContent=Object.keys(nodes).length;if(edgeCount)edgeCount.textContent=EDGES.filter(([a,b])=>legacyEdgeAllowed(a,b)&&nodes[a]&&nodes[b]).length;
 }
 
 function updateSummary(){
  const records=document.getElementById('recordSummaryCount'),links=document.getElementById('linkSummaryCount'),sessions=document.getElementById('sessionSummaryCount');
- if(records)records.textContent=Object.keys(DATA).length;if(links)links.textContent=EDGES.length;if(sessions)sessions.textContent=String((CATS.Sessions||[]).length).padStart(2,'0');
+ if(records)records.textContent=Object.keys(DATA).filter(playerRecordAllowed).length;if(links)links.textContent=EDGES.filter(([a,b])=>legacyEdgeAllowed(a,b)&&playerRecordAllowed(a)&&playerRecordAllowed(b)).length;if(sessions)sessions.textContent=String((CATS.Sessions||[]).filter(playerRecordAllowed).length).padStart(2,'0');
 }
 
 function refreshKnowledgeArchive(){
