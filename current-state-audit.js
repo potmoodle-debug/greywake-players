@@ -205,6 +205,7 @@
   };
 
   window.GREYWAKE_GM_STATE = {
+    release:{completedSession:5,nextSession:6,recapRecord:'Session 05 — Player Recap',fear:12},
     session:'Session Five complete · Session Six next · Fear 12',
     partyLocation:'Stripped Yards (hex 0,-1) · Old South Road · western Open Houses / eastern Old Haul Yard',
     activeParty:['Marek','Odie','Velmira'], backgroundParty:[],

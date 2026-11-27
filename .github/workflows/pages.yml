@@ -3,13 +3,10 @@ name: Deploy Greywake Pages
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'v3/**'
-      - '.github/workflows/v3-pages.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -140,17 +137,6 @@ jobs:
               text = text.replace(anchor, anchor + ',\n' + ',\n'.join(missing))
           app.write_text(text, encoding='utf-8')
           PY
-
-      - name: Persist normalized NPC portraits
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/npcs/v2/*.avif v2/app.js
-          if ! git diff --cached --quiet; then
-            git commit -m 'Normalize NPC portraits to AVIF'
-            git push
-          fi
 
       - name: Improve Caravan Gate site image
         shell: bash
