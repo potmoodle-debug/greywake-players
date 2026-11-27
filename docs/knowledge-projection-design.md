@@ -17,3 +17,6 @@ Still required: provider/service implementation, approved pilot ledger, current 
 Run node tests/knowledge-projection.cjs and node tests/knowledge-view.cjs.
 
 Provider lifecycle is now wired as an optional boot-time configuration, including identity selection and page restore. Managed subject relationships are deliberately withheld until an explicit approved relationship projection exists; legacy relationships touching them are not reused in the archive or fallback graph. Catch-up rejects stale legacy summaries for managed subjects. The enhanced graph and other legacy views are not yet migrated. No provider configured means no managed subjects or production activation.
+
+## Offline rehearsal provider
+The optional generic knowledge-rehearsal-provider.js accepts a local GM-only pack of pre-projected player records, deep-copies responses and denies unknown perspectives. The provider is compatible with knowledge-view.js. It is not a live server or production credential check. Never publish a populated rehearsal pack. Synthetic provider integration tests: node tests/knowledge-rehearsal-provider.cjs. The private pilot can be rehearsed locally without database writes or a live deployment; full site/provider reconciliation remains a separate gate.
