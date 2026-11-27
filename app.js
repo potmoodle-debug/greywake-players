@@ -3,12 +3,6 @@ const DISC=window.GREYWAKE_DISCOVERIES||[];
 const nav=document.getElementById('nav'),article=document.getElementById('article'),brain=document.getElementById('brainView'),home=document.getElementById('home');
 const searchInput=document.getElementById('searchInput'),searchStatus=document.getElementById('searchStatus');
 const SEARCH_INDEX=new Map();
-const LOCATION_GROUPS=[
- {label:'Greywake',names:['Inner Greywake','Caravan Gate','White Tower','Valve Court','Tangle Lanes']},
- {label:'Greater Greywake',names:['Greater Greywake','Great-Shell Pens','Digger Yards']},
- {label:'Kestrel Return route',names:['High Shelf','Old Marker Wash','Old Marker Line','Failed Marker','Wrong Lower Line','Ash-Plate Groundfall','Broken Runnels',"Joric's Runnel",'Stone-Lip Hollow']},
- {label:'Other known places',names:['Split Rock Shade']}
-];
 const APP_EXTERNAL_ROUTES=new Set(['#/updates','#/character','#/my-greywake','#/greywake','#/campaign','#/map','#/possibilities','#/mind','#/inbox','#/explore']);
 
 function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
@@ -45,24 +39,20 @@ function searchableText(name){
 }
 function groupedLocations(names){
  const fallback='Other known places';
+ const configured=window.GREYWAKE_GEOGRAPHY?.regions||{};
  const groups=new Map();
- const legacy=new Map();
- LOCATION_GROUPS.forEach(group=>{
-   if(group.label!==fallback&&!groups.has(group.label))groups.set(group.label,[]);
-   group.names.forEach(name=>legacy.set(name,group.label));
- });
- const sortNames=(a,b)=>(DATA[a]?.title||a).localeCompare(DATA[b]?.title||b);
  for(const name of new Set(names)){
-   if(!DATA[name])continue;
-   const label=(typeof DATA[name].locationGroup==='string'&&DATA[name].locationGroup.trim())||legacy.get(name)||fallback;
-   const key=label.toLowerCase()===fallback.toLowerCase()?fallback:([...groups.keys()].find(k=>k.toLowerCase()===label.toLowerCase())||label);
-   if(!groups.has(key))groups.set(key,[]);
-   groups.get(key).push(name);
+   const record=DATA[name];
+   if(!record)continue;
+   const regionId=record.geography?.regionId;
+   const region=regionId&&Object.hasOwn(configured,regionId)?configured[regionId]:null;
+   const key=region?regionId:'';
+   if(!groups.has(key))groups.set(key,{label:region?.label||fallback,order:region?.order??Infinity,names:[]});
+   groups.get(key).names.push(name);
  }
- const result=[...groups].filter(([label,members])=>label!==fallback&&members.length).map(([label,names])=>({label,names}));
- if(groups.get(fallback)?.length)result.push({label:fallback,names:groups.get(fallback).sort(sortNames)});
- return result;
+ return [...groups.values()].sort((a,b)=>a.order-b.order||a.label.localeCompare(b.label)).map(({label,names})=>({label,names:names.sort((a,b)=>(DATA[a].geography?.order??Infinity)-(DATA[b].geography?.order??Infinity)||(DATA[a].title||a).localeCompare(DATA[b].title||b))}));
 }
+function locationLabelHTML(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function navLink(name){
  const button=document.createElement('button');button.className='nav-link';button.textContent=DATA[name].title;button.dataset.note=name;button.onclick=()=>go(routeFor(name));return button;
 }
@@ -74,7 +64,7 @@ function appendLocationNav(group,names,searching){
    const subgroup=document.createElement('div');subgroup.className='nav-subgroup';
    const expanded=searching||area.names.includes(active);subgroup.classList.toggle('is-collapsed',!expanded);
    const toggle=document.createElement('button');toggle.type='button';toggle.className='nav-subtoggle';toggle.setAttribute('aria-expanded',String(expanded));
-   toggle.innerHTML=`<span>${area.label}</span><small>${area.names.length}</small>`;
+   toggle.innerHTML=`<span>${locationLabelHTML(area.label)}</span><small>${area.names.length}</small>`;
    toggle.onclick=()=>{const collapsed=subgroup.classList.toggle('is-collapsed');toggle.setAttribute('aria-expanded',String(!collapsed))};
    const items=document.createElement('div');items.className='nav-subitems';area.names.forEach(name=>items.appendChild(navLink(name)));
    subgroup.append(toggle,items);group.appendChild(subgroup);
@@ -148,7 +138,7 @@ function categoryDirectoryHTML(name){
  if(category==='Locations'){
    const groups=groupedLocations(names);
    const mapHTML='<section class="greywake-map-card" aria-label="Current player map"><div class="greywake-map-head"><div><div class="related-kicker">CURRENT PLAYER MAP</div><h2>Greywake settlement map</h2><p>Explore the known surface landmarks. Concealed entrances and underground routes are not shown.</p></div><a class="greywake-map-full" href="#/map">Open map →</a></div><div data-greywake-map-mount><p>Interactive map loading…</p></div></section>';
-   return `${mapHTML}<section class="record-directory location-directory"><div class="related-kicker">PARTY-KNOWN REGIONS & ROUTES</div><h2>Explore known places</h2><p class="location-directory-intro">Places are grouped by the settlement, wider region or journey through which the party knows them. These groups describe the world naturally and do not imply a separate journey between every named landmark.</p>${groups.map(group=>`<details class="location-directory-group"><summary><strong>${group.label}</strong><span>${group.names.length} ${group.names.length===1?'place':'places'}</span></summary><div class="related-grid">${group.names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${group.label}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></details>`).join('')}</section>`;
+   return `${mapHTML}<section class="record-directory location-directory"><div class="related-kicker">PARTY-KNOWN REGIONS & ROUTES</div><h2>Explore known places</h2><p class="location-directory-intro">Places are grouped by geography, not by the expedition or session in which they were discovered. A broad region does not establish an exact position or route. Unclassified places remain under Other known places.</p>${groups.map(group=>`<details class="location-directory-group"><summary><strong>${locationLabelHTML(group.label)}</strong><span>${group.names.length} ${group.names.length===1?'place':'places'}</span></summary><div class="related-grid">${group.names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${locationLabelHTML(group.label)}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></details>`).join('')}</section>`;
  }
  names.sort((a,b)=>(DATA[a].title||a).localeCompare(DATA[b].title||b));
  return `<section class="record-directory"><div class="related-kicker">PARTY-KNOWN ${category.toUpperCase()}</div><h2>${category}</h2><div class="related-grid">${names.map(n=>`<a class="related-card" href="${routeFor(n)}" data-note="${n.replace(/"/g,'&quot;')}"><small>${DATA[n].category}</small><strong>${DATA[n].title}</strong><span>Open record →</span></a>`).join('')}</div></section>`;

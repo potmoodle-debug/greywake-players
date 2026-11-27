@@ -153,7 +153,7 @@
   if (D['Player Brain']) D['Player Brain'].html = `<p>The Player Brain connects the records available in your current view.</p><p>Shared knowledge is visible to every player. Character-specific material appears only in the appropriate personal view. GM-only and unrevealed information remains outside player views.</p>`;
   if (D['Known Locations']) {
     D['Known Locations'].title = 'Known Regions & Routes';
-    D['Known Locations'].html = `<p>Browse the places the party knows through settlements, wider regions and journeys. Smaller landmarks remain attached to the route or area that gives them meaning, rather than appearing as unrelated destinations.</p><p>Distances are described through travel time, conditions and recognised landmarks. A known place does not automatically have a known cardinal direction.</p>`;
+    D['Known Locations'].html = `<p>Browse the places the party knows through settlements and wider geographical regions. Expedition history belongs in the campaign record; a place remains part of its geographical region regardless of which journeys visit it.</p><p>Distances are described through travel time, conditions and recognised landmarks. A known place does not automatically have a known cardinal direction.</p>`;
   }
 
   // Published lived locations that were missing from the site.
