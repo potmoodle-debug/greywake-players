@@ -17,8 +17,10 @@
     if (node && node.textContent !== value) node.textContent = value;
   }
 
+  // The conversation renderer owns message labels. Never infer behaviour from
+  // text that another view may change; use the underlying thread state.
   function questionState(card) {
-    return (card.querySelector('.interest-waiting-pill')?.textContent || '').trim().toUpperCase();
+    return card.dataset.threadState || '';
   }
 
   function activeMindCount() {
@@ -34,14 +36,14 @@
     if (!head) return;
     const paragraph = head.querySelector('p');
     if (paragraph && document.body.dataset.gmPreview !== 'true') {
-      text(paragraph, 'You can keep multiple questions open. Questions do not use your three On My Mind slots. A question only becomes a priority if you choose to make it one.');
+      text(paragraph, 'Questions do not use interest or pursuit slots. Keep any number of interests and one active pursuit. A question only becomes a priority if you choose.');
     }
 
     let rule = host.querySelector('.question-flow-rule');
     if (!rule) {
       rule = document.createElement('div');
       rule.className = 'question-flow-rule';
-      rule.innerHTML = '<strong>QUESTIONS DO NOT USE SLOTS</strong><span>Ask, follow up, and close them when answered. Only things you deliberately put On My Mind use one of your three slots.</span>';
+      rule.innerHTML = '<strong>QUESTIONS DO NOT USE SLOTS</strong><span>Ask, follow up, and close them when answered. You can keep any number of interests and one active pursuit.</span>';
       const counts = host.querySelector('.engagement-counts');
       (counts || head).insertAdjacentElement('afterend', rule);
     }
@@ -79,9 +81,9 @@
       ),
       makeFlowGroup(
         'On My Mind conversations',
-        `${Math.min(interests.length, 3)}/3 priority slots represented here`,
+        `${interests.length} interest${interests.length===1?'':'s'} · one active pursuit`,
         interests,
-        'Nothing is currently occupying an On My Mind slot.'
+        'No current interests.'
       )
     );
   }
@@ -90,42 +92,16 @@
     const state = questionState(card);
     const promote = card.querySelector('.engagement-promote');
     if (promote) {
-      const canPromote = state.includes('WAITING ON PLAYER');
-      promote.hidden = !canPromote;
-      if (canPromote) {
-        text(promote.querySelector(':scope > span'), 'Does this now matter enough to become one of your three priorities?');
-        const interest = promote.querySelector('[data-promote-interest]');
-        const pursuing = promote.querySelector('[data-promote-pursuing]');
-        text(interest, 'Put on my mind');
-        text(pursuing, 'Pursue this');
-        const full = activeMindCount() >= 3;
-        if (interest) {
-          interest.disabled = full;
-          interest.title = full ? 'All three On My Mind slots are occupied. Make one dormant or close it first.' : '';
-        }
-        if (pursuing) {
-          pursuing.disabled = full;
-          pursuing.title = full ? 'All three On My Mind slots are occupied. Make one dormant or close it first.' : '';
-        }
+      // Keep the original promotion rule, but do not read the presentation label.
+      promote.hidden = state !== 'waiting_player';
+      if (!promote.hidden) {
+        text(promote.querySelector(':scope > span'), 'Does this matter beyond the question?');
+        text(promote.querySelector('[data-promote-interest]'), 'Put on my mind');
+        text(promote.querySelector('[data-promote-pursuing]'), 'Pursue this');
       }
     }
-
-    const waiting = card.querySelector('.interest-waiting span');
-    if (waiting) {
-      if (state.includes('WAITING ON PLAYER')) {
-        text(waiting, 'The GM has replied. Ask a follow-up, close the question if that answers it, or make it one of your three priorities if you want to act on it.');
-      } else if (state.includes('WAITING ON GM')) {
-        text(waiting, 'Your question is with the GM. You can ask other questions while this one is waiting.');
-      } else if (state.includes('PLAY AT TABLE')) {
-        text(waiting, 'The answer would reveal something better discovered in play. This question will be picked up during a game session.');
-      }
-    }
-
-    const close = card.querySelector('[data-close-player-goal]');
-    if (close) text(close, 'Answered / close question');
-
-    const replyLabel = card.querySelector('.interest-reply-form label');
-    if (replyLabel) text(replyLabel, 'Ask a follow-up');
+    text(card.querySelector('[data-close-player-goal]'), 'Answered / close question');
+    // Reply label, waiting banner and send button belong to player-goals-system-filter.
   }
 
   function enhancePlayer() {
@@ -136,7 +112,7 @@
 
     const hint = host.querySelector('.goal-hint');
     if (hint && document.body.dataset.gmPreview !== 'true') {
-      text(hint, `${Math.min(activeMindCount(), 3)}/3 On My Mind slots used · questions do not use these slots`);
+      text(hint, `${activeMindCount()} current interests · one active pursuit · questions are separate`);
     }
   }
 
@@ -145,16 +121,12 @@
     const form = card.querySelector('.gm-interest-reply');
     if (!form) return;
 
-    const reply = form.querySelector('[data-send-kind="reply"]');
     const lead = form.querySelector('[data-send-kind="lead"]');
     const table = form.querySelector('[data-send-kind="table"]');
-    text(reply, isQuestion ? 'Answer now' : 'Reply');
     text(lead, 'Give lead');
     text(table, isQuestion ? 'Discover in play' : 'Play at table');
 
     if (isQuestion) {
-      const label = form.querySelector('label');
-      if (label) text(label, 'Respond to this question');
       let note = card.querySelector('.gm-question-flow-note');
       if (!note) {
         note = document.createElement('div');

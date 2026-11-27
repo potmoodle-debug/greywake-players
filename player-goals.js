@@ -168,7 +168,7 @@
     const playerName = CHARACTER_NAMES[goal.character_slug] || user.character || goal.character_slug;
     const canReply = !resolved && goal.thread_state !== 'play_at_table' && !isPreview;
     const noun = isQuestion(goal) ? 'question' : 'interest';
-    return `<article class="interest-thread${resolved ? ' interest-thread-resolved' : ''}" data-goal-id="${goal.id}" data-entry-kind="${isQuestion(goal) ? 'question' : 'interest'}">
+    return `<article class="interest-thread${resolved ? ' interest-thread-resolved' : ''}" data-goal-id="${goal.id}" data-entry-kind="${isQuestion(goal) ? 'question' : 'interest'}" data-thread-state="${esc(goal.thread_state || 'waiting_gm')}">
       <div class="interest-thread-head"><div><span class="interest-status">${esc(statusLabel(goal))}</span><h3>${esc(goal.goal_text)}</h3></div><span class="interest-waiting-pill">${esc(threadStateLabel(goal.thread_state))}</span></div>
       ${sourceMarkup(goal)}${conversationMarkup(goal, messages, playerName)}${waitingBanner(goal)}${promotionMarkup(goal, isPreview)}
       ${canReply ? `<form class="interest-reply-form" data-player-reply="${goal.id}"><label for="playerReply-${goal.id}">Reply to this ${noun}</label><textarea id="playerReply-${goal.id}" maxlength="${MAX_REPLY_LENGTH}" rows="3" placeholder="What does ${esc(playerName)} ask, think, investigate or want to do next?"></textarea><div class="interest-reply-actions"><button type="submit">Send reply</button><span>The GM will see this between games.</span></div></form>` : ''}

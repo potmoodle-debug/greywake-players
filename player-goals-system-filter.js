@@ -90,7 +90,7 @@
 
       const resolved = card.classList.contains('interest-thread-resolved');
       const pill = card.querySelector('.interest-waiting-pill');
-      const atTable = (pill?.textContent || '').toUpperCase().includes('PLAY AT TABLE');
+      const atTable = card.dataset.threadState === 'play_at_table' || (pill?.textContent || '').toUpperCase().includes('PLAY AT TABLE');
       if (!resolved && !atTable) setText(pill, 'OPEN CONVERSATION');
 
       const banner = card.querySelector('.interest-waiting');
@@ -121,7 +121,7 @@
   function ensureInformationFlow() {
     if (document.querySelector('script[data-player-information-flow]')) return;
     const script = document.createElement('script');
-    script.src = 'player-information-flow.js?v=info1';
+    script.src = 'player-information-flow.js?v=info2';
     script.defer = true;
     script.dataset.playerInformationFlow = 'true';
     document.head.appendChild(script);
@@ -136,7 +136,12 @@
   }, true);
 
   const host = document.getElementById('playerGoals');
-  if (host) new MutationObserver(() => requestAnimationFrame(makeQuestionsConversational)).observe(host, { childList: true, subtree: true });
+  let scheduled = false;
+  if (host) new MutationObserver(() => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => { scheduled = false; makeQuestionsConversational(); });
+  }).observe(host, { childList: true, subtree: true });
 
   window.addEventListener('greywake:engagement-changed', makeQuestionsConversational);
   window.addEventListener('greywake:player-ready', makeQuestionsConversational);
