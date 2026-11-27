@@ -21,7 +21,22 @@
     state.sources[source]=next;
     return state;
   }
-  window.GreywakeCatchupModel={fresh,scan,hash};
+  // A content migration is not a fictional discovery. Rebase migrated historical
+  // record fingerprints once, preserving an already-unread record with its safe
+  // current text, and leaving replies and other feeds untouched.
+  function baseline(state,source,items,revision,at){
+    if(!revision||state.archiveBaseline===revision)return;
+    const prior=state.sources[source];if(prior){
+      for(const item of items.filter(x=>x.managed&&!x.publishedAt)){
+        const fingerprint=hash(JSON.stringify([item.title,item.sections,item.image,item.route,item.summary]));
+        prior[item.id]={fingerprint,sections:item.sections||[],image:item.image||''};
+        const key=source+':'+item.id,old=state.pending[key];
+        if(old)state.pending[key]={...item,key,source,revision:fingerprint,label:old.label||'Updated',detectedAt:old.detectedAt||at};
+      }
+    }
+    state.archiveBaseline=revision;
+  }
+  window.GreywakeCatchupModel={fresh,scan,hash,baseline};
   if(typeof document==='undefined')return;
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let character='',state=null,storageKey='',previousVisit=null,queued=false,filter='all',lastRoute=null,available={};
@@ -54,7 +69,7 @@
       if(window.GreywakeKnowledgeView?.isManaged(id)){
         const view=window.GreywakeKnowledgeView.get(id);if(!view)return[];
         const sections=view.claims.map(c=>c.body);
-        return [{id,title:view.title,kind:r.category||'Known record',route:'#/record/'+encodeURIComponent(id),sections,summary:sections[0]||'',image:window.GreywakeArchiveAccess?.mediaAllowed(id)?media(id):'',publishedAt:view.claims.map(c=>c.discovered||'').sort().at(-1)||''}];
+        return [{id,managed:true,title:view.title,kind:r.category||'Known record',route:'#/record/'+encodeURIComponent(id),sections,summary:sections[0]||'',image:window.GreywakeArchiveAccess?.mediaAllowed(id)?media(id):'',publishedAt:view.claims.map(c=>c.discovered||'').sort().at(-1)||''}];
       }
       if(r.gmOnly||r.dmOnly||/^(GM|DM)(\b|[- ])/i.test(r.category||''))return[];
       const known=(r.knownTo||[]).map(x=>String(x).toLowerCase());
@@ -138,7 +153,7 @@
     panel.querySelector('[data-update-all]')?.addEventListener('click',()=>{state.pending={};save();render();});
     panel.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>img.remove(),{once:true}));
   }
-  function scanPage(){queued=false;if(!load())return;const at=new Date().toISOString();if(!window.GREYWAKE_KNOWLEDGE_PROVIDER||window.GreywakeKnowledgeView?.ready)scan(state,'records',recordItems(),at);const personal=personalItems();if(personal){available.personal=new Set(personal.map(item=>item.id));scan(state,'personal',personal,at);}save();render();}
+  function scanPage(){queued=false;if(!load())return;const at=new Date().toISOString();if(!window.GREYWAKE_KNOWLEDGE_PROVIDER||window.GreywakeKnowledgeView?.ready){const items=recordItems();baseline(state,'records',items,window.GREYWAKE_KNOWLEDGE_PROVIDER?.baselineRevision,at);scan(state,'records',items,at);}const personal=personalItems();if(personal){available.personal=new Set(personal.map(item=>item.id));scan(state,'personal',personal,at);}save();render();}
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(scanPage);}
   window.GreywakeCatchup={refresh:schedule,open:()=>window.GreywakeNavigation.navigate('#/updates')};
   window.GreywakeNavigation.register('catchup',render);

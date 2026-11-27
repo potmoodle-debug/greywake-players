@@ -40,6 +40,7 @@
   const oldTitles=new Set([...(registry.legacyCards||[]),...registry.records.flatMap(r=>r.legacyCards||[])]);
   window.GREYWAKE_KNOWLEDGE_PROVIDER={
     managedRecordKeys:registry.records.map(r=>r.key),
+    baselineRevision:registry.baselineRevision||'',
     allowNewRecords:true, categories:[...categories],registerVisible,resetVisible,
     mediaAllowed:(key,record)=>{const r=records.get(key);return !!r&&(r.publicMedia===true||record?.claims.some(c=>c.id===r.mediaClaimId||r.mediaClaimIds?.includes(c.id)))},
     kindFor:key=>records.get(key)?.kind||dynamic.get(key)?.kind,

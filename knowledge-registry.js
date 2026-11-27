@@ -1,5 +1,6 @@
 /* Public legacy alias metadata only. Existing archive names; never claim text or new private subject names. */
 window.GREYWAKE_KNOWLEDGE_REGISTRY={
+  "baselineRevision": "archive-v2",
   "records": [
     {
       "key": "Foldling",
