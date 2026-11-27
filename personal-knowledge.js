@@ -346,7 +346,7 @@
     if(view&&config){
       const h=document.createElement('section');h.className='personal-group';
       const title=document.createElement('h3');title.textContent='Current character knowledge';h.appendChild(title);
-      if(!view.ready){const p=document.createElement('p');p.textContent=view.status==='error'?'Character knowledge could not be loaded. Open a record to retry.':'Loading your character knowledge…';h.appendChild(p)}
+      if(!view.ready){const p=document.createElement('p');p.textContent=view.status==='error'?'Character knowledge could not be loaded. Open a record to retry.':'Loading your character knowledge…';h.appendChild(p);if(view.status==='error'){const retry=document.createElement('button');retry.type='button';retry.textContent='Retry';retry.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('greywake:knowledge-retry')));h.appendChild(retry)}}
       else{
         const grid=document.createElement('div');grid.className='related-grid';
         for(const r of view.list().filter(r=>config.includePersonal(r.recordKey))){

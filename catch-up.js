@@ -117,7 +117,11 @@
     const selected=items.filter(x=>filter==='all'||(filter==='replies'?x.kind==='GM reply':filter==='personal'?x.source==='personal':x.source!=='personal'&&x.kind!=='GM reply'));
     const first=!previousVisit;
     const allowed=new Set(recordItems().map(item=>item.id));
-    const latest=(window.GREYWAKE_DISCOVERIES||[]).filter(d=>allowed.has(d.note)&&!window.GreywakeKnowledgeView?.isManaged(d.note)).slice(0,3).map(d=>({title:d.title,kind:d.kind,route:'#/record/'+encodeURIComponent(d.note),summary:d.text,label:'Known discovery',image:media(d.note)||(/^(assets\/|https:\/\/)/.test(d.image||'')?d.image:'')}));
+    const latest=(window.GREYWAKE_DISCOVERIES||[]).filter(d=>allowed.has(d.note)).slice(0,3).map(d=>{
+      const projection=window.GreywakeKnowledgeView?.isManaged(d.note)?window.GreywakeKnowledgeView.get(d.note):null;
+      const summary=projection?(projection.claims.find(c=>c.visibility==='party')||projection.claims.find(c=>c.visibility!=='common')||projection.claims[0])?.body:d.text;
+      return {title:d.title,kind:d.kind,route:'#/record/'+encodeURIComponent(d.note),summary:summary||'',label:'Known discovery',image:projection?'':media(d.note)||(/^(assets\/|https:\/\/)/.test(d.image||'')?d.image:'')};
+    });
     const signature=JSON.stringify([character,previousVisit,filter,items,latest]);
     if(panel.dataset.signature===signature){if(entered)panel.querySelector('h1')?.focus({preventScroll:true});return;}
     panel.dataset.signature=signature;

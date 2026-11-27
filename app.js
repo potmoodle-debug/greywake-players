@@ -90,14 +90,16 @@ function buildNav(filter=''){
    nav.appendChild(g);resultCount+=m.length;
  }
  if(terms.length&&!resultCount){const empty=document.createElement('p');empty.className='nav-empty';empty.textContent='No known records match that search.';nav.appendChild(empty)}
- if(searchStatus)searchStatus.textContent=terms.length?`${resultCount} ${resultCount===1?'record':'records'} found`:'';
+ if(searchStatus){searchStatus.textContent=terms.length?`${resultCount} ${resultCount===1?'record':'records'} found`:'';if(!gmRecordAccess()&&window.GreywakeKnowledgeView?.status==='error'){const retry=document.createElement('button');retry.type='button';retry.textContent='Retry character knowledge';retry.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('greywake:knowledge-retry')));searchStatus.appendChild(retry)}}
 }
 
 function renderDiscoveries(){
  const grid=document.getElementById('discoveryGrid');if(!grid)return;grid.innerHTML='';
- DISC.filter(d=>playerRecordAllowed(d.note)&& (gmRecordAccess()||!window.GreywakeKnowledgeView?.isManaged(d.note))).forEach(d=>{
+ DISC.filter(d=>playerRecordAllowed(d.note)).forEach(d=>{
+   const projection=!gmRecordAccess()&&window.GreywakeKnowledgeView?.isManaged(d.note)?window.GreywakeKnowledgeView.get(d.note):null;
+   const summary=projection?(projection.claims.find(c=>c.visibility==='party')||projection.claims.find(c=>c.visibility!=='common')||projection.claims[0])?.body:d.text;
    const b=document.createElement('button');b.className='discovery-card text-only';b.dataset.note=d.note;b.onclick=()=>go(routeFor(d.note));
-   b.innerHTML=`<div><small>${d.kind}</small><strong>${d.title}</strong><p>${d.text}</p><em>${d.when}</em></div>`;
+   b.innerHTML=`<div><small>${locationLabelHTML(d.kind)}</small><strong>${locationLabelHTML(d.title)}</strong><p>${locationLabelHTML(summary||'Open your record')}</p><em>${locationLabelHTML(d.when||'')}</em></div>`;
    grid.appendChild(b);
  });
 }
